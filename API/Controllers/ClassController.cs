@@ -53,8 +53,7 @@ namespace API
         {
             List<Class> classes = await _classRepo.GetAllClasses();
             return Ok(new { sucess = true, message = "class fetch successfully", data = classes });
-        }
-
+        }       
         #endregion
 
         #region GetOne
