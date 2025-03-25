@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace Repo.Interfaces
 {
-    public interface IInstructorRepository
+    public interface IInstructorInterface
     {
         public Task<bool> RegisterInstructor(Instructor instructor);
         public Task<bool> IsEmailExists(string email);
