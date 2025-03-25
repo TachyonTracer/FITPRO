@@ -1,5 +1,6 @@
 using System.Text.Json;
 using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Http;
 
 namespace Repo;
 public class User
@@ -47,17 +48,20 @@ public class User
     [StringLength(200, ErrorMessage = "Medical condition must not exceed 200 characters")]
     public string medicalCondition { get; set; }
 
-    [Url(ErrorMessage = "Invalid URL format")]
     public string profileImage { get; set; }
 
     [Required(ErrorMessage = "Creation date is required")]
     public DateTime createdAt { get; set; } = DateTime.UtcNow;
 
-    public bool isActive { get; set; } = false;
+    public bool status { get; set; } = false;
 
     [StringLength(100, ErrorMessage = "Activation token must not exceed 100 characters")]
     public string activationToken { get; set; }
 
     [DataType(DataType.DateTime)]
     public DateTime? activatedOn { get; set; }
+
+
+    public IFormFile profileImageFile { get; set; }
+
 }
