@@ -13,7 +13,7 @@ CREATE TABLE t_User (
     c_medicalcondition TEXT,
     c_profileimage TEXT,
     c_createdat TIMESTAMP WITHOUT TIME ZONE,
-    c_ BOOLEAN DEFAULT FALSE,
+    c_status BOOLEAN DEFAULT FALSE,
     c_activationtoken VARCHAR(150),
     c_activatedon TIMESTAMP WITHOUT TIME ZONE
 );

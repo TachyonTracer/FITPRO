@@ -77,6 +77,11 @@ builder.Services.AddSession(options =>
     options.Cookie.HttpOnly = true;
     options.Cookie.IsEssential = true;
 });
+
+#region add singleton for Auth
+builder.Services.AddScoped<IAuthInterface, AuthRepo>();
+#endregion
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -100,7 +105,7 @@ var summaries = new[]
 
 app.MapGet("/weatherforecast", () =>
 {
-    var forecast =  Enumerable.Range(1, 5).Select(index =>
+    var forecast = Enumerable.Range(1, 5).Select(index =>
         new WeatherForecast
         (
             DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
