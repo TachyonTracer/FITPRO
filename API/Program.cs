@@ -77,6 +77,9 @@ builder.Services.AddSession(options =>
     options.Cookie.HttpOnly = true;
     options.Cookie.IsEssential = true;
 });
+
+builder.Services.AddScoped<IInstructorInterface, InstructorRepo>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
