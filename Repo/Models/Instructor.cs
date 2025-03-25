@@ -1,6 +1,7 @@
 
 using System.Text.Json;
 using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Http;
 
 
 namespace Repo;
@@ -46,7 +47,6 @@ public class Instructor
     [Required(ErrorMessage = "Certificates are required")]
     public JsonDocument certificates { get; set; }
 
-    [Url(ErrorMessage = "Invalid URL format")]
     public string profileImage { get; set; }
 
     [StringLength(100, ErrorMessage = "Association must not exceed 100 characters")]
@@ -67,5 +67,10 @@ public class Instructor
 
     [DataType(DataType.DateTime)]
     public DateTime? activatedOn { get; set; }
+
+    public IFormFile profileImageFile { get; set; }
+    public IFormFile idProofFile { get; set; }
+
+    public IFormFile[] certificateFiles { get; set; }
 }
 
