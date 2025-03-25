@@ -1,5 +1,6 @@
 using System.Text.Json;
 using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Http;
 
 namespace Repo;
 public class Class
@@ -64,4 +65,7 @@ public class Class
     [Required(ErrorMessage = "Fee is required")]
     [Range(0, 100000, ErrorMessage = "Fee must be between 0 and 100000")]
     public decimal fee { get; set; }
+    public int availableCapacity { get; set; }
+
+    public IFormFile[] assetFiles { get; set; }
 }
