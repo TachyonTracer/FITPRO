@@ -13,7 +13,7 @@ CREATE TABLE t_User (
     c_medicalcondition TEXT,
     c_profileimage TEXT,
     c_createdat TIMESTAMP WITHOUT TIME ZONE,
-    c_status BOOLEAN DEFAULT FALSE,
+    c_ BOOLEAN DEFAULT FALSE,
     c_activationtoken VARCHAR(150),
     c_activatedon TIMESTAMP WITHOUT TIME ZONE
 );
@@ -67,4 +67,13 @@ CREATE TABLE t_Bookings (
     c_classid INT REFERENCES t_Class(c_classid) ON DELETE CASCADE,
     c_createdat TIMESTAMP WITHOUT TIME ZONE,
     c_paymentstatus VARCHAR(20)
+);
+
+CREATE TABLE t_reset_password (
+    c_resetid SERIAL PRIMARY KEY,
+    c_userid INT NOT NULL,
+    c_otp INT NOT NULL,
+    c_expiry_at TIMESTAMP, 
+    c_role VARCHAR(100) NOT NULL,
+    c_created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
