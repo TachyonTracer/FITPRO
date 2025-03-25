@@ -1,5 +1,6 @@
 using System.Text.Json;
 using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Http;
 
 namespace Repo;
 public class User
@@ -52,7 +53,7 @@ public class User
     [Required(ErrorMessage = "Creation date is required")]
     public DateTime createdAt { get; set; } = DateTime.UtcNow;
 
-    public bool isActive { get; set; } = false;
+    public bool status { get; set; } = false;
 
     [StringLength(100, ErrorMessage = "Activation token must not exceed 100 characters")]
     public string activationToken { get; set; }
