@@ -46,7 +46,7 @@ public class ClassRepo : IClassInterface
 
                             duration = reader["c_duration"] == DBNull.Value ? 0 : Convert.ToInt32(reader["c_duration"]),
                             maxCapacity = reader["c_maxcapacity"] == DBNull.Value ? 0 : Convert.ToInt32(reader["c_maxcapacity"]),
-                            // availableCapacity = reader["c_availablecapacity"] == DBNull.Value ? 0 : Convert.ToInt32(reader["c_availablecapacity"]),
+                            availableCapacity = reader["c_availablecapacity"] == DBNull.Value ? 0 : Convert.ToInt32(reader["c_availablecapacity"]),
                             requiredEquipments = reader["c_requiredequipments"].ToString(),
                             createdAt = Convert.ToDateTime(reader["c_createdat"]),
                             status = reader["c_status"].ToString(),
@@ -102,7 +102,7 @@ public class ClassRepo : IClassInterface
 
                             duration = reader["c_duration"] == DBNull.Value ? 0 : Convert.ToInt32(reader["c_duration"]),
                             maxCapacity = reader["c_maxcapacity"] == DBNull.Value ? 0 : Convert.ToInt32(reader["c_maxcapacity"]),
-                            // availableCapacity = reader["c_availablecapacity"] == DBNull.Value ? 0 : Convert.ToInt32(reader["c_availablecapacity"]),
+                            availableCapacity = reader["c_availablecapacity"] == DBNull.Value ? 0 : Convert.ToInt32(reader["c_availablecapacity"]),
                             requiredEquipments = reader["c_requiredequipments"].ToString(),
                             createdAt = Convert.ToDateTime(reader["c_createdat"]),
                             status = reader["c_status"].ToString(),
@@ -157,7 +157,7 @@ public class ClassRepo : IClassInterface
 
                             duration = reader["c_duration"] == DBNull.Value ? 0 : Convert.ToInt32(reader["c_duration"]),
                             maxCapacity = reader["c_maxcapacity"] == DBNull.Value ? 0 : Convert.ToInt32(reader["c_maxcapacity"]),
-                            // availableCapacity = reader["c_availablecapacity"] == DBNull.Value ? 0 : Convert.ToInt32(reader["c_availablecapacity"]),
+                             availableCapacity = reader["c_availablecapacity"] == DBNull.Value ? 0 : Convert.ToInt32(reader["c_availablecapacity"]),
                             requiredEquipments = reader["c_requiredequipments"].ToString(),
                             createdAt = Convert.ToDateTime(reader["c_createdat"]),
                             status = reader["c_status"].ToString(),
