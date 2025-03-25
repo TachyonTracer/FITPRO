@@ -1,5 +1,7 @@
 using System.Text.Json;
 using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Http;
+using System.Numerics;
 
 namespace Repo;
 public class User
@@ -47,8 +49,11 @@ public class User
     [StringLength(200, ErrorMessage = "Medical condition must not exceed 200 characters")]
     public string medicalCondition { get; set; }
 
-    [Url(ErrorMessage = "Invalid URL format")]
+    // [Url(ErrorMessage = "Invalid URL format")]
     public string profileImage { get; set; }
+    
+    [Display(Name = "Profile Image")]
+    public IFormFile profileImageFile { get; set; }
 
     [Required(ErrorMessage = "Creation date is required")]
     public DateTime createdAt { get; set; } = DateTime.UtcNow;

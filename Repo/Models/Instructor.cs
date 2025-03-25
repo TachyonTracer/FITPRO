@@ -1,6 +1,7 @@
 
 using System.Text.Json;
 using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Http;
 
 
 namespace Repo;
@@ -46,8 +47,11 @@ public class Instructor
     [Required(ErrorMessage = "Certificates are required")]
     public JsonDocument certificates { get; set; }
 
-    [Url(ErrorMessage = "Invalid URL format")]
+    // [Url(ErrorMessage = "Invalid URL format")]
     public string profileImage { get; set; }
+
+    [Display(Name = "Profile Image")]
+    public IFormFile profileImageFile { get; set; }
 
     [StringLength(100, ErrorMessage = "Association must not exceed 100 characters")]
     public string association { get; set; }
@@ -59,7 +63,7 @@ public class Instructor
     [StringLength(20, ErrorMessage = "Status must not exceed 20 characters")]
     public string status { get; set; }
 
-    [Url(ErrorMessage = "Invalid URL format")]
+    // [Url(ErrorMessage = "Invalid URL format")]
     public string idProof { get; set; }
 
     [StringLength(100, ErrorMessage = "Activation token must not exceed 100 characters")]

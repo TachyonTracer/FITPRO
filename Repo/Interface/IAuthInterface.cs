@@ -7,7 +7,8 @@ namespace Repo
 {
     public interface IAuthInterface
     {
-        public Task<bool> RegisterUser(User user);
-        public Task<bool> IsEmailExists(string email);  
+        Task<bool> RegisterUserAsync(User user);
+        Task<bool> RegisterInstructorAsync(Instructor instructor);
+        Task<bool> IsEmailExists(string email);
     }
 }
