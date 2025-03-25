@@ -1,6 +1,7 @@
 
 using System.Text.Json;
 using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Http;
 
 
 namespace Repo;
@@ -70,6 +71,6 @@ public class Instructor
     public IFormFile profileImageFile { get; set; }
     public IFormFile idProofFile { get; set; }
 
-    public IformFile[] certificateFiles { get; set; }
+    public IFormFile[] certificateFiles { get; set; }
 }
 
