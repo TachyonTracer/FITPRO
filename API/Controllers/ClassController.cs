@@ -13,6 +13,39 @@ namespace API
         {
             _classRepo = classRepo;
         }
+
+        #region Class:Booking
+        [HttpPost("BookClass")]
+public async Task<IActionResult> BookClass([FromBody] Booking request)
+{
+    if (!ModelState.IsValid)
+    {
+        return BadRequest(new 
+        { 
+            success = false, 
+            message = "Invalid request data",
+            errors = ModelState.Values.SelectMany(v => v.Errors.Select(e => e.ErrorMessage))
+        });
+    }
+
+    var response = await _classRepo.BookClass(request);
+    
+    if (!response.success)
+    {
+        return BadRequest(new 
+        { 
+            success = false, 
+            message = response.message 
+        });
+    }
+
+    return Ok(new 
+    { 
+        success = true, 
+        message = response.message 
+    });
+}
+        #endregion
         #region GetAll
         [HttpGet]
         public async Task<IActionResult> GetAll()

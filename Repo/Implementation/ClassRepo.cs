@@ -1,10 +1,8 @@
-using Microsoft.AspNetCore.Http;
 
-using Repo;
 using Npgsql;
-using Newtonsoft.Json;
 using System.Text.Json;
 using System.Data;
+namespace Repo;
 public class ClassRepo : IClassInterface
 {
     public readonly NpgsqlConnection _conn;
@@ -12,6 +10,91 @@ public class ClassRepo : IClassInterface
     {
         _conn = conn;
     }
+
+
+    #region Book:Class
+    public async Task<Response> BookClass(Booking req)
+{
+    Response response = new Response();
+    try
+    {
+        if (_conn.State == ConnectionState.Closed)
+        {
+            await _conn.OpenAsync();
+        }
+
+        // Start a transaction
+        using (var transaction = await _conn.BeginTransactionAsync())
+        {
+            try
+            {
+                // Check if class exists and has available capacity
+                using (var checkCmd = new NpgsqlCommand(
+                    "SELECT c_availablecapacity FROM t_Class WHERE c_classid = @classId FOR UPDATE", _conn, transaction))
+                {
+                    checkCmd.Parameters.AddWithValue("@classId", req.classId);
+                    var result = await checkCmd.ExecuteScalarAsync();
+                    
+                    if (result == null)
+                    {
+                        response.message = "Class not found";
+                        return response;
+                    }
+
+                    int availableCapacity = Convert.ToInt32(result);
+                    if (availableCapacity <= 0)
+                    {
+                        response.message = "No available seats in this class";
+                        return response;
+                    }
+                }
+
+                // Create booking
+                using (var bookingCmd = new NpgsqlCommand(
+                    "INSERT INTO t_Bookings (c_bookingid, c_userid, c_classid, c_createdat) " +
+                    "VALUES (DEFAULT, @userId, @classId, @createdAt) RETURNING c_bookingid", _conn, transaction))
+                {
+                    bookingCmd.Parameters.AddWithValue("@userId", req.userId);
+                    bookingCmd.Parameters.AddWithValue("@classId", req.classId);
+                    bookingCmd.Parameters.AddWithValue("@createdAt", req.createdAt);
+                    await bookingCmd.ExecuteScalarAsync();
+                }
+
+                // Decrease available capacity
+                using (var updateCmd = new NpgsqlCommand(
+                    "UPDATE t_Class SET c_availablecapacity = c_availablecapacity - 1 " +
+                    "WHERE c_classid = @classId", _conn, transaction))
+                {
+                    updateCmd.Parameters.AddWithValue("@classId", req.classId);
+                    await updateCmd.ExecuteNonQueryAsync();
+                }
+
+                // Commit transaction
+                await transaction.CommitAsync();
+                response.message = "Class booked successfully";
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync();
+                response.message = $"Booking failed: {ex.Message}";
+                return response;
+            }
+        }
+    }
+    catch (Exception ex)
+    {
+        response.message = $"Error connecting to database: {ex.Message}";
+    }
+    finally
+    {
+        if (_conn.State == ConnectionState.Open)
+        {
+            await _conn.CloseAsync();
+        }
+    }
+    return response;
+}
+    #endregion
 
     #region  User-Story :List Classes
     #region GetAllClasess
