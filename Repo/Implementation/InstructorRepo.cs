@@ -1,7 +1,8 @@
 using System.Data;
 using System.Text.Json;
 using Npgsql;
-using Repo;
+namespace Repo;
+
 
 public class InstructorRepo : IInstructorInterface
 {

@@ -1,4 +1,5 @@
-using Repo;
+namespace Repo;
+
 
 public interface IInstructorInterface
 {

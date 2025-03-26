@@ -15,6 +15,7 @@ namespace API
         }
         #region GetAll
         [HttpGet]
+        // [Authorize]
         public async Task<IActionResult> GetAll()
         {
             List<Class> classes = await _classRepo.GetAllClasses();
@@ -25,6 +26,7 @@ namespace API
 
         #region GetOne
         [HttpGet("GetOne")]
+        // [Authorize]
         public async Task<ActionResult> GetOne(string id)
         {
             var classes = await _classRepo.GetOne(id);
@@ -38,7 +40,8 @@ namespace API
         #endregion
 
         #region  GetClassById
-        [HttpGet("ClassesById")]
+        [HttpGet("ClassById")]
+        // [Authorize]
         public async Task<ActionResult> GetClassById(string id)
         {
             var classes = await _classRepo.GetClassById(id);

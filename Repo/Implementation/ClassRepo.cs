@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Http;
 
-using Repo;
+namespace Repo;
+
 using Npgsql;
 using Newtonsoft.Json;
 using System.Text.Json;
@@ -80,7 +81,7 @@ public class ClassRepo : IClassInterface
             {
                 await _conn.OpenAsync();
             }
-            using (var cmd = new NpgsqlCommand("SELECT * FROM t_Class WHERE c_instructorid = @c_instructorid", _conn))
+            using (var cmd = new NpgsqlCommand("SELECT * FROM t_Class WHERE c_instructorid = @c_instructorid AND c_status != 'suspended'", _conn))
             {
                 cmd.Parameters.AddWithValue("@c_instructorid", int.Parse(id));
                 using (var reader = await cmd.ExecuteReaderAsync())
