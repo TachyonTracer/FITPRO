@@ -16,42 +16,42 @@ namespace API
 
         #region Class:Booking
         [HttpPost("BookClass")]
-public async Task<IActionResult> BookClass([FromBody] Booking request)
-{
-    if (!ModelState.IsValid)
-    {
-        return BadRequest(new 
-        { 
-            success = false, 
-            message = "Invalid request data",
-            errors = ModelState.Values.SelectMany(v => v.Errors.Select(e => e.ErrorMessage))
-        });
-    }
+        public async Task<IActionResult> BookClass([FromBody] Booking request)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(new
+                {
+                    success = false,
+                    message = "Invalid request data",
+                    errors = ModelState.Values.SelectMany(v => v.Errors.Select(e => e.ErrorMessage))
+                });
+            }
 
-    var response = await _classRepo.BookClass(request);
-    
-    if (!response.success)
-    {
-        return BadRequest(new 
-        { 
-            success = false, 
-            message = response.message 
-        });
-    }
+            var response = await _classRepo.BookClass(request);
 
-    return Ok(new 
-    { 
-        success = true, 
-        message = response.message 
-    });
-}
+            if (!response.success)
+            {
+                return BadRequest(new
+                {
+                    success = false,
+                    message = response.message
+                });
+            }
+
+            return Ok(new
+            {
+                success = true,
+                message = response.message
+            });
+        }
         #endregion
         #region GetAll
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
             List<Class> classes = await _classRepo.GetAllClasses();
-            return Ok(new{sucess = true, message="class fetch successfully",data = classes});
+            return Ok(new { sucess = true, message = "class fetch successfully", data = classes });
         }
 
         #endregion
@@ -66,7 +66,7 @@ public async Task<IActionResult> BookClass([FromBody] Booking request)
                 return BadRequest(new { success = false, message = "There was no class found" });
 
             }
-            return Ok(new{sucess = true, message="class fetch successfully",data=classes});
+            return Ok(new { sucess = true, message = "class fetch successfully", data = classes });
         }
         #endregion
 
@@ -80,7 +80,20 @@ public async Task<IActionResult> BookClass([FromBody] Booking request)
                 return BadRequest(new { success = false, message = "There was no class found" });
 
             }
-            return Ok(new{sucess = true, message="class fetch successfully",data=classes});
+            return Ok(new { sucess = true, message = "class fetch successfully", data = classes });
+        }
+        #endregion
+
+        #region SoftDeleteClass
+        [HttpDelete("soft-delete/{classId}")]
+        public async Task<IActionResult> SoftDeleteClass(int classId)
+        {
+            bool result = await _classRepo.SoftDeleteClass(classId);
+            if (result)
+            {
+                return Ok(new {success = true, message = "Class soft deleted successfully" });
+            }
+            return BadRequest(new {success=false, message = "Class is already suspended" });
         }
         #endregion
 
