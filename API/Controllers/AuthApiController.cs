@@ -119,7 +119,7 @@ namespace API.Controllers
                     }
 
                     // Handle certificate files
-                    if (instructor.certificateFile != null && instructor.certificateFile.Length > 0)
+                    if (instructor.certificateFiles != null && instructor.certificateFiles.Length > 0)
                     {
                         try
                         {
@@ -133,9 +133,9 @@ namespace API.Controllers
                             // Process each specialization separately
                             foreach (var spec in specializations)
                             {
-                                for (int i = 0; i < instructor.certificateFile.Length; i++)
+                                for (int i = 0; i < instructor.certificateFiles.Length; i++)
                                 {
-                                    var file = instructor.certificateFile[i];
+                                    var file = instructor.certificateFiles[i];
                                     if (file != null && file.Length > 0)
                                     {
                                         // Create unique filename for each specialization

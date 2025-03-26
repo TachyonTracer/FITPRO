@@ -44,20 +44,16 @@ public class Instructor
     public string specialization { get; set; }
 
     // [Required(ErrorMessage = "Certificates are required")]
-    public JsonDocument? certificates { get; set; } // Make nullable
+    public JsonDocument certificates { get; set; }  = JsonDocument.Parse("{}");
 
     public string? profileImage { get; set; }
 
 
     // Added ID Proof file property
     [Display(Name = "ID Proof")]
-    public IFormFile idProofFile { get; set; }
+    public IFormFile? idProofFile { get; set; }
 
-    // Added Certificate file property
-    [Display(Name = "Certificate")]
-    public IFormFile[] certificateFile { get; set; }
-
-    public string idProof { get; set; }
+    public string? idProof { get; set; }
 
     [StringLength(100, ErrorMessage = "Association must not exceed 100 characters")]
     public string association { get; set; }
@@ -77,6 +73,7 @@ public class Instructor
 
     public IFormFile? profileImageFile { get; set; }
 
+    [Display(Name = "Certificate")]
     public IFormFile[]? certificateFiles { get; set; }
 }
 
