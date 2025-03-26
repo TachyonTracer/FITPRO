@@ -8,7 +8,7 @@ using Microsoft.Extensions.Logging;
 
 namespace MVC.Controllers
 {
-    [Route("[controller]")]
+
     public class AuthController : Controller
     {
         private readonly ILogger<AuthController> _logger;
@@ -18,15 +18,24 @@ namespace MVC.Controllers
             _logger = logger;
         }
 
+
         public IActionResult Index()
         {
             return View();
         }
+
+        #region Forgot Password
+        public IActionResult ForgotPassword()
+        {
+            return View();
+        }
+        #endregion
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {
             return View("Error!");
         }
+
     }
 }
