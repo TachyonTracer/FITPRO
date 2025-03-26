@@ -374,9 +374,6 @@ namespace Repo
 
                 await _conn.OpenAsync();
 
-                
-
-                
                 using (var command = new NpgsqlCommand(query, _conn))
                 {
                     command.Parameters.AddWithValue("@username", user.userName);

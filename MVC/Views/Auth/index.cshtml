@@ -1,0 +1,760 @@
+@{
+    ViewData["Title"] = "Student Registration";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background-color: #f5f5f5;
+        margin: 0;
+        padding: 20px;
+    }
+
+    .registration-container {
+        max-width: 800px;
+        margin: 0 auto;
+        background-color: white;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        padding: 30px;
+    }
+
+    h1 {
+        color: #333;
+        font-size: 24px;
+        margin-bottom: 20px;
+        text-align: center;
+    }
+
+    .k-wizard {
+        border: none;
+        box-shadow: none;
+    }
+
+    .k-wizard-step {
+        padding: 20px;
+    }
+
+    .role-selection {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 20px;
+    }
+
+    .role-option {
+        margin: 0 15px;
+    }
+
+    .role-option input {
+        margin-right: 5px;
+    }
+
+    .email-error {
+        color: red;
+        font-size: 12px;
+        margin-top: 5px;
+        display: none;
+    }
+
+    /* Style for Kendo Upload button */
+    .k-upload-button {
+        background-color: #007bff;
+        color: white;
+        padding: 8px 16px;
+        border-radius: 4px;
+        border: none;
+        cursor: pointer;
+    }
+
+    .k-upload-button:hover {
+        background-color: #0056b3;
+    }
+
+    .k-upload {
+        margin-top: 10px;
+    }
+
+    .k-dropzone {
+        border: 2px dashed #ccc;
+        padding: 20px;
+        text-align: center;
+        color: #666;
+        margin-top: 10px;
+    }
+
+    .k-dropzone:hover {
+        border-color: #007bff;
+        color: #007bff;
+    }
+</style>
+
+<div class="registration-container">
+    <h1>Registration Wizard</h1>
+    <div id="wizard"></div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            // Variables to store form data and selected role
+            let selectedRole = "user"; // Default to "user"
+            let emailValid = false; // Track email validity
+            let formDataStore = {
+                personalInfo: {},
+                detailsInfo: {},
+                profileImageInfo: {}
+            };
+
+            // Generate a random activation token (ideally should be done on the backend)
+            function generateActivationToken() {
+                return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+                    var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+                    return v.toString(16);
+                });
+            }
+
+            // Configuration for user details step
+            function getUserDetailsConfig() {
+                return {
+                    formData: {
+                        height: null,
+                        weight: null,
+                        goal: [],
+                        medicalCondition: []
+                    },
+                    items: [
+                        {
+                            field: "height",
+                            label: "Height (cm):",
+                            editor: "NumericTextBox",
+                            editorOptions: {
+                                format: "n0",
+                                min: 0,
+                                max: 300
+                            },
+                            validation: {
+                                min: 0,
+                                max: 300
+                            }
+                        },
+                        {
+                            field: "weight",
+                            label: "Weight (kg):",
+                            editor: "NumericTextBox",
+                            editorOptions: {
+                                format: "n2",
+                                min: 0,
+                                max: 500
+                            },
+                            validation: {
+                                min: 0,
+                                max: 500
+                            }
+                        },
+                        {
+                            field: "goal",
+                            label: "Fitness Goal:",
+                            editor: "MultiSelect",
+                            editorOptions: {
+                                dataSource: [
+                                    "Weight Loss",
+                                    "Muscle Gain",
+                                    "General Fitness",
+                                    "Endurance Training",
+                                    "Flexibility Improvement",
+                                    "Sports Specific"
+                                ],
+                                placeholder: "Select your goals..."
+                            },
+                            validation: { maxLength: 100 }
+                        },
+                        {
+                            field: "medicalCondition",
+                            label: "Medical Conditions:",
+                            editor: "MultiSelect",
+                            editorOptions: {
+                                dataSource: [
+                                    "Diabetes",
+                                    "High Blood Pressure",
+                                    "Heart Disease",
+                                    "Asthma",
+                                    "Arthritis",
+                                    "Back Pain",
+                                    "None"
+                                ],
+                                placeholder: "Select any conditions..."
+                            },
+                            validation: { maxLength: 200 }
+                        }
+                    ]
+                };
+            }
+
+            // Configuration for instructor details step
+            function getInstructorDetailsConfig() {
+                return {
+                    formData: {
+                        specialization: [],
+                        association: "",
+                        certificates: null,
+                        idProof: null
+                    },
+                    items: [
+                        {
+                            field: "specialization",
+                            label: "Specialization:",
+                            editor: "MultiSelect",
+                            editorOptions: {
+                                dataSource: [
+                                    "Yoga",
+                                    "Pilates",
+                                    "Weight Training",
+                                    "Cardio",
+                                    "CrossFit",
+                                    "Martial Arts",
+                                    "Dance",
+                                    "Nutrition"
+                                ],
+                                placeholder: "Select your specializations..."
+                            },
+                            validation: {
+                                required: true,
+                                maxLength: 100
+                            }
+                        },
+                        {
+                            field: "association",
+                            label: "Professional Association:",
+                            validation: { maxLength: 100 }
+                        },
+                        {
+                            field: "certificates",
+                            label: "Professional Certificates:",
+                            editor: "Upload",
+                            editorOptions: {
+                                multiple: true,
+                                validation: {
+                                    allowedExtensions: [".pdf", ".jpg", ".png"]
+                                },
+                                showFileList: true,
+                                dropZone: ".k-dropzone"
+                            },
+                            editor: function (container, options) {
+                                var input = $('<input type="file" />')
+                                    .appendTo(container)
+                                    .attr("name", options.field)
+                                    .kendoUpload({
+                                        multiple: true,
+                                        validation: {
+                                            allowedExtensions: [".pdf", ".jpg", ".png"]
+                                        },
+                                        showFileList: true,
+                                        dropZone: ".k-dropzone",
+                                        select: function (e) {
+                                            formDataStore.detailsInfo.certificates = e.files;
+                                        }
+                                    });
+                            },
+                            validation: { required: true }
+                        },
+                        {
+                            field: "idProof",
+                            label: "ID Proof:",
+                            editor: "Upload",
+                            editorOptions: {
+                                multiple: false,
+                                validation: {
+                                    allowedExtensions: [".pdf", ".jpg", ".png"]
+                                },
+                                showFileList: true,
+                                dropZone: ".k-dropzone"
+                            },
+                            editor: function (container, options) {
+                                var input = $('<input type="file" />')
+                                    .appendTo(container)
+                                    .attr("name", options.field)
+                                    .kendoUpload({
+                                        multiple: false,
+                                        validation: {
+                                            allowedExtensions: [".pdf", ".jpg", ".png"]
+                                        },
+                                        showFileList: true,
+                                        dropZone: ".k-dropzone",
+                                        select: function (e) {
+                                            formDataStore.detailsInfo.idProof = e.files;
+                                        }
+                                    });
+                            },
+                            validation: { required: true }
+                        }
+                    ]
+                };
+            }
+
+            // Create the wizard with only 3 steps
+            var wizard = $("#wizard").kendoWizard({
+                stepper: {
+                    indicator: true,
+                    label: true
+                },
+                steps: [
+                    // Step 1: Personal Information
+                    {
+                        title: "Personal Information",
+                        form: {
+                            formData: {
+                                role: "user",
+                                fullName: "",
+                                email: "",
+                                phone: "",
+                                gender: "",
+                                dateOfBirth: null,
+                                password: "",
+                                confirmPassword: ""
+                            },
+                            items: [
+                                {
+                                    field: "role",
+                                    label: "Select Role:",
+                                    editor: function (container) {
+                                        var roleContainer = $('<div class="role-selection">').appendTo(container);
+
+                                        $('<div class="role-option">').appendTo(roleContainer)
+                                            .append('<input type="radio" name="role" id="userRole" value="user" checked>')
+                                            .append('<label for="userRole">User</label>');
+
+                                        $('<div class="role-option">').appendTo(roleContainer)
+                                            .append('<input type="radio" name="role" id="instructorRole" value="instructor">')
+                                            .append('<label for="instructorRole">Instructor</label>');
+                                    }
+                                },
+                                {
+                                    field: "fullName",
+                                    label: "Full Name:",
+                                    validation: {
+                                        required: true,
+                                        minLength: 2,
+                                        maxLength: 50
+                                    },
+                                    editor: function (container, options) {
+                                        var input = $('<input type="text" />')
+                                            .appendTo(container)
+                                            .attr("name", options.field)
+                                            .kendoTextBox({
+                                                placeholder: "Enter your full name"
+                                            });
+
+                                        // Update formDataStore on change
+                                        input.on("change", function () {
+                                            formDataStore.personalInfo.fullName = $(this).val();
+                                        });
+                                    }
+                                },
+                                {
+                                    field: "email",
+                                    label: "Email:",
+                                    validation: {
+                                        required: true,
+                                        email: true
+                                    },
+                                    editor: function (container, options) {
+                                        var input = $('<input type="email" />')
+                                            .appendTo(container)
+                                            .attr("name", options.field)
+                                            .kendoTextBox({
+                                                placeholder: "Enter your email"
+                                            });
+
+                                        // Add email validation on blur
+                                        input.on("blur", function () {
+                                            var email = $(this).val();
+                                            if (email) {
+                                                $.ajax({
+                                                    url: "http://localhost:8080/api/AuthApi/check-email",
+                                                    method: "GET",
+                                                    data: { email: email },
+                                                    success: function (response) {
+                                                        if (response.exists) {
+                                                            emailValid = false;
+                                                            input.next(".email-error").remove();
+                                                            input.after('<span class="email-error">Email already registered</span>');
+                                                        } else {
+                                                            emailValid = true;
+                                                            input.next(".email-error").remove();
+                                                        }
+                                                    },
+                                                    error: function () {
+                                                        emailValid = false;
+                                                        input.next(".email-error").remove();
+                                                        input.after('<span class="email-error">Error checking email</span>');
+                                                    }
+                                                });
+                                            }
+                                        });
+
+                                        // Update formDataStore on change
+                                        input.on("change", function () {
+                                            formDataStore.personalInfo.email = $(this).val();
+                                        });
+                                    }
+                                },
+                                {
+                                    field: "phone",
+                                    label: "Phone Number:",
+                                    validation: {
+                                        required: true,
+                                        phone: true
+                                    },
+                                    editor: function (container, options) {
+                                        var input = $('<input type="text" />')
+                                            .appendTo(container)
+                                            .attr("name", options.field)
+                                            .kendoTextBox({
+                                                placeholder: "Enter your phone number"
+                                            });
+
+                                        // Update formDataStore on change
+                                        input.on("change", function () {
+                                            formDataStore.personalInfo.phone = $(this).val();
+                                        });
+                                    }
+                                },
+                                {
+                                    field: "gender",
+                                    label: "Gender:",
+                                    editor: function (container) {
+                                        var genderContainer = $('<div>').appendTo(container);
+
+                                        $('<div class="role-option">').appendTo(genderContainer)
+                                            .append('<input type="radio" name="gender" id="male" value="Male" checked>')
+                                            .append('<label for="male">Male</label>');
+
+                                        $('<div class="role-option">').appendTo(genderContainer)
+                                            .append('<input type="radio" name="gender" id="female" value="Female">')
+                                            .append('<label for="female">Female</label>');
+
+                                        $('<div class="role-option">').appendTo(genderContainer)
+                                            .append('<input type="radio" name="gender" id="other" value="Other">')
+                                            .append('<label for="other">Other</label>');
+
+                                        // Update formDataStore on change
+                                        genderContainer.find("input[name='gender']").on("change", function () {
+                                            formDataStore.personalInfo.gender = $(this).val();
+                                        });
+                                    },
+                                    validation: {
+                                        required: true
+                                    }
+                                },
+                                {
+                                    field: "dateOfBirth",
+                                    label: "Date of Birth:",
+                                    editor: "DatePicker",
+                                    validation: { required: true },
+                                    editorOptions: {
+                                        format: "yyyy-MM-dd"
+                                    },
+                                    editor: function (container, options) {
+                                        var input = $('<input />')
+                                            .appendTo(container)
+                                            .attr("name", options.field)
+                                            .kendoDatePicker({
+                                                format: "yyyy-MM-dd"
+                                            });
+
+                                        // Update formDataStore on change
+                                        input.on("change", function () {
+                                            formDataStore.personalInfo.dateOfBirth = $(this).val();
+                                        });
+                                    }
+                                },
+                                {
+                                    field: "password",
+                                    label: "Password:",
+                                    editor: function (container, options) {
+                                        var input = $('<input type="password" />')
+                                            .appendTo(container)
+                                            .attr("name", options.field)
+                                            .kendoTextBox({
+                                                placeholder: "Enter your password"
+                                            });
+
+                                        input.attr("data-val-required", "Password is required");
+                                        input.attr("data-val-minlength", "8");
+                                        input.attr("data-val-minlength-min", "8");
+                                        input.attr("data-val-regex", "Password must contain at least one uppercase letter, one lowercase letter, and one number");
+                                        input.attr("data-val-regex-pattern", "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)[a-zA-Z\\d]{8,}$");
+
+                                        // Update formDataStore on change
+                                        input.on("change", function () {
+                                            formDataStore.personalInfo.password = $(this).val();
+                                        });
+                                    },
+                                    validation: {
+                                        required: true,
+                                        minLength: 8,
+                                        pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/,
+                                        messages: {
+                                            required: "Password is required",
+                                            minLength: "Password must be at least 8 characters long",
+                                            pattern: "Password must contain at least one uppercase letter, one lowercase letter, and one number"
+                                        }
+                                    }
+                                },
+                                {
+                                    field: "confirmPassword",
+                                    label: "Confirm Password:",
+                                    editor: function (container, options) {
+                                        var input = $('<input type="password" />')
+                                            .appendTo(container)
+                                            .attr("name", options.field)
+                                            .kendoTextBox({
+                                                placeholder: "Confirm your password"
+                                            });
+
+                                        input.attr("data-val-required", "Please confirm your password");
+                                        input.attr("data-val-equalto", "Passwords do not match");
+                                        input.attr("data-val-equalto-other", "password");
+
+                                        // Update formDataStore on change
+                                        input.on("change", function () {
+                                            formDataStore.personalInfo.confirmPassword = $(this).val();
+                                        });
+                                    },
+                                    validation: {
+                                        required: true,
+                                        compare: "password",
+                                        messages: {
+                                            required: "Please confirm your password",
+                                            compare: "Passwords do not match"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    // Step 2: Role Specific Details (Dynamic based on role)
+                    {
+                        title: "Details",
+                        content: function () {
+                            var formConfig = selectedRole === "user" ? getUserDetailsConfig() : getInstructorDetailsConfig();
+                            var form = $("<form>").kendoForm({
+                                formData: formConfig.formData,
+                                items: formConfig.items
+                            });
+
+                            // Attach change handlers to update formDataStore
+                            form.find("[name='height']").on("change", function () {
+                                formDataStore.detailsInfo.height = $(this).val();
+                            });
+                            form.find("[name='weight']").on("change", function () {
+                                formDataStore.detailsInfo.weight = $(this).val();
+                            });
+                            form.find("[name='goal']").on("change", function () {
+                                formDataStore.detailsInfo.goal = $(this).data("kendoMultiSelect").value();
+                            });
+                            form.find("[name='medicalCondition']").on("change", function () {
+                                formDataStore.detailsInfo.medicalCondition = $(this).data("kendoMultiSelect").value();
+                            });
+                            form.find("[name='specialization']").on("change", function () {
+                                formDataStore.detailsInfo.specialization = $(this).data("kendoMultiSelect").value();
+                            });
+                            form.find("[name='association']").on("change", function () {
+                                formDataStore.detailsInfo.association = $(this).val();
+                            });
+                            form.find("[name='certificates']").on("select", function (e) {
+                                formDataStore.detailsInfo.certificates = e.files;
+                            });
+                            form.find("[name='idProof']").on("select", function (e) {
+                                formDataStore.detailsInfo.idProof = e.files;
+                            });
+
+                            return form;
+                        }
+                    },
+                    // Step 3: Profile Image
+                    {
+                        title: "Profile Image",
+                        form: {
+                            formData: {
+                                profileImage: null
+                            },
+                            items: [
+                                {
+                                    field: "profileImage",
+                                    label: "Upload Profile Picture:",
+                                    editor: "Upload",
+                                    editorOptions: {
+                                        multiple: false,
+                                        validation: {
+                                            allowedExtensions: [".jpg", ".png", ".jpeg"]
+                                        },
+                                        showFileList: true,
+                                        dropZone: ".k-dropzone"
+                                    },
+                                    editor: function (container, options) {
+                                        var input = $('<input type="file" />')
+                                            .appendTo(container)
+                                            .attr("name", options.field)
+                                            .kendoUpload({
+                                                multiple: false,
+                                                validation: {
+                                                    allowedExtensions: [".jpg", ".png", ".jpeg"]
+                                                },
+                                                showFileList: true,
+                                                dropZone: ".k-dropzone",
+                                                select: function (e) {
+                                                    formDataStore.profileImageInfo.profileImage = e.files;
+                                                }
+                                            });
+                                    },
+                                    validation: { required: true }
+                                }
+                            ]
+                        }
+                    }
+                ],
+                // Form submission
+                done: function (e) {
+                    e.preventDefault();
+
+                    // Check if email is valid before proceeding
+                    if (!emailValid) {
+                        alert("Please fix the email validation error before proceeding.");
+                        return;
+                    }
+
+                    // Create FormData object for file uploads
+                    var formData = new FormData();
+
+                    // Map personal info to form data
+                    formData.append("userName", formDataStore.personalInfo.fullName || ""); // For User
+                    formData.append("instructorName", formDataStore.personalInfo.fullName || ""); // For Instructor
+                    formData.append("email", formDataStore.personalInfo.email || "");
+                    formData.append("password", formDataStore.personalInfo.password || "");
+                    formData.append("confirmPassword", formDataStore.personalInfo.confirmPassword || "");
+                    formData.append("mobile", formDataStore.personalInfo.phone || "");
+                    formData.append("gender", formDataStore.personalInfo.gender || "Male"); // Default to "Male" if not set
+                    formData.append("dob", formDataStore.personalInfo.dateOfBirth || "");
+                    formData.append("activationToken", generateActivationToken()); // Generate a random token
+                    formData.append("status", selectedRole === "user" ? "false" : "pending"); // Default status for user and instructor
+
+                    // Map user-specific or instructor-specific details
+                    if (selectedRole === "user") {
+                        formData.append("height", formDataStore.detailsInfo.height || "");
+                        formData.append("weight", formDataStore.detailsInfo.weight || "");
+                        formData.append("goal", formDataStore.detailsInfo.goal ? formDataStore.detailsInfo.goal.join(", ") : "");
+                        formData.append("medicalCondition", formDataStore.detailsInfo.medicalCondition ? formDataStore.detailsInfo.medicalCondition.join(", ") : "");
+                    } else {
+                        formData.append("specialization", formDataStore.detailsInfo.specialization ? formDataStore.detailsInfo.specialization.join(", ") : "");
+                        formData.append("association", formDataStore.detailsInfo.association || "");
+
+                        // Handle certificates
+                        if (formDataStore.detailsInfo.certificates && formDataStore.detailsInfo.certificates.length > 0) {
+                            for (var i = 0; i < formDataStore.detailsInfo.certificates.length; i++) {
+                                formData.append("certificates", formDataStore.detailsInfo.certificates[i].rawFile);
+                            }
+                        } else {
+                            alert("Professional Certificates are required for instructors.");
+                            return;
+                        }
+
+                        // Handle ID proof
+                        if (formDataStore.detailsInfo.idProof && formDataStore.detailsInfo.idProof.length > 0) {
+                            formData.append("idProofFile", formDataStore.detailsInfo.idProof[0].rawFile);
+                        } else {
+                            alert("ID Proof is required for instructors.");
+                            return;
+                        }
+                    }
+
+                    // Handle profile image upload
+                    if (formDataStore.profileImageInfo.profileImage && formDataStore.profileImageInfo.profileImage.length > 0) {
+                        formData.append("profileImageFile", formDataStore.profileImageInfo.profileImage[0].rawFile);
+                    } else {
+                        alert("Profile image is required.");
+                        return;
+                    }
+
+                    // Determine the API endpoint based on the role
+                    var url = selectedRole === "user" ? "http://localhost:8080/api/AuthApi/register-user" : "http://localhost:8080/api/AuthApi/register-instructor";
+
+                    // Send the form data to the API
+                    $.ajax({
+                        url: url,
+                        type: "POST",
+                        data: formData,
+                        processData: false, // Prevent jQuery from processing the data
+                        contentType: false, // Prevent jQuery from setting content type
+                        success: function (response) {
+                            if (response.success) {
+                                alert(response.message);
+                                // Optionally redirect or reset the form
+                                window.location.href = "/Home/Index"; // Redirect to a success page
+                            } else {
+                                alert(response.message);
+                            }
+                        },
+                        error: function (xhr, status, error) {
+                            alert("Error submitting the form: " + (xhr.responseJSON?.title || error));
+                        }
+                    });
+                }
+            }).data("kendoWizard");
+
+            // Update the selectedRole variable when the role changes
+            wizard.wrapper.on("change", "input[name='role']", function () {
+                selectedRole = $(this).val(); // Update the selectedRole variable
+                formDataStore.personalInfo.role = selectedRole;
+                wizard.refresh(); // Refresh the wizard to reload the second step
+            });
+
+            // Update fullName in formDataStore
+            wizard.wrapper.on("change", "input[name='fullName']", function () {
+                formDataStore.personalInfo.fullName = $(this).val();
+            });
+
+            // Ensure the second step is updated when activated
+            wizard.bind("activate", function (e) {
+                if (e.step.options.title === "Details") {
+                    var stepElement = e.step.element;
+                    stepElement.empty(); // Clear the current content
+                    var formConfig = selectedRole === "user" ? getUserDetailsConfig() : getInstructorDetailsConfig();
+                    var form = $("<form>").kendoForm({
+                        formData: formConfig.formData,
+                        items: formConfig.items
+                    });
+
+                    // Re-attach change handlers
+                    form.find("[name='height']").on("change", function () {
+                        formDataStore.detailsInfo.height = $(this).val();
+                    });
+                    form.find("[name='weight']").on("change", function () {
+                        formDataStore.detailsInfo.weight = $(this).val();
+                    });
+                    form.find("[name='goal']").on("change", function () {
+                        formDataStore.detailsInfo.goal = $(this).data("kendoMultiSelect").value();
+                    });
+                    form.find("[name='medicalCondition']").on("change", function () {
+                        formDataStore.detailsInfo.medicalCondition = $(this).data("kendoMultiSelect").value();
+                    });
+                    form.find("[name='specialization']").on("change", function () {
+                        formDataStore.detailsInfo.specialization = $(this).data("kendoMultiSelect").value();
+                    });
+                    form.find("[name='association']").on("change", function () {
+                        formDataStore.detailsInfo.association = $(this).val();
+                    });
+                    form.find("[name='certificates']").on("select", function (e) {
+                        formDataStore.detailsInfo.certificates = e.files;
+                    });
+                    form.find("[name='idProof']").on("select", function (e) {
+                        formDataStore.detailsInfo.idProof = e.files;
+                    });
+
+                    stepElement.append(form);
+                }
+            });
+        });
+    </script>
+}

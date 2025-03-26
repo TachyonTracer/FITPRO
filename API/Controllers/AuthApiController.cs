@@ -156,7 +156,7 @@ namespace API.Controllers
         }
         #endregion
 
-        #region Register Instructor
+       #region Register Instructor
         [HttpPost("register-instructor")]
         public async Task<IActionResult> RegisterInstructor([FromForm] Instructor instructor)
         {
@@ -282,7 +282,7 @@ namespace API.Controllers
             }
         }
         #endregion
-
+        
         #region Check Email
         [HttpGet("check-email")]
         public async Task<IActionResult> CheckEmail(string email)

@@ -43,17 +43,11 @@ public class Instructor
     [StringLength(100, ErrorMessage = "Specialization must not exceed 100 characters")]
     public string specialization { get; set; }
 
-    // [Required(ErrorMessage = "Certificates are required")]
-    public JsonDocument certificates { get; set; }  = JsonDocument.Parse("{}");
+    
+    public JsonDocument? certificates { get; set; }
 
     public string? profileImage { get; set; }
 
-
-    // Added ID Proof file property
-    [Display(Name = "ID Proof")]
-    public IFormFile? idProofFile { get; set; }
-
-    public string? idProof { get; set; }
 
     [StringLength(100, ErrorMessage = "Association must not exceed 100 characters")]
     public string association { get; set; }
@@ -63,7 +57,10 @@ public class Instructor
 
     [Required(ErrorMessage = "Status is required")]
     [StringLength(20, ErrorMessage = "Status must not exceed 20 characters")]
-    public string? status { get; set; }
+    public string status { get; set; }
+
+    // [Url(ErrorMessage = "Invalid URL format")]
+    public string? idProof { get; set; }
 
     [StringLength(100, ErrorMessage = "Activation token must not exceed 100 characters")]
     public string? activationToken { get; set; }
@@ -71,9 +68,11 @@ public class Instructor
     [DataType(DataType.DateTime)]
     public DateTime? activatedOn { get; set; }
 
-    public IFormFile? profileImageFile { get; set; }
+    public IFormFile? idProofFile { get; set; }
 
-    [Display(Name = "Certificate")]
     public IFormFile[]? certificateFiles { get; set; }
+
+    [Display(Name = "Profile Image")]
+    public IFormFile? profileImageFile { get; set; }
 }
 
