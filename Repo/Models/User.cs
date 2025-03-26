@@ -49,6 +49,9 @@ public class User
     public string medicalCondition { get; set; }
 
     public string profileImage { get; set; }
+    
+    [Display(Name = "Profile Image")]
+    public IFormFile profileImageFile { get; set; }
 
     [Required(ErrorMessage = "Creation date is required")]
     public DateTime createdAt { get; set; } = DateTime.UtcNow;

@@ -49,6 +49,7 @@ public class Instructor
 
     public string? profileImage { get; set; }
 
+
     [StringLength(100, ErrorMessage = "Association must not exceed 100 characters")]
     public string association { get; set; }
 
@@ -59,8 +60,8 @@ public class Instructor
     [StringLength(20, ErrorMessage = "Status must not exceed 20 characters")]
     public string? status { get; set; }
 
-    [Url(ErrorMessage = "Invalid URL format")]
-    public string? idProof { get; set; }
+    // [Url(ErrorMessage = "Invalid URL format")]
+    public string idProof { get; set; }
 
     [StringLength(100, ErrorMessage = "Activation token must not exceed 100 characters")]
     public string? activationToken { get; set; }

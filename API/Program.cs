@@ -4,6 +4,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.Net.Http.Headers;
 using Microsoft.OpenApi.Models;
 using Npgsql;
+using Repo;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,6 +13,16 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddControllers();
 builder.Services.AddSignalR();
+
+// Add session services
+builder.Services.AddDistributedMemoryCache();
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromMinutes(30);
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+});
+
 builder.Services.AddSwaggerGen(c =>
 {
     c.AddSecurityDefinition("token", new OpenApiSecurityScheme
@@ -38,7 +49,8 @@ builder.Services.AddSwaggerGen(c =>
     );
 });
 
-builder.Services.AddScoped<NpgsqlConnection>((provider) =>
+builder.Services.AddSingleton<IAuthInterface, AuthRepo>();
+builder.Services.AddSingleton<NpgsqlConnection>((provider) =>
 {
     var connectionString = provider.GetRequiredService<IConfiguration>().GetConnectionString("pgconn");
     return new NpgsqlConnection(connectionString);
@@ -89,7 +101,10 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseRouting();
 app.UseCors("corsapp");
+
+// Use session middleware after routing and before authentication
 app.UseSession();
+
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
