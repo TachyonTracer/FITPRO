@@ -16,10 +16,99 @@ namespace API.Controllers
     {
         private readonly IAuthInterface _authInterface;
 
-        public AuthApiController(IAuthInterface authInterface)
+        public AuthApiController(IAuthInterface authService)
         {
-            _authInterface = authInterface;
+            _authInterface = authService;
         }
+
+
+        #region DispatchOTP
+        [HttpPost("Dispatch-otp")]
+        public async Task<IActionResult> DispatchOtp([FromBody] VerifyEmail request)
+        {
+            int result = await _authInterface.dispatchOtp(request.email);
+
+            if (result == 1)
+            {
+                return Ok(new { success = true, message = "OTP sent successfully." });
+            }
+            else
+            {
+                return Ok(new { success = false, message = "Email not registered." });
+            }
+        }
+        #endregion
+
+        #region Verify OTP
+        [HttpPost("verify-otp")]
+        public async Task<IActionResult> VerifyOtp([FromBody] VerifyEmail request)
+        {
+            int result = await _authInterface.verifyOtp(request.email, Convert.ToInt32(request.OTP));
+
+            if (result == 1)
+            {
+                return Ok(new { success = true, message = "OTP verified successfully." });
+            }
+            else if (result == 0)
+            {
+                return Ok(new { success = false, message = "Email not registered." });
+            }
+            else if (result == -1)
+            {
+                return Ok(new { success = false, message = "No OTP found for this user." });
+            }
+            else if (result == -2)
+            {
+                return Ok(new { success = false, message = "Incorrect OTP." });
+            }
+            else if (result == -3)
+            {
+                return Ok(new { success = false, message = "OTP expired." });
+            }
+            else
+            {
+                return Ok(new { success = false, message = "An unexpected error occurred." });
+            }
+        }
+        #endregion
+        
+
+        #region Update Password
+
+        [HttpPost("update-password")]
+        public async Task<IActionResult> UpdatePassword([FromBody] VerifyEmail request)
+        {
+            int result = await _authInterface.updatePassword(request.email, request.newPassword, Convert.ToInt32(request.OTP));
+
+            if (result == 1)
+            {
+                return Ok(new { success = true, message = "Password updated successfully." });
+            }
+            else if (result == -1)
+            {
+                return Ok(new { success = false, message = "Email not registered." });
+            }
+            else if (result == -2)
+            {
+                return Ok(new { success = false, message = "No OTP found." });
+            }
+            else if (result == -3)
+            {
+                return Ok(new { success = false, message = "Incorrect OTP." });
+            }
+            else if (result == -4)
+            {
+                return Ok(new { success = false, message = "OTP expired." });
+            }
+            else
+            {
+                return Ok(new { success = false, message = "An unexpected error occurred." });
+            }
+        }
+        #endregion
+
+
+
 
         #region Register User
         [HttpPost("register-user")]
@@ -127,12 +216,10 @@ namespace API.Controllers
                         try
                         {
                             var certificateDict = new Dictionary<string, string>();
-                            
                             // Split specializations by comma
                             var specializations = instructor.specialization.Split(',')
                                 .Select(s => s.Trim())
                                 .ToList();
-                            
                             // Process each specialization separately
                             foreach (var spec in specializations)
                             {
@@ -210,4 +297,6 @@ namespace API.Controllers
         }
         #endregion
     }
+
+
 }
