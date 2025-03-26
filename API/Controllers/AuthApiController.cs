@@ -1,5 +1,6 @@
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Repo;
 
 namespace API.Controllers
 {
@@ -14,49 +15,91 @@ namespace API.Controllers
             _authService = authService;
         }
 
-
-        [HttpPost("dispatch-otp")]
-        public async Task<IActionResult> DispatchOtp(string email)
+        #region DispatchOTP
+        [HttpPost("Dispatch-otp")]
+        public async Task<IActionResult> DispatchOtp([FromBody] VerifyEmail request)
         {
-            int result = await _authService.dispatchOtp(email);
-            return result == 1 ? Ok(new { message = "OTP sent successfully." }) : NotFound(new { message = "Email not registered." });
-        }
+            int result = await _authService.dispatchOtp(request.email);
 
-  
+            if (result == 1)
+            {
+                return Ok(new { success = true, message = "OTP sent successfully." });
+            }
+            else
+            {
+                return Ok(new { success = false, message = "Email not registered." });
+            }
+        }
+        #endregion
+
+        #region Verify OTP
         [HttpPost("verify-otp")]
-        public async Task<IActionResult> VerifyOtp(string email, int OTP)
+        public async Task<IActionResult> VerifyOtp([FromBody] VerifyEmail request)
         {
-            int result = await _authService.verifyOtp(email, OTP);
+            int result = await _authService.verifyOtp(request.email, Convert.ToInt32(request.OTP));
 
-            return result switch
+            if (result == 1)
             {
-                1 => Ok(new { message = "OTP verified successfully." }),
-                0 => NotFound(new { message = "Email not registered." }),
-                -1 => BadRequest(new { message = "No OTP found for this user." }),
-                -2 => BadRequest(new { message = "Incorrect OTP." }),
-                -3 => BadRequest(new { message = "OTP expired." }),
-                _ => StatusCode(500, new { message = "An unexpected error occurred." })
-            };
+                return Ok(new { success = true, message = "OTP verified successfully." });
+            }
+            else if (result == 0)
+            {
+                return Ok(new { success = false, message = "Email not registered." });
+            }
+            else if (result == -1)
+            {
+                return Ok(new { success = false, message = "No OTP found for this user." });
+            }
+            else if (result == -2)
+            {
+                return Ok(new { success = false, message = "Incorrect OTP." });
+            }
+            else if (result == -3)
+            {
+                return Ok(new { success = false, message = "OTP expired." });
+            }
+            else
+            {
+                return Ok(new { success = false, message = "An unexpected error occurred." });
+            }
         }
+        #endregion
 
-        
+        #region Update Password
+
         [HttpPost("update-password")]
-        public async Task<IActionResult> UpdatePassword(string email, string NewPassword, int OTP)
+        public async Task<IActionResult> UpdatePassword([FromBody] VerifyEmail request)
         {
-            int result = await _authService.updatePassword(email, NewPassword, OTP);
+            int result = await _authService.updatePassword(request.email, request.newPassword, Convert.ToInt32(request.OTP));
 
-            return result switch
+            if (result == 1)
             {
-                1 => Ok(new { message = "Password updated successfully." }),
-                -1 => NotFound(new { message = "Email not registered." }),
-                -2 => BadRequest(new { message = "No OTP found." }),
-                -3 => BadRequest(new { message = "Incorrect OTP." }),
-                -4 => BadRequest(new { message = "OTP expired." }),
-                -5 => StatusCode(500, new { message = "Failed to update password." }),
-                _ => StatusCode(500, new { message = "An unexpected error occurred." })
-            };
+                return Ok(new { success = true, message = "Password updated successfully." });
+            }
+            else if (result == -1)
+            {
+                return Ok(new { success = false, message = "Email not registered." });
+            }
+            else if (result == -2)
+            {
+                return Ok(new { success = false, message = "No OTP found." });
+            }
+            else if (result == -3)
+            {
+                return Ok(new { success = false, message = "Incorrect OTP." });
+            }
+            else if (result == -4)
+            {
+                return Ok(new { success = false, message = "OTP expired." });
+            }
+            else
+            {
+                return Ok(new { success = false, message = "An unexpected error occurred." });
+            }
         }
+        #endregion
     }
+
 
 
 }

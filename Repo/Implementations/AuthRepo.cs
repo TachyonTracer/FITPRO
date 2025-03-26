@@ -12,9 +12,12 @@ public class AuthRepo : IAuthInterface
     }
 
     #region Reset Password
+    
+    #region Dispatch OTP
     public async Task<int> dispatchOtp(string email)
     {
-        int OTP = RandomNumberGenerator.GetInt32(10000000, 99999999);
+        // six digit otp
+        int OTP = RandomNumberGenerator.GetInt32(100000, 999999);
         int result = 0;
         int userID = 0;
         string userName = null;
@@ -94,10 +97,15 @@ public class AuthRepo : IAuthInterface
         }
         return result;
     }
+    #endregion
+
+
+    #region Verify OTP
     public async Task<int> verifyOtp(string email, int OTP)
     {
 
         int result = 0;
+        bool is_OTPUsed = false;
         try
         {
             if (_conn.State == System.Data.ConnectionState.Closed)
@@ -139,7 +147,7 @@ public class AuthRepo : IAuthInterface
                 return 0; // Email not registered
             }
             string otpQuery = @"
-                    SELECT c_otp, c_expiry_at FROM t_reset_password 
+                    SELECT c_otp, c_expiry_at,c_isused FROM t_reset_password 
                     WHERE c_userid = @UserId 
                     ORDER BY c_created_at DESC 
                     LIMIT 1";
@@ -156,6 +164,7 @@ public class AuthRepo : IAuthInterface
 
                 int storedOtp = reader.GetInt32(0);
                 DateTime expiryAt = reader.GetDateTime(1);
+                is_OTPUsed = reader.GetBoolean(2);
 
                 if (storedOtp != OTP)
                 {
@@ -166,6 +175,12 @@ public class AuthRepo : IAuthInterface
                 {
                     return -3; // OTP expired
                 }
+
+                if (is_OTPUsed)
+                {
+                    return -3; // opt is used
+                }
+
             }
 
             return 1;
@@ -184,7 +199,11 @@ public class AuthRepo : IAuthInterface
         }
         return result;
     }
+    #endregion
 
+
+
+    #region Update password
     public async Task<int> updatePassword(string email, string newPassword, int OTP)
     {
         int result = 0;
@@ -200,6 +219,7 @@ public class AuthRepo : IAuthInterface
             string tableName = null;
             string idColumn = null;
             string passwordColumn = "c_password";
+            bool is_OTPUsed = false;
 
             // Check in t_User
             string userQuery = "SELECT c_userid, 'User' FROM t_User WHERE c_email = @Email";
@@ -242,7 +262,7 @@ public class AuthRepo : IAuthInterface
 
             // Verify OTP
             string otpQuery = @"
-                    SELECT c_otp, c_expiry_at FROM t_reset_password 
+                    SELECT c_otp, c_expiry_at, c_isused FROM t_reset_password 
                     WHERE c_userid = @UserId 
                     ORDER BY c_created_at DESC 
                     LIMIT 1";
@@ -259,6 +279,7 @@ public class AuthRepo : IAuthInterface
 
                 int storedOtp = reader.GetInt32(0);
                 DateTime expiryAt = reader.GetDateTime(1);
+                is_OTPUsed = reader.GetBoolean(2);
 
                 if (storedOtp != OTP)
                 {
@@ -269,8 +290,24 @@ public class AuthRepo : IAuthInterface
                 {
                     return -4; // OTP expired
                 }
+                if (is_OTPUsed)
+                {
+                    return -4; // otp is used
+                }
+
+
             }
 
+            string updateOtpQuery = @"
+                UPDATE t_reset_password 
+                SET c_isused = TRUE 
+                WHERE c_userid = @UserId AND c_otp = @OTP";
+            using (var cmd = new NpgsqlCommand(updateOtpQuery, _conn))
+            {
+                cmd.Parameters.AddWithValue("@UserId", userId);
+                cmd.Parameters.AddWithValue("@OTP", OTP);
+                await cmd.ExecuteNonQueryAsync();
+            }
 
 
 
@@ -296,7 +333,10 @@ public class AuthRepo : IAuthInterface
         }
         return result;
     }
+    #endregion
+    #endregion
 
+    #region Activation link
     #endregion
 
 }
