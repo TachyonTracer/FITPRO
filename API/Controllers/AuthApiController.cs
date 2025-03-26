@@ -37,12 +37,12 @@ namespace API.Controllers
                 {
                     var fileName = user.email + Path.GetExtension(user.profileImageFile.FileName);
                     var filePath = Path.Combine("../MVC/wwwroot/User_Images", fileName);
-                    
+
                     // Create directory if it doesn't exist
                     Directory.CreateDirectory(Path.Combine("../MVC/wwwroot/User_Images"));
-                    
+
                     user.profileImage = fileName;
-                    
+
                     using (var stream = new FileStream(filePath, FileMode.Create))
                     {
                         await user.profileImageFile.CopyToAsync(stream);
@@ -51,7 +51,7 @@ namespace API.Controllers
 
                 // Register the user
                 bool result = await _authInterface.RegisterUserAsync(user);
-                
+
                 if (result)
                 {
                     return new JsonResult(new { success = true, message = "User registered successfully" });
@@ -61,110 +61,135 @@ namespace API.Controllers
                     return new JsonResult(new { success = false, message = "Error in registration" });
                 }
             }
-            
+
             return BadRequest(ModelState);
         }
 
         [HttpPost("register-instructor")]
-        public async Task<IActionResult> RegisterInstructor([FromForm] Instructor instructor, IFormFile idProofFile, IFormFile certificateFile)
+        public async Task<IActionResult> RegisterInstructor([FromForm] Instructor instructor)
         {
-            if (ModelState.IsValid)
+            try
             {
-                // Check if email already exists
-                if (await _authInterface.IsEmailExists(instructor.email))
+                // Initialize certificates with empty JSON document to prevent validation errors
+                if (instructor.certificates == null)
                 {
-                    return new JsonResult(new { success = false, message = "Email already registered" });
+                    instructor.certificates = JsonDocument.Parse("{}");
                 }
 
-                // Handle profile image upload
-                if (instructor.profileImageFile != null && instructor.profileImageFile.Length > 0)
+                if (ModelState.IsValid)
                 {
-                    var fileName = instructor.email + "_profile" + Path.GetExtension(instructor.profileImageFile.FileName);
-                    var filePath = Path.Combine("../MVC/wwwroot/Instructor_Images", fileName);
-                    
-                    // Create directory if it doesn't exist
-                    Directory.CreateDirectory(Path.Combine("../MVC/wwwroot/Instructor_Images"));
-                    
-                    instructor.profileImage = fileName;
-                    
-                    using (var stream = new FileStream(filePath, FileMode.Create))
+                    // Check if email already exists
+                    if (await _authInterface.IsEmailExists(instructor.email))
                     {
-                        await instructor.profileImageFile.CopyToAsync(stream);
+                        return new JsonResult(new { success = false, message = "Email already registered" });
                     }
-                }
 
-                // Handle ID proof upload
-                if (idProofFile != null && idProofFile.Length > 0)
-                {
-                    var fileName = instructor.email + "_idproof" + Path.GetExtension(idProofFile.FileName);
-                    var filePath = Path.Combine("../MVC/wwwroot/Id_Proof", fileName);
-                    
-                    // Create directory if it doesn't exist
-                    Directory.CreateDirectory(Path.Combine("../MVC/wwwroot/Id_Proof"));
-                    
-                    instructor.idProof = fileName;
-                    
-                    using (var stream = new FileStream(filePath, FileMode.Create))
+                    // Handle profile image upload
+                    if (instructor.profileImageFile != null && instructor.profileImageFile.Length > 0)
                     {
-                        await idProofFile.CopyToAsync(stream);
-                    }
-                }
+                        var fileName = instructor.email + "_profile" + Path.GetExtension(instructor.profileImageFile.FileName);
+                        var filePath = Path.Combine("../MVC/wwwroot/Instructor_Images", fileName);
 
-                // Handle certificate JSON document
-                if (certificateFile != null && certificateFile.Length > 0)
-                {
-                    try
-                    {
-                        // Save the certificate file
-                        var fileName = instructor.email + "_certificates.json";
-                        var filePath = Path.Combine("../MVC/wwwroot/Certificates", fileName);
-                        
                         // Create directory if it doesn't exist
-                        Directory.CreateDirectory(Path.Combine("../MVC/wwwroot/Certificates"));
-                        
-                        // Save the file
+                        Directory.CreateDirectory(Path.Combine("../MVC/wwwroot/Instructor_Images"));
+
+                        instructor.profileImage = fileName;
+
                         using (var stream = new FileStream(filePath, FileMode.Create))
                         {
-                            await certificateFile.CopyToAsync(stream);
-                        }
-                        
-                        // Read the JSON content
-                        using (var reader = new StreamReader(certificateFile.OpenReadStream()))
-                        {
-                            var jsonContent = await reader.ReadToEndAsync();
-                            
-                            // Validate JSON format
-                            try
-                            {
-                                var certificatesObj = JsonSerializer.Deserialize<object>(jsonContent);
-                                instructor.certificates = JsonDocument.Parse(jsonContent);
-                            }
-                            catch (JsonException)
-                            {
-                                return new JsonResult(new { success = false, message = "Invalid certificate JSON format" });
-                            }
+                            await instructor.profileImageFile.CopyToAsync(stream);
                         }
                     }
-                    catch (Exception ex)
+
+                    // Handle ID proof upload
+                    if (instructor.idProofFile != null && instructor.idProofFile.Length > 0)
                     {
-                        return new JsonResult(new { success = false, message = $"Error processing certificate file: {ex.Message}" });
+                        var fileName = instructor.email + "_idproof" + Path.GetExtension(instructor.idProofFile.FileName);
+                        var filePath = Path.Combine("../MVC/wwwroot/Id_Proof", fileName);
+
+                        // Create directory if it doesn't exist
+                        Directory.CreateDirectory(Path.Combine("../MVC/wwwroot/Id_Proof"));
+
+                        instructor.idProof = fileName;
+
+                        using (var stream = new FileStream(filePath, FileMode.Create))
+                        {
+                            await instructor.idProofFile.CopyToAsync(stream);
+                        }
+                    }
+
+                    // Handle certificate files
+                    if (instructor.certificateFile != null && instructor.certificateFile.Length > 0)
+                    {
+                        try
+                        {
+                            var certificateDict = new Dictionary<string, string>();
+                            
+                            // Split specializations by comma
+                            var specializations = instructor.specialization.Split(',')
+                                .Select(s => s.Trim())
+                                .ToList();
+                            
+                            // Process each specialization separately
+                            foreach (var spec in specializations)
+                            {
+                                for (int i = 0; i < instructor.certificateFile.Length; i++)
+                                {
+                                    var file = instructor.certificateFile[i];
+                                    if (file != null && file.Length > 0)
+                                    {
+                                        // Create unique filename for each specialization
+                                        var fileName = $"{instructor.email}_{spec}_{Guid.NewGuid()}{Path.GetExtension(file.FileName)}";
+                                        var filePath = Path.Combine("../MVC/wwwroot/Certificates", fileName);
+
+                                        // Create directory if it doesn't exist
+                                        Directory.CreateDirectory(Path.Combine("../MVC/wwwroot/Certificates"));
+
+                                        // Save the file
+                                        using (var stream = new FileStream(filePath, FileMode.Create))
+                                        {
+                                            await file.CopyToAsync(stream);
+                                        }
+
+                                        // Store each specialization as a separate key
+                                        certificateDict[spec] = fileName;
+                                    }
+                                }
+                            }
+
+                            // Convert dictionary to JSON document
+                            var jsonString = JsonSerializer.Serialize(certificateDict);
+                            instructor.certificates = JsonDocument.Parse(jsonString);
+                        }
+                        catch (Exception ex)
+                        {
+                            return new JsonResult(new { success = false, message = $"Error processing certificate files: {ex.Message}" });
+                        }
+                    }
+                    else
+                    {
+                        instructor.certificates = JsonDocument.Parse("{}");
+                    }
+
+                    // Register the instructor
+                    bool result = await _authInterface.RegisterInstructorAsync(instructor);
+
+                    if (result)
+                    {
+                        return new JsonResult(new { success = true, message = "Instructor registered successfully" });
+                    }
+                    else
+                    {
+                        return new JsonResult(new { success = false, message = "Error in registration" });
                     }
                 }
 
-                // Register the instructor
-                bool result = await _authInterface.RegisterInstructorAsync(instructor);
-                
-                if (result)
-                {
-                    return new JsonResult(new { success = true, message = "Instructor registered successfully" });
-                }
-                else
-                {
-                    return new JsonResult(new { success = false, message = "Error in registration" });
-                }
+                return BadRequest(ModelState);
             }
-            
-            return BadRequest(ModelState);
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { success = false, message = $"An error occurred: {ex.Message}" });
+            }
         }
 
         [HttpGet("check-email")]

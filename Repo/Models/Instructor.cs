@@ -2,7 +2,7 @@
 using System.Text.Json;
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Http;
-
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Repo;
 
@@ -29,7 +29,6 @@ public class Instructor
     [Compare("password", ErrorMessage = "Passwords do not match")]
     public string? confirmPassword { get; set; }
 
-
     [Required(ErrorMessage = "Mobile number is required")]
     [Phone(ErrorMessage = "Invalid phone number format")]
     public string mobile { get; set; }
@@ -44,11 +43,21 @@ public class Instructor
     [StringLength(100, ErrorMessage = "Specialization must not exceed 100 characters")]
     public string specialization { get; set; }
 
-    [Required(ErrorMessage = "Certificates are required")]
-    public JsonDocument certificates { get; set; }
+    // [Required(ErrorMessage = "Certificates are required")]
+    public JsonDocument? certificates { get; set; } // Make nullable
 
     public string? profileImage { get; set; }
 
+
+    // Added ID Proof file property
+    [Display(Name = "ID Proof")]
+    public IFormFile idProofFile { get; set; }
+
+    // Added Certificate file property
+    [Display(Name = "Certificate")]
+    public IFormFile[] certificateFile { get; set; }
+
+    public string idProof { get; set; }
 
     [StringLength(100, ErrorMessage = "Association must not exceed 100 characters")]
     public string association { get; set; }
@@ -60,9 +69,6 @@ public class Instructor
     [StringLength(20, ErrorMessage = "Status must not exceed 20 characters")]
     public string? status { get; set; }
 
-    // [Url(ErrorMessage = "Invalid URL format")]
-    public string idProof { get; set; }
-
     [StringLength(100, ErrorMessage = "Activation token must not exceed 100 characters")]
     public string? activationToken { get; set; }
 
@@ -70,7 +76,6 @@ public class Instructor
     public DateTime? activatedOn { get; set; }
 
     public IFormFile? profileImageFile { get; set; }
-    public IFormFile? idProofFile { get; set; }
 
     public IFormFile[]? certificateFiles { get; set; }
 }

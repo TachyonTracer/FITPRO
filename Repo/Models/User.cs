@@ -63,7 +63,4 @@ public class User
     [DataType(DataType.DateTime)]
     public DateTime? activatedOn { get; set; }
 
-
-    public IFormFile? profileImageFile { get; set; }
-
 }
