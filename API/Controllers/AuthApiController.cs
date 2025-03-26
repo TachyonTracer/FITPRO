@@ -21,6 +21,7 @@ namespace API.Controllers
             _authInterface = authInterface;
         }
 
+        #region Register User
         [HttpPost("register-user")]
         public async Task<IActionResult> RegisterUser([FromForm] User user)
         {
@@ -64,7 +65,9 @@ namespace API.Controllers
 
             return BadRequest(ModelState);
         }
+        #endregion
 
+        #region Register Instructor
         [HttpPost("register-instructor")]
         public async Task<IActionResult> RegisterInstructor([FromForm] Instructor instructor)
         {
@@ -191,7 +194,9 @@ namespace API.Controllers
                 return StatusCode(500, new { success = false, message = $"An error occurred: {ex.Message}" });
             }
         }
+        #endregion
 
+        #region Check Email
         [HttpGet("check-email")]
         public async Task<IActionResult> CheckEmail(string email)
         {
@@ -203,5 +208,6 @@ namespace API.Controllers
             bool exists = await _authInterface.IsEmailExists(email);
             return new JsonResult(new { exists });
         }
+        #endregion
     }
 }

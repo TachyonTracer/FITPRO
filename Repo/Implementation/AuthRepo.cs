@@ -15,6 +15,7 @@ namespace Repo
             _conn = connection;
         }
 
+        #region Register User
         public async Task<bool> RegisterUserAsync(User user)
         {
             string activationToken = Guid.NewGuid().ToString();
@@ -61,7 +62,9 @@ namespace Repo
                     await _conn.CloseAsync();
             }
         }
+        #endregion
 
+        #region  Register Instructor
         public async Task<bool> RegisterInstructorAsync(Instructor instructor)
         {
             string activationToken = Guid.NewGuid().ToString();
@@ -108,7 +111,9 @@ namespace Repo
                     await _conn.CloseAsync();
             }
         }
+        #endregion
 
+        #region Check Email
         public async Task<bool> IsEmailExists(string email)
         {
             string query = "SELECT COUNT(*) FROM (SELECT c_email FROM t_user UNION SELECT c_email FROM t_instructor) AS combined WHERE c_email = @Email";
@@ -135,5 +140,6 @@ namespace Repo
                     await _conn.CloseAsync();
             }
         }
+        #endregion
     }
 }
