@@ -36,7 +36,7 @@ namespace API.Controllers
                 // Handle profile image upload
                 if (user.profileImageFile != null && user.profileImageFile.Length > 0)
                 {
-                    var fileName = user.email + Path.GetExtension(user.profileImageFile.FileName);
+                    var fileName = Guid.NewGuid().ToString() + Path.GetExtension(user.profileImageFile.FileName);
                     var filePath = Path.Combine("../MVC/wwwroot/User_Images", fileName);
 
                     // Create directory if it doesn't exist
@@ -90,7 +90,7 @@ namespace API.Controllers
                     // Handle profile image upload
                     if (instructor.profileImageFile != null && instructor.profileImageFile.Length > 0)
                     {
-                        var fileName = instructor.email + "_profile" + Path.GetExtension(instructor.profileImageFile.FileName);
+                        var fileName = Guid.NewGuid().ToString() + "_profile" + Path.GetExtension(instructor.profileImageFile.FileName);
                         var filePath = Path.Combine("../MVC/wwwroot/Instructor_Images", fileName);
 
                         // Create directory if it doesn't exist
@@ -107,7 +107,7 @@ namespace API.Controllers
                     // Handle ID proof upload
                     if (instructor.idProofFile != null && instructor.idProofFile.Length > 0)
                     {
-                        var fileName = instructor.email + "_idproof" + Path.GetExtension(instructor.idProofFile.FileName);
+                        var fileName = Guid.NewGuid().ToString() + "_idproof" + Path.GetExtension(instructor.idProofFile.FileName);
                         var filePath = Path.Combine("../MVC/wwwroot/Id_Proof", fileName);
 
                         // Create directory if it doesn't exist
@@ -142,7 +142,7 @@ namespace API.Controllers
                                     if (file != null && file.Length > 0)
                                     {
                                         // Create unique filename for each specialization
-                                        var fileName = $"{instructor.email}_{spec}_{Guid.NewGuid()}{Path.GetExtension(file.FileName)}";
+                                        var fileName = $"{Guid.NewGuid()}_{spec}{Path.GetExtension(file.FileName)}";
                                         var filePath = Path.Combine("../MVC/wwwroot/Certificates", fileName);
 
                                         // Create directory if it doesn't exist
