@@ -5,6 +5,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+
+
 namespace Repo
 {
     public class AuthRepo : IAuthInterface
@@ -351,6 +353,8 @@ namespace Repo
 
 
 
+      
+
         #region Register User
         public async Task<bool> RegisterUserAsync(User user)
         {
@@ -370,6 +374,9 @@ namespace Repo
 
                 await _conn.OpenAsync();
 
+                
+
+                
                 using (var command = new NpgsqlCommand(query, _conn))
                 {
                     command.Parameters.AddWithValue("@username", user.userName);

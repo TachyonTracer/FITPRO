@@ -216,12 +216,10 @@ namespace API.Controllers
                         try
                         {
                             var certificateDict = new Dictionary<string, string>();
-
                             // Split specializations by comma
                             var specializations = instructor.specialization.Split(',')
                                 .Select(s => s.Trim())
                                 .ToList();
-
                             // Process each specialization separately
                             foreach (var spec in specializations)
                             {
@@ -285,7 +283,6 @@ namespace API.Controllers
         }
         #endregion
 
-
         #region Check Email
         [HttpGet("check-email")]
         public async Task<IActionResult> CheckEmail(string email)
@@ -298,7 +295,6 @@ namespace API.Controllers
             bool exists = await _authInterface.IsEmailExists(email);
             return new JsonResult(new { exists });
         }
-
         #endregion
     }
 
