@@ -67,5 +67,5 @@ public class Class
     public decimal fee { get; set; }
     public int availableCapacity { get; set; }
 
-    public IFormFile[] assetFiles { get; set; }
+    public IFormFile[]? assetFiles { get; set; }
 }

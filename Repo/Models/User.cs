@@ -62,6 +62,6 @@ public class User
     public DateTime? activatedOn { get; set; }
 
 
-    public IFormFile profileImageFile { get; set; }
+    public IFormFile? profileImageFile { get; set; }
 
 }
