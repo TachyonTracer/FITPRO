@@ -1,0 +1,1077 @@
+@{
+    Layout=null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FitPro Dashboard</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://kendo.cdn.telerik.com/themes/6.7.0/default/default-main.css" rel="stylesheet">
+    @* <link href="/lib/kendo/kendo.default-v2.min.css" rel="stylesheet"> *@
+    <script src="https://kendo.cdn.telerik.com/2023.3.1114/js/kendo.all.min.js"></script>
+    @* <script src="/lib/kendo/kendo.all.min.js" asp-append-version="true"></script> *@
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --background: #1a1a2e;
+            --color: #ffffff;
+            --primary-color: #ff4d4d;
+            --glass-color: rgba(255, 255, 255, 0.1);
+            --card-bg: rgba(26, 26, 46, 0.8);
+            --border-color: rgba(255, 255, 255, 0.1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: "Poppins", sans-serif;
+            background: var(--background);
+            color: var(--color);
+            letter-spacing: 1px;
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Header Styles */
+        .header {
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+        }
+
+        .logo {
+            font-family: "Poppins", sans-serif;
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+        }
+
+        .logo-text {
+            font-size: 2.5rem;
+            line-height: 1;
+        }
+
+        .logo-icon {
+            margin-right: 10px;
+            font-size: 2.2rem;
+        }
+
+        .user-profile-container {
+            position: relative;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 10px;
+            font-weight: bold;
+        }
+
+        .user-name {
+            font-size: 0.9rem;
+        }
+
+        .profile-dropdown {
+            display: none;
+            position: absolute;
+            right: 0;
+            top: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(10px);
+            min-width: 200px;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+            z-index: 1;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+        }
+
+        .profile-dropdown a {
+            color: var(--color);
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+            transition: background-color 0.3s;
+        }
+
+        .profile-dropdown a:hover {
+            background-color: var(--primary-color);
+        }
+
+        .user-profile-container:hover .profile-dropdown {
+            display: block;
+        }
+
+        .main-content {
+            padding: 100px 20px 20px;
+            position: relative;
+        }
+
+        /* Rest of your existing styles */
+        .container {
+            padding: 2rem;
+            position: relative;
+            z-index: 1;
+            max-width: 100%;
+        }
+
+        h2 {
+            font-family: "Poppins", sans-serif;
+            font-weight: 600;
+            letter-spacing: 1px;
+            color: var(--color);
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            margin-bottom: 20px;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            backdrop-filter: blur(10px);
+            color: var(--color);
+            border-radius: 15px;
+            overflow: hidden;
+        }
+
+        .card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3);
+        }
+
+        .book-btn:disabled {
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        .carousel-item img {
+            height: 200px;
+            object-fit: cover;
+            width: 100%;
+        }
+
+        .carousel-indicators button {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin: 0 3px;
+            background-color: rgba(255, 255, 255, 0.5);
+        }
+
+        .carousel-indicators .active {
+            background-color: var(--primary-color);
+        }
+
+        .carousel-control-prev-icon,
+        .carousel-control-next-icon {
+            background-color: rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            padding: 10px;
+            background-size: 60%;
+            transition: all 0.3s ease;
+        }
+
+        .carousel-control-prev-icon:hover,
+        .carousel-control-next-icon:hover {
+            background-color: var(--primary-color);
+        }
+
+        .k-tabstrip-items .k-item {
+            padding: 10px 20px;
+            background: transparent;
+            color: var(--color);
+            border-bottom: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .k-tabstrip-items .k-item.k-active {
+            color: var(--primary-color);
+            border-bottom-color: var(--primary-color);
+        }
+
+        .k-tabstrip-items .k-item:hover:not(.k-active) {
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .k-tabstrip > .k-content {
+            padding: 20px 0;
+            background: transparent;
+            border: none;
+        }
+
+        .class-detail {
+            margin-bottom: 8px;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .class-detail strong {
+            display: inline-block;
+            width: 100px;
+            color: var(--color);
+        }
+
+        .badge-level {
+            background-color: #6c757d;
+            color: white;
+        }
+
+        .badge-type {
+            background-color: #17a2b8;
+            color: white;
+        }
+
+        .form-control {
+            background-color: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: var(--color);
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            background-color: rgba(255, 255, 255, 0.2);
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.25rem rgba(255, 77, 77, 0.25);
+            color: var(--color);
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            background-color: #ff3333;
+            border-color: #ff3333;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(255, 77, 77, 0.3);
+        }
+
+        .btn-success {
+            background-color: #28a745;
+            border-color: #28a745;
+            transition: all 0.3s ease;
+        }
+
+        .btn-success:hover {
+            background-color: #218838;
+            border-color: #1e7e34;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(40, 167, 69, 0.3);
+        }
+
+        .btn-danger {
+            background-color: #dc3545;
+            border-color: #dc3545;
+            transition: all 0.3s ease;
+        }
+
+        .btn-danger:hover {
+            background-color: #c82333;
+            border-color: #bd2130;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(220, 53, 69, 0.3);
+        }
+
+        .alert {
+            background-color: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: var(--color);
+            backdrop-filter: blur(10px);
+        }
+
+        .alert-warning {
+            background-color: rgba(255, 193, 7, 0.1);
+            border-color: rgba(255, 193, 7, 0.3);
+        }
+
+        .alert-info {
+            background-color: rgba(23, 162, 184, 0.1);
+            border-color: rgba(23, 162, 184, 0.3);
+        }
+
+        /* Floating background elements */
+        .circle {
+            position: absolute;
+            border-radius: 50%;
+            background: var(--primary-color);
+            opacity: 0.1;
+            z-index: 0;
+        }
+
+        .circle-1 {
+            width: 300px;
+            height: 300px;
+            top: -100px;
+            left: -100px;
+            animation: float 15s ease-in-out infinite;
+        }
+
+        .circle-2 {
+            width: 200px;
+            height: 200px;
+            bottom: -50px;
+            right: -50px;
+            animation: float 12s ease-in-out infinite reverse;
+        }
+
+        @@keyframes float {
+            0%, 100% {
+                transform: translate(0, 0);
+            }
+            50% {
+                transform: translate(20px, 20px);
+            }
+        }
+
+        .transparent-select {
+            background-color: rgba(255, 255, 255, 0.1) !important;
+            border: 1px solid rgba(255, 255, 255, 0.2) !important;
+            color: var(--color) !important;
+            backdrop-filter: blur(5px);
+            transition: all 0.3s ease;
+        }
+
+        .transparent-select:focus {
+            background-color: rgba(255, 255, 255, 0.2) !important;
+            border-color: var(--primary-color) !important;
+            box-shadow: 0 0 0 0.25rem rgba(255, 77, 77, 0.25) !important;
+            color: var(--color) !important;
+        }
+
+        .transparent-select option {
+            background-color: var(--background);
+            color: var(--color);
+        }
+
+        .transparent-select {
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3e%3cpath d='M7 10l5 5 5-5z'/%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 0.75rem center;
+            background-size: 16px 12px;
+        }
+
+        #searchText::placeholder {
+            color: white;
+            opacity: 1;
+        }
+
+        /* Navigation TabStrip */
+        #mainTabstrip {
+            margin-top: 70px;
+        }
+
+        #mainTabstrip .k-tabstrip-items {
+            background-color: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border-color);
+            padding: 0 30px;
+        }
+
+        #mainTabstrip .k-content {
+            padding: 20px 30px;
+        }
+
+        /* Kendo Drawer Styles */
+        .k-drawer-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 10000;
+            pointer-events: none;
+        }
+
+        .k-drawer {
+            pointer-events: auto;
+            background-color: var(--card-bg);
+            border-left: 1px solid var(--border-color);
+            backdrop-filter: blur(10px);
+        }
+
+        .k-drawer-content {
+            padding: 20px;
+        }
+
+        .k-drawer-title {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            color: var(--primary-color);
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 10px;
+        }
+
+        /* Responsive adjustments */
+        @@media (max-width: 992px) {
+            .logo-text {
+                font-size: 2rem;
+            }
+            
+            .logo-icon {
+                font-size: 1.8rem;
+            }
+        }
+
+        @@media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+            
+            .card {
+                margin-bottom: 15px;
+            }
+            
+            .header {
+                padding: 10px 15px;
+            }
+            
+            #mainTabstrip .k-tabstrip-items {
+                padding: 0 15px;
+            }
+            
+            #mainTabstrip .k-content {
+                padding: 15px;
+            }
+            
+            .main-content {
+                padding: 80px 10px 10px;
+            }
+        }
+
+        @@media (max-width: 576px) {
+            .logo-text {
+                font-size: 1.5rem;
+            }
+            
+            .logo-icon {
+                font-size: 1.5rem;
+                margin-right: 5px;
+            }
+            
+            .user-name {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header with Logo -->
+    <div class="header">
+        <div class="logo-container">
+            <a href="#" class="logo">
+                <span class="logo-text">⇒ π = 1 ⊤ P R O</span>
+            </a>
+        </div>
+        
+        <div class="user-profile-container">
+            <div class="user-profile">
+                <div class="user-avatar">JD</div>
+                <div class="user-name">John Doe</div>
+            </div>
+            <div class="profile-dropdown">
+                <a href="#" onclick="showProfileDrawer()">Update Profile</a>
+                <a href="#" onclick="showLogoutConfirmation()">Logout</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Navigation TabStrip -->
+    <div id="mainTabstrip">
+        <ul>
+            <li class="k-active">Dashboard</li>
+            <li>Classes</li>
+            <li>Progress</li>
+            <li>Health</li>
+            <li>Settings</li>
+        </ul>
+        <div>
+            <!-- Dashboard Content -->
+            <div class="main-content">
+                <!-- Background elements -->
+                <div class="circle circle-1"></div>
+                <div class="circle circle-2"></div>
+
+                <div class="container mt-4">
+                    <h2 class="text-center mb-4">FitPro Classes</h2>
+                    
+                    <div class="row mb-4">
+                        <div class="col-md-4">
+                            <input type="text" id="searchText" class="form-control" style="color: white;" placeholder="Search by class name or city">
+                        </div>
+                        <div class="col-md-3">
+                            <select id="type" class="form-control transparent-select">
+                                <option value="">All Types</option>
+                                <option value="In-Person">In-Person</option>
+                                <option value="Online">Online</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <select id="level" class="form-control transparent-select">
+                                <option value="">All Levels</option>
+                                <option value="Beginner">Beginner</option>
+                                <option value="Intermediate">Intermediate</option>
+                                <option value="Advanced">Advanced</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <button class="btn btn-primary w-100" id="filterBtn">Apply Filters</button>
+                        </div>
+                    </div>
+
+                    <!-- Classes TabStrip -->
+                    <div id="tabstrip">
+                        <ul>
+                            <li class="k-active">Available Classes</li>
+                            <li>My Bookings</li>
+                        </ul>
+                        <div>
+                            <div id="classList" class="row">
+                                <!-- Available classes will be dynamically added here -->
+                            </div>
+                        </div>
+                        <div>
+                            <div id="bookedClasses" class="row">
+                                <!-- Booked classes will be dynamically added here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div>
+            <!-- Classes Content -->
+            <div class="main-content">
+                <div class="container">
+                    <h2>Classes Content</h2>
+                    <p>This would be the classes management section.</p>
+                </div>
+            </div>
+        </div>
+        <div>
+            <!-- Progress Content -->
+            <div class="main-content">
+                <div class="container">
+                    <h2>Progress Tracking</h2>
+                    <p>This would be the progress tracking section.</p>
+                </div>
+            </div>
+        </div>
+        <div>
+            <!-- Health Content -->
+            <div class="main-content">
+                <div class="container">
+                    <h2>Health Metrics</h2>
+                    <p>This would be the health metrics section.</p>
+                </div>
+            </div>
+        </div>
+        <div>
+            <!-- Settings Content -->
+            <div class="main-content">
+                <div class="container">
+                    <h2>Settings</h2>
+                    <p>This would be the settings section.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Kendo Drawer for Update Profile -->
+    <div id="profileDrawer"></div>
+
+    <!-- Logout Confirmation Dialog -->
+    <div id="logoutDialog"></div>
+
+    <script>
+        $(document).ready(function () {
+            // Initialize Main Navigation TabStrip
+            $("#mainTabstrip").kendoTabStrip({
+                animation: {
+                    open: {
+                        effects: "fadeIn"
+                    }
+                }
+            });
+
+            // Initialize Classes TabStrip
+            $("#tabstrip").kendoTabStrip({
+                animation: {
+                    open: {
+                        effects: "fadeIn"
+                    }
+                }
+            });
+
+            // Initialize Profile Drawer
+            $("#profileDrawer").kendoDrawer({
+                template: `
+                    <div class="k-drawer-content">
+                        <div class="k-drawer-title">Update Profile</div>
+                        <form id="profileForm" class="profile-form">
+                            <div class="mb-3">
+                                <label for="firstName" class="form-label">First Name</label>
+                                <input type="text" class="form-control" id="firstName" value="John">
+                            </div>
+                            <div class="mb-3">
+                                <label for="lastName" class="form-label">Last Name</label>
+                                <input type="text" class="form-control" id="lastName" value="Doe">
+                            </div>
+                            <div class="mb-3">
+                                <label for="email" class="form-label">Email</label>
+                                <input type="email" class="form-control" id="email" value="john.doe@example.com">
+                            </div>
+                            <div class="mb-3">
+                                <label for="phone" class="form-label">Phone</label>
+                                <input type="tel" class="form-control" id="phone" value="+1 (555) 123-4567">
+                            </div>
+                            <div class="d-flex justify-content-end">
+                                <button type="button" class="btn btn-secondary me-2" onclick="$('#profileDrawer').data('kendoDrawer').hide()">Cancel</button>
+                                <button type="submit" class="btn btn-primary">Save Changes</button>
+                            </div>
+                        </form>
+                    </div>
+                `,
+                position: "right",
+                mode: "push",
+                width: "400px",
+                minHeight: "100vh",
+                swipeToOpen: false
+            });
+
+            // Initialize Logout Dialog
+            $("#logoutDialog").kendoDialog({
+                title: "Logout Confirmation",
+                content: "<p>Are you sure you want to logout?</p>",
+                actions: [
+                    { text: "Cancel" },
+                    { 
+                        text: "Logout", 
+                        primary: true,
+                        action: function(e) {
+                            performLogout();
+                        } 
+                    }
+                ],
+                visible: false
+            });
+
+            // Sample data matching your JSON format
+            var classData = [
+                {
+                    "className": "Intermediate Pilates",
+                    "instructorId": 2,
+                    "description": {
+                        "overview": "Intermediate pilates class focusing on core strength and flexibility",
+                        "level": "Intermediate"
+                    },
+                    "type": "In-Person",
+                    "startDate": "2025-04-05T00:00:00",
+                    "startTime": "10:00:00",
+                    "duration": 90,
+                    "city": "Los Angeles",
+                    "address": "456 Sunset Blvd, LA",
+                    "assets": {
+                        "imageUrls": [
+                            "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b",
+                            "https://images.unsplash.com/photo-1571019614242-c5e5ba5dace5",
+                            "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b"
+                        ]
+                    },
+                    "fee": 69.99,
+                    "seats": 8
+                },
+                {
+                    "className": "Advanced Yoga",
+                    "instructorId": 3,
+                    "description": {
+                        "overview": "Advanced yoga session for experienced practitioners",
+                        "level": "Advanced"
+                    },
+                    "type": "In-Person",
+                    "startDate": "2025-04-06T00:00:00",
+                    "startTime": "08:00:00",
+                    "duration": 60,
+                    "city": "New York",
+                    "address": "123 Yoga St, NYC",
+                    "assets": {
+                        "imageUrls": [
+                            "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b",
+                            "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b",
+                            "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b"
+                        ]
+                    },
+                    "fee": 79.99,
+                    "seats": 5
+                },
+                {
+                    "className": "Beginner Meditation",
+                    "instructorId": 1,
+                    "description": {
+                        "overview": "Introduction to meditation techniques for beginners",
+                        "level": "Beginner"
+                    },
+                    "type": "Online",
+                    "startDate": "2025-04-07T00:00:00",
+                    "startTime": "19:00:00",
+                    "duration": 45,
+                    "city": "Virtual",
+                    "address": "Online Session",
+                    "assets": {
+                        "imageUrls": [
+                            "https://images.unsplash.com/photo-1530026186672-2cd00ffc50fe",
+                            "https://images.unsplash.com/photo-1530026186672-2cd00ffc50fe",
+                            "https://images.unsplash.com/photo-1530026186672-2cd00ffc50fe"
+                        ]
+                    },
+                    "fee": 29.99,
+                    "seats": 20
+                }
+            ];
+
+            // Store booked classes
+            var bookedClasses = [];
+
+            // Current filtered data
+            var currentData = [...classData];
+
+            // Function to format date and time
+            function formatDateTime(dateStr, timeStr) {
+                const date = new Date(dateStr);
+                const options = { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' };
+                return date.toLocaleDateString('en-US', options) + ' at ' + timeStr.substring(0,5);
+            }
+
+            // Function to format duration
+            function formatDuration(minutes) {
+                const hours = Math.floor(minutes / 60);
+                const mins = minutes % 60;
+                return hours > 0 ? `${hours}h ${mins}m` : `${mins}m`;
+            }
+
+            function renderClasses(data) {
+                var html = "";
+                if (data.length === 0) {
+                    html = '<div class="col-12"><div class="alert alert-warning text-center">No classes match your search criteria.</div></div>';
+                } else {
+                    data.forEach(function (c) {
+                        // Generate carousel indicators
+                        var indicators = '';
+                        var items = '';
+                        c.assets.imageUrls.forEach((url, index) => {
+                            indicators += `<button type="button" data-bs-target="#carousel-${c.instructorId}-${c.startDate}" data-bs-slide-to="${index}" ${index === 0 ? 'class="active"' : ''}></button>`;
+                            items += `<div class="carousel-item ${index === 0 ? 'active' : ''}">
+                                        <img src="${url}" class="d-block w-100" alt="${c.className}">
+                                      </div>`;
+                        });
+
+                        html += `<div class="col-md-4 mb-4">
+                                    <div class="card h-100">
+                                        <div id="carousel-${c.instructorId}-${c.startDate}" class="carousel slide" data-bs-ride="carousel">
+                                            <div class="carousel-indicators">
+                                                ${indicators}
+                                            </div>
+                                            <div class="carousel-inner">
+                                                ${items}
+                                            </div>
+                                            <button class="carousel-control-prev" type="button" data-bs-target="#carousel-${c.instructorId}-${c.startDate}" data-bs-slide="prev">
+                                                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                                <span class="visually-hidden">Previous</span>
+                                            </button>
+                                            <button class="carousel-control-next" type="button" data-bs-target="#carousel-${c.instructorId}-${c.startDate}" data-bs-slide="next">
+                                                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                                <span class="visually-hidden">Next</span>
+                                            </button>
+                                        </div>
+                                        <div class="card-body">
+                                            <h5 class="card-title">${c.className}</h5>
+                                            <div class="mb-2">
+                                                <span class="badge badge-level me-1">${c.description.level}</span>
+                                                <span class="badge badge-type">${c.type}</span>
+                                            </div>
+                                            <p class="card-text">${c.description.overview}</p>
+                                            <div class="class-detail">
+                                                <strong>When:</strong> ${formatDateTime(c.startDate, c.startTime)}
+                                            </div>
+                                            <div class="class-detail">
+                                                <strong>Duration:</strong> ${formatDuration(c.duration)}
+                                            </div>
+                                            <div class="class-detail">
+                                                <strong>Location:</strong> ${c.city}
+                                            </div>
+                                            <div class="class-detail">
+                                                <strong>Address:</strong> ${c.address}
+                                            </div>
+                                            <div class="class-detail">
+                                                <strong>Seats:</strong> ${c.seats}
+                                            </div>
+                                            <div class="class-detail">
+                                                <strong>Price:</strong> $${c.fee.toFixed(2)}
+                                            </div>
+                                        </div>
+                                        <div class="card-footer bg-transparent">
+                                            <button class="btn btn-success w-100 book-btn" data-id="${c.instructorId}-${c.startDate}" ${c.seats === 0 ? 'disabled' : ''}>
+                                                ${c.seats === 0 ? 'Class Full' : 'Book Now'}
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>`;
+                    });
+                }
+                $("#classList").html(html);
+            }
+
+            function renderBookedClasses() {
+                var html = "";
+                if (bookedClasses.length === 0) {
+                    html = '<div class="col-12"><div class="alert alert-info text-center">You haven\'t booked any classes yet.</div></div>';
+                } else {
+                    bookedClasses.forEach(function (c) {
+                        // Generate carousel indicators for booked classes
+                        var indicators = '';
+                        var items = '';
+                        c.assets.imageUrls.forEach((url, index) => {
+                            indicators += `<button type="button" data-bs-target="#booked-carousel-${c.instructorId}-${c.startDate}" data-bs-slide-to="${index}" ${index === 0 ? 'class="active"' : ''}></button>`;
+                            items += `<div class="carousel-item ${index === 0 ? 'active' : ''}">
+                                        <img src="${url}" class="d-block w-100" alt="${c.className}">
+                                      </div>`;
+                        });
+
+                        html += `<div class="col-md-4 mb-4">
+                                    <div class="card h-100">
+                                        <div id="booked-carousel-${c.instructorId}-${c.startDate}" class="carousel slide" data-bs-ride="carousel">
+                                            <div class="carousel-indicators">
+                                                ${indicators}
+                                            </div>
+                                            <div class="carousel-inner">
+                                                ${items}
+                                            </div>
+                                            <button class="carousel-control-prev" type="button" data-bs-target="#booked-carousel-${c.instructorId}-${c.startDate}" data-bs-slide="prev">
+                                                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                                <span class="visually-hidden">Previous</span>
+                                            </button>
+                                            <button class="carousel-control-next" type="button" data-bs-target="#booked-carousel-${c.instructorId}-${c.startDate}" data-bs-slide="next">
+                                                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                                <span class="visually-hidden">Next</span>
+                                            </button>
+                                        </div>
+                                        <div class="card-body">
+                                            <h5 class="card-title">${c.className}</h5>
+                                            <div class="mb-2">
+                                                <span class="badge badge-level me-1">${c.description.level}</span>
+                                                <span class="badge badge-type">${c.type}</span>
+                                            </div>
+                                            <p class="card-text">${c.description.overview}</p>
+                                            <div class="class-detail">
+                                                <strong>When:</strong> ${formatDateTime(c.startDate, c.startTime)}
+                                            </div>
+                                            <div class="class-detail">
+                                                <strong>Duration:</strong> ${formatDuration(c.duration)}
+                                            </div>
+                                            <div class="class-detail">
+                                                <strong>Location:</strong> ${c.city}
+                                            </div>
+                                            <div class="class-detail">
+                                                <strong>Address:</strong> ${c.address}
+                                            </div>
+                                            <div class="class-detail">
+                                                <strong>Price:</strong> $${c.fee.toFixed(2)}
+                                            </div>
+                                            <div class="class-detail">
+                                                <strong>Status:</strong> <span class="badge bg-success">Booked</span>
+                                            </div>
+                                        </div>
+                                        <div class="card-footer bg-transparent">
+                                            <button class="btn btn-danger w-100 cancel-btn" data-id="${c.instructorId}-${c.startDate}">
+                                                Cancel Booking
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>`;
+                    });
+                }
+                $("#bookedClasses").html(html);
+            }
+
+            // Initial render
+            renderClasses(classData);
+            renderBookedClasses();
+            currentData = [...classData];
+
+            // Search function (runs on input)
+            function performSearch() {
+                var searchText = $("#searchText").val().toLowerCase();
+                
+                if (searchText === "") {
+                    // If search is empty, show all classes (but still respect filters)
+                    applyFilters();
+                    return;
+                }
+
+                var searchedData = classData.filter(function (c) {
+                    return c.className.toLowerCase().includes(searchText) || 
+                           c.city.toLowerCase().includes(searchText);
+                });
+
+                // Apply current filters to the search results
+                var type = $("#type").val();
+                var level = $("#level").val();
+                
+                var filteredData = searchedData.filter(function (c) {
+                    return (type === "" || c.type === type) &&
+                           (level === "" || c.description.level === level);
+                });
+
+                currentData = filteredData;
+                renderClasses(currentData);
+            }
+
+            // Filter function (runs on button click)
+            function applyFilters() {
+                var searchText = $("#searchText").val().toLowerCase();
+                var type = $("#type").val();
+                var level = $("#level").val();
+                
+                var filteredData = classData.filter(function (c) {
+                    var matchesSearch = searchText === "" || 
+                                        c.className.toLowerCase().includes(searchText) || 
+                                        c.city.toLowerCase().includes(searchText);
+                    var matchesType = type === "" || c.type === type;
+                    var matchesLevel = level === "" || c.description.level === level;
+                    
+                    return matchesSearch && matchesType && matchesLevel;
+                });
+
+                currentData = filteredData;
+                renderClasses(currentData);
+            }
+
+            // Search on input
+            $("#searchText").on("input", performSearch);
+
+            // Filter on button click
+            $("#filterBtn").click(applyFilters);
+
+            // Booking functionality
+            $("#classList").on("click", ".book-btn", function () {
+                var classId = $(this).data("id");
+                var selectedClass = currentData.find(c => `${c.instructorId}-${c.startDate}` === classId);
+
+                if (selectedClass && selectedClass.seats > 0) {
+                    // Update in both currentData and main classData
+                    selectedClass.seats--;
+                    classData.find(c => `${c.instructorId}-${c.startDate}` === classId).seats--;
+                    
+                    // Add to booked classes (create a copy to avoid reference issues)
+                    bookedClasses.push({...selectedClass});
+                    
+                    renderClasses(currentData);
+                    renderBookedClasses();
+                    
+                    // Show success message and switch to booked tab
+                    alert(`Booking confirmed for ${selectedClass.className}!\nDate: ${formatDateTime(selectedClass.startDate, selectedClass.startTime)}\nPrice: $${selectedClass.fee.toFixed(2)}`);
+                    $("#tabstrip").data("kendoTabStrip").select(1); // Switch to booked tab
+                } else {
+                    alert("Sorry, no seats available for " + selectedClass.className);
+                }
+            });
+
+            // Cancel booking functionality
+            $("#bookedClasses").on("click", ".cancel-btn", function () {
+                var classId = $(this).data("id");
+                var index = bookedClasses.findIndex(c => `${c.instructorId}-${c.startDate}` === classId);
+                
+                if (index !== -1) {
+                    var cancelledClass = bookedClasses[index];
+                    
+                    // Remove from booked classes
+                    bookedClasses.splice(index, 1);
+                    
+                    // Increase seats in main data
+                    var classInMainData = classData.find(c => `${c.instructorId}-${c.startDate}` === classId);
+                    if (classInMainData) {
+                        classInMainData.seats++;
+                    }
+                    
+                    // Update current data if the class is visible
+                    var classInCurrentData = currentData.find(c => `${c.instructorId}-${c.startDate}` === classId);
+                    if (classInCurrentData) {
+                        classInCurrentData.seats++;
+                    }
+                    
+                    renderClasses(currentData);
+                    renderBookedClasses();
+                    
+                    alert(`Booking cancelled for ${cancelledClass.className}`);
+                }
+            });
+
+            // Profile form submission
+            $(document).on("submit", "#profileForm", function(e) {
+                e.preventDefault();
+                alert("Profile updated successfully!");
+                $("#profileDrawer").data("kendoDrawer").hide();
+            });
+        });
+
+        // Show profile drawer
+        function showProfileDrawer() {
+            $("#profileDrawer").data("kendoDrawer").show();
+        }
+
+        // Show logout confirmation
+        function showLogoutConfirmation() {
+            $("#logoutDialog").data("kendoDialog").open();
+        }
+
+        // Perform logout
+        function performLogout() {
+            alert("You have been logged out. Redirecting to login page...");
+            // In a real app, you would redirect to login page
+            // window.location.href = "/login";
+        }
+    </script>
+</body>
+</html>
