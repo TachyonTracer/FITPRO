@@ -11,13 +11,11 @@ namespace Repo;
             _conn = connection;
         }
 
+        #region Update User Profile
         public async Task<bool> UpdateUserProfileAsync(User user)
         {
             string query = @"UPDATE t_user 
-                            SET c_username = @username,
-                                c_mobile = @mobile,
-                                c_gender = @gender,
-                                c_dob = @dob,
+                            SET c_username = @username,                                
                                 c_height = @height,
                                 c_weight = @weight,
                                 c_goal = @goal,
@@ -56,6 +54,8 @@ namespace Repo;
             }
            
         }
+        #endregion
+    
 
    
 }

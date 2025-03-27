@@ -16,8 +16,9 @@ public class UserController : ControllerBase
         _userRepo = userRepo;
     }
 
+    #region Update User Profile
     // Update profile with image upload
-    [HttpPut("profile")]
+    [HttpPut("UserUpdateProfile")]
     public async Task<IActionResult> UpdateProfile([FromForm] User user)
     {
         try
@@ -30,7 +31,7 @@ public class UserController : ControllerBase
             // Handle profile image upload
             if (user.profileImageFile != null && user.profileImageFile.Length > 0)
             {
-                var fileName = user.email + Path.GetExtension(user.profileImageFile.FileName);
+                var fileName = Guid.NewGuid().ToString() + Path.GetExtension(user.profileImageFile.FileName);
                 var filePath = Path.Combine("../MVC/wwwroot/User_Images", fileName);
                 
                 // Create directory if it doesn't exist
@@ -60,4 +61,5 @@ public class UserController : ControllerBase
             return StatusCode(500, new { message = "Internal server error", error = ex.Message });
         }
     }
+    #endregion
 }
