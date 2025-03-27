@@ -272,12 +272,12 @@
 
         .swal2-icon.swal2-success .swal2-success-circular-line-left,
         .swal2-icon.swal2-success .swal2-success-circular-line-right,
-        .swal2-icon.swal2-success .swal2-success-fix  {
+        .swal2-icon.swal2-success .swal2-success-fix {
             display: none !important;
         }
 
-        
-       
+
+
 
         /* Ensure pseudo-elements of the ring don't render a background */
         .swal2-icon.swal2-success .swal2-success-ring::before,
@@ -567,12 +567,27 @@
                 cancelButtonText: "Cancel"
             }).then((result) => {
                 if (result.isConfirmed) {
-                    console.log(`Instructor ${currentInstructorId} approved.`);
-                    Swal.fire({
-                        title: "Success",
-                        text: "Instructor approved successfully!",
-                        icon: "success",
-                        confirmButtonText: "OK"
+                     $.ajax({
+                        url: `${apiBaseUrl}InstructorApprove/${currentInstructorId}`,
+                        type: "POST",
+                        success: function (response) {
+                            Swal.fire({
+                                title: "Success",
+                                text: "Instructor Approved successfully!",
+                                icon: "success",
+                                confirmButtonText: "OK"
+                            }).then(() => {
+                                loadInstructors(); 
+                            });
+                        },
+                        error: function () {
+                            Swal.fire({
+                                title: "Error",
+                                text: "Failed to Approve instructor.",
+                                icon: "error",
+                                confirmButtonText: "OK"
+                            });
+                        }
                     });
                 }
             });
@@ -594,12 +609,27 @@
                 cancelButtonText: "Cancel"
             }).then((result) => {
                 if (result.isConfirmed) {
-                    console.log(`Instructor ${currentInstructorId} disapproved.`);
-                    Swal.fire({
-                        title: "Success",
-                        text: "Instructor disapproved successfully!",
-                        icon: "success",
-                        confirmButtonText: "OK"
+                    $.ajax({
+                        url: `${apiBaseUrl}InstructorDisapprove/${currentInstructorId}`,
+                        type: "POST",
+                        success: function (response) {
+                            Swal.fire({
+                                title: "Success",
+                                text: "Instructor disapproved successfully!",
+                                icon: "success",
+                                confirmButtonText: "OK"
+                            }).then(() => {
+                                loadInstructors(); 
+                            });
+                        },
+                        error: function () {
+                            Swal.fire({
+                                title: "Error",
+                                text: "Failed to disapprove instructor.",
+                                icon: "error",
+                                confirmButtonText: "OK"
+                            });
+                        }
                     });
                 }
             });

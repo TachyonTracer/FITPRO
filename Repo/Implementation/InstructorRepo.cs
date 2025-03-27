@@ -12,11 +12,11 @@ public class InstructorRepo : IInstructorInterface
     public InstructorRepo(NpgsqlConnection conn)
     {
         _conn = conn;
-    }   
+    }
     #endregion
 
     #region User Story: List Instructors
-    
+
     #region Get All Instructors
     public async Task<List<Instructor>> GetAllInstructors()
     {
@@ -24,12 +24,12 @@ public class InstructorRepo : IInstructorInterface
 
         try
         {
-            if(_conn.State != ConnectionState.Open)
+            if (_conn.State != ConnectionState.Open)
             {
                 await _conn.OpenAsync();
             }
 
-            using(var cmd = new NpgsqlCommand(@"SELECT 
+            using (var cmd = new NpgsqlCommand(@"SELECT 
                                         c_instructorid,
                                         c_instructorname,
                                         c_email,
@@ -45,9 +45,9 @@ public class InstructorRepo : IInstructorInterface
                                         c_idproof
                                         FROM t_instructor", _conn))
             {
-                using(var dr =  await cmd.ExecuteReaderAsync())
+                using (var dr = await cmd.ExecuteReaderAsync())
                 {
-                    while(dr.Read())
+                    while (dr.Read())
                     {
                         instructorList.Add(new Instructor()
                         {
@@ -63,7 +63,7 @@ public class InstructorRepo : IInstructorInterface
                             profileImage = Convert.ToString(dr["c_profileimage"]),
                             association = Convert.ToString(dr["c_association"]),
                             status = Convert.ToString(dr["c_status"]),
-                            idProof = Convert.ToString(dr["c_idproof"])                       
+                            idProof = Convert.ToString(dr["c_idproof"])
                         });
                     }
                 }
@@ -75,7 +75,7 @@ public class InstructorRepo : IInstructorInterface
         }
         finally
         {
-            if(_conn.State != ConnectionState.Closed)
+            if (_conn.State != ConnectionState.Closed)
             {
                 await _conn.CloseAsync();
             }
@@ -92,12 +92,12 @@ public class InstructorRepo : IInstructorInterface
 
         try
         {
-            if(_conn.State != ConnectionState.Open)
+            if (_conn.State != ConnectionState.Open)
             {
                 await _conn.OpenAsync();
             }
 
-            using(var cmd = new NpgsqlCommand(@"SELECT 
+            using (var cmd = new NpgsqlCommand(@"SELECT 
                                         c_instructorid,
                                         c_instructorname,
                                         c_email,
@@ -116,9 +116,9 @@ public class InstructorRepo : IInstructorInterface
             {
                 cmd.Parameters.AddWithValue("@c_instructorid", Convert.ToInt32(instructorId));
 
-                using(var dr =  await cmd.ExecuteReaderAsync())
+                using (var dr = await cmd.ExecuteReaderAsync())
                 {
-                    if(dr.Read())
+                    if (dr.Read())
                     {
                         instructor = new Instructor()
                         {
@@ -134,7 +134,7 @@ public class InstructorRepo : IInstructorInterface
                             profileImage = Convert.ToString(dr["c_profileimage"]),
                             association = Convert.ToString(dr["c_association"]),
                             status = Convert.ToString(dr["c_status"]),
-                            idProof = Convert.ToString(dr["c_idproof"])                   
+                            idProof = Convert.ToString(dr["c_idproof"])
                         };
                     }
                 }
@@ -146,7 +146,7 @@ public class InstructorRepo : IInstructorInterface
         }
         finally
         {
-            if(_conn.State != ConnectionState.Closed)
+            if (_conn.State != ConnectionState.Closed)
             {
                 await _conn.CloseAsync();
             }
@@ -154,5 +154,74 @@ public class InstructorRepo : IInstructorInterface
         return instructor;
     }
     #endregion
+    #endregion
+
+    #region User Story: Update Instructor (Admin Dasboard)
+    public async Task<bool> ApproveInstructorAsync(string instructorId)
+    {
+        bool isSuccess = false;
+        try
+        {
+            if (_conn.State != ConnectionState.Open)
+            {
+                await _conn.OpenAsync();
+            }
+
+            using (var cmd = new NpgsqlCommand("UPDATE t_instructor SET c_status = 'Approve' WHERE c_instructorid = @InstructorId", _conn))
+            {
+                cmd.Parameters.AddWithValue("@InstructorId", Convert.ToInt32(instructorId));
+
+                // Execute the command and check affected rows
+                int rowsAffected = await cmd.ExecuteNonQueryAsync();
+                isSuccess = rowsAffected > 0;
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error while approving instructor: {ex.Message}");
+        }
+        finally
+        {
+            if (_conn.State != ConnectionState.Closed)
+            {
+                await _conn.CloseAsync();
+            }
+        }
+        return isSuccess;
+    }
+
+    public async Task<bool> DisapproveInstructorAsync(string instructorId)
+    {
+        bool isSuccess = false;
+        try
+        {
+            if (_conn.State != ConnectionState.Open)
+            {
+                await _conn.OpenAsync();
+            }
+
+            using (var cmd = new NpgsqlCommand("UPDATE t_instructor SET c_status = 'Disapprove' WHERE c_instructorid = @InstructorId", _conn))
+            {
+                cmd.Parameters.AddWithValue("@InstructorId", Convert.ToInt32(instructorId));
+
+                // Execute the command and check affected rows
+                int rowsAffected = await cmd.ExecuteNonQueryAsync();
+                isSuccess = rowsAffected > 0;
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error while disapproving instructor: {ex.Message}");
+        }
+        finally
+        {
+            if (_conn.State != ConnectionState.Closed)
+            {
+                await _conn.CloseAsync();
+            }
+        }
+        return isSuccess;
+    }
+
     #endregion
 }

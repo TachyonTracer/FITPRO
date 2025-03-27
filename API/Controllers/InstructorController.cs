@@ -65,5 +65,44 @@ namespace API
             });
         }
         #endregion
+
+        #region Approve Instructor
+        [HttpPost("InstructorApprove/{id}")]
+        public async Task<IActionResult> ApproveInstructor(string id)
+        {
+            var instructor = await _instructorRepo.GetOneInstructor(id);
+            if (instructor == null)
+            {
+                return NotFound(new {success = false, message = "Instructor not found." });
+            }
+
+            var result = await _instructorRepo.ApproveInstructorAsync(id);
+            if (result)
+            {
+                return Ok(new {success = true, message = "Instructor approved successfully!" });
+            }
+            return BadRequest(new { message = "Failed to approve instructor." });
+        }
+        #endregion
+
+
+        #region Disaaprve Instructor
+        [HttpPost("InstructorDisapprove/{id}")]
+        public async Task<IActionResult> DisapproveInstructor(string id)
+        {
+            var instructor = await _instructorRepo.GetOneInstructor(id);
+            if (instructor == null)
+            {
+                return NotFound(new {success = false, message = "Instructor not found." });
+            }
+
+            var result = await _instructorRepo.DisapproveInstructorAsync(id);
+            if (result)
+            {
+                return Ok(new {success = true, message = "Instructor disapproved successfully!" });
+            }
+            return BadRequest(new { message = "Failed to disapprove instructor." });
+        }
+        #endregion
     }
 }
