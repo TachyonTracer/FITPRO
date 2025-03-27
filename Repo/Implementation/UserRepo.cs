@@ -1,6 +1,6 @@
 using System.Data;
 using Npgsql;
-using Repo;
+namespace Repo;
 
 public class UserRepo : IUserInterface
 {

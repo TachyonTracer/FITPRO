@@ -1,3 +1,5 @@
+namespace Repo;
+
 public interface IAdminInterface {
 
 	#region Analytics related By Paras

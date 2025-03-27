@@ -1,5 +1,5 @@
 using Npgsql;
-using Repo;
+namespace Repo;
 
 public class AdminRepo : IAdminInterface
 {
