@@ -435,6 +435,12 @@ h1 {
     /* Check lines */
 }
 
+.swal2-icon.swal2-success .swal2-success-circular-line-left,
+.swal2-icon.swal2-success .swal2-success-circular-line-right,
+.swal2-icon.swal2-success .swal2-success-fix  {
+    display: none !important;
+}
+
 /* Animations */
 @keyframes float {
     0% {

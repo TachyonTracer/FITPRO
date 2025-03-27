@@ -75,5 +75,6 @@ CREATE TABLE t_reset_password (
     c_otp INT NOT NULL,
     c_expiry_at TIMESTAMP, 
     c_role VARCHAR(100) NOT NULL,
-    c_created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    c_created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    c_isused BOOLEAN DEFAULT FALSE
 );

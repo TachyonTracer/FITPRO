@@ -2,7 +2,7 @@
 using System.Text.Json;
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Http;
-
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Repo;
 
@@ -23,12 +23,11 @@ public class Instructor
     [StringLength(100, MinimumLength = 6, ErrorMessage = "Password must be between 6 and 100 characters")]
     [RegularExpression(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{6,}$",
         ErrorMessage = "Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character")]
-    public string password { get; set; }
+    public string? password { get; set; }
 
     [Required(ErrorMessage = "Confirm password is required")]
     [Compare("password", ErrorMessage = "Passwords do not match")]
     public string? confirmPassword { get; set; }
-
 
     [Required(ErrorMessage = "Mobile number is required")]
     [Phone(ErrorMessage = "Invalid phone number format")]
@@ -38,19 +37,17 @@ public class Instructor
     public string gender { get; set; }
 
     [DataType(DataType.Date)]
-    public DateTime? dob { get; set; }
+    public DateTime dob { get; set; }
 
     [Required(ErrorMessage = "Specialization is required")]
     [StringLength(100, ErrorMessage = "Specialization must not exceed 100 characters")]
     public string specialization { get; set; }
 
-    [Required(ErrorMessage = "Certificates are required")]
-    public JsonDocument certificates { get; set; }
+    
+    public JsonDocument? certificates { get; set; }
 
-    public string profileImage { get; set; }
+    public string? profileImage { get; set; }
 
-    [Display(Name = "Profile Image")]
-    public IFormFile profileImageFile { get; set; }
 
     [StringLength(100, ErrorMessage = "Association must not exceed 100 characters")]
     public string association { get; set; }
@@ -63,17 +60,19 @@ public class Instructor
     public string status { get; set; }
 
     // [Url(ErrorMessage = "Invalid URL format")]
-    public string idProof { get; set; }
+    public string? idProof { get; set; }
 
     [StringLength(100, ErrorMessage = "Activation token must not exceed 100 characters")]
-    public string activationToken { get; set; }
+    public string? activationToken { get; set; }
 
     [DataType(DataType.DateTime)]
     public DateTime? activatedOn { get; set; }
 
-   
-    public IFormFile idProofFile { get; set; }
+    public IFormFile? idProofFile { get; set; }
 
-    public IFormFile[] certificateFiles { get; set; }
+    public IFormFile[]? certificateFiles { get; set; }
+
+    [Display(Name = "Profile Image")]
+    public IFormFile? profileImageFile { get; set; }
 }
 

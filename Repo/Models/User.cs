@@ -48,11 +48,8 @@ public class User
     [StringLength(200, ErrorMessage = "Medical condition must not exceed 200 characters")]
     public string medicalCondition { get; set; }
 
-    public string profileImage { get; set; }
+    public string? profileImage { get; set; }
     
-    [Display(Name = "Profile Image")]
-    public IFormFile profileImageFile { get; set; }
-
     [Required(ErrorMessage = "Creation date is required")]
     public DateTime createdAt { get; set; } = DateTime.UtcNow;
 
@@ -63,7 +60,6 @@ public class User
 
     [DataType(DataType.DateTime)]
     public DateTime? activatedOn { get; set; }
-
-
+    public IFormFile? profileImageFile { get; set; }
 
 }

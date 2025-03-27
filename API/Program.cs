@@ -50,7 +50,8 @@ builder.Services.AddSwaggerGen(c =>
 });
 
 builder.Services.AddSingleton<IAuthInterface, AuthRepo>();
-builder.Services.AddSingleton<IEmailInterface, EmailRepositories>();
+builder.Services.AddSingleton<IEmailInterface, EmailRepo>();
+builder.Services.AddScoped<IAuthInterface, AuthRepo>();
 
 builder.Services.AddSingleton<NpgsqlConnection>((provider) =>
 {
@@ -91,7 +92,6 @@ builder.Services.AddSession(options =>
     options.Cookie.HttpOnly = true;
     options.Cookie.IsEssential = true;
 });
-builder.Services.AddScoped<IAuthInterface, AuthRepo>();
 
 var app = builder.Build();
 
