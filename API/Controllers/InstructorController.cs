@@ -19,7 +19,7 @@ namespace MyApp.Namespace
         #endregion
 
         #region Get All Instructors
-        [HttpGet]
+        [HttpGet("GetAllInstructors")]
         // [Authorize]
         public async Task<IActionResult> GetAllInstructors()
         {
