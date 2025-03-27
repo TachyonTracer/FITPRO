@@ -14,6 +14,7 @@ builder.Services.AddScoped<IClassInterface,ClassRepo>();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddControllers();
 builder.Services.AddSignalR();
+builder.Services.AddScoped<IUserInterface,UserRepo>();
 builder.Services.AddSwaggerGen(c =>
 {
     c.AddSecurityDefinition("token", new OpenApiSecurityScheme
