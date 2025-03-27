@@ -13,6 +13,9 @@ namespace API
         {
             _classRepo = classRepo;
         }
+
+        #region User-Stroy : List Class 
+        
         #region GetAll
         [HttpGet]
         // [Authorize]
@@ -52,6 +55,8 @@ namespace API
             }
             return Ok(new{sucess = true, message="class fetch successfully",data=classes});
         }
+        #endregion
+
         #endregion
 
 

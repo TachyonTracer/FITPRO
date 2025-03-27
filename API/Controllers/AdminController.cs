@@ -4,19 +4,19 @@ using System.Threading.Tasks;
 
 
 
-namespace  API
+namespace API
 {
 
 	[ApiController]
 	[Route("api/[controller]")]
 	public class AdminController : ControllerBase
-{
-	private readonly IAdminInterface _adminRepo;
-
-	public AdminController(IAdminInterface adminRepo)
 	{
-		_adminRepo = adminRepo;
-	}
+		private readonly IAdminInterface _adminRepo;
+
+		public AdminController(IAdminInterface adminRepo)
+		{
+			_adminRepo = adminRepo;
+		}
 
 
 		#region Analytics Related

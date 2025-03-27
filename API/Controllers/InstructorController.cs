@@ -66,6 +66,8 @@ namespace API
         }
         #endregion
 
+        #region User Stroy : Update Instructor(Admin Dashboard)
+        
         #region Approve Instructor
         [HttpPost("InstructorApprove/{id}")]
         public async Task<IActionResult> ApproveInstructor(string id)
@@ -85,7 +87,6 @@ namespace API
         }
         #endregion
 
-
         #region Disaaprve Instructor
         [HttpPost("InstructorDisapprove/{id}")]
         public async Task<IActionResult> DisapproveInstructor(string id)
@@ -103,6 +104,7 @@ namespace API
             }
             return BadRequest(new { message = "Failed to disapprove instructor." });
         }
+        #endregion
         #endregion
     }
 }
