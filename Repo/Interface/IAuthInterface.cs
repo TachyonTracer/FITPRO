@@ -16,5 +16,11 @@ namespace Repo
         Task<bool> RegisterUserAsync(User user);
         Task<bool> RegisterInstructorAsync(Instructor instructor);
         Task<bool> IsEmailExists(string email);
+
+
+        #region 
+        Task<int> ActivateUser(string token);
+        Task<int> ActivateInstructor(string token);
+        #endregion
     }
 }

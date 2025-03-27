@@ -24,7 +24,7 @@ namespace Repo
         public async Task<int> dispatchOtp(string email)
         {
             // six digit otp
-            
+
             int OTP = RandomNumberGenerator.GetInt32(100000, 999999);
             int result = 0;
             int userID = 0;
@@ -353,7 +353,7 @@ namespace Repo
 
 
 
-      
+
 
         #region Register User
         public async Task<bool> RegisterUserAsync(User user)
@@ -374,9 +374,9 @@ namespace Repo
 
                 await _conn.OpenAsync();
 
-                
 
-                
+
+
                 using (var command = new NpgsqlCommand(query, _conn))
                 {
                     command.Parameters.AddWithValue("@username", user.userName);
@@ -483,6 +483,138 @@ namespace Repo
                     await _conn.CloseAsync();
             }
         }
+
+
         #endregion
+
+        #region Activate User
+
+        public async Task<int> ActivateUser(string token)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(token))
+                    return -1; // No token provided
+
+                if (_conn.State == System.Data.ConnectionState.Closed)
+                {
+                    await _conn.OpenAsync();
+                }
+
+                string query = "SELECT c_userid, c_status FROM t_User WHERE c_activationtoken = @Token";
+                int userId = 0;
+                bool isActivated = false;
+
+                using (var cmd = new NpgsqlCommand(query, _conn))
+                {
+                    cmd.Parameters.AddWithValue("Token", token);
+
+                    using (var reader = await cmd.ExecuteReaderAsync())
+                    {
+                        if (!reader.Read())
+                            return -2; // Token not found
+
+                        userId = reader.GetInt32(0);
+                        isActivated = reader.GetBoolean(1);
+                    }
+                }
+
+                if (isActivated)
+                    return -3; // User already activated
+
+                string updateQuery = "UPDATE t_User SET c_status = TRUE, c_activatedon = NOW(), c_activationtoken = NULL WHERE c_userid = @UserId";
+
+                using (var updateCmd = new NpgsqlCommand(updateQuery, _conn))
+                {
+                    updateCmd.Parameters.AddWithValue("UserId", userId);
+                    await updateCmd.ExecuteNonQueryAsync();
+                }
+
+                return 1; // Activation successful
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error at activation user ---> " + ex.Message);
+                return -4; // Internal error
+            }
+            finally
+            {
+                if (_conn.State == System.Data.ConnectionState.Open)
+                {
+                    await _conn.CloseAsync();
+                }
+            }
+        }
+        #endregion
+
+
+        #region Activate Instructor
+
+        public async Task<int> ActivateInstructor(string token)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(token))
+                    return -1; // No token provided
+
+                if (_conn.State == System.Data.ConnectionState.Closed)
+                {
+                    await _conn.OpenAsync();
+                }
+
+                string query = "SELECT c_instructorid, c_status FROM t_Instructor WHERE c_activationtoken = @Token";
+                int instructorId = 0;
+                string status = "";
+
+                using (var cmd = new NpgsqlCommand(query, _conn))
+                {
+                    cmd.Parameters.AddWithValue("Token", token);
+
+                    using (var reader = await cmd.ExecuteReaderAsync())
+                    {
+                        if (!reader.Read())
+                            return -2; // Token not found
+
+                        instructorId = reader.GetInt32(0);
+                        status = reader.GetString(1);
+                    }
+                }
+
+                if (status == "Verified")
+                    return -3; // Already activated
+
+                if (status != "Unverified")
+                    return -4; // Invalid status (should never happen)
+
+                string updateQuery = "UPDATE t_Instructor SET c_status = 'Verified', c_activatedon = NOW(), c_activationtoken = NULL WHERE c_instructorid = @InstructorId AND c_status = 'Unverified'";
+
+                using (var updateCmd = new NpgsqlCommand(updateQuery, _conn))
+                {
+                    updateCmd.Parameters.AddWithValue("InstructorId", instructorId);
+                    int rowsAffected = await updateCmd.ExecuteNonQueryAsync();
+
+                    if (rowsAffected == 0)
+                        return -5; // Instructor was already verified before updating
+                }
+
+                return 1; // Activation successful
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error at activating instructor ---> " + ex.Message);
+                return -6; // Internal error
+            }
+            finally
+            {
+                if (_conn.State == System.Data.ConnectionState.Open)
+                {
+                    await _conn.CloseAsync();
+                }
+            }
+        }
+
+        #endregion
+
+
     }
 }

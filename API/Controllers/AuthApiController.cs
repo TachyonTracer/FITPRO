@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
 using Repo;
 using System.Text.Json;
+using Nest;
 
 namespace API.Controllers
 {
@@ -71,7 +72,7 @@ namespace API.Controllers
             }
         }
         #endregion
-        
+
 
         #region Update Password
 
@@ -296,6 +297,78 @@ namespace API.Controllers
             return new JsonResult(new { exists });
         }
         #endregion
+
+
+        #region Activate User
+        [HttpGet("activateuser")]
+        public async Task<IActionResult> ActivateUser([FromQuery] string token)
+        {
+            int result = await _authInterface.ActivateUser(token);
+
+            string redirectUrl;
+
+            if (result == 1)
+            {
+                // Activation successful
+                redirectUrl = "https://www.google.com?message=Activation%20Successful";
+            }
+            else if (result == -2)
+            {
+                redirectUrl = "https://www.google.com?message=Invalid%20Activation%20Token";
+
+            }
+            else if (result == -3)
+            {
+                // User already activated
+                redirectUrl = "https://www.google.com?message=Already%20Activated";
+            }
+            else
+            {
+                // Invalid token or other failure
+                redirectUrl = "https://www.google.com?message=Failed%20To%20Activate";
+            }
+
+            return Redirect(redirectUrl);
+        }
+        #endregion
+
+        #region Activate Instructor
+        [HttpGet("activateinstructor")]
+        public async Task<IActionResult> ActivateInstructor([FromQuery] string token)
+        {
+            int result = await _authInterface.ActivateInstructor(token);
+
+            if (result == 1)
+            {
+                return Redirect("https://www.google.com?message=Activation%20Successful");
+            }
+            else if (result == -2)
+            {
+                return Redirect("https://www.google.com?message=Invalid%20Activation%20Token");
+            }
+            else if (result == -3)
+            {
+                return Redirect("https://www.google.com?message=Already%20Activated");
+            }
+            else if (result == -4)
+            {
+                return Redirect("https://www.google.com?message=Invalid%20Status");
+            }
+            else if (result == -5)
+            {
+                return Redirect("https://www.google.com?message=Instructor%20Already%20Verified");
+            }
+            else if (result == -6)
+            {
+                return Redirect("https://www.google.com?message=Internal%20Error%20Try%20Again%20Later");
+            }
+            else
+            {
+                return Redirect("https://www.google.com?message=Unknown%20Error");
+            }
+        }
+        #endregion
+
     }
 
 
