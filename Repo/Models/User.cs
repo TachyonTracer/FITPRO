@@ -10,7 +10,7 @@ public class User
 
     [Required(ErrorMessage = "Username is required")]
     [StringLength(50, MinimumLength = 3, ErrorMessage = "Username must be between 3 and 50 characters")]
-    public string username { get; set; }
+    public string userName { get; set; }
 
     [Required(ErrorMessage = "Email is required")]
     [EmailAddress(ErrorMessage = "Invalid email format")]
@@ -49,11 +49,14 @@ public class User
     public string medicalCondition { get; set; }
 
     public string profileImage { get; set; }
+    
+    [Display(Name = "Profile Image")]
+    public IFormFile profileImageFile { get; set; }
 
     [Required(ErrorMessage = "Creation date is required")]
     public DateTime createdAt { get; set; } = DateTime.UtcNow;
 
-    public bool status { get; set; } = false;
+    public bool status { get; set; } 
 
     [StringLength(100, ErrorMessage = "Activation token must not exceed 100 characters")]
     public string activationToken { get; set; }
@@ -62,6 +65,5 @@ public class User
     public DateTime? activatedOn { get; set; }
 
 
-    public IFormFile profileImageFile { get; set; }
 
 }

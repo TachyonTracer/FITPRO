@@ -49,6 +49,9 @@ public class Instructor
 
     public string profileImage { get; set; }
 
+    [Display(Name = "Profile Image")]
+    public IFormFile profileImageFile { get; set; }
+
     [StringLength(100, ErrorMessage = "Association must not exceed 100 characters")]
     public string association { get; set; }
 
@@ -59,7 +62,7 @@ public class Instructor
     [StringLength(20, ErrorMessage = "Status must not exceed 20 characters")]
     public string status { get; set; }
 
-    [Url(ErrorMessage = "Invalid URL format")]
+    // [Url(ErrorMessage = "Invalid URL format")]
     public string idProof { get; set; }
 
     [StringLength(100, ErrorMessage = "Activation token must not exceed 100 characters")]
@@ -68,12 +71,9 @@ public class Instructor
     [DataType(DataType.DateTime)]
     public DateTime? activatedOn { get; set; }
 
-    public IFormFile profileImageFile { get; set; }
+   
     public IFormFile idProofFile { get; set; }
 
-    public IformFile[] certificateFiles { get; set; }
+    public IFormFile[] certificateFiles { get; set; }
 }
 
-public class IformFile
-{
-}

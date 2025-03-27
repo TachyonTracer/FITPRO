@@ -7,10 +7,14 @@ namespace Repo
 {
     public interface IAuthInterface
     {
-        public Task<bool> RegisterUser(User user);
-        public Task<User> LoginUser(LoginVM UserCredentials);
-        public Task<Instructor> LoginInstructor(LoginVM UserCredentials);
-        public Task<User> LoginAdmin(LoginVM UserCredentials);
-        public Task<bool> IsEmailExists(string email);
+        #region Login
+        Task<User> LoginUser(LoginVM UserCredentials);
+        Task<Instructor> LoginInstructor(LoginVM UserCredentials);
+        Task<User> LoginAdmin(LoginVM UserCredentials);
+        #endregion
+
+        Task<bool> RegisterUserAsync(User user);
+        Task<bool> RegisterInstructorAsync(Instructor instructor);
+        Task<bool> IsEmailExists(string email);
     }
 }
