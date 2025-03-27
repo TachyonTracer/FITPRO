@@ -4,6 +4,7 @@ using Npgsql;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 
@@ -11,11 +12,12 @@ namespace Repo
 {
     public class AuthRepo : IAuthInterface
     {
-
-        public readonly NpgsqlConnection _conn;
-        public AuthRepo(NpgsqlConnection npgsqlConnection)
+        private readonly NpgsqlConnection _conn;
+        private readonly IEmailInterface _email;
+        public AuthRepo(NpgsqlConnection conn, IEmailInterface email)
         {
-            _conn = npgsqlConnection;
+            _conn = conn;
+            _email = email;
         }
 
         #region Reset Password
@@ -89,6 +91,7 @@ namespace Repo
                 }
 
                 // send email (email,usernmae, otp)
+                await _email.SendOtpEmail(userName, email, OTP.ToString());
                 result = 1;
             }
             catch (System.Exception ex)
@@ -343,21 +346,15 @@ namespace Repo
         }
         #endregion
 
-        #region Activation link
         #endregion
-
-        #endregion
-
-
-
-
-
-
 
 
         #region Register User
         public async Task<bool> RegisterUserAsync(User user)
         {
+            string email = null;
+            string username = null;
+            string activationURL = "http://localhost:8080/api/AuthApi/activateuser?token=";
             string activationToken = Guid.NewGuid().ToString();
             string query = @"INSERT INTO t_user 
                             (c_username, c_email, c_password, c_mobile, c_gender, c_dob, c_height, c_weight, 
@@ -394,7 +391,11 @@ namespace Repo
                     command.Parameters.AddWithValue("@status", user.status);
                     command.Parameters.AddWithValue("@activationToken", activationToken);
 
+                    username = user.userName;
+                    email = user.email;
+                    activationURL += activationToken;
                     int rowsAffected = await command.ExecuteNonQueryAsync();
+                    await _email.SendActivationLink(email, username, activationURL);
                     return rowsAffected > 0;
                 }
             }
@@ -410,6 +411,10 @@ namespace Repo
         #region  Register Instructor
         public async Task<bool> RegisterInstructorAsync(Instructor instructor)
         {
+
+            string email = null;
+            string username = null;
+            string activationURL = "http://localhost:8080/api/AuthApi/activateinstructor?token=";
             string activationToken = Guid.NewGuid().ToString();
             string query = @"INSERT INTO t_instructor 
                             (c_instructorname, c_email, c_password, c_mobile, c_gender, c_dob, c_specialization, 
@@ -444,6 +449,10 @@ namespace Repo
                     command.Parameters.AddWithValue("@activationToken", activationToken);
 
                     int rowsAffected = await command.ExecuteNonQueryAsync();
+                    username = instructor.instructorName;
+                    email = instructor.email;
+                    activationURL += activationToken;
+                    await _email.SendActivationLink(email, username, activationURL);
                     return rowsAffected > 0;
                 }
             }
@@ -487,6 +496,192 @@ namespace Repo
 
         #endregion
 
+        #region Login Repo
+
+        #region Login User
+
+        public async Task<User> LoginUser(LoginVM userCredentials)
+        {
+            string query = @"SELECT c_userid, c_username, c_email, c_mobile, c_gender, c_dob, 
+                    c_height, c_weight, c_goal, c_medicalcondition, c_profileimage, 
+                    c_createdat, c_status, c_activationtoken, c_activatedon 
+                 FROM t_user 
+                 WHERE c_email = @Email AND c_password = @Password AND c_status IS NOT NULL;";
+
+            try
+            {
+                await _conn.OpenAsync();
+                using (var command = new NpgsqlCommand(query, _conn))
+                {
+                    command.Parameters.AddWithValue("@Email", userCredentials.email);
+                    command.Parameters.AddWithValue("@Password", userCredentials.password);
+
+                    using (var reader = await command.ExecuteReaderAsync())
+                    {
+                        if (await reader.ReadAsync())
+                        {
+                            return new User
+                            {
+                                userId = reader["c_userid"] != DBNull.Value ? Convert.ToInt32(reader["c_userid"]) : 0,
+                                userName
+                             = reader["c_username"]?.ToString(),
+                                email = reader["c_email"]?.ToString(),
+                                mobile = reader["c_mobile"]?.ToString(),
+                                gender = reader["c_gender"]?.ToString(),
+                                dob = reader["c_dob"] != DBNull.Value ? Convert.ToDateTime(reader["c_dob"]) : null,
+                                height = reader["c_height"] != DBNull.Value ? Convert.ToInt32(reader["c_height"]) : null,
+                                weight = reader["c_weight"] != DBNull.Value ? Convert.ToDecimal(reader["c_weight"]) : null,
+                                goal = reader["c_goal"]?.ToString(),
+                                medicalCondition = reader["c_medicalcondition"]?.ToString(),
+                                profileImage = reader["c_profileimage"]?.ToString(),
+                                createdAt = reader["c_createdat"] != DBNull.Value ? Convert.ToDateTime(reader["c_createdat"]) : DateTime.UtcNow,
+                                status = reader["c_status"] != DBNull.Value && Convert.ToBoolean(reader["c_status"]),
+                                activationToken = reader["c_activationtoken"]?.ToString(),
+                                activatedOn = reader["c_activatedon"] != DBNull.Value ? Convert.ToDateTime(reader["c_activatedon"]) : null
+                            };
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error during user login: {ex.Message}");
+            }
+            finally
+            {
+                if (_conn.State == System.Data.ConnectionState.Open)
+                {
+                    await _conn.CloseAsync();
+                }
+            }
+            return null;
+        }
+        #endregion
+
+
+
+
+        #endregion
+
+        #region Login Admin
+        public async Task<User> LoginAdmin(LoginVM userCredentials)
+        {
+            string query = @"SELECT c_userid, c_username, c_email, c_mobile, c_gender, c_dob, 
+                    c_height, c_weight, c_goal, c_medicalcondition, c_profileimage, 
+                    c_createdat, c_status, c_activationtoken, c_activatedon 
+                 FROM t_user 
+                 WHERE c_email = @Email AND c_password = @Password AND c_activatedon IS NOT NULL;";
+
+            try
+            {
+                await _conn.OpenAsync();
+                using (var command = new NpgsqlCommand(query, _conn))
+                {
+                    command.Parameters.AddWithValue("@Email", userCredentials.email);
+                    command.Parameters.AddWithValue("@Password", userCredentials.password);
+
+                    using (var reader = await command.ExecuteReaderAsync())
+                    {
+                        if (await reader.ReadAsync())
+                        {
+                            return new User
+                            {
+                                userId = reader["c_userid"] != DBNull.Value ? Convert.ToInt32(reader["c_userid"]) : 0,
+                                userName = reader["c_username"]?.ToString(),
+                                email = reader["c_email"]?.ToString(),
+                                mobile = reader["c_mobile"]?.ToString(),
+                                gender = reader["c_gender"]?.ToString(),
+                                dob = reader["c_dob"] != DBNull.Value ? Convert.ToDateTime(reader["c_dob"]) : null,
+                                height = reader["c_height"] != DBNull.Value ? Convert.ToInt32(reader["c_height"]) : null,
+                                weight = reader["c_weight"] != DBNull.Value ? Convert.ToDecimal(reader["c_weight"]) : null,
+                                goal = reader["c_goal"]?.ToString(),
+                                medicalCondition = reader["c_medicalcondition"]?.ToString(),
+                                profileImage = reader["c_profileimage"]?.ToString(),
+                                createdAt = reader["c_createdat"] != DBNull.Value ? Convert.ToDateTime(reader["c_createdat"]) : DateTime.UtcNow,
+                                status = reader["c_status"] != DBNull.Value && Convert.ToBoolean(reader["c_status"]),
+                                activationToken = reader["c_activationtoken"]?.ToString(),
+                                activatedOn = reader["c_activatedon"] != DBNull.Value ? Convert.ToDateTime(reader["c_activatedon"]) : null
+                            };
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error during user login: {ex.Message}");
+            }
+            finally
+            {
+                if (_conn.State == System.Data.ConnectionState.Open)
+                {
+                    await _conn.CloseAsync();
+                }
+            }
+            return null;
+        }
+
+        #endregion
+
+        #region Login Instructor
+        public async Task<Instructor> LoginInstructor(LoginVM userCredentials)
+        {
+            string query = @"SELECT c_instructorid, c_instructorname, c_email, c_mobile, c_gender, c_dob, 
+                            c_specialization, c_certificates, c_profileimage, c_association, 
+                            c_createdat, c_status, c_idproof, c_activationtoken, c_activatedon 
+                     FROM t_instructor 
+                     WHERE c_email = @Email AND c_password = @Password AND c_status IS NOT NULL;";
+
+            try
+            {
+                await _conn.OpenAsync();
+                using (var command = new NpgsqlCommand(query, _conn))
+                {
+                    command.Parameters.AddWithValue("@Email", userCredentials.email);
+                    command.Parameters.AddWithValue("@Password", userCredentials.password);
+
+                    using (var reader = await command.ExecuteReaderAsync())
+                    {
+                        if (await reader.ReadAsync())
+                        {
+                            return new Instructor
+                            {
+                                instructorId = reader["c_instructorid"] != DBNull.Value ? Convert.ToInt32(reader["c_instructorid"]) : 0,
+                                instructorName = reader["c_instructorname"]?.ToString(),
+                                email = reader["c_email"]?.ToString(),
+                                mobile = reader["c_mobile"]?.ToString(),
+                                gender = reader["c_gender"]?.ToString(),
+                                dob = Convert.ToDateTime(reader["c_dob"]),
+                                specialization = reader["c_specialization"]?.ToString(),
+                                certificates = reader["c_certificates"] != DBNull.Value ? JsonDocument.Parse(reader["c_certificates"].ToString()) : null,
+                                profileImage = reader["c_profileimage"]?.ToString(),
+                                association = reader["c_association"]?.ToString(),
+                                createdAt = reader["c_createdat"] != DBNull.Value ? Convert.ToDateTime(reader["c_createdat"]) : DateTime.UtcNow,
+                                status = reader["c_status"]?.ToString(),
+                                idProof = reader["c_idproof"]?.ToString(),
+                                activationToken = reader["c_activationtoken"]?.ToString(),
+                                activatedOn = reader["c_activatedon"] != DBNull.Value ? Convert.ToDateTime(reader["c_activatedon"]) : null
+                            };
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error during instructor login: {ex.Message}");
+            }
+            finally
+            {
+                if (_conn.State == System.Data.ConnectionState.Open)
+                    await _conn.CloseAsync();
+            }
+
+            return null; // Return null if no instructor is found
+        }
+        #endregion
+
+
+
+        #region Activation user/Instructor
         #region Activate User
 
         public async Task<int> ActivateUser(string token)
@@ -603,7 +798,9 @@ namespace Repo
             {
                 Console.WriteLine("Error at activating instructor ---> " + ex.Message);
                 return -6; // Internal error
+
             }
+
             finally
             {
                 if (_conn.State == System.Data.ConnectionState.Open)
@@ -615,6 +812,6 @@ namespace Repo
 
         #endregion
 
-
+        #endregion
     }
 }

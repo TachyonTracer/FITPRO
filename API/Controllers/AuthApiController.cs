@@ -1,33 +1,140 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Http;
+using Microsoft.IdentityModel.Tokens;
 using Repo;
 using System.Text.Json;
 using Nest;
 
-namespace API.Controllers
+namespace API
 {
     [ApiController]
     [Route("api/[controller]")]
     public class AuthApiController : ControllerBase
     {
-        private readonly IAuthInterface _authInterface;
+        private readonly IConfiguration _myConfig;
+        private readonly IAuthInterface _authRepo;
 
-        public AuthApiController(IAuthInterface authService)
+        public AuthApiController(IConfiguration myConfig, IAuthInterface authRepo)
         {
-            _authInterface = authService;
+            _myConfig = myConfig;
+            _authRepo = authRepo;
         }
+        #region  Login 
+
+
+        [HttpPost("login")]
+        public async Task<IActionResult> Login([FromBody] LoginVM userCredentials)
+        {
+            try
+            {
+                if (userCredentials == null ||
+                    string.IsNullOrEmpty(userCredentials.email) ||
+                    string.IsNullOrEmpty(userCredentials.password) ||
+                    string.IsNullOrEmpty(userCredentials.role))
+                {
+                    return BadRequest(new { success = false, message = "Invalid login credentials." });
+                }
+
+                object user;
+
+                if (userCredentials.role.ToLower() == "user")
+                {
+                    var userObj = await _authRepo.LoginUser(userCredentials);
+                    if (userObj == null)
+                    {
+                        return Unauthorized(new { success = false, message = "Invalid email or password." });
+                    }
+                    if (!userObj.status)
+                    {
+                        return Unauthorized(new { success = false, message = "Please check your mail for account activation." });
+                    }
+                    user = userObj;
+                }
+                else if (userCredentials.role.ToLower() == "instructor")
+                {
+                    var instructorObj = await _authRepo.LoginInstructor(userCredentials);
+                    if (instructorObj == null)
+                    {
+                        return Unauthorized(new { success = false, message = "Invalid email or password." });
+                    }
+
+                    if (instructorObj.status == "Unverified")
+                    {
+                        return Unauthorized(new { success = false, message = "Please check your mail for account activation" });
+                    }
+
+                    if (instructorObj.status == "Verified")
+                    {
+                        return Unauthorized(new { success = false, message = "Wait for admin approval." });
+                    }
+
+                    if (instructorObj.status == "Disapproved")
+                    {
+                        return Unauthorized(new { success = false, message = "Your account has been rejected." });
+                    }
+
+                    user = instructorObj;
+                }
+                else if (userCredentials.role.ToLower() == "user")
+                {
+                    var adminObj = await _authRepo.LoginAdmin(userCredentials); // Fetch admin from DB
+                    if (adminObj == null)
+                    {
+                        return Unauthorized(new { success = false, message = "Invalid admin credentials." });
+                    }
+                    else
+                    {
+                        user = adminObj;
+                    }
+                }
+                else
+                {
+                    return BadRequest(new { success = false, message = "Invalid role specified." });
+                }
+
+                // If we reach here, user is authenticated
+                var claims = new List<Claim>
+                {
+                    new Claim(JwtRegisteredClaimNames.Sub, _myConfig["Jwt:Subject"]),
+                    new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                    new Claim("UserObject", System.Text.Json.JsonSerializer.Serialize(user))
+                };
+
+                var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_myConfig["Jwt:Key"]));
+                var signIn = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+                var token = new JwtSecurityToken(
+                    _myConfig["Jwt:Issuer"],
+                    _myConfig["Jwt:Audience"],
+                    claims,
+                    expires: DateTime.UtcNow.AddDays(1),
+                    signingCredentials: signIn
+                );
+                return Ok(new { success = true, message = "Login Successful", token = new JwtSecurityTokenHandler().WriteToken(token) });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[ERROR] Login Failed: " + ex);
+                return StatusCode(500, new { success = false, message = "Internal server error." });
+            }
+
+        }
+
+        #endregion
+
+
 
 
         #region DispatchOTP
         [HttpPost("Dispatch-otp")]
         public async Task<IActionResult> DispatchOtp([FromBody] VerifyEmail request)
         {
-            int result = await _authInterface.dispatchOtp(request.email);
+            int result = await _authRepo.dispatchOtp(request.email);
 
             if (result == 1)
             {
@@ -44,7 +151,7 @@ namespace API.Controllers
         [HttpPost("verify-otp")]
         public async Task<IActionResult> VerifyOtp([FromBody] VerifyEmail request)
         {
-            int result = await _authInterface.verifyOtp(request.email, Convert.ToInt32(request.OTP));
+            int result = await _authRepo.verifyOtp(request.email, Convert.ToInt32(request.OTP));
 
             if (result == 1)
             {
@@ -79,7 +186,7 @@ namespace API.Controllers
         [HttpPost("update-password")]
         public async Task<IActionResult> UpdatePassword([FromBody] VerifyEmail request)
         {
-            int result = await _authInterface.updatePassword(request.email, request.newPassword, Convert.ToInt32(request.OTP));
+            int result = await _authRepo.updatePassword(request.email, request.newPassword, Convert.ToInt32(request.OTP));
 
             if (result == 1)
             {
@@ -118,7 +225,7 @@ namespace API.Controllers
             if (ModelState.IsValid)
             {
                 // Check if email already exists
-                if (await _authInterface.IsEmailExists(user.email))
+                if (await _authRepo.IsEmailExists(user.email))
                 {
                     return new JsonResult(new { success = false, message = "Email already registered" });
                 }
@@ -126,7 +233,7 @@ namespace API.Controllers
                 // Handle profile image upload
                 if (user.profileImageFile != null && user.profileImageFile.Length > 0)
                 {
-                    var fileName = user.email + Path.GetExtension(user.profileImageFile.FileName);
+                    var fileName = Guid.NewGuid().ToString() + Path.GetExtension(user.profileImageFile.FileName);
                     var filePath = Path.Combine("../MVC/wwwroot/User_Images", fileName);
 
                     // Create directory if it doesn't exist
@@ -141,7 +248,7 @@ namespace API.Controllers
                 }
 
                 // Register the user
-                bool result = await _authInterface.RegisterUserAsync(user);
+                bool result = await _authRepo.RegisterUserAsync(user);
 
                 if (result)
                 {
@@ -155,6 +262,7 @@ namespace API.Controllers
 
             return BadRequest(ModelState);
         }
+
         #endregion
 
         #region Register Instructor
@@ -172,7 +280,7 @@ namespace API.Controllers
                 if (ModelState.IsValid)
                 {
                     // Check if email already exists
-                    if (await _authInterface.IsEmailExists(instructor.email))
+                    if (await _authRepo.IsEmailExists(instructor.email))
                     {
                         return new JsonResult(new { success = false, message = "Email already registered" });
                     }
@@ -180,7 +288,7 @@ namespace API.Controllers
                     // Handle profile image upload
                     if (instructor.profileImageFile != null && instructor.profileImageFile.Length > 0)
                     {
-                        var fileName = instructor.email + "_profile" + Path.GetExtension(instructor.profileImageFile.FileName);
+                        var fileName = Guid.NewGuid().ToString() + "_profile" + Path.GetExtension(instructor.profileImageFile.FileName);
                         var filePath = Path.Combine("../MVC/wwwroot/Instructor_Images", fileName);
 
                         // Create directory if it doesn't exist
@@ -197,7 +305,7 @@ namespace API.Controllers
                     // Handle ID proof upload
                     if (instructor.idProofFile != null && instructor.idProofFile.Length > 0)
                     {
-                        var fileName = instructor.email + "_idproof" + Path.GetExtension(instructor.idProofFile.FileName);
+                        var fileName = Guid.NewGuid().ToString() + "_idproof" + Path.GetExtension(instructor.idProofFile.FileName);
                         var filePath = Path.Combine("../MVC/wwwroot/Id_Proof", fileName);
 
                         // Create directory if it doesn't exist
@@ -230,7 +338,7 @@ namespace API.Controllers
                                     if (file != null && file.Length > 0)
                                     {
                                         // Create unique filename for each specialization
-                                        var fileName = $"{instructor.email}_{spec}_{Guid.NewGuid()}{Path.GetExtension(file.FileName)}";
+                                        var fileName = $"{Guid.NewGuid()}_{spec}{Path.GetExtension(file.FileName)}";
                                         var filePath = Path.Combine("../MVC/wwwroot/Certificates", fileName);
 
                                         // Create directory if it doesn't exist
@@ -263,7 +371,7 @@ namespace API.Controllers
                     }
 
                     // Register the instructor
-                    bool result = await _authInterface.RegisterInstructorAsync(instructor);
+                    bool result = await _authRepo.RegisterInstructorAsync(instructor);
 
                     if (result)
                     {
@@ -293,7 +401,7 @@ namespace API.Controllers
                 return BadRequest(new { success = false, message = "Email is required" });
             }
 
-            bool exists = await _authInterface.IsEmailExists(email);
+            bool exists = await _authRepo.IsEmailExists(email);
             return new JsonResult(new { exists });
         }
         #endregion
@@ -303,29 +411,29 @@ namespace API.Controllers
         [HttpGet("activateuser")]
         public async Task<IActionResult> ActivateUser([FromQuery] string token)
         {
-            int result = await _authInterface.ActivateUser(token);
+            int result = await _authRepo.ActivateUser(token);
 
             string redirectUrl;
 
             if (result == 1)
             {
                 // Activation successful
-                redirectUrl = "https://www.google.com?message=Activation%20Successful";
+                redirectUrl = "http://localhost:8081/auth/login?message=Activation%20Successful";
             }
             else if (result == -2)
             {
-                redirectUrl = "https://www.google.com?message=Invalid%20Activation%20Token";
+                redirectUrl = "http://localhost:8081/auth/login?message=Invalid%20Activation%20Token";
 
             }
             else if (result == -3)
             {
                 // User already activated
-                redirectUrl = "https://www.google.com?message=Already%20Activated";
+                redirectUrl = "http://localhost:8081/auth/login?message=Already%20Activated";
             }
             else
             {
                 // Invalid token or other failure
-                redirectUrl = "https://www.google.com?message=Failed%20To%20Activate";
+                redirectUrl = "http://localhost:8081/auth/login?message=Failed%20To%20Activate";
             }
 
             return Redirect(redirectUrl);
@@ -336,40 +444,38 @@ namespace API.Controllers
         [HttpGet("activateinstructor")]
         public async Task<IActionResult> ActivateInstructor([FromQuery] string token)
         {
-            int result = await _authInterface.ActivateInstructor(token);
+            int result = await _authRepo.ActivateInstructor(token);
 
             if (result == 1)
             {
-                return Redirect("https://www.google.com?message=Activation%20Successful");
+                return Redirect("http://localhost:8081/auth/login?message=Activation%20Successful");
             }
             else if (result == -2)
             {
-                return Redirect("https://www.google.com?message=Invalid%20Activation%20Token");
+                return Redirect("http://localhost:8081/auth/login?message=Invalid%20Activation%20Token");
             }
             else if (result == -3)
             {
-                return Redirect("https://www.google.com?message=Already%20Activated");
+                return Redirect("http://localhost:8081/auth/login?message=Already%20Activated");
             }
             else if (result == -4)
             {
-                return Redirect("https://www.google.com?message=Invalid%20Status");
+                return Redirect("http://localhost:8081/auth/login?message=Invalid%20Status");
             }
             else if (result == -5)
             {
-                return Redirect("https://www.google.com?message=Instructor%20Already%20Verified");
+                return Redirect("http://localhost:8081/auth/login?message=Instructor%20Already%20Verified");
             }
             else if (result == -6)
             {
-                return Redirect("https://www.google.com?message=Internal%20Error%20Try%20Again%20Later");
+                return Redirect("http://localhost:8081/auth/login?message=Internal%20Error%20Try%20Again%20Later");
             }
             else
             {
-                return Redirect("https://www.google.com?message=Unknown%20Error");
+                return Redirect("http://localhost:8081/auth/login?message=Unknown%20Error");
             }
         }
         #endregion
 
     }
-
-
 }

@@ -6,17 +6,11 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
-namespace MVC.Controllers
+namespace MVC
 {
-
+    // [Route("[controller]")]
     public class AuthController : Controller
     {
-        private readonly ILogger<AuthController> _logger;
-
-        public AuthController(ILogger<AuthController> logger)
-        {
-            _logger = logger;
-        }
 
 
         public IActionResult Index()
@@ -24,18 +18,20 @@ namespace MVC.Controllers
             return View();
         }
 
+        #region Login
+        public IActionResult Login()
+        {
+            return View();
+        }  
+        #endregion
+        
+
         #region Forgot Password
         public IActionResult ForgotPassword()
         {
             return View();
         }
         #endregion
-
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
-        {
-            return View("Error!");
-        }
 
     }
 }

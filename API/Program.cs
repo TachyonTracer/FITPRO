@@ -50,6 +50,9 @@ builder.Services.AddSwaggerGen(c =>
 });
 
 builder.Services.AddSingleton<IAuthInterface, AuthRepo>();
+builder.Services.AddSingleton<IEmailInterface, EmailRepo>();
+builder.Services.AddScoped<IAuthInterface, AuthRepo>();
+
 builder.Services.AddSingleton<NpgsqlConnection>((provider) =>
 {
     var connectionString = provider.GetRequiredService<IConfiguration>().GetConnectionString("pgconn");
@@ -89,10 +92,6 @@ builder.Services.AddSession(options =>
     options.Cookie.HttpOnly = true;
     options.Cookie.IsEssential = true;
 });
-
-#region add singleton for Auth
-builder.Services.AddScoped<IAuthInterface, AuthRepo>();
-#endregion
 
 var app = builder.Build();
 
