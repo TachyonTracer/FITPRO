@@ -9,6 +9,7 @@ using Repo;
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddScoped<IClassInterface, ClassRepo>();
 builder.Services.AddScoped<IAdminInterface, AdminRepo>();
+builder.Services.AddScoped<IUserInterface, UserRepo>();
 
 // Add services to the container.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

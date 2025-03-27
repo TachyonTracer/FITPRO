@@ -3,18 +3,18 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Repo;
 
-namespace MyApp.Namespace
+namespace API
 {
     [Route("api/[controller]")]
     [ApiController]
     public class InstructorController : ControllerBase
     {
-        private readonly IInstructorInterface _instructorRep;
+        private readonly IInstructorInterface _instructorRepo;
 
         #region Constructor
-        public InstructorController(IInstructorInterface instructor)
+        public InstructorController(IInstructorInterface instructorRepo)
         {
-            _instructorRep = instructor;
+            _instructorRepo = instructorRepo;
         }
         #endregion
 
@@ -23,7 +23,7 @@ namespace MyApp.Namespace
         // [Authorize]
         public async Task<IActionResult> GetAllInstructors()
         {
-            List<Instructor> instructorList = await _instructorRep.GetAllInstructors();
+            List<Instructor> instructorList = await _instructorRepo.GetAllInstructors();
             if (instructorList != null)
             {
                 return Ok(new
@@ -48,7 +48,7 @@ namespace MyApp.Namespace
         // [Authorize]
         public async Task<IActionResult> GetOneInstructor(string id)
         {
-            var instructor = await _instructorRep.GetOneInstructor(id);
+            var instructor = await _instructorRepo.GetOneInstructor(id);
             if (instructor != null)
             {
                 return Ok(new

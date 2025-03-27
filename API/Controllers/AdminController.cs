@@ -11,11 +11,11 @@ namespace  API
 	[Route("api/[controller]")]
 	public class AdminController : ControllerBase
 {
-	private readonly IAdminInterface _admin;
+	private readonly IAdminInterface _adminRepo;
 
-	public AdminController(IAdminInterface admin)
+	public AdminController(IAdminInterface adminRepo)
 	{
-		_admin = admin;
+		_adminRepo = adminRepo;
 	}
 
 
@@ -28,7 +28,7 @@ namespace  API
 		{
 			try
 			{
-				var goals = await _admin.GetTopUserGoalsAsync();
+				var goals = await _adminRepo.GetTopUserGoalsAsync();
 
 				if (goals != null && goals.Any())
 				{
@@ -52,7 +52,7 @@ namespace  API
 		{
 			try
 			{
-				var specializations = await _admin.GetTopSpecialization();
+				var specializations = await _adminRepo.GetTopSpecialization();
 
 				if (specializations != null && specializations.Any())
 				{
@@ -76,7 +76,7 @@ namespace  API
 		{
 			try
 			{
-				int userCount = await _admin.CountUsers();
+				int userCount = await _adminRepo.CountUsers();
 				return Ok(new { success = true, message = "User count retrieved successfully", count = userCount });
 			}
 			catch (Exception ex)
@@ -92,7 +92,7 @@ namespace  API
 		{
 			try
 			{
-				int classCount = await _admin.CountClasses();
+				int classCount = await _adminRepo.CountClasses();
 				return Ok(new { success = true, message = "Class count retrieved successfully", count = classCount });
 			}
 			catch (Exception ex)
@@ -109,7 +109,7 @@ namespace  API
 		{
 			try
 			{
-				int instructorCount = await _admin.CountInstructors();
+				int instructorCount = await _adminRepo.CountInstructors();
 				return Ok(new { success = true, message = "Instructor count retrieved successfully", count = instructorCount });
 			}
 			catch (Exception ex)
