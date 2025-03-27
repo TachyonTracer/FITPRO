@@ -6,17 +6,11 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
-namespace MVC.Controllers
+namespace MVC
 {
     [Route("[controller]")]
     public class AuthController : Controller
     {
-        private readonly ILogger<AuthController> _logger;
-
-        public AuthController(ILogger<AuthController> logger)
-        {
-            _logger = logger;
-        }
 
         public IActionResult Index()
         {
@@ -31,6 +25,5 @@ namespace MVC.Controllers
             return View();
         }
 
-       
     }
 }

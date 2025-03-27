@@ -9,13 +9,13 @@ using Npgsql;
 
 namespace Repo
 {
-    public class EmailRepositories : IEmailInterface
+    public class EmailRepo : IEmailInterface
     {
         private string? smtpServer, Username, Password;
         private int Port;
         private readonly string tcpClient;
         private readonly string _ConnectionString;
-        public EmailRepositories(IConfiguration configuration)
+        public EmailRepo(IConfiguration configuration)
         {
             _ConnectionString = configuration.GetConnectionString("DefaultConnection");
             smtpServer = configuration["Smtp:smtpServer"];
@@ -25,7 +25,9 @@ namespace Repo
             tcpClient = configuration["Smpt:tcpClient"];
         }
 
-       
+
+        #region send otp email
+
         public async Task SendOtpEmail(string username, string email, string otp)
         {
             string templatePath = Path.Combine(Directory.GetCurrentDirectory(), "Templates", "Otp_Email.html");
@@ -61,6 +63,10 @@ namespace Repo
                 }
             }
         }
+        #endregion
+
+
+        #region send success reset password email
 
         //For Succesfully ResetPassword Mail
         public async Task sendSuccessResetPwdEmail(string username, string email)
@@ -95,48 +101,47 @@ namespace Repo
                     }
                 }
             }
-
         }
+        #endregion
 
 
-
+        #region send activation link
+            
         public async Task SendActivationLink(string email, string username, string activationUrl)
-{
-    try
-    {
-        // Load email template
-        string templatePath = Path.Combine(Directory.GetCurrentDirectory(), "Templates", "Activation_Email.html");
-        string templateContent = await File.ReadAllTextAsync(templatePath);
-
-        // Replace placeholders with actual values
-        templateContent = templateContent.Replace("#[UserName]#", username);
-        templateContent = templateContent.Replace("#[ActivationUrl]#", activationUrl);
-
-        using (MailMessage message = new MailMessage(new MailAddress(Username), new MailAddress(email)))
         {
-            message.Subject = "Activate Your Account";
-            message.Body = templateContent;
-            message.IsBodyHtml = true;
-
-            using (SmtpClient smtp = new SmtpClient())
+            try
             {
-                smtp.Host = smtpServer;
-                smtp.Port = Port;
-                smtp.EnableSsl = true;
-                smtp.Credentials = new NetworkCredential(Username, Password);
+                // Load email template
+                string templatePath = Path.Combine(Directory.GetCurrentDirectory(), "Templates", "Activation_Email.html");
+                string templateContent = await File.ReadAllTextAsync(templatePath);
 
-                await smtp.SendMailAsync(message);
+                // Replace placeholders with actual values
+                templateContent = templateContent.Replace("#[UserName]#", username);
+                templateContent = templateContent.Replace("#[ActivationUrl]#", activationUrl);
+
+                using (MailMessage message = new MailMessage(new MailAddress(Username), new MailAddress(email)))
+                {
+                    message.Subject = "Activate Your Account";
+                    message.Body = templateContent;
+                    message.IsBodyHtml = true;
+
+                    using (SmtpClient smtp = new SmtpClient())
+                    {
+                        smtp.Host = smtpServer;
+                        smtp.Port = Port;
+                        smtp.EnableSsl = true;
+                        smtp.Credentials = new NetworkCredential(Username, Password);
+
+                        await smtp.SendMailAsync(message);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Failed to send activation email: " + ex.Message);
             }
         }
-    }
-    catch (Exception ex)
-    {
-        Console.WriteLine("Failed to send activation email: " + ex.Message);
-    }
-}
-
-
-
+        #endregion
 
     }
 }

@@ -7,25 +7,27 @@ using Microsoft.AspNetCore.Mvc;
 using Repo;
 
 
-namespace API.Controllers
+namespace API
 {
     [ApiController]
     [Route("api/[controller]")]
     public class EmailApiController : ControllerBase
     {
-        private readonly IEmailInterface _emailInterface;
-        public EmailApiController(IEmailInterface emailInterface)
+        private readonly IEmailInterface _emailRepo;
+        public EmailApiController(IEmailInterface emailRepo)
         {
-            _emailInterface = emailInterface;
+            _emailRepo = emailRepo;
 
         }
 
+        #region Email API
+        
         // Send SuccessResetPassword Email
         [HttpPost]
         [Route("SendSuccessResetPasswordEmail")]
         public IActionResult sendSuccessResetPasswordEmail([FromForm] string username, string email)
         {
-            _emailInterface.sendSuccessResetPwdEmail(username, email);
+            _emailRepo.sendSuccessResetPwdEmail(username, email);
 
             return Ok(new { success = true, message = "Password Reset Successfully !!" });
         }
@@ -36,7 +38,7 @@ namespace API.Controllers
         {
             try
             {
-                await _emailInterface.SendOtpEmail(username, email, otp);
+                await _emailRepo.SendOtpEmail(username, email, otp);
                 return Ok(new { success = true, message = "OTP Email Sent Successfully!" });
             }
             catch (Exception ex)
@@ -51,7 +53,7 @@ namespace API.Controllers
         {
             try
             {
-                await _emailInterface.SendActivationLink(email,username, activationUrl);
+                await _emailRepo.SendActivationLink(email,username, activationUrl);
                 return Ok(new { success = true, message = "Activation Email Sent Successfully!" });
             }
             catch (Exception ex)
@@ -59,9 +61,7 @@ namespace API.Controllers
                 return StatusCode(500, new { success = false, message = "Failed to send activation email: " + ex.Message });
             }
         }
-
-
-
+        #endregion
 
     }
 }

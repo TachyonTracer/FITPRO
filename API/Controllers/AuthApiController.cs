@@ -16,12 +16,12 @@ namespace API
     public class AuthApiController : ControllerBase
     {
         private readonly IConfiguration _myConfig;
-        private readonly IAuthInterface _auth;
+        private readonly IAuthInterface _authRepo;
 
-        public AuthApiController(IConfiguration myConfig, IAuthInterface auth)
+        public AuthApiController(IConfiguration myConfig, IAuthInterface authRepo)
         {
             _myConfig = myConfig;
-            _auth = auth;
+            _authRepo = authRepo;
         }
         #region  Login 
 
@@ -43,7 +43,7 @@ namespace API
 
                 if (userCredentials.role.ToLower() == "user")
                 {
-                    var userObj = await _auth.LoginUser(userCredentials);
+                    var userObj = await _authRepo.LoginUser(userCredentials);
                     if (userObj == null)
                     {
                         return Unauthorized(new { success = false, message = "Invalid email or password." });
@@ -56,7 +56,7 @@ namespace API
                 }
                 else if (userCredentials.role.ToLower() == "instructor")
                 {
-                    var instructorObj = await _auth.LoginInstructor(userCredentials);
+                    var instructorObj = await _authRepo.LoginInstructor(userCredentials);
                     if (instructorObj == null)
                     {
                         return Unauthorized(new { success = false, message = "Invalid email or password." });
@@ -71,7 +71,7 @@ namespace API
                 }
                 else if (userCredentials.role.ToLower() == "admin")
                 {
-                    var adminObj = await _auth.LoginAdmin(userCredentials); // Fetch admin from DB
+                    var adminObj = await _authRepo.LoginAdmin(userCredentials); // Fetch admin from DB
                     if (adminObj == null)
                     {
                         return Unauthorized(new { success = false, message = "Invalid admin credentials." });
@@ -123,7 +123,7 @@ namespace API
             if (ModelState.IsValid)
             {
                 // Check if email already exists
-                if (await _auth.IsEmailExists(user.email))
+                if (await _authRepo.IsEmailExists(user.email))
                 {
                     return new JsonResult(new { success = false, message = "Email already registered" });
                 }
@@ -146,7 +146,7 @@ namespace API
                 }
 
                 // Register the user
-                bool result = await _auth.RegisterUserAsync(user);
+                bool result = await _authRepo.RegisterUserAsync(user);
 
                 if (result)
                 {
@@ -161,108 +161,7 @@ namespace API
             return BadRequest(ModelState);
         }
 
-        // [HttpPost("register-instructor")]
-        // public async Task<IActionResult> RegisterInstructor([FromForm] Instructor instructor, IFormFile idProofFile, IFormFile certificateFile)
-        // {
-        //     if (ModelState.IsValid)
-        //     {
-        //         // Check if email already exists
-        //         if (await _auth.IsEmailExists(instructor.email))
-        //         {
-        //             return new JsonResult(new { success = false, message = "Email already registered" });
-        //         }
-
-        //         // Handle profile image upload
-        //         if (instructor.profileImageFile != null && instructor.profileImageFile.Length > 0)
-        //         {
-        //             var fileName = instructor.email + "_profile" + Path.GetExtension(instructor.profileImageFile.FileName);
-        //             var filePath = Path.Combine("../MVC/wwwroot/Instructor_Images", fileName);
-
-        //             // Create directory if it doesn't exist
-        //             Directory.CreateDirectory(Path.Combine("../MVC/wwwroot/Instructor_Images"));
-
-        //             instructor.profileImage = fileName;
-
-        //             using (var stream = new FileStream(filePath, FileMode.Create))
-        //             {
-        //                 await instructor.profileImageFile.CopyToAsync(stream);
-        //             }
-        //         }
-
-        //         // Handle ID proof upload
-        //         if (idProofFile != null && idProofFile.Length > 0)
-        //         {
-        //             var fileName = instructor.email + "_idproof" + Path.GetExtension(idProofFile.FileName);
-        //             var filePath = Path.Combine("../MVC/wwwroot/Id_Proof", fileName);
-
-        //             // Create directory if it doesn't exist
-        //             Directory.CreateDirectory(Path.Combine("../MVC/wwwroot/Id_Proof"));
-
-        //             instructor.idProof = fileName;
-
-        //             using (var stream = new FileStream(filePath, FileMode.Create))
-        //             {
-        //                 await idProofFile.CopyToAsync(stream);
-        //             }
-        //         }
-
-        //         // Handle certificate JSON document
-        //         if (certificateFile != null && certificateFile.Length > 0)
-        //         {
-        //             try
-        //             {
-        //                 // Save the certificate file
-        //                 var fileName = instructor.email + "_certificates.json";
-        //                 var filePath = Path.Combine("../MVC/wwwroot/Certificates", fileName);
-
-        //                 // Create directory if it doesn't exist
-        //                 Directory.CreateDirectory(Path.Combine("../MVC/wwwroot/Certificates"));
-
-        //                 // Save the file
-        //                 using (var stream = new FileStream(filePath, FileMode.Create))
-        //                 {
-        //                     await certificateFile.CopyToAsync(stream);
-        //                 }
-
-        //                 // Read the JSON content
-        //                 using (var reader = new StreamReader(certificateFile.OpenReadStream()))
-        //                 {
-        //                     var jsonContent = await reader.ReadToEndAsync();
-
-        //                     // Validate JSON format
-        //                     try
-        //                     {
-        //                         var certificatesObj = JsonSerializer.Deserialize<object>(jsonContent);
-        //                         instructor.certificates = JsonDocument.Parse(jsonContent);
-        //                     }
-        //                     catch (JsonException)
-        //                     {
-        //                         return new JsonResult(new { success = false, message = "Invalid certificate JSON format" });
-        //                     }
-        //                 }
-        //             }
-        //             catch (Exception ex)
-        //             {
-        //                 return new JsonResult(new { success = false, message = $"Error processing certificate file: {ex.Message}" });
-        //             }
-        //         }
-
-        //         // Register the instructor
-        //         bool result = await _auth.RegisterInstructorAsync(instructor);
-
-        //         if (result)
-        //         {
-        //             return new JsonResult(new { success = true, message = "Instructor registered successfully" });
-        //         }
-        //         else
-        //         {
-        //             return new JsonResult(new { success = false, message = "Error in registration" });
-        //         }
-        //     }
-
-        //     return BadRequest(ModelState);
-        // }
-
+        
         [HttpGet("check-email")]
         public async Task<IActionResult> CheckEmail(string email)
         {
@@ -271,7 +170,7 @@ namespace API
                 return BadRequest(new { success = false, message = "Email is required" });
             }
 
-            bool exists = await _auth.IsEmailExists(email);
+            bool exists = await _authRepo.IsEmailExists(email);
             return new JsonResult(new { exists });
         }
     }
