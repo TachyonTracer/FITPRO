@@ -62,4 +62,27 @@ public class UserController : ControllerBase
         }
     }
     #endregion
+
+    #region GetUserById
+
+    [HttpGet("GetUserById/{userId}")]
+public async Task<IActionResult> GetUserById(string userId)
+{
+    try
+    {
+        var user = await _userRepo.GetUserByIdAsync(Convert.ToInt32(userId));
+
+        if (user == null)
+        {
+            return NotFound(new { message = "User not found" });
+        }
+
+        return Ok(user);
+    }
+    catch (Exception ex)
+    {
+        return StatusCode(500, new { message = "Internal server error", error = ex.Message });
+    }
+}
+#endregion
 }
