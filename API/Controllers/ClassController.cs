@@ -16,48 +16,49 @@ namespace API
 
         #region Class:Booking
         [HttpPost("BookClass")]
-public async Task<IActionResult> BookClass([FromBody] Booking request)
-{
-    if (!ModelState.IsValid)
-    {
-        return BadRequest(new 
-        { 
-            success = false, 
-            message = "Invalid request data",
-            errors = ModelState.Values.SelectMany(v => v.Errors.Select(e => e.ErrorMessage))
-        });
-    }
+        public async Task<IActionResult> BookClass([FromBody] Booking request)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(new
+                {
+                    success = false,
+                    message = "Invalid request data",
+                    errors = ModelState.Values.SelectMany(v => v.Errors.Select(e => e.ErrorMessage))
+                });
+            }
 
-    var response = await _classRepo.BookClass(request);
-    
-    if (!response.success)
-    {
-        return BadRequest(new 
-        { 
-            success = false, 
-            message = response.message 
-        });
-    }
+            var response = await _classRepo.BookClass(request);
 
-    return Ok(new 
-    { 
-        success = true, 
-        message = response.message 
-    });
-}
+            if (!response.success)
+            {
+                return BadRequest(new
+                {
+                    success = false,
+                    message = response.message
+                });
+            }
+
+            return Ok(new
+            {
+                success = true,
+                message = response.message
+            });
+        }
         #endregion
+
         #region GetAll
-        [HttpGet]
+        [HttpGet("GetAllClasses")]
         public async Task<IActionResult> GetAll()
         {
             List<Class> classes = await _classRepo.GetAllClasses();
-            return Ok(new{sucess = true, message="class fetch successfully",data = classes});
+            return Ok(new { sucess = true, message = "class fetch successfully", data = classes });
         }
 
         #endregion
 
         #region GetOne
-        [HttpGet("GetOne")]
+        [HttpGet("GetOneClass")]
         public async Task<ActionResult> GetOne(string id)
         {
             var classes = await _classRepo.GetOne(id);
@@ -66,12 +67,12 @@ public async Task<IActionResult> BookClass([FromBody] Booking request)
                 return BadRequest(new { success = false, message = "There was no class found" });
 
             }
-            return Ok(new{sucess = true, message="class fetch successfully",data=classes});
+            return Ok(new { sucess = true, message = "class fetch successfully", data = classes });
         }
         #endregion
 
         #region  GetClassById
-        [HttpGet("ClassesById")]
+        [HttpGet("ClassesByInstructorId")]
         public async Task<ActionResult> GetClassById(string id)
         {
             var classes = await _classRepo.GetClassById(id);
@@ -80,7 +81,7 @@ public async Task<IActionResult> BookClass([FromBody] Booking request)
                 return BadRequest(new { success = false, message = "There was no class found" });
 
             }
-            return Ok(new{sucess = true, message="class fetch successfully",data=classes});
+            return Ok(new { sucess = true, message = "class fetch successfully", data = classes });
         }
         #endregion
 
