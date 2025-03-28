@@ -53,7 +53,7 @@ namespace API
         {
             List<Class> classes = await _classRepo.GetAllClasses();
             return Ok(new { sucess = true, message = "class fetch successfully", data = classes });
-        }       
+        }
         #endregion
 
         #region GetOne
@@ -84,6 +84,46 @@ namespace API
         }
         #endregion
 
+        #region GetBookedClasses
+        [HttpGet("GetBookedClassesByUser/{userId}")]
+        public async Task<IActionResult> GetBookedClassesByUser(string userId)
+        {
+            if (string.IsNullOrEmpty(userId))
+            {
+                return BadRequest(new { success = false, message = "User ID is required" });
+            }
 
+            var classes = await _classRepo.GetBookedClassesByUserId(userId);
+
+            if (classes == null || classes.Count == 0)
+            {
+                return Ok(new { success = true, message = "No classes booked by this user", data = new List<Class>() });
+            }
+
+            return Ok(new { success = true, message = "Booked classes fetched successfully", data = classes });
+        }
+        #endregion
+
+        [HttpDelete("CancelBooking/{bookingId}/{userId}/{classId}")]
+        public async Task<IActionResult> CancelBooking(int bookingId, int userId, int classId)
+        {
+            if (bookingId <= 0 || userId <= 0 || classId <= 0)
+            {
+                return BadRequest(new
+                {
+                    success = false,
+                    message = "All IDs must be positive integers"
+                });
+            }
+
+            var (success, message) = await _classRepo.CancelBooking(bookingId, userId, classId);
+
+            if (!success)
+            {
+                return BadRequest(new { success, message });
+            }
+
+            return Ok(new { success, message });
+        }
     }
 }
