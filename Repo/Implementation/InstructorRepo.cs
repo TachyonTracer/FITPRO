@@ -157,7 +157,8 @@ public class InstructorRepo : IInstructorInterface
     #endregion
 
     #region User Story: Update Instructor (Admin Dasboard)
-    public async Task<bool> ApproveInstructorAsync(string instructorId)
+    #region Approve Instructor
+    public async Task<bool> ApproveInstructor(string instructorId)
     {
         bool isSuccess = false;
         try
@@ -189,8 +190,10 @@ public class InstructorRepo : IInstructorInterface
         }
         return isSuccess;
     }
+    #endregion
 
-    public async Task<bool> DisapproveInstructorAsync(string instructorId)
+    #region Disaaprove Instructor
+    public async Task<bool> DisapproveInstructor(string instructorId)
     {
         bool isSuccess = false;
         try
@@ -222,6 +225,42 @@ public class InstructorRepo : IInstructorInterface
         }
         return isSuccess;
     }
+    #endregion
+
+     #region Suspend Intructor
+     public async Task<bool> SuspendInstructor(string instructorId)
+    {
+        bool isSuccess = false;
+        try
+        {
+            if (_conn.State != ConnectionState.Open)
+            {
+                await _conn.OpenAsync();
+            }
+
+            using (var cmd = new NpgsqlCommand("UPDATE t_instructor SET c_status = 'Suspended' WHERE c_instructorid = @InstructorId", _conn))
+            {
+                cmd.Parameters.AddWithValue("@InstructorId", Convert.ToInt32(instructorId));
+
+               
+                int rowsAffected = await cmd.ExecuteNonQueryAsync();
+                isSuccess = rowsAffected > 0;
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error while Suspending instructor: {ex.Message}");
+        }
+        finally
+        {
+            if (_conn.State != ConnectionState.Closed)
+            {
+                await _conn.CloseAsync();
+            }
+        }
+        return isSuccess;
+    }
+    #endregion
 
     #endregion
 }

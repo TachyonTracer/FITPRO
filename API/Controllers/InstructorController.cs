@@ -78,7 +78,7 @@ namespace API
                 return NotFound(new {success = false, message = "Instructor not found." });
             }
 
-            var result = await _instructorRepo.ApproveInstructorAsync(id);
+            var result = await _instructorRepo.ApproveInstructor(id);
             if (result)
             {
                 return Ok(new {success = true, message = "Instructor approved successfully!" });
@@ -97,12 +97,31 @@ namespace API
                 return NotFound(new {success = false, message = "Instructor not found." });
             }
 
-            var result = await _instructorRepo.DisapproveInstructorAsync(id);
+            var result = await _instructorRepo.DisapproveInstructor(id);
             if (result)
             {
                 return Ok(new {success = true, message = "Instructor disapproved successfully!" });
             }
             return BadRequest(new { message = "Failed to disapprove instructor." });
+        }
+        #endregion
+
+         #region Suspend Instructor
+        [HttpPost("InstructorSuspend/{id}")]
+        public async Task<IActionResult> SuspendInstructor(string id)
+        {
+            var instructor = await _instructorRepo.GetOneInstructor(id);
+            if (instructor == null)
+            {
+                return NotFound(new {success = false, message = "Instructor not found." });
+            }
+
+            var result = await _instructorRepo.SuspendInstructor(id);
+            if (result)
+            {
+                return Ok(new {success = true, message = "Instructor Suspended successfully!" });
+            }
+            return BadRequest(new { message = "Failed to Suspennd instructor." });
         }
         #endregion
         #endregion

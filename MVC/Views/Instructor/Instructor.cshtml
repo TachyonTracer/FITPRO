@@ -54,6 +54,157 @@
             color: var(--primary-color);
         }
 
+        h1 {
+            font-family: "Bebas Neue", sans-serif;
+            font-size: 3rem;
+            text-align: center;
+            margin-bottom: 0.5rem;
+            letter-spacing: 2px;
+        }
+
+        /* Navbar Styles (from first CSS) */
+        .navbar {
+            background: var(--glass-color);
+            backdrop-filter: blur(15px);
+            border-bottom: 1px solid hsla(0, 0%, 65%, 0.2);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+        }
+
+        .navbar-brand {
+            font-family: "Bebas Neue", sans-serif;
+            font-size: 1.5rem;
+            letter-spacing: 2px;
+            color: var(--primary-color);
+        }
+
+        .navbar-nav .nav-link {
+            color: var(--color);
+            font-weight: 500;
+            letter-spacing: 1px;
+            transition: color 0.3s ease;
+        }
+
+        .navbar-nav .nav-link:hover {
+            color: var(--primary-color);
+        }
+
+        /* Main Content (from first CSS) */
+        .main-content {
+            margin-top: 70px;
+            /* Adjust based on navbar height */
+            padding: 1rem;
+            position: relative;
+            z-index: 1;
+            min-height: calc(100vh - 70px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Gym Background (from first CSS) */
+        .gym-background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+        }
+
+        .gym-icon {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            background-size: contain;
+            background-repeat: no-repeat;
+            opacity: 0.4;
+            animation: float-icon 6s ease-in-out infinite;
+        }
+
+        /* Dumbbell Icon (from first CSS) */
+        .dumbbell-icon-1,
+        .dumbbell-icon-2 {
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><rect x="2" y="9" width="4" height="6" /><rect x="18" y="9" width="4" height="6" /><line x1="6" y1="12" x2="18" y2="12" /></svg>');
+        }
+
+        .dumbbell-icon-1 {
+            top: 10%;
+            left: 15%;
+            animation-delay: 0s;
+        }
+
+        .dumbbell-icon-2 {
+            bottom: 20%;
+            right: 10%;
+            animation-delay: 1s;
+        }
+
+        /* Barbell Icon (from first CSS) */
+        .barbell-icon-1,
+        .barbell-icon-2 {
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><rect x="1" y="7" width="4" height="10" /><rect x="19" y="7" width="4" height="10" /><rect x="7" y="9" width="4" height="6" /><rect x="13" y="9" width="4" height="6" /><line x1="5" y1="12" x2="19" y2="12" /></svg>');
+        }
+
+        .barbell-icon-1 {
+            top: 20%;
+            right: 20%;
+            animation-delay: 0.5s;
+        }
+
+        .barbell-icon-2 {
+            bottom: 15%;
+            left: 20%;
+            animation-delay: 1.5s;
+        }
+
+        /* Kettlebell Icon (from first CSS) */
+        .kettlebell-icon-1,
+        .kettlebell-icon-2 {
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M9 3h6v3h-6z" /><path d="M12 6c-3 0-5 2-5 5v6h10v-6c0-3-2-5-5-5z" /></svg>');
+        }
+
+        .kettlebell-icon-1 {
+            top: 30%;
+            left: 10%;
+            animation-delay: 1s;
+        }
+
+        .kettlebell-icon-2 {
+            bottom: 25%;
+            right: 15%;
+            animation-delay: 2s;
+        }
+
+        /* Names List (Updated from first CSS) */
+        .names-list {
+            max-height: 70vh;
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: var(--primary-color) var(--glass-color);
+        }
+
+        .names-list::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .names-list::-webkit-scrollbar-track {
+            background: var(--glass-color);
+            border-radius: 10px;
+        }
+
+        .names-list::-webkit-scrollbar-thumb {
+            background: var(--primary-color);
+            border-radius: 10px;
+        }
+
+        .names-list::-webkit-scrollbar-thumb:hover {
+            background: #e04343;
+        }
+
         .names-list .list-group-item {
             cursor: pointer;
             transition: background-color 0.3s ease, border-left-color 0.3s ease;
@@ -61,6 +212,12 @@
             background: var(--glass-color);
             color: var(--color);
             backdrop-filter: blur(5px);
+            border-radius: 8px;
+            margin-bottom: 5px;
+            padding: 14px;
+            font-weight: 500;
+            letter-spacing: 0.8px;
+            font-size: 16px;
         }
 
         .names-list .list-group-item:hover,
@@ -68,20 +225,24 @@
             background-color: rgba(255, 255, 255, 0.2);
             border-left-color: var(--primary-color);
             font-weight: 600;
+            transform: scale(1.02);
         }
 
+        /* Details Card (Updated from first CSS) */
         .details-card {
             background: var(--glass-color);
-            border-radius: 8px;
+            border-radius: 15px;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
             padding: 25px;
             transition: box-shadow 0.3s ease;
             backdrop-filter: blur(15px);
             border: 1px solid hsla(0, 0%, 65%, 0.2);
+            animation: fadeIn 1s ease-out;
         }
 
         .details-card:hover {
             box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
+            transform: scale(1.01);
         }
 
         .details-section {
@@ -94,6 +255,8 @@
             margin-bottom: 15px;
             color: var(--primary-color);
             font-size: 1.25rem;
+            font-family: "Bebas Neue", sans-serif;
+            letter-spacing: 2px;
         }
 
         .detail-item {
@@ -106,12 +269,15 @@
             width: 150px;
             color: rgba(255, 255, 255, 0.7);
             margin-right: 15px;
+            font-weight: 500;
         }
 
         .detail-item span {
             flex: 1;
+            font-weight: 400;
         }
 
+        /* Documents Grid (from second CSS) */
         .documents-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
@@ -158,36 +324,56 @@
             height: calc(100% - 60px);
         }
 
+        /* Buttons (Updated from first CSS) */
         .btn-success {
             background-color: var(--success-color);
             border: none;
+            padding: 14px;
+            border-radius: 8px;
+            font-size: 18px;
+            letter-spacing: 1.5px;
+            font-weight: bold;
+            cursor: pointer;
             transition: all 0.3s ease;
         }
 
         .btn-success:hover {
             background-color: #218838;
             transform: scale(1.03);
+            box-shadow: 0 0 12px rgba(0, 0, 0, 0.2);
         }
 
         .btn-danger {
             background-color: var(--danger-color);
             border: none;
+            padding: 14px;
+            border-radius: 8px;
+            font-size: 18px;
+            letter-spacing: 1.5px;
+            font-weight: bold;
+            cursor: pointer;
             transition: all 0.3s ease;
         }
 
         .btn-danger:hover {
             background-color: #c82333;
             transform: scale(1.03);
+            box-shadow: 0 0 12px rgba(0, 0, 0, 0.2);
         }
 
+        /* Background Light (Updated from first CSS) */
         .bg-light {
             background: var(--glass-color) !important;
-            backdrop-filter: blur(5px);
-            border: none;
+            backdrop-filter: blur(15px);
+            border: 1px solid hsla(0, 0%, 65%, 0.2);
+            border-radius: 15px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
         }
 
         .text-primary {
             color: var(--primary-color) !important;
+            font-family: "Bebas Neue", sans-serif;
+            letter-spacing: 2px;
         }
 
         .text-muted {
@@ -196,9 +382,10 @@
 
         .text-secondary {
             color: rgba(255, 255, 255, 0.5) !important;
+            font-style: italic;
         }
 
-        /* SweetAlert2 Styles */
+        /* SweetAlert2 Styles (Updated from first CSS) */
         .swal2-popup {
             background: var(--glass-color) !important;
             backdrop-filter: blur(15px) !important;
@@ -252,22 +439,15 @@
             border-color: var(--primary-color) !important;
         }
 
-        /* Success Icon (Tick) Styles */
         .swal2-icon.swal2-success {
             border-color: var(--success-color) !important;
-            /* Green circle around the success icon */
             background: none !important;
-            /* Ensure the container has no background */
         }
 
-        /* Style the success ring (circle) and remove its background */
         .swal2-icon.swal2-success .swal2-success-ring {
             border-color: var(--success-color) !important;
-            /* Green circle */
             background: none !important;
-            /* Remove the gray background */
             display: block !important;
-            /* Ensure the ring is visible for the circle */
         }
 
         .swal2-icon.swal2-success .swal2-success-circular-line-left,
@@ -276,30 +456,23 @@
             display: none !important;
         }
 
-
-
-
-        /* Ensure pseudo-elements of the ring don't render a background */
         .swal2-icon.swal2-success .swal2-success-ring::before,
         .swal2-icon.swal2-success .swal2-success-ring::after {
             display: none !important;
             background: transparent !important;
         }
 
-        /* Ensure the success icon container's pseudo-elements don't render a background */
         .swal2-icon.swal2-success::before,
         .swal2-icon.swal2-success::after {
             display: none !important;
             background: transparent !important;
         }
 
-        /* Style the checkmark lines */
         .swal2-icon.swal2-success [class^='swal2-success-line'] {
             background-color: var(--success-color) !important;
-            /* Green checkmark */
         }
 
-        /* Profile Image Styling */
+        /* Profile Image Styling (Updated from first CSS) */
         .profile-image-container {
             display: flex;
             justify-content: center;
@@ -312,12 +485,14 @@
             height: 150px;
             object-fit: cover;
             border-radius: 50%;
-            border: 2px solid var(--primary-color);
-            transition: transform 0.3s ease;
+            border: 4px solid var(--primary-color);
+            transition: all 0.3s ease;
+            animation: lift 2s ease-in-out infinite;
         }
 
         .profile-image:hover {
             transform: scale(1.05);
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
         }
 
         .personal-info-row {
@@ -326,7 +501,6 @@
             min-height: 180px;
         }
 
-        /* Ensure proper alignment of personal info */
         .personal-info-details {
             display: flex;
             flex-wrap: wrap;
@@ -337,105 +511,270 @@
             flex: 1;
             min-width: 200px;
         }
+
+        /* Floating Circles (from first CSS) */
+        .circle {
+            width: 8rem;
+            height: 8rem;
+            background: var(--primary-color);
+            border-radius: 50%;
+            position: absolute;
+            opacity: 0.8;
+        }
+
+        .circle-one {
+            top: 0;
+            left: 0;
+            z-index: -1;
+            transform: translate(-45%, -45%);
+            animation: float 4s ease-in-out infinite;
+        }
+
+        .circle-two {
+            bottom: 0;
+            right: 0;
+            z-index: -1;
+            transform: translate(45%, 45%);
+            animation: float-two 4s ease-in-out infinite;
+            animation-delay: 0.5s;
+        }
+
+        /* Animations (Updated from first CSS with fixed syntax) */
+        @@keyframes float {
+            0% {
+                transform: translate(-45%, -45%) translateY(0);
+            }
+
+            50% {
+                transform: translate(-45%, -45%) translateY(-15px);
+            }
+
+            100% {
+                transform: translate(-45%, -45%) translateY(0);
+            }
+        }
+
+                @@keyframes float-two {
+            0% {
+                transform: translate(45%, 45%) translateY(0);
+            }
+
+            50% {
+                transform: translate(45%, 45%) translateY(-15px);
+            }
+
+            100% {
+                transform: translate(45%, 45%) translateY(0);
+            }
+        }
+
+                @@keyframes fadeIn {
+            0% {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+                @@keyframes lift {
+
+            0%,
+            100% {
+                transform: translateY(0) rotate(0deg);
+            }
+
+            50% {
+                transform: translateY(-10px) rotate(2deg);
+            }
+        }
+
+                @@keyframes float-icon {
+
+            0%,
+            100% {
+                transform: translateY(0);
+                opacity: 0.1;
+            }
+
+            50% {
+                transform: translateY(-20px);
+                opacity: 0.2;
+            }
+        }
+
+        /* Responsive Design (Updated from first CSS with fixed syntax) */
+                @@media (max-width: 768px) {
+            .profile-image {
+                width: 120px;
+                height: 120px;
+            }
+
+            .details-section h5 {
+                font-size: 1.1rem;
+            }
+
+            .detail-item strong {
+                width: 120px;
+            }
+
+            .names-list {
+                max-height: 50vh;
+            }
+
+            .gym-icon {
+                width: 40px;
+                height: 40px;
+            }
+        }
+
+                @@media (max-width: 480px) {
+            .profile-image {
+                width: 100px;
+                height: 100px;
+            }
+
+            .details-section h5 {
+                font-size: 1rem;
+            }
+
+            .detail-item strong {
+                width: 100px;
+            }
+
+            .names-list {
+                max-height: 40vh;
+            }
+
+            .gym-icon {
+                width: 30px;
+                height: 30px;
+            }
+
+            .btn-success,
+            .btn-danger {
+                font-size: 16px;
+                padding: 10px;
+            }
+        }
     </style>
 </head>
 
 <body>
-    <div class="container-fluid">
-        <div class="row">
-            <!-- Left Panel (25%) - Instructor Names -->
-            <div class="col-md-3 p-3 border-end bg-light">
-                <h5 class="text-primary mb-3">Instructors</h5>
-                <div class="names-list">
-                    <ul class="list-group" id="names"></ul>
+    <div class="main-content">
+        <div class="gym-background">
+            <div class="gym-icon dumbbell-icon-1"></div>
+            <div class="gym-icon dumbbell-icon-2"></div>
+            <div class="gym-icon barbell-icon-1"></div>
+            <div class="gym-icon barbell-icon-2"></div>
+            <div class="gym-icon kettlebell-icon-1"></div>
+            <div class="gym-icon kettlebell-icon-2"></div>
+        </div>
+        <div class="container-fluid">
+            <div class="row">
+                <!-- Left Panel (25%) - Instructor Names -->
+                <div class="col-md-3 p-3 bg-light">
+                    <h5 class="text-primary mb-3">Instructors</h5>
+                    <div class="names-list">
+                        <ul class="list-group" id="names"></ul>
+                    </div>
                 </div>
-            </div>
 
-            <!-- Right Panel (75%) - Instructor Details -->
-            <div class="col-md-9 p-4">
-                <div id="default-message" class="text-center text-muted mt-5">
-                    <h4>Select an instructor to view details</h4>
-                    <p class="text-secondary">Choose a name from the list to see more information</p>
-                </div>
-                <div id="details" class="d-none details-card">
-                    <!-- Personal Information Section -->
-                    <div class="details-section">
-                        <h5>Personal Information</h5>
-                        <div class="row personal-info-row">
-                            <div class="col-md-8 personal-info-details">
-                                <div class="personal-info-column">
-                                    <div class="detail-item"><strong>Name:</strong> <span id="name"></span></div>
-                                    <div class="detail-item"><strong>Email:</strong> <span id="email"></span></div>
-                                    <div class="detail-item"><strong>Mobile:</strong> <span id="phone"></span></div>
-                                    <div class="detail-item"><strong>Gender:</strong> <span id="gender"></span></div>
-                                    <div class="detail-item"><strong>Date of Birth:</strong> <span id="dob"></span>
+                <!-- Right Panel (75%) - Instructor Details -->
+                <div class="col-md-9 p-4 position-relative">
+                    <div class="circle circle-one"></div>
+                    <div class="circle circle-two"></div>
+                    <div id="default-message" class="text-center text-muted mt-5">
+                        <h4>Select an instructor to view details</h4>
+                        <p class="text-secondary">Choose a name from the list to see more information</p>
+                    </div>
+                    <div id="details" class="d-none details-card">
+                        <!-- Personal Information Section -->
+                        <div class="details-section">
+                            <h5>Personal Information</h5>
+                            <div class="row personal-info-row">
+                                <div class="col-md-8 personal-info-details">
+                                    <div class="personal-info-column">
+                                        <div class="detail-item"><strong>Name:</strong> <span id="name"></span></div>
+                                        <div class="detail-item"><strong>Email:</strong> <span id="email"></span></div>
+                                        <div class="detail-item"><strong>Mobile:</strong> <span id="phone"></span></div>
+                                        <div class="detail-item"><strong>Gender:</strong> <span id="gender"></span>
+                                        </div>
+                                        <div class="detail-item"><strong>Date of Birth:</strong> <span id="dob"></span>
+                                        </div>
+                                        <div class="detail-item"><strong>Association:</strong> <span
+                                                id="association"></span></div>
+                                        <div class="detail-item"><strong>Status:</strong> <span id="status"></span>
+                                        </div>
                                     </div>
-                                    <div class="detail-item"><strong>Association:</strong> <span
-                                            id="association"></span></div>
-                                    <div class="detail-item"><strong>Status:</strong> <span id="status"></span></div>
+                                </div>
+                                <div class="col-md-4 profile-image-container">
+                                    <img id="profile-image" class="profile-image" src="" alt="Profile Image"
+                                        onerror="handleImageError(this)">
                                 </div>
                             </div>
-                            <div class="col-md-4 profile-image-container">
-                                <img id="profile-image" class="profile-image" src="" alt="Profile Image"
-                                    onerror="handleImageError(this)">
+                        </div>
+
+                        <!-- Professional Information Section -->
+                        <div class="details-section">
+                            <h5>Professional Details</h5>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="detail-item"><strong>Specialization:</strong><span
+                                            id="specialization"></span></div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="detail-item"><strong>Certifications:</strong><span
+                                            id="certifications"></span></div>
+                                </div>
                             </div>
                         </div>
-                    </div>
 
-                    <!-- Professional Information Section -->
-                    <div class="details-section">
-                        <h5>Professional Details</h5>
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="detail-item"><strong>Specialization:</strong><span
-                                        id="specialization"></span></div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="detail-item"><strong>Certifications:</strong><span
-                                        id="certifications"></span></div>
+                        <!-- Documents Section -->
+                        <div class="details-section">
+                            <h5>Documents</h5>
+                            <div class="documents-grid" id="documents-grid">
+                                <!-- Document cards will be populated dynamically -->
                             </div>
                         </div>
-                    </div>
 
-                    <!-- Documents Section -->
-                    <div class="details-section">
-                        <h5>Documents</h5>
-                        <div class="documents-grid" id="documents-grid">
-                            <!-- Document cards will be populated dynamically -->
-                        </div>
-                    </div>
-
-                    <!-- Approval Section -->
-                    <div class="details-section">
-                        <h5>Approval Status</h5>
-                        <div class="d-flex gap-3">
-                            <button id="approve-btn" class="btn btn-success"
-                                onclick="approveInstructor()">Approve</button>
-                            <button id="disapprove-btn" class="btn btn-danger"
-                                onclick="disapproveInstructor()">Disapprove</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- PDF Preview Modal -->
-        <div class="modal fade" id="pdf-preview-modal" tabindex="-1">
-            <div class="modal-dialog modal-dialog-centered modal-xl">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="document-title">PDF Preview</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                    </div>
-                    <div class="modal-body p-0">
-                        <div id="pdf-viewer-modal" class="w-100 h-100">
-                            <iframe src="" width="100%" height="100%" frameborder="0"></iframe>
+                        <!-- Approval Section -->
+                        <div class="details-section">
+                            <h5>Approval Status</h5>
+                            <div class="d-flex gap-3">
+                                <button id="approve-btn" class="btn btn-success"
+                                    onclick="approveInstructor()">Approve</button>
+                                <button id="disapprove-btn" class="btn btn-danger"
+                                    onclick="disapproveInstructor()">Disapprove</button>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+
+    <!-- PDF Preview Modal -->
+    <div class="modal fade" id="pdf-preview-modal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="document-title">PDF Preview</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-0">
+                    <div id="pdf-viewer-modal" class="w-100 h-100">
+                        <iframe src="" width="100%" height="100%" frameborder="0"></iframe>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
 
     <!-- Bootstrap Script -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
@@ -537,7 +876,7 @@
                                 const certKey = certKeys[index] || `Certificate ${index + 1}`;
                                 documentsGrid.append(`
                                     <div class="document-card" onclick="viewPDF('/documents/${cert}', '${certKey}')">
-                                        <i class="bi bi-trophy"></i>
+                                        <i class="bi bi-award"></i>
                                         <h6 class="mb-0">${certKey}</h6>
                                     </div>
                                 `);
@@ -567,7 +906,7 @@
                 cancelButtonText: "Cancel"
             }).then((result) => {
                 if (result.isConfirmed) {
-                     $.ajax({
+                    $.ajax({
                         url: `${apiBaseUrl}InstructorApprove/${currentInstructorId}`,
                         type: "POST",
                         success: function (response) {
@@ -577,7 +916,7 @@
                                 icon: "success",
                                 confirmButtonText: "OK"
                             }).then(() => {
-                                loadInstructors(); 
+                                loadInstructors();
                             });
                         },
                         error: function () {
@@ -619,7 +958,7 @@
                                 icon: "success",
                                 confirmButtonText: "OK"
                             }).then(() => {
-                                loadInstructors(); 
+                                loadInstructors();
                             });
                         },
                         error: function () {
