@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
 using Repo;
 
 namespace API
@@ -66,6 +67,55 @@ namespace API
         }
         #endregion
 
+        #region Get Verified Instructors
+        [HttpGet("GetVerifiedInstructors")]
+        // [Authorize]
+        public async Task<IActionResult> GetVerifiedInstructors()
+        {
+            List<Instructor> instructorList = await _instructorRepo.GetVerifiedInstructors();
+            if (!instructorList.IsNullOrEmpty())
+            {
+                return Ok(new
+                {
+                    success = true,
+                    message = "Verified Instructors fetched successfully.",
+                    data = instructorList
+                });
+            }
+
+            return Ok(new
+            {
+                success = false,
+                message = "No verified instructors found."
+            });
+        }
+        #endregion
+
+        #region Get Approved Instructors
+        [HttpGet("GetApprovedInstructors")]
+        // [Authorize]
+        public async Task<IActionResult> GetApprovedInstructors()
+        {
+            List<Instructor> instructorList = await _instructorRepo.GetApprovedInstructors();
+            if (!instructorList.IsNullOrEmpty())
+            {
+                return Ok(new
+                {
+                    success = true,
+                    message = "Approved Instructors fetched successfully.",
+                    data = instructorList
+                });
+            }
+
+            return Ok(new
+            {
+                success = false,
+                message = "No approved instructors found."
+            });
+        }
+        #endregion
+
+
         #region User Stroy : Update Instructor(Admin Dashboard)
         
         #region Approve Instructor
@@ -87,7 +137,7 @@ namespace API
         }
         #endregion
 
-        #region Disaaprve Instructor
+        #region Disapprove Instructor
         [HttpPost("InstructorDisapprove/{id}")]
         public async Task<IActionResult> DisapproveInstructor(string id)
         {
@@ -106,7 +156,7 @@ namespace API
         }
         #endregion
 
-         #region Suspend Instructor
+        #region Suspend Instructor
         [HttpPost("InstructorSuspend/{id}")]
         public async Task<IActionResult> SuspendInstructor(string id)
         {
