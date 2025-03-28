@@ -2,7 +2,7 @@
 using System.Text.Json;
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Http;
-
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Repo;
 
@@ -29,7 +29,6 @@ public class Instructor
     [Compare("password", ErrorMessage = "Passwords do not match")]
     public string? confirmPassword { get; set; }
 
-
     [Required(ErrorMessage = "Mobile number is required")]
     [Phone(ErrorMessage = "Invalid phone number format")]
     public string mobile { get; set; }
@@ -44,10 +43,11 @@ public class Instructor
     [StringLength(100, ErrorMessage = "Specialization must not exceed 100 characters")]
     public string specialization { get; set; }
 
-    [Required(ErrorMessage = "Certificates are required")]
-    public JsonDocument certificates { get; set; }
+
+    public JsonDocument? certificates { get; set; }
 
     public string? profileImage { get; set; }
+
 
     [StringLength(100, ErrorMessage = "Association must not exceed 100 characters")]
     public string association { get; set; }
@@ -57,9 +57,9 @@ public class Instructor
 
     [Required(ErrorMessage = "Status is required")]
     [StringLength(20, ErrorMessage = "Status must not exceed 20 characters")]
-    public string? status { get; set; }
+    public string status { get; set; }
 
-    [Url(ErrorMessage = "Invalid URL format")]
+    // [Url(ErrorMessage = "Invalid URL format")]
     public string? idProof { get; set; }
 
     [StringLength(100, ErrorMessage = "Activation token must not exceed 100 characters")]
@@ -68,9 +68,11 @@ public class Instructor
     [DataType(DataType.DateTime)]
     public DateTime? activatedOn { get; set; }
 
-    public IFormFile? profileImageFile { get; set; }
     public IFormFile? idProofFile { get; set; }
 
     public IFormFile[]? certificateFiles { get; set; }
+
+    [Display(Name = "Profile Image")]
+    public IFormFile? profileImageFile { get; set; }
 }
 
