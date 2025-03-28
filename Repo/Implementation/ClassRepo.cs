@@ -283,7 +283,7 @@ public class ClassRepo : IClassInterface
 
                 if (status == "Suspended")
                 {
-                    return false; 
+                    return false;
                 }
             }
 
@@ -303,6 +303,115 @@ public class ClassRepo : IClassInterface
             await _conn.CloseAsync();
         }
     }
+    #endregion
+
+
+
+    #region  ScheduleClass 
+ public async Task<int> ScheduleClass(Class classData)
+{
+    try
+    {
+        if (_conn.State != ConnectionState.Open)
+        {
+            await _conn.OpenAsync();
+        }
+        // 🔹 Check if the instructor already has a class with the same name and type
+        using (var checkCmd = new NpgsqlCommand(@"
+        SELECT COUNT(*) FROM t_class 
+        WHERE c_instructorid = @c_instructorid 
+        AND c_classname = @c_classname
+        AND c_type = @c_type", _conn))
+        {
+            checkCmd.Parameters.AddWithValue("@c_instructorid", classData.instructorId);
+            checkCmd.Parameters.AddWithValue("@c_classname", classData.className);
+            checkCmd.Parameters.AddWithValue("@c_type", classData.type);
+
+            int existingCount = Convert.ToInt32(await checkCmd.ExecuteScalarAsync());
+            if (existingCount > 0)
+            {
+            return -2; // Duplicate class name and type for instructor
+            }
+        }  // 🔹 Check for overlapping class times with a 1-hour buffer
+        using (var checkTimeCmd = new NpgsqlCommand(@"
+        SELECT COUNT(*) FROM t_class 
+        WHERE c_instructorid = @c_instructorid
+        AND (
+            (c_starttime <= @c_starttime AND c_endtime > @c_starttime) 
+            OR 
+            (c_starttime < @c_endtime AND c_endtime >= @c_endtime)
+            OR 
+            (@c_starttime <= c_starttime AND @c_endtime >= c_endtime) 
+            OR 
+            (@c_starttime BETWEEN c_starttime - INTERVAL '1 hour' AND c_endtime + INTERVAL '1 hour')
+            OR 
+            (@c_endtime BETWEEN c_starttime - INTERVAL '1 hour' AND c_endtime + INTERVAL '1 hour')
+        )", _conn))
+        {
+            checkTimeCmd.Parameters.AddWithValue("@c_instructorid", classData.instructorId);
+            checkTimeCmd.Parameters.AddWithValue("@c_starttime", classData.startTime);
+            checkTimeCmd.Parameters.AddWithValue("@c_endtime", classData.endTime);
+
+            int overlappingCount = Convert.ToInt32(await checkTimeCmd.ExecuteScalarAsync());
+            if (overlappingCount > 0)
+            {
+                return -3; // Class time conflicts
+            }
+        }
+
+      
+
+        // 🔹 Insert class data into the database
+        using (var cm = new NpgsqlCommand(@"
+        INSERT INTO t_class(
+            c_classname, c_instructorid, c_description, c_type, c_startdate, c_enddate, 
+            c_starttime, c_endtime, c_duration, c_maxcapacity, c_availablecapacity, 
+            c_requiredequipments, c_createdat, c_status, c_city, c_address, c_assets, c_fees
+        ) 
+        VALUES (
+            @c_classname, @c_instructorid, @c_description, @c_type, @c_startdate, @c_enddate, 
+            @c_starttime, @c_endtime, @c_duration, @c_maxcapacity, @c_availablecapacity, 
+            @c_requiredequipments, @c_createdat, @c_status, @c_city, @c_address, @c_assets, @c_fees
+        )", _conn))
+        {
+            cm.Parameters.AddWithValue("@c_classname", classData.className);
+            cm.Parameters.AddWithValue("@c_instructorid", classData.instructorId);
+            cm.Parameters.AddWithValue("@c_description", classData.description != null ? JsonSerializer.Serialize(classData.description) : (object)DBNull.Value);
+            cm.Parameters.AddWithValue("@c_type", classData.type);
+            cm.Parameters.AddWithValue("@c_startdate", classData.startDate);
+            cm.Parameters.AddWithValue("@c_enddate", classData.endDate);
+            cm.Parameters.AddWithValue("@c_starttime", classData.startTime);
+            cm.Parameters.AddWithValue("@c_endtime", classData.endTime);
+            cm.Parameters.AddWithValue("@c_duration", classData.duration);
+            cm.Parameters.AddWithValue("@c_maxcapacity", classData.maxCapacity);
+            cm.Parameters.AddWithValue("@c_availablecapacity", classData.availableCapacity);
+            cm.Parameters.AddWithValue("@c_requiredequipments", classData.requiredEquipments ?? (object)DBNull.Value);
+            cm.Parameters.AddWithValue("@c_createdat", classData.createdAt);
+            cm.Parameters.AddWithValue("@c_status", classData.status);
+            cm.Parameters.AddWithValue("@c_city", classData.city);
+            cm.Parameters.AddWithValue("@c_address", classData.address);
+            cm.Parameters.AddWithValue("@c_assets", classData.assets );
+            cm.Parameters.AddWithValue("@c_fees", classData.fee);
+
+            int result = await cm.ExecuteNonQueryAsync();
+            return result > 0 ? 1 : 0;
+        }
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"Error: {ex.Message}");
+        return -1; // General error
+    }
+    finally
+    {
+        if (_conn.State != ConnectionState.Closed)
+        {
+            await _conn.CloseAsync();
+        }
+    }
+}
+
+
     #endregion
 }
 

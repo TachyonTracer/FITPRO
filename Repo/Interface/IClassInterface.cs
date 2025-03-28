@@ -6,4 +6,6 @@ public interface IClassInterface
     Task<Class> GetOne(string id);
     Task<Response> BookClass(Booking request);
     Task<bool> SoftDeleteClass(int classId);
+
+    Task<int> ScheduleClass( Class classData);
 }
