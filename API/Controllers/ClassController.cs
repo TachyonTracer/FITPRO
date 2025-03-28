@@ -118,7 +118,7 @@ namespace API
                 }
 
 
-                string uploadPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "ClassAssets");
+                string uploadPath = Path.Combine("../MVC/wwwroot", "ClassAssets");
                 if (!Directory.Exists(uploadPath))
                 {
                     Directory.CreateDirectory(uploadPath);
@@ -163,24 +163,15 @@ namespace API
                     return StatusCode(500, new { success = false, message = "Database error occurred", error = dbEx.Message });
                 }
 
-                // ✅ Return response based on the result
-                switch (result)
+                return result switch
                 {
-                    case 1:
-                        return Ok(new { success = true, message = "Class scheduled successfully" });
-
-                    case -1:
-                        return StatusCode(500, new { success = false, message = "There was an error while scheduling your class" });
-
-                    case -2:
-                        return BadRequest(new { success = false, message = "Instructor already has a class with the same name and same type" });
-
-                    case -3:
-                        return BadRequest(new { success = false, message = "Instructor has another class within the required 1-hour gap" });
-
-                    default:
-                        return BadRequest(new { success = false, message = "Failed to schedule class" });
-                }
+                    1 => Ok(new { succes= true, message = "Class scheduled successfully." }),
+                    -2 => Conflict(new {succes= false,  message = "Class with the same name and type already exists for this instructor." }),
+                    -3 => Conflict(new {succes= false,  message = "Instructor already has another class during this time." }),
+                    -4 => BadRequest(new {succes= false,  message = "Class duration should be at least 1 hour." }),
+                    0 => StatusCode(500, new {succes= false,  message = "Class scheduling failed. Please try again." }),
+                    _ => StatusCode(500, new {succes= false,  message = "An unexpected error occurred." })
+                };
             }
             catch (JsonException jsonEx)
             {
