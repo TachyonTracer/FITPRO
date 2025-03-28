@@ -6,7 +6,7 @@ public interface IClassInterface
     Task<Class> GetOne(string id);
     Task<Response> BookClass(Booking request);
     Task<List<Class>> GetBookedClassesByUserId(string userId);
-    Task<(bool success, string message)> CancelBooking(int bookingId, int userId, int classId);
+    Task<(bool success, string message)> CancelBooking(int userId, int classId);
     Task<bool> IsCancellationAllowed(int bookingId, int maxHoursBefore = 24);
 
 }

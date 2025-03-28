@@ -138,7 +138,7 @@ public class ClassRepo : IClassInterface
         List<Class> classes = new List<Class>();
         try
         {
-            using (var cmd = new NpgsqlCommand("SELECT * FROM t_Class", _conn))
+            using (var cmd = new NpgsqlCommand("SELECT t1.*,t2.c_instructorname FROM t_Class t1 join t_instructor t2 on t1.c_instructorid = t2.c_instructorid", _conn))
             {
                 if (_conn.State == System.Data.ConnectionState.Closed)
                 {
@@ -155,7 +155,7 @@ public class ClassRepo : IClassInterface
                             className = reader["c_classname"].ToString(),
                             instructorId = Convert.ToInt32(reader["c_instructorid"]),
                             description = reader["c_description"] == DBNull.Value ? null : JsonDocument.Parse(reader["c_description"].ToString()),
-
+                            instructorName = reader["c_instructorname"].ToString(),
                             type = reader["c_type"].ToString(),
                             startDate = Convert.ToDateTime(reader["c_startdate"]),
                             endDate = Convert.ToDateTime(reader["c_enddate"]),
@@ -198,7 +198,7 @@ public class ClassRepo : IClassInterface
             {
                 await _conn.OpenAsync();
             }
-            using (var cmd = new NpgsqlCommand("SELECT * FROM t_Class WHERE c_instructorid = @c_instructorid", _conn))
+            using (var cmd = new NpgsqlCommand("SELECT t1.*,t2.c_instructorname FROM t_Class t1 join t_instructor t2 on t1.c_instructorid = t2.c_instructorid WHERE t1.c_instructorid = @c_instructorid", _conn))
             {
                 cmd.Parameters.AddWithValue("@c_instructorid", int.Parse(id));
                 using (var reader = await cmd.ExecuteReaderAsync())
@@ -210,6 +210,7 @@ public class ClassRepo : IClassInterface
                             classId = Convert.ToInt32(reader["c_classid"]),
                             className = reader["c_classname"].ToString(),
                             instructorId = Convert.ToInt32(reader["c_instructorid"]),
+                            
                             description = reader["c_description"] == DBNull.Value ? null : JsonDocument.Parse(reader["c_description"].ToString()),
 
                             type = reader["c_type"].ToString(),
@@ -253,7 +254,7 @@ public class ClassRepo : IClassInterface
             {
                 await _conn.OpenAsync();
             }
-            using (var cmd = new NpgsqlCommand("SELECT * FROM t_Class WHERE c_classid = @c_classid", _conn))
+            using (var cmd = new NpgsqlCommand("SELECT t1.*,t2.c_instructorname FROM t_Class t1 join t_instructor t2 on t1.c_instructorid = t2.c_instructorid WHERE c_classid = @c_classid", _conn))
             {
                 cmd.Parameters.AddWithValue("@c_classid", int.Parse(id));
                 using (var reader = await cmd.ExecuteReaderAsync())
@@ -266,7 +267,7 @@ public class ClassRepo : IClassInterface
                             className = reader["c_classname"].ToString(),
                             instructorId = Convert.ToInt32(reader["c_instructorid"]),
                             description = reader["c_description"] == DBNull.Value ? null : JsonDocument.Parse(reader["c_description"].ToString()),
-
+                            instructorName = reader["c_instructorname"].ToString(),
                             type = reader["c_type"].ToString(),
                             startDate = Convert.ToDateTime(reader["c_startdate"]),
                             endDate = Convert.ToDateTime(reader["c_enddate"]),
@@ -313,10 +314,12 @@ public class ClassRepo : IClassInterface
 
             // Query to get classes booked by a specific user
             using (var cmd = new NpgsqlCommand(
-                @"SELECT c.* FROM t_Class c
+                @"SELECT c.*,i.c_instructorname FROM t_Class c
               INNER JOIN t_Bookings b ON c.c_classid = b.c_classid
+              INNER JOIN t_instructor i on i.c_instructorid = c.c_instructorid
               WHERE b.c_userid = @userId", _conn))
             {
+                System.Console.WriteLine("user id inside repo is " + userId);
                 cmd.Parameters.AddWithValue("@userId", int.Parse(userId));
 
                 using (var reader = await cmd.ExecuteReaderAsync())
@@ -330,6 +333,8 @@ public class ClassRepo : IClassInterface
                             instructorId = Convert.ToInt32(reader["c_instructorid"]),
                             description = reader["c_description"] == DBNull.Value ? null : JsonDocument.Parse(reader["c_description"].ToString()),
                             type = reader["c_type"].ToString(),
+                            instructorName = reader["c_instructorname"].ToString(),
+
                             startDate = Convert.ToDateTime(reader["c_startdate"]),
                             endDate = Convert.ToDateTime(reader["c_enddate"]),
                             startTime = reader["c_starttime"] == DBNull.Value ? null : TimeSpan.Parse(reader["c_starttime"].ToString()),
@@ -395,8 +400,10 @@ public class ClassRepo : IClassInterface
 
                         var classDateTime = classDate.Date.Add(startTime);
                         var timeUntilClass = classDateTime - DateTime.Now;
+                        // var timeSinceBooking = DateTime.Now - bookingTime;
 
-                        return timeUntilClass.TotalHours >= maxHoursBefore;
+
+                    return timeUntilClass.TotalHours > 24;
                     }
                 }
             }
@@ -416,8 +423,10 @@ public class ClassRepo : IClassInterface
         }
     }
 
-    public async Task<(bool success, string message)> CancelBooking(int bookingId, int userId, int classId)
+    public async Task<(bool success, string message)> CancelBooking(int userId, int classId)
     {
+
+         var bookingId = 0;
         try
         {
             if (_conn.State == ConnectionState.Closed)
@@ -427,14 +436,12 @@ public class ClassRepo : IClassInterface
 
             // 1. Verify booking exists and belongs to user with JOIN to ensure class exists
             using (var checkCmd = new NpgsqlCommand(
-                @"SELECT b.c_bookingid 
-              FROM t_bookings b
-              JOIN t_class c ON b.c_classid = c.c_classid
-              WHERE b.c_bookingid = @bookingId 
-                AND b.c_userid = @userId 
-                AND b.c_classid = @classId", _conn))
+                @"SELECT c_bookingid 
+                FROM t_bookings where           
+                c_userid = @userId AND
+                c_classid = @classId", _conn))
             {
-                checkCmd.Parameters.AddWithValue("@bookingId", bookingId);
+                // checkCmd.Parameters.AddWithValue("@bookingId", bookingId);
                 checkCmd.Parameters.AddWithValue("@userId", userId);
                 checkCmd.Parameters.AddWithValue("@classId", classId);
 
@@ -444,13 +451,16 @@ public class ClassRepo : IClassInterface
                     {
                         return (false, "Booking not found or doesn't belong to user/class");
                     }
+
+                    bookingId = Convert.ToInt32(reader["c_bookingid"]);
+
                 }
             }
 
             // 2. Check cancellation window
             if (!await IsCancellationAllowed(bookingId))
             {
-                return (false, "Cancellation not allowed within 24 hours of class");
+                return (false, "Cancellation is allowed before 24 hours of the start.");
             }
 
             if (_conn.State == ConnectionState.Closed)
@@ -460,9 +470,10 @@ public class ClassRepo : IClassInterface
 
             // 3. Delete booking
             using (var deleteCmd = new NpgsqlCommand(
-                "DELETE FROM t_bookings WHERE c_bookingid = @bookingId", _conn))
+                "DELETE FROM t_bookings WHERE c_userid=@c_userid and c_classid=@c_classid", _conn))
             {
-                deleteCmd.Parameters.AddWithValue("@bookingId", bookingId);
+                deleteCmd.Parameters.AddWithValue("@c_userid", userId);
+                deleteCmd.Parameters.AddWithValue("@c_classid", classId);
                 int rowsAffected = await deleteCmd.ExecuteNonQueryAsync();
 
                 if (rowsAffected == 0)

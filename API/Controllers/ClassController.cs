@@ -104,10 +104,10 @@ namespace API
         }
         #endregion
 
-        [HttpDelete("CancelBooking/{bookingId}/{userId}/{classId}")]
-        public async Task<IActionResult> CancelBooking(int bookingId, int userId, int classId)
+        [HttpDelete("CancelBooking/{userId}/{classId}")]
+        public async Task<IActionResult> CancelBooking(int userId, int classId)
         {
-            if (bookingId <= 0 || userId <= 0 || classId <= 0)
+            if (    userId <= 0 || classId <= 0)
             {
                 return BadRequest(new
                 {
@@ -116,11 +116,11 @@ namespace API
                 });
             }
 
-            var (success, message) = await _classRepo.CancelBooking(bookingId, userId, classId);
+            var (success, message) = await _classRepo.CancelBooking(userId, classId);
 
             if (!success)
             {
-                return BadRequest(new { success, message });
+                return Ok(new { success=false, message });
             }
 
             return Ok(new { success, message });

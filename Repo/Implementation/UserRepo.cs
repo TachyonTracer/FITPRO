@@ -15,9 +15,11 @@ public class UserRepo : IUserInterface
     #region Update User Profile
     public async Task<bool> UpdateUserProfileAsync(User user)
     {
+        System.Console.WriteLine("UpdateUserProfileAsync" + user.userId + " image path is " + user.profileImage);
         string query = @"UPDATE t_user 
                             SET c_username = @username,                                
                                 c_height = @height,
+                                c_mobile=@mobile,
                                 c_weight = @weight,
                                 c_goal = @goal,
                                 c_medicalcondition = @medicalCondition,
@@ -36,8 +38,6 @@ public class UserRepo : IUserInterface
                 command.Parameters.AddWithValue("@userId", user.userId);
                 command.Parameters.AddWithValue("@username", user.userName);
                 command.Parameters.AddWithValue("@mobile", user.mobile);
-                command.Parameters.AddWithValue("@gender", user.gender);
-                command.Parameters.AddWithValue("@dob", user.dob ?? (object)DBNull.Value);
                 command.Parameters.AddWithValue("@height", user.height ?? (object)DBNull.Value);
                 command.Parameters.AddWithValue("@weight", user.weight ?? (object)DBNull.Value);
                 command.Parameters.AddWithValue("@goal", user.goal ?? (object)DBNull.Value);
