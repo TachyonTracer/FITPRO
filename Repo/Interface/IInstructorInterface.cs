@@ -1,4 +1,4 @@
-using Repo;
+namespace Repo;
 
 public interface IInstructorInterface
 {
@@ -12,4 +12,7 @@ public interface IInstructorInterface
 
 	#endregion
 
+    #region User Story: List Instructors
+    Task<List<Instructor>> GetAllInstructors();
+    #endregion
 }

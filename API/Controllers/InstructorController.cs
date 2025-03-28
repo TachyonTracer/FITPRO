@@ -15,7 +15,9 @@ namespace API
             _instructorRepo = instructorRepo;
         }
 
-        [HttpGet("{instructorId}")]
+        #region  Get One Instructor By Id
+
+        [HttpGet("GetOneInstructorById/{instructorId}")]
         public async Task<ActionResult<Instructor>> GetOneInstructorById(int instructorId)
         {
             var instructor = await _instructorRepo.GetOneInstructorByIdForProfile(instructorId);
@@ -29,7 +31,9 @@ namespace API
 
         }
 
+        #endregion
 
+        #region Update Instructor Profile
 
         [HttpPost("edit-profile-basic")]
         public async Task<IActionResult> EditProfileBasic([FromForm] Instructor instructor)
@@ -78,6 +82,31 @@ namespace API
             }
         }
 
+        #endregion
+
+        #region Get All Instructors
+        [HttpGet("GetAllInstructors")]
+        // [Authorize]
+        public async Task<IActionResult> GetAllInstructors()
+        {
+            List<Instructor> instructorList = await _instructorRepo.GetAllInstructors();
+            if (instructorList != null)
+            {
+                return Ok(new
+                {
+                    success = true,
+                    message = "Instructors fetched successfully.",
+                    data = instructorList
+                });
+            }
+
+            return Ok(new
+            {
+                success = false,
+                message = "Error occured while fetching instructors."
+            });
+        }
+        #endregion
 
 
     }

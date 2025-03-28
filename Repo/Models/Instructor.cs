@@ -75,3 +75,4 @@ public class Instructor
     [Display(Name = "Profile Image")]
     public IFormFile? profileImageFile { get; set; }
 }
+

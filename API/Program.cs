@@ -4,8 +4,10 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.Net.Http.Headers;
 using Microsoft.OpenApi.Models;
 using Npgsql;
+using Repo;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Services.AddScoped<IClassInterface,ClassRepo>();
 
 
 // Add services to the container.
@@ -80,6 +82,9 @@ builder.Services.AddSession(options =>
     options.Cookie.HttpOnly = true;
     options.Cookie.IsEssential = true;
 });
+
+builder.Services.AddScoped<IInstructorInterface, InstructorRepo>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
