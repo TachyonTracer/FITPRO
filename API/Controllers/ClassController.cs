@@ -17,7 +17,7 @@ namespace API
         #region User-Stroy : List Class 
         
         #region GetAll
-        [HttpGet]
+        [HttpGet("GetAllClasses")]
         // [Authorize]
         public async Task<IActionResult> GetAll()
         {
@@ -28,7 +28,7 @@ namespace API
         #endregion
 
         #region GetOne
-        [HttpGet("GetOne")]
+        [HttpGet("GetOneClass")]
         // [Authorize]
         public async Task<ActionResult> GetOne(string id)
         {
@@ -43,7 +43,7 @@ namespace API
         #endregion
 
         #region  GetClassById
-        [HttpGet("ClassById")]
+        [HttpGet("ClassByInstructorId")]
         // [Authorize]
         public async Task<ActionResult> GetClassById(string id)
         {

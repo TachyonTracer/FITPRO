@@ -16,6 +16,16 @@ builder.Services.AddScoped<IUserInterface, UserRepo>();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddControllers();
 builder.Services.AddSignalR();
+
+// Add session services
+builder.Services.AddDistributedMemoryCache();
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromMinutes(30);
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+});
+
 builder.Services.AddSwaggerGen(c =>
 {
     c.AddSecurityDefinition("token", new OpenApiSecurityScheme
@@ -42,7 +52,12 @@ builder.Services.AddSwaggerGen(c =>
     );
 });
 
-builder.Services.AddScoped<NpgsqlConnection>((provider) =>
+builder.Services.AddSingleton<IAuthInterface, AuthRepo>();
+builder.Services.AddSingleton<IEmailInterface, EmailRepo>();
+builder.Services.AddScoped<IAuthInterface, AuthRepo>();
+builder.Services.AddScoped<IInstructorInterface, InstructorRepo>();
+
+builder.Services.AddSingleton<NpgsqlConnection>((provider) =>
 {
     var connectionString = provider.GetRequiredService<IConfiguration>().GetConnectionString("pgconn");
     return new NpgsqlConnection(connectionString);
@@ -82,7 +97,7 @@ builder.Services.AddSession(options =>
     options.Cookie.IsEssential = true;
 });
 
-builder.Services.AddScoped<IInstructorInterface, InstructorRepo>();
+
 
 var app = builder.Build();
 
@@ -96,7 +111,10 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseRouting();
 app.UseCors("corsapp");
+
+// Use session middleware after routing and before authentication
 app.UseSession();
+
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();

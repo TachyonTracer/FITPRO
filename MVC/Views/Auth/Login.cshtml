@@ -1,0 +1,91 @@
+@{
+    Layout = "_LoginLayout";
+}
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Glassmorphism Login - Fitness Hub</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700&family=Bebas+Neue&display=swap"
+        rel="stylesheet">
+
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.17.2/dist/sweetalert2.all.min.js" \></script>
+
+
+    <link rel="stylesheet" href="~/css/Login.css">
+
+
+</head>
+
+<body>
+    <section class="container">
+        <div class="gym-background">
+            <div class="logo">
+                <img src="~/Assets/LOGO_1.png" alt="FITPRO Logo">
+            </div>
+            <div class="gym-icon dumbbell-icon-1"></div>
+            <div class="gym-icon dumbbell-icon-2"></div>
+            <div class="gym-icon barbell-icon-1"></div>
+            <div class="gym-icon barbell-icon-2"></div>+
+
+            <div class="gym-icon kettlebell-icon-1"></div>
+            <div class="gym-icon kettlebell-icon-2"></div>
+        </div>
+        <div class="login-container">
+            <div class="circle circle-one"></div>
+            <div class="form-container">
+                <h1 class="opacity">LOGIN</h1>
+                <p class="tagline opacity">Power Up Your Fitness Journey!</p>
+                <form id="login-form">
+                    <label for="username" class="sr-only">Username</label>
+                    <div class="input-wrapper">
+                        <input type="text" id="username" placeholder="Email" />
+                        <span class="validation-message"></span>
+                    </div>
+
+                    <label for="password" class="sr-only">Password</label>
+                    <div class="input-wrapper">
+                        <input type="password" id="password" placeholder="PASSWORD" />
+                        <span class="validation-message"></span>
+                    </div>
+
+                    <div id="captcha-container">
+                        <span id="captcha-question"></span>
+                        <div class="input-wrapper">
+                            <input type="text" id="captcha-answer" placeholder="Enter Answer" />
+                            <span class="validation-message"></span>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="opacity">LOGIN</button>
+                </form>
+                <div class="register-forget opacity">
+                    <a href="Index" aria-label="Register for a new account">REGISTER</a>
+                    <a href="ForgotPassword" aria-label="Recover forgotten password">FORGOT PASSWORD</a>
+                </div>
+            </div>
+            <div class="circle circle-two"></div>
+        </div>
+        <div class="theme-btn-container" role="radiogroup" aria-label="Theme selection"></div>
+    </section>
+
+    <div class="role-selection-bottom">
+        <div class="role-option user-role" data-role="user">
+            <img src="~/Assets/user.png" alt="User Role" class="role-image">
+            <span class="role-name">User</span>
+        </div>
+        <div class="role-option instructor-role" data-role="instructor">
+            <img src="~/Assets/admin.png" alt="Instructor Role" class="role-image">
+            <span class="role-name">Instructor</span>
+        </div>
+    </div>
+    <script src="~/js/login-theme.js"></script>
+    <script src="~/js/login.js"></script>
+    <link rel="stylesheet" href="~/css/Login.css">
+
+
+</body>
+
+</html>
