@@ -785,14 +785,14 @@
 
         // Function to handle image load error
         function handleImageError(img) {
-            img.src = '/images/placeholder.jpg'; // Local fallback image
+            img.src = '/Instructor_Images/placeholder.jpg'; // Local fallback image
             img.onerror = null; // Prevent infinite loop
         }
 
         // Load Instructor List
         function loadInstructorList() {
             $.ajax({
-                url: apiBaseUrl,
+                url: `${apiBaseUrl}GetAllInstructors`,
                 method: "GET",
                 success: function (response) {
                     let html = response.data.map(instructor => `
@@ -836,9 +836,9 @@
                     // Set profile image
                     const profileImage = $('#profile-image');
                     if (instructor.profileImage) {
-                        profileImage.attr('src', `/documents/${instructor.profileImage}`);
+                        profileImage.attr('src', `/Instructor_Images/${instructor.profileImage}`);
                     } else {
-                        profileImage.attr('src', '/images/placeholder.jpg');
+                        profileImage.attr('src', '/Instructor_Images/placeholder.jpg');
                         profileImage[0].onerror = null;
                     }
 
@@ -860,7 +860,7 @@
                     // ID Proof
                     if (instructor.idProof) {
                         documentsGrid.append(`
-                            <div class="document-card" onclick="viewPDF('/documents/${instructor.idProof}', 'ID Proof')">
+                            <div class="document-card" onclick="viewPDF('/Id_Proof/${instructor.idProof}', 'ID Proof')" >
                                 <i class="bi bi-credit-card"></i>
                                 <h6 class="mb-0">ID Proof</h6>
                             </div>
@@ -875,7 +875,7 @@
                             if (typeof cert === 'string' && (cert.includes('.pdf') || cert.includes('.jpg') || cert.includes('.png'))) {
                                 const certKey = certKeys[index] || `Certificate ${index + 1}`;
                                 documentsGrid.append(`
-                                    <div class="document-card" onclick="viewPDF('/documents/${cert}', '${certKey}')">
+                                    <div class="document-card" onclick="viewPDF('/Certificates/${cert}', '${certKey}')">
                                         <i class="bi bi-award"></i>
                                         <h6 class="mb-0">${certKey}</h6>
                                     </div>

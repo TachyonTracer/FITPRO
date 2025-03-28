@@ -622,13 +622,13 @@
                         </div>
 
                         <!-- Account Status Section -->
-                        <div class="details-section">
+                        @* <div class="details-section">
                             <h5>Account Status</h5>
                             <div class="d-flex gap-3">
                                 <button id="activate-btn" class="btn btn-success" onclick="activateUser()">Activate</button>
                                 <button id="deactivate-btn" class="btn btn-danger" onclick="deactivateUser()">Deactivate</button>
                             </div>
-                        </div>
+                        </div> *@
                     </div>
                 </div>
             </div>
@@ -698,9 +698,9 @@
                     // Set profile image
                     const profileImage = $('#profile-image');
                     if (user.profileImage) {
-                        profileImage.attr('src', `/${user.profileImage}`);
+                        profileImage.attr('src', `/User_Images/${user.profileImage}`);
                     } else {
-                        profileImage.attr('src', '/images/placeholder.jpg');
+                        profileImage.attr('src', '/Instructor_Images/placeholder.jpg');
                         profileImage[0].onerror = null;
                     }
                 },
