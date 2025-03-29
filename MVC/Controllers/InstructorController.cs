@@ -10,7 +10,14 @@ namespace MVC
             return View();
         }
 
-        public ActionResult Instructor()
+        
+
+        public ActionResult VerifiedInstructor()
+        {
+            return View();
+        }
+
+        public ActionResult ApprovedInstructor()
         {
             return View();
         }

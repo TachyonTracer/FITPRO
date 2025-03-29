@@ -259,5 +259,43 @@ public class UserRepo : IUserInterface
 
 	#endregion
 
+	 #region User Stroy :List User Desgin
+	 #region Suspend User
+     public async Task<bool> SuspendUser(string userId)
+    {
+        bool isSuccess = false;
+        try
+        {
+            if (_conn.State != ConnectionState.Open)
+            {
+                await _conn.OpenAsync();
+            }
+
+            using (var cmd = new NpgsqlCommand("UPDATE t_user SET c_status = 'false' WHERE c_userid = @c_userid", _conn))
+            {
+                cmd.Parameters.AddWithValue("@c_userid", Convert.ToInt32(userId));
+
+               
+                int rowsAffected = await cmd.ExecuteNonQueryAsync();
+                isSuccess = rowsAffected > 0;
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error while Suspending User: {ex.Message}");
+        }
+        finally
+        {
+            if (_conn.State != ConnectionState.Closed)
+            {
+                await _conn.CloseAsync();
+            }
+        }
+        return isSuccess;
+    }
+    #endregion
+	#endregion
+
+
 }
 

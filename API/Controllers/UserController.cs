@@ -79,7 +79,7 @@ namespace API
 					data = userList
 				});
 			}
-			else if(userList.Count == 0)
+			else if (userList.Count == 0)
 			{
 				return Ok(new
 				{
@@ -131,6 +131,26 @@ namespace API
 
 		#endregion
 
+		#region User stroy:List User Design
+		#region Suspend User
+		[HttpPost("UserSuspend/{id}")]
+		public async Task<IActionResult> SuspendInstructor(string id)
+		{
+			var instructor = await _userRepo.GetAllUsersById(int.Parse(id));
+			if (instructor == null)
+			{
+				return NotFound(new { success = false, message = "Instructor not found." });
+			}
+
+			var result = await _userRepo.SuspendUser(id);
+			if (result)
+			{
+				return Ok(new { success = true, message = "User Suspended successfully!" });
+			}
+			return BadRequest(new { message = "Failed to Suspennd User." });
+		}
+		#endregion
+		#endregion
 
 	}
 

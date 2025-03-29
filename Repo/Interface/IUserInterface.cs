@@ -12,5 +12,9 @@ public interface IUserInterface
 
 	#endregion
 
+	#region User Story: List Users Desgin
+	 Task<bool> SuspendUser(string userId);
+	 #endregion
+
 	
 }
