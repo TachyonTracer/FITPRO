@@ -109,6 +109,102 @@ namespace API
         #endregion
 
 
+        #region Class Count By Instructor
+        [HttpGet("ClassCountByInstructor/{instructorId}")]
+        public async Task<IActionResult>  ClassCountByInstructor(string instructorId)
+        {
+            var classCount = await _instructorRepo.ClassCountByInstructor(instructorId);
+            if (classCount != -1)
+            {
+                return Ok(new
+                {
+                    success = true,
+                    message = "Class Count By Instructor fetched successfully",
+                    count = classCount
+                });
+            }
+
+            return BadRequest(new
+            {
+                success = false,
+                message = "Failed to fetch Class Count By Instructor"
+            });
+        }
+        #endregion
+
+
+        #region Upcoming Class Count By Instructor
+        [HttpGet("UpcomingClassCountByInstructor/{instructorId}")]
+        public async Task<IActionResult>  UpcomingClassCountByInstructor(string instructorId)
+        {
+            var classCount = await _instructorRepo.UpcomingClassCountByInstructor(instructorId);
+            if (classCount != -1)
+            {
+                return Ok(new
+                {
+                    success = true,
+                    message = "Upcoming Class Count By Instructor fetched successfully",
+                    count = classCount
+                });
+            }
+
+            return BadRequest(new
+            {
+                success = false,
+                message = "Failed to fetch Upcoming Class Count By Instructor"
+            });
+        }
+        #endregion
+
+
+        #region User Count By Instructor
+        [HttpGet("UserCountByInstructor/{instructorId}")]
+        public async Task<IActionResult>  UserCountByInstructor(string instructorId)
+        {
+            var classCount = await _instructorRepo.UserCountByInstructor(instructorId);
+            if (classCount != -1)
+            {
+                return Ok(new
+                {
+                    success = true,
+                    message = "User Count By Instructor fetched successfully",
+                    count = classCount
+                });
+            }
+
+            return BadRequest(new
+            {
+                success = false,
+                message = "Failed to fetch User Count By Instructor"
+            });
+        }
+        #endregion
+
+
+        #region Upcoming Class Details By Instructor
+        [HttpGet("UpcomingClassDetailsByInstructor/{instructorId}")]
+        // [Authorize]
+        public async Task<IActionResult> UpcomingClassDetailsByInstructor(string instructorId)
+        {
+            List<Class> upcomingClassList = await _instructorRepo.UpcomingClassDetailsByInstructor(instructorId);
+            if (upcomingClassList != null)
+            {
+                return Ok(new
+                {
+                    success = true,
+                    message = "Upcoming Class Details fetched successfully.",
+                    data = upcomingClassList
+                });
+            }
+
+            return Ok(new
+            {
+                success = false,
+                message = "Error occured while fetching upcoming class details."
+            });
+        }
+        #endregion
+
     }
 
 }

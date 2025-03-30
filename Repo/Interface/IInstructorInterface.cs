@@ -15,4 +15,11 @@ public interface IInstructorInterface
     #region User Story: List Instructors
     Task<List<Instructor>> GetAllInstructors();
     #endregion
+
+	#region User Story: Instructor Dashboard View
+	Task<int> ClassCountByInstructor(string instructorId);
+	Task<int> UpcomingClassCountByInstructor(string instructorId);
+	Task<int> UserCountByInstructor(string instructorId);
+	Task<List<Class>> UpcomingClassDetailsByInstructor(string instructorId);
+	#endregion
 }

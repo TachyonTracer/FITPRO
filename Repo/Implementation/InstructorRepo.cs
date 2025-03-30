@@ -219,4 +219,200 @@ public class InstructorRepo : IInstructorInterface
 
 
     #endregion
+
+
+	#region Class Count By Instructor
+	public async Task<int> ClassCountByInstructor(string instructorId)
+	{
+		try
+		{
+			if(_conn.State != ConnectionState.Open)
+            {
+                await _conn.OpenAsync();
+            }
+
+			using(var cmd = new NpgsqlCommand(@"SELECT COUNT(*)
+												FROM t_class
+												WHERE c_instructorid = @c_instructorid", _conn))
+			{
+				cmd.Parameters.AddWithValue("@c_instructorid", Convert.ToInt32(instructorId));
+
+				var count = await cmd.ExecuteScalarAsync();
+				return Convert.ToInt32(count);
+			}
+		}
+		catch (Exception ex)
+        {
+            Console.WriteLine("------>Error while Fetching Class Count by Instructor: " + ex.Message);
+			return -1;
+        }
+        finally
+        {
+            if(_conn.State != ConnectionState.Closed)
+            {
+                await _conn.CloseAsync();
+            }
+        }
+	}
+	#endregion
+
+
+	#region Upcoming Class Count By Instructor
+	public async Task<int> UpcomingClassCountByInstructor(string instructorId)
+	{
+		try
+		{
+			if(_conn.State != ConnectionState.Open)
+            {
+                await _conn.OpenAsync();
+            }
+
+			using(var cmd = new NpgsqlCommand(@"SELECT COUNT(*)
+												FROM t_class
+												WHERE c_instructorid = @c_instructorid
+												AND c_startdate > @date", _conn))
+			{
+				cmd.Parameters.AddWithValue("@c_instructorid", Convert.ToInt32(instructorId));
+				cmd.Parameters.AddWithValue("@date", DateTime.Now);
+
+				var count = await cmd.ExecuteScalarAsync();
+				return Convert.ToInt32(count);
+			}
+		}
+		catch (Exception ex)
+        {
+            Console.WriteLine("------>Error while Fetching Upcoming Class Count by Instructor: " + ex.Message);
+			return -1;
+        }
+        finally
+        {
+            if(_conn.State != ConnectionState.Closed)
+            {
+                await _conn.CloseAsync();
+            }
+        }
+	}
+	#endregion
+
+
+	#region User Count By Instructor
+	public async Task<int> UserCountByInstructor(string instructorId)
+	{
+		try
+		{
+			if(_conn.State != ConnectionState.Open)
+            {
+                await _conn.OpenAsync();
+            }
+
+			using(var cmd = new NpgsqlCommand(@"SELECT SUM(c_maxcapacity - c_availablecapacity)
+												FROM t_class
+												WHERE c_instructorid = @c_instructorid", _conn))
+			{
+				cmd.Parameters.AddWithValue("@c_instructorid", Convert.ToInt32(instructorId));
+
+				var count = await cmd.ExecuteScalarAsync();
+				return Convert.ToInt32(count);
+			}
+		}
+		catch (Exception ex)
+        {
+            Console.WriteLine("------>Error while Fetching user Count by Instructor: " + ex.Message);
+			return -1;
+        }
+        finally
+        {
+            if(_conn.State != ConnectionState.Closed)
+            {
+                await _conn.CloseAsync();
+            }
+        }
+	}
+	#endregion
+
+
+	#region Upcoming Class Details By Instructor
+	public async Task<List<Class>> UpcomingClassDetailsByInstructor(string instructorId)
+	{
+		var upcomingClassList = new List<Class>();
+
+		try
+		{
+			if(_conn.State != ConnectionState.Open)
+            {
+                await _conn.OpenAsync();
+            }
+
+			using(var cmd = new NpgsqlCommand(@"SELECT 
+													c_classid, 
+													c_classname, 
+													c_instructorid,
+													c_description,
+													c_type,
+													c_startdate, 
+													c_enddate,
+													c_starttime, 
+													c_endtime,
+													c_duration,
+													c_maxcapacity, 
+													c_availablecapacity,
+													c_requiredequipments,
+													c_createdat,
+													c_status,
+													c_city,
+													c_address,
+													c_assets,
+													c_fees
+												FROM t_class
+												WHERE c_instructorid = @c_instructorid
+												AND c_startdate > @date", _conn))
+			{
+				cmd.Parameters.AddWithValue("@c_instructorid", Convert.ToInt32(instructorId));
+				cmd.Parameters.AddWithValue("@date", DateTime.Now);
+				
+				using(var dr =  await cmd.ExecuteReaderAsync())
+                {
+                    while(await dr.ReadAsync())
+                    {
+                        upcomingClassList.Add(new Class()
+                        {
+                            classId = Convert.ToInt32(dr["c_classid"]),
+                            className = Convert.ToString(dr["c_classname"]),
+                            instructorId = Convert.ToInt32(dr["c_instructorid"]),
+                            description = dr["c_description"] == DBNull.Value ? null : JsonDocument.Parse(Convert.ToString(dr["c_description"])),
+                            type = Convert.ToString(dr["c_type"]),
+                            startDate = Convert.ToDateTime(dr["c_startdate"]),
+                            endDate = Convert.ToDateTime(dr["c_enddate"]),
+                            startTime = dr["c_starttime"] == DBNull.Value ? null : TimeSpan.Parse(Convert.ToString(dr["c_starttime"])),
+                            endTime = dr["c_endtime"] == DBNull.Value ? null : TimeSpan.Parse(Convert.ToString(dr["c_endtime"])),
+                            duration = Convert.ToInt32(dr["c_duration"]),
+                            maxCapacity = Convert.ToInt32(dr["c_maxcapacity"]),
+                            availableCapacity = Convert.ToInt32(dr["c_availablecapacity"]),
+                            requiredEquipments = Convert.ToString(dr["c_requiredequipments"]),
+                            createdAt = Convert.ToDateTime(dr["c_createdat"]),
+                            status = Convert.ToString(dr["c_status"]),
+                            city = Convert.ToString(dr["c_city"]),
+                            address = Convert.ToString(dr["c_address"]),
+                            assets = dr["c_assets"] == DBNull.Value ? null : JsonDocument.Parse(Convert.ToString(dr["c_assets"])),
+                            fee = Convert.ToDecimal(dr["c_fees"])
+                        });
+                    }
+                }	
+			}
+		}
+		catch (Exception ex)
+        {
+            Console.WriteLine("------>Error while Fetching Upcoming Class Details by Instructor: " + ex.Message);
+        }
+        finally
+        {
+            if(_conn.State != ConnectionState.Closed)
+            {
+                await _conn.CloseAsync();
+            }
+        }
+		return upcomingClassList;
+	}
+	#endregion
+
 }
