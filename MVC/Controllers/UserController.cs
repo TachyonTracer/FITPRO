@@ -16,6 +16,10 @@ namespace MVC
             return View();
         }
 
+        public IActionResult BookClass(){
+            return View();
+        }
+
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {
