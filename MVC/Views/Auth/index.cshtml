@@ -10,6 +10,7 @@
     <link href="https://kendo.cdn.telerik.com/themes/6.7.0/default/default-main.css" rel="stylesheet">
     <script src="https://kendo.cdn.telerik.com/2023.2.718/js/jquery.min.js"></script>
     <script src="https://kendo.cdn.telerik.com/2023.2.718/js/kendo.all.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.17.2/dist/sweetalert2.all.min.js" \></script>
 
     <style>
         :root {
@@ -488,6 +489,87 @@
                 box-shadow: 0 0 12px rgba(255, 77, 77, 0.3);
             }
 
+            .swal2-popup {
+                background: var(--glass-color) !important;
+                backdrop-filter: blur(15px) !important;
+                border: 1px solid hsla(0, 0%, 65%, 0.2) !important;
+                border-radius: 15px !important;
+                box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3) !important;
+                color: var(--color) !important;
+            }
+
+            .swal2-title {
+                color: var(--color) !important;
+                font-family: "Poppins", sans-serif !important;
+                letter-spacing: 1px !important;
+            }
+
+            .swal2-content {
+                color: rgba(255, 255, 255, 0.8) !important;
+                font-family: "Poppins", sans-serif !important;
+            }
+
+            /* Confirm Button */
+            .swal2-confirm {
+                background-color: var(--primary-color) !important;
+                color: var(--color) !important;
+                border: none !important;
+                border-radius: 8px !important;
+                font-family: "Poppins", sans-serif !important;
+                transition: all 0.3s ease !important;
+            }
+
+            .swal2-confirm:hover {
+                background-color: #ff6666 !important;
+                transform: scale(1.03) !important;
+            }
+
+            /* Cancel Button */
+            .swal2-cancel {
+                background-color: rgba(255, 255, 255, 0.1) !important;
+                color: var(--color) !important;
+                border: 1px solid rgba(255, 255, 255, 0.2) !important;
+                border-radius: 8px !important;
+                font-family: "Poppins", sans-serif !important;
+                transition: all 0.3s ease !important;
+            }
+
+            .swal2-cancel:hover {
+                background-color: rgba(255, 255, 255, 0.2) !important;
+                transform: scale(1.03) !important;
+            }
+
+            /* Warning Icon */
+            .swal2-icon.swal2-warning {
+                color: var(--primary-color) !important;
+                border-color: var(--primary-color) !important;
+            }
+
+            /* Success Icon */
+            .swal2-icon.swal2-success {
+                border-color: #28a745 !important;
+                /* Green border */
+                color: #28a745 !important;
+                /* Green checkmark */
+            }
+
+            .swal2-icon.swal2-success .swal2-success-ring {
+                border-color: #28a745 !important;
+                /* Outer circle */
+            }
+
+            .swal2-icon.swal2-success [class^='swal2-success-line'] {
+                background-color: #28a745 !important;
+                /* Check lines */
+            }
+
+            .swal2-icon.swal2-success .swal2-success-circular-line-left,
+            .swal2-icon.swal2-success .swal2-success-circular-line-right,
+            .swal2-icon.swal2-success .swal2-success-fix  {
+                display: none !important;
+            }
+
+
             /* Animations */
             @@keyframes float {
                     0% {
@@ -721,7 +803,7 @@
                 <p class="tagline opacity">Power Up Your Fitness Journey!</p>
                 <div id="wizard"></div>
                 <div class="register-forget opacity">
-                    <a href="#" aria-label="Go back to login">BACK TO LOGIN</a>
+                    <a href="Login" aria-label="Go back to login">BACK TO LOGIN</a>
                 </div>
             </div>
             <div class="circle circle-two"></div>
@@ -951,7 +1033,7 @@
                                     .attr("name", options.field)
                                     .kendoUpload({
                                         multiple: true,
-                                        validation: { allowedExtensions: [".pdf", ".jpg", ".png"] },
+                                        validation: { allowedExtensions: [".pdf"] },
                                         showFileList: true,
                                         dropZone: ".k-dropzone",
                                         select: function (e) {
@@ -973,7 +1055,7 @@
                                     .attr("name", options.field)
                                     .kendoUpload({
                                         multiple: false,
-                                        validation: { allowedExtensions: [".pdf", ".jpg", ".png"] },
+                                        validation: { allowedExtensions: [".pdf"] },
                                         showFileList: true,
                                         dropZone: ".k-dropzone",
                                         select: function (e) {
@@ -1036,7 +1118,7 @@
                                         }
                                     },
                                     editor: function (container, options) {
-                                        var input = $('<input type="text" />')
+                                        var input = $('<input type="text" required data-required-msg = "Full Name is required" />')
                                             .appendTo(container)
                                             .attr("name", options.field)
                                             .kendoTextBox({ placeholder: "Enter your full name" });
@@ -1057,7 +1139,7 @@
                                         }
                                     },
                                     editor: function (container, options) {
-                                        var input = $('<input type="email" />')
+                                        var input = $('<input type="email" required data-required-msg = "Email is required"/>')
                                             .appendTo(container)
                                             .attr("name", options.field)
                                             .kendoTextBox({ placeholder: "Enter your email" });
@@ -1103,7 +1185,7 @@
                                         }
                                     },
                                     editor: function (container, options) {
-                                        var input = $('<input type="text" />')
+                                        var input = $('<input type="text" required data-required-msg = "Phone number is required" />')
                                             .appendTo(container)
                                             .attr("name", options.field)
                                             .kendoTextBox({ placeholder: "Enter your phone number" });
@@ -1167,7 +1249,7 @@
                                         }
                                     },
                                     editor: function (container, options) {
-                                        var input = $('<input />')
+                                        var input = $('<input placeholder="YYYY-MM-DD" required data-required-msg = "Date of birth is required"/>')
                                             .appendTo(container)
                                             .attr("name", options.field)
                                             .kendoDatePicker({
@@ -1188,10 +1270,12 @@
                                     field: "password",
                                     label: "Password:",
                                     editor: function (container, options) {
-                                        var input = $('<input type="password" />')
+                                        var input = $('<input type="password" required data-required-msg = "Password is required"/>')
                                             .appendTo(container)
                                             .attr("name", options.field)
-                                            .kendoTextBox({ placeholder: "Enter your password" });
+                                            .kendoTextBox({ placeholder: "Enter your password" })
+                                            .attr('data-pattern', "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[$!%*?&])[A-Za-z\\d$!%*?&]{8,}$")  // Pattern for password strength
+                                            .attr('data-pattern-msg', 'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character.');  // Custom pattern message
                                         input.on("change", function () {
                                             formDataStore.personalInfo.password = $(this).val();
                                         });
@@ -1211,7 +1295,7 @@
                                     field: "confirmPassword",
                                     label: "Confirm Password:",
                                     editor: function (container, options) {
-                                        var input = $('<input type="password" />')
+                                        var input = $('<input type="password" required data-required-msg = "Confirm Password is required" />')
                                             .appendTo(container)
                                             .attr("name", options.field)
                                             .kendoTextBox({ placeholder: "Confirm your password" });
@@ -1250,8 +1334,16 @@
                             $('<button type="button" class="reset">Reset</button>')
                                 .appendTo(buttonContainer)
                                 .on("click", function () {
+                                    console.log("click");
                                     var step1Form = wizard.steps()[0].element.find("form").data("kendoForm");
-                                    step1Form.clear();
+                                    if (step1Form) {
+                                        step1Form.clear(); 
+                                        console.log("clear"); // Clear the Kendo form fields
+                                    }
+                                    else
+                                    {
+                                        console.log("form not found");
+                                    }
                                     formDataStore.personalInfo = {};
                                     emailValid = false;
                                 });
@@ -1476,14 +1568,31 @@
                         contentType: false,
                         success: function (response) {
                             if (response.success) {
-                                alert(response.message);
-                                window.location.href = "/Home/Index";
+                                Swal.fire({
+                                    icon: "success",
+                                    title: "Registration Successful",
+                                    text: response.message,
+                                }).then(() => {
+                                    window.location.href = "./Login";
+                                });
+                                @* alert(response.message); *@  
                             } else {
-                                alert(response.message);
+                                Swal.fire({
+                                    icon: "error",
+                                    title: "Registration Failed",
+                                    text: response.message,
+                                });
+                                @* alert(response.message); *@
                             }
                         },
                         error: function (xhr, status, error) {
-                            alert("Error submitting the form: " + (xhr.responseJSON?.title || error));
+                            @* alert("Error submitting the form: " + (xhr.responseJSON?.title || error)); *@
+                            const errorMessage = xhr.responseJSON?.message || "Login failed";
+                            Swal.fire({
+                                icon: "error",
+                                title: "Login Failed",
+                                text: errorMessage
+                            });
                         }
                     });
                 }
