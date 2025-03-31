@@ -219,7 +219,7 @@ h1 {
 
 .details-card:hover {
     box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
-    transform: scale(1.01);
+    /* transform: scale(1.01); */
 }
 
 .details-section {
@@ -383,6 +383,11 @@ h1 {
 .swal2-icon.swal2-success .swal2-success-circular-line-right,
 .swal2-icon.swal2-success .swal2-success-fix {
     display: none !important;
+}
+
+.container-fluid  {
+    margin-top: 40px !important;
+    margin: 30px; /* Higher specificity to prevent overrides */
 }
 
 /* Profile Image Styling */

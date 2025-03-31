@@ -226,7 +226,7 @@ h1 {
 
 .details-card:hover {
     box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
-    transform: scale(1.01);
+    /* transform: scale(1.01); */
 }
 
 .details-section {
@@ -455,6 +455,11 @@ h1 {
 .swal2-icon.swal2-success [class^='swal2-success-line'] {
     background-color: var(--success-color) !important;
 }
+.container-fluid  {
+    margin-top: 40px !important;
+    margin: 30px; /* Higher specificity to prevent overrides */
+}
+
 
 /* Profile Image Styling (Updated from first CSS) */
 .profile-image-container {
