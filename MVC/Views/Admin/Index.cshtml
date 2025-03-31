@@ -1,0 +1,187 @@
+@{
+    Layout=null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FitPro Dashboard</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://kendo.cdn.telerik.com/themes/6.7.0/default/default-main.css" rel="stylesheet">
+    <script src="https://kendo.cdn.telerik.com/2023.1.117/js/kendo.all.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/Admin/Index.css" asp-append-version="true">
+    <script src="/js/Admin/Index.js" asp-append-version="true"></script>
+</head>
+<body>
+    <!-- Header with Logo -->
+    <div class="header">
+        <div class="logo-container">
+            <a href="#" class="logo">
+                <img src="~/fitProLogo.png" alt="Fitpro Logo">
+            </a>
+        </div>
+        
+        
+        <div class="header_content_Wraper">     
+            <div class="notification-bell" style="position: relative; margin-right: 30px;">
+                    <i class="fas fa-bell" style="font-size: 1.5rem; color: white;"></i>
+                    <!-- Badge for unread notifications -->
+                    <span class="notification-badge" style="position: absolute; top: -9px; right: -6px; background-color: var(--primary-color); color: white; border-radius: 50%; font-size: 0.75rem; padding: 3px 7px;">
+                    3 
+                    </span>
+                </div>
+
+            <div class="user-profile-container">
+                <div class="user-profile">
+                    <div class="user-avatar">AD</div>
+                    <div class="user-name">Welcome, Admin</div>
+                </div>
+                <div class="profile-dropdown">
+                    <a href="#" onclick="showLogoutConfirmation()">Logout</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Navigation TabStrip -->
+    <div id="mainTabstrip">
+        <ul>
+            <li class="k-active">Dashboard</li>
+            <li>Instructors</li>
+            <li>Users</li>
+            <li>Classes</li>
+        </ul>
+        <div>
+            <!-- Dashboard Content -->
+            <div class="content-area">
+                <div class="circle circle-1"></div>
+                <div class="circle circle-2"></div>
+                @* <h2 class="text-center mb-4">FitPro Dashboard</h2> *@
+
+                <!-- #region kendo cards  ---->
+                <div class="row">
+                    <div class="col-md-4">
+                        <div id="usersCard" class="k-card">
+                            <div class="k-card-header">
+                                <h3>Users</h3>
+                            </div>
+                            <div class="k-card-body">
+                                <p id="userCount">Loading...</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <div id="classesCard" class="k-card">
+                            <div class="k-card-header">
+                                <h3>Classes</h3>
+                            </div>
+                            <div class="k-card-body">
+                                <p id="classCount">Loading...</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <div id="instructorsCard" class="k-card">
+                            <div class="k-card-header">
+                                <h3>Instructors</h3>
+                            </div>
+                            <div class="k-card-body">
+                                <p id="instructorCount">Loading...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- #endregion -->
+
+                <!-- #region Kendo Charts -->
+                <div class="row">
+                    <!-- Top Goals Chart -->
+                    <div class="col-">
+                        <div id="topGoalsChart" style="height: 400px; margin-top: 20px;"></div>
+                    </div>
+
+                    <!-- Top Specialization Chart -->
+                    <div class="col-md-6">
+                        <div id="topSpecializationChart" style="height: 400px; margin-top: 20px;"></div>
+                    </div>
+                </div>
+                <!-- #endregion -->
+            </div>
+        </div>
+        <div>
+            <!-- Instructor Content -->
+            <div class="content-area">
+                <div class="container" id="myClasses">
+                    <h2>Instructor Content</h2>
+                    <p>This would be the instructor management section.</p>
+                </div>
+            </div>
+        </div>
+        <div>
+            <!-- Users Content -->
+            <div class="content-area">
+                <div class="container">
+                    <h2>Users content</h2>
+                    <p>This would be the user management section.</p>
+                </div>
+            </div>
+        </div>
+        <div>
+            <!-- Classes Content -->
+            <div class="content-area" id="Classes">
+                <!-- Background elements -->
+                <div class="circle circle-1"></div>
+                <div class="circle circle-2"></div>
+
+                <div class="container mt-1">
+                    <h2 class="text-center mb-4">FitPro Classes</h2>
+                    
+                    <div class="row mb-4">
+                        <div class="col-md-4">
+                            <input type="text" id="searchText" class="form-control" style="color: white;" placeholder="Search by class name or city">
+                        </div>
+                        <div class="col-md-3">
+                            <select id="type" class="form-control transparent-select">
+                                <option value="">All Types</option>
+                                <option value="In-Person">In-Person</option>
+                                <option value="Online">Online</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <select id="level" class="form-control transparent-select">
+                                <option value="">All Levels</option>
+                                <option value="Beginner">Beginner</option>
+                                <option value="Intermediate">Intermediate</option>
+                                <option value="Advanced">Advanced</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <button class="btn btn-primary w-100" id="filterBtn">Apply Filters</button>
+                        </div>
+                    </div>
+
+                    <div id="classList" class="row">
+                      
+                        <!-- Available classes will be dynamically added here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Kendo Drawer for Update Profile -->
+    @* <div id="profileDrawer"></div> *@
+
+    <!-- Logout Confirmation Dialog -->
+    <div id="logoutDialog"></div>
+    
+</body>
+</html>

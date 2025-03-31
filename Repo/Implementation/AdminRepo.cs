@@ -1,3 +1,4 @@
+using System.Data;
 using Npgsql;
 namespace Repo;
 
@@ -26,7 +27,7 @@ public class AdminRepo : IAdminInterface
 			ORDER BY goal_count DESC
 			LIMIT 10";
 
-		if (_conn.State != System.Data.ConnectionState.Open)
+		if (_conn.State != ConnectionState.Open)
 		{
 			await _conn.OpenAsync();
 		}
@@ -58,7 +59,10 @@ public class AdminRepo : IAdminInterface
 		}
 		finally
 		{
-			_conn.CloseAsync();
+			if (_conn.State != ConnectionState.Closed)
+			{
+				await _conn.CloseAsync();
+			}
 		}
 		return goals;
 
@@ -76,9 +80,9 @@ public class AdminRepo : IAdminInterface
 			WHERE c_specialization IS NOT NULL AND c_specialization <> ''
 			GROUP BY specialization
 			ORDER BY specialization_count DESC
-			LIMIT 10";
+			LIMIT 5";
 
-		if (_conn.State != System.Data.ConnectionState.Open)
+		if (_conn.State != ConnectionState.Open)
 		{
 			await _conn.OpenAsync();
 		}
@@ -110,7 +114,10 @@ public class AdminRepo : IAdminInterface
 		}
 		finally
 		{
-			_conn.CloseAsync();
+			if (_conn.State != ConnectionState.Closed)
+			{
+				await _conn.CloseAsync();
+			}
 		}
 		return specializations;
 	}
@@ -122,7 +129,7 @@ public class AdminRepo : IAdminInterface
 	{
 		var query = @"SELECT COUNT(*) FROM t_User";
 
-		if (_conn.State != System.Data.ConnectionState.Open)
+		if (_conn.State != ConnectionState.Open)
 		{
 			await _conn.OpenAsync();
 		}
@@ -142,7 +149,10 @@ public class AdminRepo : IAdminInterface
 		}
 		finally
 		{
-			await _conn.CloseAsync();
+			if (_conn.State != ConnectionState.Closed)
+			{
+				await _conn.CloseAsync();
+			}
 		}
 	}
 
@@ -154,7 +164,7 @@ public class AdminRepo : IAdminInterface
 	{
 		var query = @"SELECT COUNT(*) FROM t_class";
 
-		if (_conn.State != System.Data.ConnectionState.Open)
+		if (_conn.State != ConnectionState.Open)
 		{
 			await _conn.OpenAsync();
 		}
@@ -174,7 +184,10 @@ public class AdminRepo : IAdminInterface
 		}
 		finally
 		{
-			await _conn.CloseAsync();
+			if (_conn.State != ConnectionState.Closed)
+			{
+				await _conn.CloseAsync();
+			}
 		}
 	}
 
@@ -185,7 +198,7 @@ public class AdminRepo : IAdminInterface
 	{
 		var query = @"SELECT COUNT(*) FROM t_instructor";
 
-		if (_conn.State != System.Data.ConnectionState.Open)
+		if (_conn.State != ConnectionState.Open)
 		{
 			await _conn.OpenAsync();
 		}
@@ -205,7 +218,10 @@ public class AdminRepo : IAdminInterface
 		}
 		finally
 		{
-			await _conn.CloseAsync();
+			if (_conn.State != ConnectionState.Closed)
+			{
+				await _conn.CloseAsync();
+			}
 		}
 	}
 

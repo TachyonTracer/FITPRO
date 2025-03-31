@@ -7,9 +7,6 @@ using Npgsql;
 using Repo;
 
 var builder = WebApplication.CreateBuilder(args);
-builder.Services.AddScoped<IClassInterface, ClassRepo>();
-builder.Services.AddScoped<IAdminInterface, AdminRepo>();
-builder.Services.AddScoped<IUserInterface, UserRepo>();
 
 // Add services to the container.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -52,12 +49,14 @@ builder.Services.AddSwaggerGen(c =>
     );
 });
 
-builder.Services.AddSingleton<IAuthInterface, AuthRepo>();
-builder.Services.AddSingleton<IEmailInterface, EmailRepo>();
+builder.Services.AddScoped<IAdminInterface, AdminRepo>();
+builder.Services.AddScoped<IEmailInterface, EmailRepo>();
 builder.Services.AddScoped<IAuthInterface, AuthRepo>();
 builder.Services.AddScoped<IInstructorInterface, InstructorRepo>();
+builder.Services.AddScoped<IClassInterface, ClassRepo>();
+builder.Services.AddScoped<IUserInterface, UserRepo>();
 
-builder.Services.AddSingleton<NpgsqlConnection>((provider) =>
+builder.Services.AddScoped<NpgsqlConnection>((provider) =>
 {
     var connectionString = provider.GetRequiredService<IConfiguration>().GetConnectionString("pgconn");
     return new NpgsqlConnection(connectionString);
