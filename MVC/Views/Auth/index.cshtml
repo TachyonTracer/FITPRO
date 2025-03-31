@@ -1118,7 +1118,7 @@
                                         }
                                     },
                                     editor: function (container, options) {
-                                        var input = $('<input type="text" required data-required-msg = "Full Name is required" />')
+                                        var input = $('<input type="text" required data-required-msg = "Full Name is required" pattern="^.{2,20}$" data-pattern-msg="Full Name must be at least 2 characters long"/>')
                                             .appendTo(container)
                                             .attr("name", options.field)
                                             .kendoTextBox({ placeholder: "Enter your full name" });
@@ -1139,7 +1139,7 @@
                                         }
                                     },
                                     editor: function (container, options) {
-                                        var input = $('<input type="email" required data-required-msg = "Email is required"/>')
+                                        var input = $('<input type="email" required data-required-msg = "Email is required" type="email" data-email-msg="Please enter email in proper format!"/>')
                                             .appendTo(container)
                                             .attr("name", options.field)
                                             .kendoTextBox({ placeholder: "Enter your email" });
@@ -1185,7 +1185,7 @@
                                         }
                                     },
                                     editor: function (container, options) {
-                                        var input = $('<input type="text" required data-required-msg = "Phone number is required" />')
+                                        var input = $('<input type="text" required data-required-msg = "Phone number is required" pattern="^[0-9]{10}$" data-pattern-msg="Please enter a valid 10-digit phone number" />')
                                             .appendTo(container)
                                             .attr("name", options.field)
                                             .kendoTextBox({ placeholder: "Enter your phone number" });
@@ -1197,35 +1197,66 @@
                                 {
                                     field: "gender",
                                     label: "Gender:",
-                                    editor: function (container) {
+                                    editor: function (container, options) {
                                         var genderContainer = $('<div class="role-selection">').appendTo(container);
+                                        
+                                        // Male option
                                         $('<div class="role-option">').appendTo(genderContainer)
-                                            .append('<input type="radio" name="gender" id="male" value="Male" checked>')
+                                            .append('<input type="radio" name="gender" id="male" value="Male" checked required data-required-msg="Gender is required" />')
                                             .append('<label for="male">Male</label>');
+                                        
+                                        // Female option
                                         $('<div class="role-option">').appendTo(genderContainer)
-                                            .append('<input type="radio" name="gender" id="female" value="Female">')
+                                            .append('<input type="radio" name="gender" id="female" value="Female" />')
                                             .append('<label for="female">Female</label>');
+                                        
+                                        // Other option
                                         $('<div class="role-option">').appendTo(genderContainer)
-                                            .append('<input type="radio" name="gender" id="other" value="Other">')
+                                            .append('<input type="radio" name="gender" id="other" value="Other" />')
                                             .append('<label for="other">Other</label>');
+
                                         genderContainer.find("input[name='gender']").on("change", function () {
                                             formDataStore.personalInfo.gender = $(this).val();
                                         });
                                     },
-                                    validation: { required: true, messages: { required: "Gender is required" } }
+                                    validation: {
+                                        required: true,
+                                        messages: {
+                                            required: "Gender is required"
+                                        }
+                                    }
                                 },
                                 {
                                     field: "dateOfBirth",
                                     label: "Date of Birth:",
-                                    editor: "DatePicker",
                                     validation: {
                                         required: true,
                                         messages: {
-                                            required: "Date of Birth is required",
-                                            minAge: "You must be at least 18 years old"
-                                        },
-                                        minAge: function (input) {
-                                            if (input.is("[name='dateOfBirth']")) {
+                                            required: "Date of Birth is required"
+                                        }
+                                    },
+                                    editor: function (container, options) {
+                                        var input = $('<input placeholder="YYYY-MM-DD" required data-required-msg="Date of birth is required"/>')
+                                            .appendTo(container)
+                                            .attr("name", options.field)
+                                            .kendoDatePicker({
+                                                format: "yyyy-MM-dd",
+                                                max: new Date(),
+                                                change: function () {
+                                                    validateAge(input, container);
+                                                }
+                                            });
+                                        
+                                        input.on("change", function () {
+                                            formDataStore.personalInfo.dateOfBirth = $(this).val();
+                                        });
+                                        
+                                        // Function to validate age
+                                        function validateAge(input, container) {
+                                            // Remove any existing age error message
+                                            container.find('.age-error').remove();
+                                            
+                                            if (input.val()) {
                                                 var today = new Date();
                                                 var birthDate = new Date(input.val());
                                                 var age = today.getFullYear() - birthDate.getFullYear();
@@ -1233,37 +1264,36 @@
                                                 if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
                                                     age--;
                                                 }
-                                                return age >= 18;
+                                                
+                                                // If under 18, show error message
+                                                if (age < 18) {
+                                                    $('<span class="k-form-error age-error">You must be at least 18 years old</span>')
+                                                        .appendTo(container);
+                                                    
+                                                    // Prevent form from proceeding
+                                                    var wizard = $("#wizard").data("kendoWizard");
+                                                    if (wizard) {
+                                                        wizard.enableStep(1, false);
+                                                    }
+                                                    return false;
+                                                } else {
+                                                    // Enable next step if age is valid
+                                                    var wizard = $("#wizard").data("kendoWizard");
+                                                    if (wizard) {
+                                                        wizard.enableStep(1, true);
+                                                    }
+                                                    return true;
+                                                }
                                             }
                                             return true;
                                         }
-                                    },
-                                    editorOptions: {
-                                        format: "yyyy-MM-dd",
-                                        placeholder: "Enter your date of birth",
-                                        max: new Date(),
-                                        change: function () {
-                                            // Trigger validation when date changes
-                                            var form = $("#wizard").data("kendoWizard").steps()[0].element.find("form").data("kendoForm");
-                                            form.validate();
-                                        }
-                                    },
-                                    editor: function (container, options) {
-                                        var input = $('<input placeholder="YYYY-MM-DD" required data-required-msg = "Date of birth is required"/>')
-                                            .appendTo(container)
-                                            .attr("name", options.field)
-                                            .kendoDatePicker({
-                                                format: "yyyy-MM-dd",
-                                                max: new Date(),
-                                                change: function () {
-                                                    // Trigger validation when date changes
-                                                    var form = $("#wizard").data("kendoWizard").steps()[0].element.find("form").data("kendoForm");
-                                                    form.validate();
-                                                }
-                                            });
-                                        input.on("change", function () {
-                                            formDataStore.personalInfo.dateOfBirth = $(this).val();
-                                        });
+                                        
+                                        // Initial validation
+                                        setTimeout(function() {
+                                            if (input.val()) {
+                                                validateAge(input, container);
+                                            }
+                                        }, 100);
                                     }
                                 },
                                 {
