@@ -499,8 +499,8 @@
         /* Role Selection Styles */
         .role-selection {
             display: flex;
-            justify-content: center;
-            margin-bottom: 20px;
+            justify-content: left;
+            margin-bottom: 0px;
             gap: 20px;
         }
 
@@ -1062,12 +1062,12 @@
                             editor: "NumericTextBox",
                             editorOptions: {
                                 format: "n0",
-                                min: 0,
+                                min: 100,
                                 max: 300
                             },
                             validation: {
                                 required: true,
-                                min: 0,
+                                min: 100,
                                 max: 300,
                                 messages: { required: "Height is required" }
                             }
@@ -1078,12 +1078,12 @@
                             editor: "NumericTextBox",
                             editorOptions: {
                                 format: "n2",
-                                min: 0,
+                                min: 30,
                                 max: 500
                             },
                             validation: {
                                 required: true,
-                                min: 0,
+                                min: 35,
                                 max: 500,
                                 messages: { required: "Weight is required" }
                             }
@@ -1314,34 +1314,30 @@
                                     label: "Gender:",
                                     editor: function (container, options) {
                                         var genderContainer = $('<div class="role-selection">').appendTo(container);
-                                        
-                                        // Create a hidden input that will be validated
+
                                         var hiddenInput = $('<input type="hidden" name="gender" required />')
                                             .appendTo(genderContainer);
-                                        
-                                        // Male option
+
                                         $('<div class="gender-role-option">').appendTo(genderContainer)
                                             .append('<input type="radio" name="genderRadio" id="male" value="Male" />')
                                             .append('<label for="male">Male</label>')
-                                            .on("click", function() {
+                                            .on("click", function () {
                                                 hiddenInput.val("Male").trigger("change");
                                                 formDataStore.personalInfo.gender = "Male";
                                             });
 
-                                        // Female option
                                         $('<div class="gender-role-option">').appendTo(genderContainer)
                                             .append('<input type="radio" name="genderRadio" id="female" value="Female" />')
                                             .append('<label for="female">Female</label>')
-                                            .on("click", function() {
+                                            .on("click", function () {
                                                 hiddenInput.val("Female").trigger("change");
                                                 formDataStore.personalInfo.gender = "Female";
                                             });
 
-                                        // Other option
                                         $('<div class="gender-role-option">').appendTo(genderContainer)
                                             .append('<input type="radio" name="genderRadio" id="other" value="Other" />')
                                             .append('<label for="other">Other</label>')
-                                            .on("click", function() {
+                                            .on("click", function () {
                                                 hiddenInput.val("Other").trigger("change");
                                                 formDataStore.personalInfo.gender = "Other";
                                             });
@@ -1394,7 +1390,7 @@
 
                                                 // If under 18, show error message
                                                 if (age < 15) {
-                                                    $('<span class="k-form-error age-error">You must be at least 18 years old</span>')
+                                                    $('<span class="k-form-error age-error">You must be at least 15 years old</span>')
                                                         .appendTo(container);
 
                                                     // Prevent form from proceeding
@@ -1427,24 +1423,41 @@
                                     field: "password",
                                     label: "Password:",
                                     editor: function (container, options) {
-                                        var input = $('<input type="password" required data-required-msg = "Password is required"/>')
+                                        var input = $('<input type="password" name="password" required />')
                                             .appendTo(container)
-                                            .attr("name", options.field)
-                                            .kendoTextBox({ placeholder: "Enter your password" })
-                                            .attr('data-pattern', "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[$!%*?&])[A-Za-z\\d$!%*?&]{8,}$")  // Pattern for password strength
-                                            .attr('data-pattern-msg', 'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character.');  // Custom pattern message
+                                            .kendoTextBox({
+                                                placeholder: "Enter your password",
+                                                change: function () {
+                                                      formDataStore.personalInfo.password = this.value();
+                                                    // Clear validation when input changes
+                                                    var form = container.closest("form").data("kendoForm");
+                                                    if (form) {
+                                                        form.validateInput(input);
+                                                    }
+                                                }
+                                            });
+
+                                        // Add pattern attribute for validation
+                                        input.attr('pattern', '^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).{8,}$');
+                                        input.attr('data-pattern-msg', 'Password must contain: 8+ chars, 1 uppercase, 1 lowercase, 1 number');
+
                                         input.on("change", function () {
                                             formDataStore.personalInfo.password = $(this).val();
+                                            // Manually trigger validation
+                                            var form = container.closest("form").data("kendoForm");
+                                            if (form) {
+                                                form.validateInput(input);
+                                            }
                                         });
                                     },
                                     validation: {
                                         required: true,
                                         minLength: 8,
-                                        pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/,
+                                        pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/,
                                         messages: {
                                             required: "Password is required",
-                                            minLength: "Password must be at least 8 characters long",
-                                            pattern: "Password must contain at least one uppercase letter, one lowercase letter, and one number"
+                                            minLength: "Password must be at least 8 characters",
+                                            pattern: "Must contain: 8+ chars, 1 uppercase, 1 lowercase, 1 number"
                                         }
                                     }
                                 },
@@ -1452,20 +1465,33 @@
                                     field: "confirmPassword",
                                     label: "Confirm Password:",
                                     editor: function (container, options) {
-                                        var input = $('<input type="password" required data-required-msg = "Confirm Password is required" />')
+                                        // Create input element
+                                        var input = $('<input type="password" required data-required-msg="Confirm Password is required" />')
                                             .appendTo(container)
                                             .attr("name", options.field)
                                             .kendoTextBox({ placeholder: "Confirm your password" });
+
+                                        // Add validation message container
+                                        $('<span class="k-invalid-msg" data-for="' + options.field + '"></span>').appendTo(container);
+
+                                        // Handle change event
                                         input.on("change", function () {
                                             formDataStore.personalInfo.confirmPassword = $(this).val();
                                         });
                                     },
                                     validation: {
                                         required: true,
-                                        equalTo: "password",
-                                        messages: {
-                                            required: "Please confirm your password",
-                                            equalTo: "Passwords do not match"
+                                        custom: function (input) {
+                                            if (input.is("[name=confirmPassword]")) {
+                                                var password = $("input[name=password]").val();
+                                                var confirmPassword = input.val();
+
+                                                if (password !== confirmPassword) {
+                                                    input.attr("data-custom-msg", "Passwords do not match");
+                                                    return false;
+                                                }
+                                            }
+                                            return true;
                                         }
                                     }
                                 }
