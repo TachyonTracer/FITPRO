@@ -1,4 +1,4 @@
-const apiBaseUrl = "http://localhost:8080/api/User/";
+const Url = "http://localhost:8080/api/User/";
 let currentUserId = null;
 
 // Function to handle image load error
@@ -10,7 +10,7 @@ function handleImageError(img) {
 // Load User List
 function loadUserList() {
     $.ajax({
-        url: `${apiBaseUrl}GetAllUsers`,
+        url: `${Url}GetAllUsers`,
         method: "GET",
         success: function (response) {
             let html = response.data.map(user => `
@@ -29,7 +29,7 @@ function loadUserList() {
 // Select User and Show Details
 function selectUser(userId) {
     $.ajax({
-        url: `${apiBaseUrl}GetOneUser/${userId}`,
+        url: `${Url}GetOneUser/${userId}`,
         method: "GET",
         success: function (response) {
             const user = response.data;
@@ -85,7 +85,7 @@ function suspendUser() {
     }).then((result) => {
         if (result.isConfirmed) {
             $.ajax({
-                url: `${apiBaseUrl}UserSuspend/${currentUserId}`,
+                url: `${Url}UserSuspend/${currentUserId}`,
                 type: "POST",
                 success: function (response) {
                     Swal.fire({

@@ -46,39 +46,10 @@ h1 {
     letter-spacing: 2px;
 }
 
-/* Navbar Styles (from first CSS) */
-.navbar {
-    background: var(--glass-color);
-    backdrop-filter: blur(15px);
-    border-bottom: 1px solid hsla(0, 0%, 65%, 0.2);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-    position: fixed;
-    top: 0;
-    width: 100%;
-    z-index: 1000;
-}
-
-.navbar-brand {
-    font-family: "Bebas Neue", sans-serif;
-    font-size: 1.5rem;
-    letter-spacing: 2px;
-    color: var(--primary-color);
-}
-
-.navbar-nav .nav-link {
-    color: var(--color);
-    font-weight: 500;
-    letter-spacing: 1px;
-    transition: color 0.3s ease;
-}
-
-.navbar-nav .nav-link:hover {
-    color: var(--primary-color);
-}
 
 /* Main Content (from first CSS) */
 .main-content {
-    margin-top: 70px;
+  
     /* Adjust based on navbar height */
     padding: 1rem;
     position: relative;
@@ -164,32 +135,32 @@ h1 {
 }
 
 /* Names List (Updated from first CSS) */
-.names-list {
+.instructor-section .names-list {
     max-height: 70vh;
     overflow-y: auto;
     scrollbar-width: thin;
     scrollbar-color: var(--primary-color) var(--glass-color);
 }
 
-.names-list::-webkit-scrollbar {
+.instructor-section .names-list::-webkit-scrollbar {
     width: 8px;
 }
 
-.names-list::-webkit-scrollbar-track {
+.instructor-section .names-list::-webkit-scrollbar-track {
     background: var(--glass-color);
     border-radius: 10px;
 }
 
-.names-list::-webkit-scrollbar-thumb {
+.instructor-section .names-list::-webkit-scrollbar-thumb {
     background: var(--primary-color);
     border-radius: 10px;
 }
 
-.names-list::-webkit-scrollbar-thumb:hover {
+.instructor-section .names-list::-webkit-scrollbar-thumb:hover {
     background: #e04343;
 }
 
-.names-list .list-group-item {
+.instructor-section .names-list .list-group-item {
     cursor: pointer;
     transition: background-color 0.3s ease, border-left-color 0.3s ease;
     border-left: 3px solid transparent;
@@ -204,8 +175,8 @@ h1 {
     font-size: 16px;
 }
 
-.names-list .list-group-item:hover,
-.names-list .list-group-item.active {
+.instructor-section .names-list .list-group-item:hover,
+.instructor-section .names-list .list-group-item.active {
     background-color: rgba(255, 255, 255, 0.2);
     border-left-color: var(--primary-color);
     font-weight: 600;
@@ -213,7 +184,7 @@ h1 {
 }
 
 /* Details Card (Updated from first CSS) */
-.details-card {
+.instructor-section .details-card {
     background: var(--glass-color);
     border-radius: 15px;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
@@ -224,16 +195,16 @@ h1 {
     animation: fadeIn 1s ease-out;
 }
 
-.details-card:hover {
+.instructor-section .details-card:hover {
     box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
     /* transform: scale(1.01); */
 }
 
-.details-section {
+.instructor-section .details-section {
     margin-bottom: 20px;
 }
 
-.details-section h5 {
+.instructor-section .details-section h5 {
     border-bottom: 2px solid var(--primary-color);
     padding-bottom: 10px;
     margin-bottom: 15px;
@@ -243,32 +214,32 @@ h1 {
     letter-spacing: 2px;
 }
 
-.detail-item {
+.instructor-section .detail-item {
     display: flex;
     align-items: center;
     margin-bottom: 10px;
 }
 
-.detail-item strong {
+.instructor-section .detail-item strong {
     width: 150px;
     color: rgba(255, 255, 255, 0.7);
     margin-right: 15px;
     font-weight: 500;
 }
 
-.detail-item span {
+.instructor-section .detail-item span {
     flex: 1;
     font-weight: 400;
 }
 
 /* Documents Grid (from second CSS) */
-.documents-grid {
+.instructor-section .documents-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
     gap: 15px;
 }
 
-.document-card {
+.instructor-section .document-card {
     background-color: var(--glass-color);
     border-radius: 8px;
     padding: 15px;
@@ -277,39 +248,50 @@ h1 {
     transition: transform 0.3s ease, box-shadow 0.3s ease;
     backdrop-filter: blur(5px);
     border: 1px solid rgba(255, 255, 255, 0.2);
+    color:white;
 }
 
-.document-card:hover {
+.instructor-section .document-card:hover {
     background-color: rgba(255, 255, 255, 0.2);
     transform: scale(1.05);
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
-.document-card i {
+.instructor-section .document-card i {
     font-size: 2.5rem;
     color: var(--primary-color);
     margin-bottom: 10px;
 }
 
-#pdf-preview-modal .modal-dialog {
+
+
+#approved-pdf-preview-modal .modal-dialog {
     max-width: 90%;
     height: 90vh;
 }
 
-#pdf-preview-modal .modal-content {
+#approved-pdf-preview-modal .modal-content {
     height: 100%;
     background: var(--glass-color);
     backdrop-filter: blur(15px);
     border: 1px solid hsla(0, 0%, 65%, 0.2);
     color: var(--color);
+    border-radius: 15px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    overflow: hidden;
+    z-index: 5000; 
 }
 
-#pdf-viewer-modal {
+.modal-backdrop {
+    z-index: 5000; /* Ensure the backdrop is below the modal but above other elements */
+}
+
+#approved-pdf-preview-modal {
     height: calc(100% - 60px);
 }
 
 /* Buttons (Updated from first CSS) */
-.btn-success {
+.instructor-section .btn-success {
     background-color: var(--success-color);
     border: none;
     padding: 14px;
@@ -321,13 +303,13 @@ h1 {
     transition: all 0.3s ease;
 }
 
-.btn-success:hover {
+.instructor-section .btn-success:hover {
     background-color: #218838;
     transform: scale(1.03);
     box-shadow: 0 0 12px rgba(0, 0, 0, 0.2);
 }
 
-.btn-danger {
+.instructor-section .btn-danger {
     background-color: var(--danger-color);
     border: none;
     padding: 14px;
@@ -339,14 +321,14 @@ h1 {
     transition: all 0.3s ease;
 }
 
-.btn-danger:hover {
+.instructor-section .btn-danger:hover {
     background-color: #c82333;
     transform: scale(1.03);
     box-shadow: 0 0 12px rgba(0, 0, 0, 0.2);
 }
 
 /* Background Light (Updated from first CSS) */
-.bg-light {
+.instructor-section .bg-light {
     background: var(--glass-color) !important;
     backdrop-filter: blur(15px);
     border: 1px solid hsla(0, 0%, 65%, 0.2);
@@ -354,17 +336,17 @@ h1 {
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
 }
 
-.text-primary {
+.instructor-section .text-primary {
     color: var(--primary-color) !important;
     font-family: "Bebas Neue", sans-serif;
     letter-spacing: 2px;
 }
 
-.text-muted {
+.instructor-section .text-muted {
     color: rgba(255, 255, 255, 0.7) !important;
 }
 
-.text-secondary {
+.instructor-section .text-secondary {
     color: rgba(255, 255, 255, 0.5) !important;
     font-style: italic;
 }
@@ -456,21 +438,21 @@ h1 {
     background-color: var(--success-color) !important;
 }
 
-.container-fluid  {
+/* .container-fluid  {
     margin-top: 40px !important;
-    margin: 30px; /* Higher specificity to prevent overrides */
-}
+    margin: 30px; 
+} */
 
 
 /* Profile Image Styling (Updated from first CSS) */
-.profile-image-container {
+.instructor-section .profile-image-container {
     display: flex;
     justify-content: center;
     align-items: center;
     height: 100%;
 }
 
-.profile-image {
+.instructor-section .profile-image {
     width: 150px;
     height: 150px;
     object-fit: cover;
@@ -480,24 +462,24 @@ h1 {
     animation: lift 2s ease-in-out infinite;
 }
 
-.profile-image:hover {
+.instructor-section .profile-image:hover {
     transform: scale(1.05);
     box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
 }
 
-.personal-info-row {
+.instructor-section .personal-info-row {
     display: flex;
     align-items: center;
     min-height: 180px;
 }
 
-.personal-info-details {
+.instructor-section .personal-info-details {
     display: flex;
     flex-wrap: wrap;
     gap: 20px;
 }
 
-.personal-info-column {
+.instructor-section .personal-info-column {
     flex: 1;
     min-width: 200px;
 }
@@ -651,3 +633,23 @@ h1 {
         padding: 10px;
     }
 }
+
+.modal-backdrop {
+    --bs-backdrop-zindex: 0;
+    --bs-backdrop-bg: #000;
+    --bs-backdrop-opacity: 0.5;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: var(--bs-backdrop-zindex);
+    width: 100vw;
+    height: 100vh;
+    background-color: var(--bs-backdrop-bg);
+}
+
+.detail-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+    color:white
+  }

@@ -1,5 +1,5 @@
-const apiBaseUrl = "http://localhost:8080/api/Instructor/";
-let currentInstructorId = null;
+const apiBaseurl = "http://localhost:8080/api/Instructor/";
+let currentVerifiedInstructorId = null;
 
 // Function to handle image load error
 function handleImageError(img) {
@@ -7,52 +7,52 @@ function handleImageError(img) {
     img.onerror = null; // Prevent infinite loop
 }
 
-// Load Instructor List
-function loadInstructorList() {
+// Load Verified Instructor List
+function loadVerifiedInstructorList() {
     $.ajax({
-        url: `${apiBaseUrl}GetVerifiedInstructors`,
+        url: `${apiBaseurl}GetVerifiedInstructors`,
         method: "GET",
         success: function (response) {
             let html = response.data.map(instructor => `
-                <li class="list-group-item" data-id="${instructor.instructorId}" onclick="selectInstructor(${instructor.instructorId})">
+                <li class="list-group-item" data-id="${instructor.instructorId}" onclick="selectVerifiedInstructor(${instructor.instructorId})">
                     ${instructor.instructorName}
                 </li>
             `).join('');
-            $('#names').html(html);
+            $('#verified-instructor-names').html(html);
         },
         error: function () {
-            console.error("Error loading instructors.");
+            console.error("Error loading verified instructors.");
         }
     });
 }
 
-// Select Instructor and Show Details
-function selectInstructor(instructorId) {
+// Select Verified Instructor and Show Details
+function selectVerifiedInstructor(instructorId) {
     $.ajax({
-        url: `${apiBaseUrl}GetOneInstructor/${instructorId}`,
+        url: `${apiBaseurl}GetOneInstructor/${instructorId}`,
         method: "GET",
         success: function (response) {
             const instructor = response.data;
-            currentInstructorId = instructorId;
+            currentVerifiedInstructorId = instructorId;
 
-            $('#names .list-group-item').removeClass('active');
-            $(`#names .list-group-item[data-id='${instructorId}']`).addClass('active');
+            $('#verified-instructor-names .list-group-item').removeClass('active');
+            $(`#verified-instructor-names .list-group-item[data-id='${instructorId}']`).addClass('active');
 
-            $('#default-message').addClass('d-none');
-            $('#details').removeClass('d-none');
+            $('#verified-default-message').addClass('d-none');
+            $('#verified-details').removeClass('d-none');
 
             // Populate instructor details
-            $('#name').text(instructor.instructorName || 'N/A');
-            $('#email').text(instructor.email || 'N/A');
-            $('#phone').text(instructor.mobile || 'N/A');
-            $('#gender').text(instructor.gender || 'N/A');
-            $('#dob').text(instructor.dob ? new Date(instructor.dob).toLocaleDateString() : 'N/A');
-            $('#association').text(instructor.association || 'N/A');
-            $('#status').text(instructor.status || 'N/A');
-            $('#specialization').text(instructor.specialization || 'N/A');
+            $('#verified-name').text(instructor.instructorName || 'N/A');
+            $('#verified-email').text(instructor.email || 'N/A');
+            $('#verified-phone').text(instructor.mobile || 'N/A');
+            $('#verified-gender').text(instructor.gender || 'N/A');
+            $('#verified-dob').text(instructor.dob ? new Date(instructor.dob).toLocaleDateString() : 'N/A');
+            $('#verified-association').text(instructor.association || 'N/A');
+            $('#verified-status').text(instructor.status || 'N/A');
+            $('#verified-specialization').text(instructor.specialization || 'N/A');
 
             // Set profile image
-            const profileImage = $('#profile-image');
+            const profileImage = $('#verified-profile-image');
             if (instructor.profileImage) {
                 profileImage.attr('src', `/Instructor_Images/${instructor.profileImage}`);
             } else {
@@ -69,10 +69,10 @@ function selectInstructor(instructorId) {
                     certifications = Object.keys(instructor.certificates).join(', ');
                 }
             }
-            $('#certifications').text(certifications);
+            $('#verified-certifications').text(certifications);
 
             // Populate documents grid dynamically
-            const documentsGrid = $('#documents-grid');
+            const documentsGrid = $('#verified-documents-grid');
             documentsGrid.empty(); // Clear previous content
 
             // ID Proof
@@ -103,14 +103,13 @@ function selectInstructor(instructorId) {
             }
         },
         error: function () {
-            console.error("Error fetching instructor details.");
+            console.error("Error fetching verified instructor details.");
         }
     });
 }
 
-// Approve Instructor with Swal.fire
 function approveInstructor() {
-    if (!currentInstructorId) {
+    if (!currentVerifiedInstructorId) {
         Swal.fire("Error", "Please select an instructor first.", "error");
         return;
     }
@@ -125,7 +124,7 @@ function approveInstructor() {
     }).then((result) => {
         if (result.isConfirmed) {
             $.ajax({
-                url: `${apiBaseUrl}InstructorApprove/${currentInstructorId}`,
+                url: `${apiBaseurl}InstructorApprove/${currentVerifiedInstructorId}`,
                 type: "POST",
                 success: function (response) {
                     Swal.fire({
@@ -134,8 +133,8 @@ function approveInstructor() {
                         icon: "success",
                         confirmButtonText: "OK"
                     }).then(() => {
-                        loadInstructorList();
-                        $("#details").hide();
+                        loadVerifiedInstructorList()
+                        $("#verified-details").hide();
                     });
                 },
                 error: function () {
@@ -153,7 +152,7 @@ function approveInstructor() {
 
 // Disapprove Instructor with Swal.fire
 function disapproveInstructor() {
-    if (!currentInstructorId) {
+    if (!currentVerifiedInstructorId) {
         Swal.fire("Error", "Please select an instructor first.", "error");
         return;
     }
@@ -168,7 +167,7 @@ function disapproveInstructor() {
     }).then((result) => {
         if (result.isConfirmed) {
             $.ajax({
-                url: `${apiBaseUrl}InstructorDisapprove/${currentInstructorId}`,
+                url: `${apiBaseurl}InstructorDisapprove/${currentVerifiedInstructorId}`,
                 type: "POST",
                 success: function (response) {
                     Swal.fire({
@@ -177,8 +176,8 @@ function disapproveInstructor() {
                         icon: "success",
                         confirmButtonText: "OK"
                     }).then(() => {
-                       loadInstructorList();
-                       $("#details").hide();
+                        loadVerifiedInstructorList()
+                       $("#verified-details").hide();
                     });
                 },
                 error: function () {
@@ -194,6 +193,7 @@ function disapproveInstructor() {
     });
 }
 
+
 // View PDF in Modal
 function viewPDF(pdfUrl, title) {
     $('#document-title').text(title);
@@ -201,7 +201,7 @@ function viewPDF(pdfUrl, title) {
     new bootstrap.Modal('#pdf-preview-modal').show();
 }
 
-// Load instructor list on page load
+// Load verified instructor list on page load
 $(document).ready(function () {
-    loadInstructorList();
+    loadVerifiedInstructorList();
 });

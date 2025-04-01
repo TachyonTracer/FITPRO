@@ -11,6 +11,23 @@ $(document).ready(function () {
         effects: "fadeIn",
       },
     }
+
+  });
+  const dropdownItems = $('.dropdown-item');
+  const subContents = $('.sub-content');
+
+  dropdownItems.each(function() {
+    $(this).on('click', function() {
+
+      // Hide all sub-content sections
+      subContents.each(function() {
+        $(this).hide();
+      });
+
+      // Show the selected sub-content section
+      const section = $(this).data('section');
+      $(`#${section}-instructors`).show();
+    });
   });
 
   //Dashboard Content
@@ -113,6 +130,7 @@ $.get(`${uri}/api/Admin/top-goals`, function (response) {
         $('#topGoalsChart').text('Error fetching data');
     }
 });
+
 
 
 // Fetch Top Specialization Data and Create Top Specialization Chart
@@ -520,4 +538,9 @@ function showLogoutConfirmation() {
 // Perform logout
 function performLogout() {
   alert("You have been logged out. Redirecting to login page...");
+}
+function viewPDF(pdfUrl, title) {
+  $('#document-title').text(title);
+  $('#pdf-viewer-modal iframe').attr('src', pdfUrl);
+  new bootstrap.Modal('#pdf-preview-modal').show();
 }
