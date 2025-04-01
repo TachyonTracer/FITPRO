@@ -421,5 +421,114 @@ public class ClassRepo : IClassInterface
 
 
     #endregion
+
+    #region UpdateClass
+
+    public async Task<Response> UpdateClass(Class updatedClass)
+    {
+        Response response = new Response();
+        try
+        {
+            if (_conn.State == ConnectionState.Closed)
+            {
+                await _conn.OpenAsync();
+            }
+
+            // Check if class exists
+            using (var checkCmd = new NpgsqlCommand(
+                "SELECT COUNT(1) FROM t_Class WHERE c_classid = @classId", _conn))
+            {
+                checkCmd.Parameters.AddWithValue("@classId", updatedClass.classId);
+                var exists = (long)await checkCmd.ExecuteScalarAsync();
+
+                if (exists == 0)
+                {
+                    response.message = "Class not found";
+                    return response;
+                }
+            }
+
+            // Check if instructor exists
+            using (var checkInstructorCmd = new NpgsqlCommand(
+                "SELECT COUNT(1) FROM t_Instructor WHERE c_instructorid = @instructorId", _conn))
+            {
+                checkInstructorCmd.Parameters.AddWithValue("@instructorId", updatedClass.instructorId);
+                var instructorExists = (long)await checkInstructorCmd.ExecuteScalarAsync();
+
+                if (instructorExists == 0)
+                {
+                    response.message = "Instructor not found";
+                    return response;
+                }
+            }
+
+            // Update class
+            using (var cmd = new NpgsqlCommand(
+                @"UPDATE t_Class SET 
+                c_classname = @className,
+                c_instructorid = @instructorId,
+                c_description = @description,
+                c_type = @type,
+                c_startdate = @startDate,
+                c_enddate = @endDate,
+                c_starttime = @startTime,
+                c_endtime = @endTime,
+                c_duration = @duration,
+                c_maxcapacity = @maxCapacity,
+                c_availablecapacity = @availableCapacity,
+                c_requiredequipments = @requiredEquipments,
+                c_status = @status,
+                c_city = @city,
+                c_address = @address,
+                c_assets = @assets,
+                c_fees = @fee
+            WHERE c_classid = @classId", _conn))
+            {
+                cmd.Parameters.AddWithValue("@classId", updatedClass.classId);
+                cmd.Parameters.AddWithValue("@className", updatedClass.className ?? (object)DBNull.Value);
+                cmd.Parameters.AddWithValue("@instructorId", updatedClass.instructorId);
+                cmd.Parameters.AddWithValue("@description", updatedClass.description ?? (object)DBNull.Value);
+                cmd.Parameters.AddWithValue("@type", updatedClass.type ?? (object)DBNull.Value);
+                cmd.Parameters.AddWithValue("@startDate", updatedClass.startDate);
+                cmd.Parameters.AddWithValue("@endDate", updatedClass.endDate ?? (object)DBNull.Value);
+                cmd.Parameters.AddWithValue("@startTime", updatedClass.startTime ?? (object)DBNull.Value);
+                cmd.Parameters.AddWithValue("@endTime", updatedClass.endTime ?? (object)DBNull.Value);
+                cmd.Parameters.AddWithValue("@duration", updatedClass.duration ?? (object)DBNull.Value);
+                cmd.Parameters.AddWithValue("@maxCapacity", updatedClass.maxCapacity);
+                cmd.Parameters.AddWithValue("@availableCapacity", updatedClass.availableCapacity);
+                cmd.Parameters.AddWithValue("@requiredEquipments", updatedClass.requiredEquipments ?? (object)DBNull.Value);
+                cmd.Parameters.AddWithValue("@status", updatedClass.status ?? (object)DBNull.Value);
+                cmd.Parameters.AddWithValue("@city", updatedClass.city ?? (object)DBNull.Value);
+                cmd.Parameters.AddWithValue("@address", updatedClass.address ?? (object)DBNull.Value);
+                cmd.Parameters.AddWithValue("@assets", updatedClass.assets ?? (object)DBNull.Value);
+                cmd.Parameters.AddWithValue("@fee", updatedClass.fee);
+
+                int rowsAffected = await cmd.ExecuteNonQueryAsync();
+
+                if (rowsAffected > 0)
+                {
+                    response.message = string.Empty; // success=true
+                }
+                else
+                {
+                    response.message = "Failed to update class";
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            response.message = $"Error updating class: {ex.Message}";
+        }
+        finally
+        {
+            if (_conn.State == ConnectionState.Open)
+            {
+                await _conn.CloseAsync();
+            }
+        }
+        return response;
+    }
+
+    #endregion
 }
 

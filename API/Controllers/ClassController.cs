@@ -189,9 +189,116 @@ namespace API
                 return StatusCode(500, new { success = false, message = "An unexpected error occurred", error = ex.Message });
             }
         }
+        #endregion
 
+        #region UpdateClass
+        [HttpPut("UpdateClass")]
+        public async Task<IActionResult> UpdateClass([FromForm] Class request)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(new
+                {
+                    success = false,
+                    message = "Invalid request data",
+                    errors = ModelState.Values.SelectMany(v => v.Errors.Select(e => e.ErrorMessage))
+                });
+            }
 
+            try
+            {
+                // Get existing class data
+                var existingClass = await _classRepo.GetOne(request.classId.ToString());
+                if (existingClass == null)
+                {
+                    return NotFound(new { success = false, message = "Class not found" });
+                }
 
+                // Handle file uploads if any
+                if (request.assetFiles != null && request.assetFiles.Length > 0)
+                {
+                    var assetsPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "Assets");
+                    if (!Directory.Exists(assetsPath))
+                    {
+                        Directory.CreateDirectory(assetsPath);
+                    }
+
+                    var assetDict = new Dictionary<string, string>();
+
+                    for (int i = 0; i < request.assetFiles.Length; i++)
+                    {
+                        var file = request.assetFiles[i];
+                        if (file.Length > 0)
+                        {
+                            var uniqueFileName = $"{Guid.NewGuid()}{Path.GetExtension(file.FileName)}";
+                            var filePath = Path.Combine(assetsPath, uniqueFileName);
+
+                            using (var stream = new FileStream(filePath, FileMode.Create))
+                            {
+                                await file.CopyToAsync(stream);
+                            }
+
+                            // First image gets "banner" key, others get "picture X"
+                            if (i == 0)
+                            {
+                                assetDict["banner"] = uniqueFileName;
+                            }
+                            else
+                            {
+                                assetDict[$"picture {i}"] = uniqueFileName;
+                            }
+                        }
+                    }
+
+                    // Serialize the dictionary to JSON and set it as the assets
+                    request.assets = JsonDocument.Parse(JsonSerializer.Serialize(assetDict));
+                }
+                else
+                {
+                    // Keep existing assets if no new files uploaded
+                    request.assets = existingClass.assets;
+                }
+
+                // If description needs to be updated, it should come as a proper JsonDocument
+                // Since we're using [FromForm], you might need to handle it differently
+                // For now, we'll keep the existing description if not provided
+                if (request.description == null)
+                {
+                    request.description = existingClass.description;
+                }
+
+                var response = await _classRepo.UpdateClass(request);
+
+                if (!response.success)
+                {
+                    if (response.message.Contains("Instructor not found"))
+                    {
+                        return BadRequest(new
+                        {
+                            success = false,
+                            message = "The specified instructor does not exist",
+                            field = "instructorId"
+                        });
+                    }
+
+                    return BadRequest(new
+                    {
+                        success = false,
+                        message = response.message
+                    });
+                }
+
+                return Ok(new
+                {
+                    success = true,
+                    message = "Class updated successfully"
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { success = false, message = ex.Message });
+            }
+        }
         #endregion
 
 

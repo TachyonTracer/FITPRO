@@ -8,4 +8,6 @@ public interface IClassInterface
     Task<bool> SoftDeleteClass(int classId);
 
     Task<int> ScheduleClass( Class classData);
+
+    Task<Response> UpdateClass(Class updatedClass);
 }
