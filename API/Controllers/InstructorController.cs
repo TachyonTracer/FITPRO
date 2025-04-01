@@ -44,7 +44,7 @@ namespace API
             {
                 // Instructor existingInstructor = await _instructorRepo.GetOneInstructorByIdForProfile(1);
 
-                int instructorId = 1;
+                // int instructorId = 1;
 
 
 

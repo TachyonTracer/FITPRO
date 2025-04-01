@@ -98,7 +98,7 @@ body {
   background-color: rgba(0, 0, 0, 0.7);
   backdrop-filter: blur(10px);
   min-width: 200px;
-  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
   z-index: 1;
   border-radius: 8px;
   overflow: hidden;
@@ -173,13 +173,12 @@ h2 {
 }
 
 .profile-form {
-margin: 20px; /* Adds margin from all sides */
+  margin: 20px; /* Adds margin from all sides */
 }
 
 .profile-form .form-label {
-color: white; /* Makes label text white */
+  color: white; /* Makes label text white */
 }
-
 
 .carousel-item img {
   height: 200px;
@@ -353,11 +352,12 @@ color: white; /* Makes label text white */
 }
 
 @keyframes float {
-  0%, 100% {
-      transform: translate(0, 0);
+  0%,
+  100% {
+    transform: translate(0, 0);
   }
   50% {
-      transform: translate(20px, 20px);
+    transform: translate(20px, 20px);
   }
 }
 
@@ -438,13 +438,10 @@ color: white; /* Makes label text white */
 }
 
 .k-drawer-content {
-  
   padding: 20px;
   height: 100%;
   overflow-y: auto;
 }
-
-
 
 .k-drawer-title {
   font-size: 1.5rem;
@@ -454,61 +451,58 @@ color: white; /* Makes label text white */
   padding-bottom: 10px;
 }
 
-
 .profile-form {
-width: 85%; /* Adjust width to balance space */
-margin: auto; /* Centers the form */
-padding: 20px; /* Adds spacing */
-margin-left: 15px; /* Move slightly left for better alignment */
-border: 2px solid rgba(255, 255, 255, 0.2); /* Subtle border */
-border-radius: 10px; /* Rounded corners for a modern look */
-background: rgba(255, 255, 255, 0.05); /* Slight background contrast */
-box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3); /* Soft shadow for depth */
+  width: 85%; /* Adjust width to balance space */
+  margin: auto; /* Centers the form */
+  padding: 20px; /* Adds spacing */
+  margin-left: 15px; /* Move slightly left for better alignment */
+  border: 2px solid rgba(255, 255, 255, 0.2); /* Subtle border */
+  border-radius: 10px; /* Rounded corners for a modern look */
+  background: rgba(255, 255, 255, 0.05); /* Slight background contrast */
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3); /* Soft shadow for depth */
 }
-
-
 
 /* Responsive adjustments */
 @media (max-width: 992px) {
   .logo-text {
-      font-size: 1.8rem;
+    font-size: 1.8rem;
   }
-  
+
   .logo img {
-      height: 35px;
+    height: 35px;
   }
 }
 
 @media (max-width: 768px) {
   .container {
-      padding: 1rem;
+    padding: 1rem;
   }
-  
+
   .header {
-      padding: 10px 15px;
+    padding: 10px 15px;
   }
-  
+
   #mainTabstrip .k-tabstrip-items {
-      padding: 0 15px;
+    padding: 0 15px;
   }
-  
+
   #mainTabstrip .k-content {
-      padding: 15px;
+    padding: 15px;
   }
 }
 
 @media (max-width: 576px) {
   .logo-text {
-      font-size: 1.5rem;
+    font-size: 1.5rem;
   }
-  
+
   .logo img {
-      height: 30px;
-      margin-right: 5px;
+    height: 30px;
+    margin-right: 5px;
   }
-  
+
   .user-name {
-      display: none;
+    display: none;
   }
 }
 
@@ -518,8 +512,6 @@ box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3); /* Soft shadow for depth */
   padding: 20px;
   height: 100%;
 }
-
-
 
 /* Improve Disabled Input Styling */
 input[disabled] {
@@ -616,7 +608,6 @@ canvas {
   background: var(--primary-color);
   transform: translateY(-2px);
 }
-
 
 /* new css */
 /* Material Icons Settings */
@@ -733,4 +724,119 @@ canvas {
 .dashboard-card:hover {
   transform: translateY(-10px);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4), 0 0 30px rgba(0, 255, 255, 0.6);
+}
+
+.user-profile-container.no-hover:hover .profile-dropdown {
+  display: none;
+}
+
+input[type="file"] {
+  display: none; /* Hide default file input */
+}
+
+.user-avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: #ddd;
+  font-weight: bold;
+  font-size: 16px;
+  color: #555;
+  text-transform: uppercase;
+  overflow: hidden;
+}
+.user-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+#saveProfileBtn:disabled {
+  background-color: #cccccc !important;
+  border-color: #bbbbbb !important;
+  color: #666666 !important;
+  cursor: not-allowed !important;
+  opacity: 0.65;
+}
+
+.swal2-popup {
+  background: var(--glass-color) !important;
+  backdrop-filter: blur(15px) !important;
+  border: 1px solid hsla(0, 0%, 65%, 0.2) !important;
+  border-radius: 15px !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3) !important;
+  color: var(--color) !important;
+}
+
+.swal2-title {
+  color: var(--color) !important;
+  font-family: "Poppins", sans-serif !important;
+  letter-spacing: 1px !important;
+}
+
+.swal2-content {
+  color: rgba(255, 255, 255, 0.8) !important;
+  font-family: "Poppins", sans-serif !important;
+}
+
+/* Confirm Button */
+.swal2-confirm {
+  background-color: var(--primary-color) !important;
+  color: var(--color) !important;
+  border: none !important;
+  border-radius: 8px !important;
+  font-family: "Poppins", sans-serif !important;
+  transition: all 0.3s ease !important;
+}
+
+.swal2-confirm:hover {
+  background-color: #ff6666 !important;
+  transform: scale(1.03) !important;
+}
+
+/* Cancel Button */
+.swal2-cancel {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+  color: var(--color) !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  border-radius: 8px !important;
+  font-family: "Poppins", sans-serif !important;
+  transition: all 0.3s ease !important;
+}
+
+.swal2-cancel:hover {
+  background-color: rgba(255, 255, 255, 0.2) !important;
+  transform: scale(1.03) !important;
+}
+
+/* Warning Icon */
+.swal2-icon.swal2-warning {
+  color: var(--primary-color) !important;
+  border-color: var(--primary-color) !important;
+}
+
+/* Success Icon */
+.swal2-icon.swal2-success {
+  border-color: #28a745 !important;
+  /* Green border */
+  color: #28a745 !important;
+  /* Green checkmark */
+}
+
+.swal2-icon.swal2-success .swal2-success-ring {
+  border-color: #28a745 !important;
+  /* Outer circle */
+}
+
+.swal2-icon.swal2-success [class^="swal2-success-line"] {
+  background-color: #28a745 !important;
+  /* Check lines */
+}
+
+.swal2-icon.swal2-success .swal2-success-circular-line-left,
+.swal2-icon.swal2-success .swal2-success-circular-line-right,
+.swal2-icon.swal2-success .swal2-success-fix {
+  display: none !important;
 }
