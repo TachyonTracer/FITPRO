@@ -9,10 +9,12 @@ namespace API
 	public class UserController : ControllerBase
 	{
 		private readonly IUserInterface _userRepo;
+        private readonly RabbitMQService _rabbitMQService;
 
-		public UserController(IUserInterface userRepo)
+		public UserController(IUserInterface userRepo, RabbitMQService rabbitMQService)
 		{
 			_userRepo = userRepo;
+            _rabbitMQService = rabbitMQService;
 		}
 
 		#region Get All Users For Admin Dashboard By Paras
@@ -151,6 +153,28 @@ namespace API
 		}
 		#endregion
 		#endregion
+
+
+		// Todo: remove before merge
+		#region TestUserNotification
+        [HttpGet]
+        [Route("GetUserNotification")]
+        public async Task<ActionResult> GetUserNotification()
+        {
+            try
+            {
+                _rabbitMQService.PublishNotification("A1", "admin", $"New Admin Notification::Nevil Registered recently::{DateTimeOffset.UtcNow.ToUnixTimeSeconds()}");
+                _rabbitMQService.PublishNotification("I2", "instructor", $"New Instructor Notification::Admin Assigned a new task for you::{DateTimeOffset.UtcNow.ToUnixTimeSeconds()}");
+                _rabbitMQService.PublishNotification("U2", "user", $"New User Notification::Admin Assigned a new task for you::{DateTimeOffset.UtcNow.ToUnixTimeSeconds()}");
+
+                return Ok(new { success = true, data = "successfully sent user notification" });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { success = false, message = "An error occurred while fetching admins.", error = ex.Message });
+            }
+        }
+        #endregion
 
 	}
 

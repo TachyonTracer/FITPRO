@@ -97,6 +97,16 @@ builder.Services.AddSession(options =>
 });
 
 
+// *** Notifications: Builder Configurations Starts *** //
+
+// Load Redis connection string
+string redisConnectionString = builder.Configuration.GetConnectionString("Redis") ?? "localhost:6379";
+// Register RedisService with connection string
+builder.Services.AddSingleton<RedisService>(provider => new RedisService(redisConnectionString));
+builder.Services.AddSignalR(); // Register SignalR before RabbitMQService
+builder.Services.AddSingleton<RabbitMQService>(); // Register RabbitMQService after SignalR
+
+// *** Notifications: Builder Configurations Ends *** //
 
 var app = builder.Build();
 
@@ -136,6 +146,17 @@ app.MapGet("/weatherforecast", () =>
 })
 .WithName("GetWeatherForecast")
 .WithOpenApi();
+
+
+// *** Notifications: App Configurations Starts *** //
+
+// Map SignalR Hub
+app.MapHub<NotificationHub>("/notificationHub");
+var rabbitMQService = app.Services.GetRequiredService<RabbitMQService>(); // Start RabbitMQ Listener **after** app is built
+rabbitMQService.StartListening();
+
+// *** Notifications: App Configurations Ends *** //
+
 app.Run();
 
 record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)

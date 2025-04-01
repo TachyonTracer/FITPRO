@@ -605,3 +605,157 @@ function showLogoutConfirmation() {
 function performLogout() {
   alert("You have been logged out. Redirecting to login page...");
 }
+
+
+
+/* Do Not Remove */
+/* Notification JavaScript Starts*/
+/* Includes All the JS Functions for Notification Badge, Icons, Buttons and List */
+
+var userId = "U2"; // Change this dynamically based on logged-in user
+var isAdmin = true; // Set this dynamically based on role
+var role = "user" // instructor or user
+var counter = 0;
+var fetcherConn = "";
+if(role == "admin") {
+    var fetcherConn = "NewAdminNotification";
+} else if(role == "instructor") {
+    var fetcherConn = "NewInstructorNotification"
+} else {
+  var fetcherConn = "NewUserNotification"
+}
+
+// Convert timestamp to seconds/minutes/hours ago
+function timeAgo(timestamp) {
+  let currentTime = Math.floor(Date.now() / 1000); // Current time in seconds
+  let timeDiff = currentTime - timestamp;
+
+  if (timeDiff < 60) return `${timeDiff} seconds ago`;
+  if (timeDiff < 3600) return `${Math.floor(timeDiff / 60)} minutes ago`;
+  if (timeDiff < 86400) return `${Math.floor(timeDiff / 3600)} hours ago`;
+  return `${Math.floor(timeDiff / 86400)} days ago`;
+}
+
+const connection = new signalR.HubConnectionBuilder()
+    .withUrl(`http://localhost:8080/notificationHub?userId=${userId}&role=${role}`)
+    .withAutomaticReconnect()
+    .build();
+
+connection.start().then(() => {
+    console.log("Connected to SignalR!");
+    connection.invoke("FetchNotifications", userId, role);
+});
+
+// Receive new notification
+connection.on(fetcherConn, (message) => {
+    console.log("New Notification:", message);
+    addNotification(message);
+});
+
+// Load unread notifications
+connection.on("ReceiveNotifications", (notifications) => {
+    console.log("Unread Notifications:", notifications);
+    updateNotificationList(notifications);
+});
+
+// Open Notifications Dropdown
+function openNotifications() {
+    console.log("Fetching Notification on Toggle...");
+    connection.invoke("FetchNotifications", userId, role);
+    let dropdown = document.getElementById("notificationDropdown");
+    dropdown.style.display = dropdown.style.display === "none" ? "block" : "none";
+}
+
+// Add Notification to List (New notifications appear on top)
+function addNotification(message) {
+    let list = document.getElementById("notificationList");
+
+    // Remove "No new notifications" message if it exists
+    let noNotificationItem = list.querySelector(".text-muted");
+    if (noNotificationItem) {
+        list.removeChild(noNotificationItem);
+    }
+
+    let item = document.createElement("li");
+    item.className = "list-group-item d-flex align-items-start";
+    
+    let parts = message.split("::");
+
+    let title = parts[0];
+    let body = parts[1];      
+
+    let timestamp = parseInt(parts[2]);
+    let timeAgoText = timeAgo(timestamp);
+
+    item.innerHTML = `
+        <span class="bg-danger rounded-circle me-2 mt-2"></span>
+        <div>
+            <strong>${title}</strong><br>
+            <small>${body}</small><br>
+            <small>${timeAgoText}</small>
+        </div>
+    `;
+
+    // Insert at the top instead of the bottom
+    list.prepend(item);
+
+    counter++;
+    updateBellIcon();
+}
+
+// Update Notification List
+function updateNotificationList(notifications) {
+    let list = document.getElementById("notificationList");
+    list.innerHTML = "";
+    counter = 0; // Reset counter before processing new notifications
+
+    if (notifications.length === 0) {
+        list.innerHTML = '<li class="list-group-item text-center text-muted">No new notifications</li>';
+    } else {
+        notifications.forEach((message) => {
+            let item = document.createElement("li");
+            item.className = "list-group-item d-flex align-items-start";
+
+            let parts = message.split("::");
+
+            let title = parts[0];
+            let body = parts[1];      
+
+            let timestamp = parseInt(parts[2]);
+            let timeAgoText = timeAgo(timestamp);
+
+            item.innerHTML = `
+                <span class="bg-danger rounded-circle me-2 mt-2"></span>
+                <div>
+                    <strong>${title}</strong><br>
+                    <small>${body}</small><br>
+                    <small>${timeAgoText}</small>
+                </div>
+            `;
+
+            // Insert at the top instead of the bottom
+            list.prepend(item);
+
+            counter++; // Increase counter for each unread notification
+        });
+    }
+    updateBellIcon();
+}
+
+// Update Bell Icon Count
+function updateBellIcon() {
+    let badge = document.getElementById("notificationCount");
+    badge.textContent = counter > 0 ? counter : 0;
+    badge.style.display = counter > 0 ? "inline" : "none";
+}
+
+// Mark All as Read
+function markAllAsRead() {
+    counter = 0;
+    connection.invoke("MarkAllAsRead", userId, role).then(() => {
+        updateNotificationList([]); // Clear notifications
+    });
+}
+
+/* Do Not Remove */
+/* Notification JavaScript Ends */
