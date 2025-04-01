@@ -47,7 +47,7 @@ h1 {
 }
 
 /* Navbar Styles (from first CSS) */
-.navbar {
+/* .navbar {
     background: var(--glass-color);
     backdrop-filter: blur(15px);
     border-bottom: 1px solid hsla(0, 0%, 65%, 0.2);
@@ -74,7 +74,7 @@ h1 {
 
 .navbar-nav .nav-link:hover {
     color: var(--primary-color);
-}
+} */
 
 /* Main Content (from first CSS) */
 .main-content {
@@ -226,7 +226,7 @@ h1 {
 
 .details-card:hover {
     box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
-    transform: scale(1.01);
+    /* transform: scale(1.01); */
 }
 
 .details-section {
@@ -277,6 +277,7 @@ h1 {
     transition: transform 0.3s ease, box-shadow 0.3s ease;
     backdrop-filter: blur(5px);
     border: 1px solid rgba(255, 255, 255, 0.2);
+    color:white;
 }
 
 .document-card:hover {
@@ -455,6 +456,11 @@ h1 {
 .swal2-icon.swal2-success [class^='swal2-success-line'] {
     background-color: var(--success-color) !important;
 }
+.container-fluid  {
+    margin-top: 40px !important;
+    margin: 30px; /* Higher specificity to prevent overrides */
+}
+
 
 /* Profile Image Styling (Updated from first CSS) */
 .profile-image-container {
@@ -644,3 +650,23 @@ h1 {
         padding: 10px;
     }
 }
+
+.modal-backdrop {
+    --bs-backdrop-zindex: 0;
+    --bs-backdrop-bg: #000;
+    --bs-backdrop-opacity: 0.5;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: var(--bs-backdrop-zindex);
+    width: 100vw;
+    height: 100vh;
+    background-color: var(--bs-backdrop-bg);
+}
+
+.detail-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+    color:white
+  }
