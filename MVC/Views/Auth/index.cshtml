@@ -35,6 +35,88 @@
             float: right;
         }
 
+        /* Role Selection Styles */
+        .role-selection-bottom {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            display: flex;
+            gap: 20px;
+            z-index: 100;
+        }
+
+        .role-option {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            padding: 10px;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+            width: 110px;
+        }
+
+        .gender.role-option {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            padding: 10px;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+            width: 110px;
+        }
+
+        .role-option:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-5px);
+        }
+
+        .role-option.selected {
+            background: var(--primary-color);
+            box-shadow: 0 0 15px rgba(255, 77, 77, 0.5);
+        }
+
+        .role-image {
+            width: 90px;
+            height: 80px;
+            margin-bottom: 5px;
+        }
+
+        .role-name {
+            font-size: 0.8rem;
+            text-align: center;
+        }
+
+        /* Responsive adjustments */
+        @@media(max-width: 768px) {
+            .role-selection-bottom {
+                bottom: 1rem;
+                right: 1rem;
+                gap: 15px;
+            }
+        }
+
+        @@media(max-width:480px) {
+            .role-selection-bottom {
+                bottom: 0.5rem;
+                right: 0.5rem;
+                gap: 10px;
+            }
+
+            .role-option {
+                width: 70px;
+                padding: 8px;
+            }
+
+            .role-image {
+                width: 30px;
+                height: 30px;
+            }
+        }
+
         /* Custom placeholder styles */
         .k-textbox input::placeholder,
         .k-textarea textarea::placeholder,
@@ -65,659 +147,678 @@
             animation: pulsePlaceholder 2s infinite;
         }
 
-        @@keyframes pulsePlaceholder
-        {
-                0% {
-                    opacity: 0.6;
-                }
-
-                50% {
-                    opacity: 0.3;
-                }
-
-                100% {
-                    opacity: 0.6;
-                }
+        @@keyframes pulsePlaceholder {
+            0% {
+                opacity: 0.6;
             }
 
-            html {
-                scroll-behavior: smooth;
+            50% {
+                opacity: 0.3;
             }
 
-            body {
-                font-family: "Poppins", sans-serif;
-                background: var(--background);
-                color: var(--color);
-                letter-spacing: 1px;
-                transition: background 0.3s ease;
-                min-height: 100vh;
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                position: relative;
-                overflow-x: hidden;
+            100% {
+                opacity: 0.6;
+            }
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: "Poppins", sans-serif;
+            background: var(--background);
+            color: var(--color);
+            letter-spacing: 1px;
+            transition: background 0.3s ease;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        a {
+            text-decoration: none;
+            color: var(--color);
+            transition: color 0.3s ease;
+        }
+
+        a:hover {
+            color: var(--primary-color);
+        }
+
+        h1 {
+            font-family: "Bebas Neue", sans-serif;
+            font-size: 3rem;
+            text-align: center;
+            margin-bottom: 0.5rem;
+            letter-spacing: 2px;
+        }
+
+        .tagline {
+            font-size: 0.9rem;
+            text-align: center;
+            margin-bottom: 1.5rem;
+            font-style: italic;
+        }
+
+        .container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 1rem;
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .gym-background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+        }
+
+        .gym-icon {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            background-size: contain;
+            background-repeat: no-repeat;
+            opacity: 0.4;
+            animation: float-icon 6s ease-in-out infinite;
+        }
+
+        /* Dumbbell Icon */
+        .dumbbell-icon-1,
+        .dumbbell-icon-2 {
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><rect x="2" y="9" width="4" height="6" /><rect x="18" y="9" width="4" height="6" /><line x1="6" y1="12" x2="18" y2="12" /></svg>');
+        }
+
+        .dumbbell-icon-1 {
+            top: 10%;
+            left: 15%;
+            animation-delay: 0s;
+        }
+
+        .dumbbell-icon-2 {
+            bottom: 20%;
+            right: 10%;
+            animation-delay: 1s;
+        }
+
+        /* Barbell Icon */
+        .barbell-icon-1,
+        .barbell-icon-2 {
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><rect x="1" y="7" width="4" height="10" /><rect x="19" y="7" width="4" height="10" /><rect x="7" y="9" width="4" height="6" /><rect x="13" y="9" width="4" height="6" /><line x1="5" y1="12" x2="19" y2="12" /></svg>');
+        }
+
+        .barbell-icon-1 {
+            top: 20%;
+            right: 15%;
+            animation-delay: 0.5s;
+        }
+
+        .barbell-icon-2 {
+            bottom: 15%;
+            left: 15%;
+            animation-delay: 1.5s;
+        }
+
+        /* Kettlebell Icon */
+        .kettlebell-icon-1,
+        .kettlebell-icon-2 {
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M9 3h6v3h-6z" /><path d="M12 6c-3 0-5 2-5 5v6h10v-6c0-3-2-5-5-5z" /></svg>');
+        }
+
+        .kettlebell-icon-1 {
+            top: 30%;
+            left: 20%;
+            animation-delay: 1s;
+        }
+
+        .kettlebell-icon-2 {
+            bottom: 25%;
+            right: 20%;
+            animation-delay: 2s;
+        }
+
+        .registration-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .form-container {
+            border: 1px solid hsla(0, 0%, 65%, 0.2);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            backdrop-filter: blur(15px);
+            background: var(--glass-color);
+            z-index: 99;
+            padding: 2rem;
+            animation: fadeIn 1s ease-out;
+            box-sizing: border-box;
+        }
+
+        .circle {
+            width: 8rem;
+            height: 8rem;
+            background: var(--primary-color);
+            border-radius: 50%;
+            position: absolute;
+            opacity: 0.8;
+        }
+
+        .circle-one {
+            top: 0;
+            left: 0;
+            z-index: -1;
+            transform: translate(-45%, -45%);
+            animation: float 4s ease-in-out infinite;
+        }
+
+        .circle-two {
+            bottom: 0;
+            right: 0;
+            z-index: -1;
+            transform: translate(45%, 45%);
+            animation: float-two 4s ease-in-out infinite;
+            animation-delay: 0.5s;
+        }
+
+        .illustration {
+            position: absolute;
+            top: -25%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 50%;
+            max-width: 150px;
+            z-index: 100;
+            animation: lift 2s ease-in-out infinite;
+            filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
+            transition: all 0.3s ease;
+        }
+
+        .register-forget {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 1rem;
+            font-size: 0.9rem;
+        }
+
+        .opacity {
+            opacity: 0.7;
+            transition: opacity 0.3s ease;
+        }
+
+        .opacity:hover {
+            opacity: 1;
+        }
+
+        .theme-btn-container {
+            position: fixed;
+            bottom: 2rem;
+            left: 2rem;
+            display: flex;
+            gap: 10px;
+        }
+
+        .theme-btn {
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .theme-btn:hover {
+            transform: scale(1.2);
+            border-color: var(--primary-color);
+        }
+
+        /* Kendo Wizard Customization */
+        .k-wizard {
+            background: transparent !important;
+            border: none !important;
+            box-shadow: none !important;
+            width: 100%;
+        }
+
+        .k-wizard-step {
+            padding: 20px;
+            background: transparent !important;
+        }
+
+        .k-wizard-steps {
+            background: rgba(255, 255, 255, 0.1) !important;
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            margin-bottom: 20px;
+            border: 1px solid hsla(0, 0%, 65%, 0.2);
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .k-step {
+            color: var(--color) !important;
+            flex: 1;
+            text-align: center;
+        }
+
+        .k-step-current .k-step-indicator {
+            background-color: var(--primary-color) !important;
+            color: white !important;
+        }
+
+        .k-step-done .k-step-indicator {
+            background-color: rgba(255, 255, 255, 0.2) !important;
+        }
+
+        .k-form {
+            background: transparent !important;
+            color: var(--color) !important;
+            width: 100%;
+        }
+
+        .k-form-field>label {
+            color: var(--color) !important;
+        }
+
+        .k-textbox,
+        .k-textarea,
+        .k-input,
+        .k-dropdown-wrap,
+        .k-picker-wrap {
+            background: rgba(255, 255, 255, 0.1) !important;
+            color: var(--color) !important;
+            border: 1px solid rgba(255, 255, 255, 0.2) !important;
+            width: 100%;
+        }
+
+        .k-textbox:focus,
+        .k-textarea:focus,
+        .k-input:focus,
+        .k-dropdown-wrap.k-state-focused,
+        .k-picker-wrap.k-state-focused {
+            box-shadow: 0 0 0 2px rgba(255, 77, 77, 0.3) !important;
+            border-color: var(--primary-color) !important;
+        }
+
+        .k-multiselect-wrap,
+        .k-upload {
+            background: rgba(255, 255, 255, 0.1) !important;
+            border: 1px solid rgba(255, 255, 255, 0.2) !important;
+            color: var(--color) !important;
+            width: 100%;
+        }
+
+        .k-dropzone {
+            background: rgba(255, 255, 255, 0.05) !important;
+            border: 2px dashed rgba(255, 255, 255, 0.2) !important;
+            color: var(--color) !important;
+        }
+
+        .k-dropzone:hover {
+            border-color: var(--primary-color) !important;
+        }
+
+        .k-upload-button {
+            background-color: var(--primary-color) !important;
+            color: white !important;
+        }
+
+        .k-upload-button:hover {
+            background-color: rgba(255, 77, 77, 0.8) !important;
+        }
+
+        .k-form-error,
+        .email-error {
+            color: #ff3333 !important;
+            /* Bright red for visibility */
+            font-size: 0.9rem;
+            margin-top: 5px;
+            display: block;
+        }
+
+        .k-form-field .k-form-error {
+            color: #ff3333 !important;
+        }
+
+        /* Role Selection Styles */
+        .role-selection {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+            gap: 20px;
+        }
+
+        .role-option {
+            display: flex;
+            align-items: center;
+        }
+
+        .role-option input[type="radio"] {
+            margin-right: 5px;
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            border-radius: 50%;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .gender-role-option input[type="radio"] {
+            margin-right: 5px;
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            border-radius: 50%;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .role-option input[type="radio"]:checked {
+            border-color: var(--primary-color);
+            background-color: var(--primary-color);
+        }
+
+        .gender-role-option input[type="radio"]:checked {
+            border-color: var(--primary-color);
+            background-color: var(--primary-color);
+        }
+
+        .role-option label {
+            cursor: pointer;
+        }
+
+        .gender-role-option label {
+            cursor: pointer;
+        }
+
+        /* Wizard Buttons */
+        .wizard-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+            gap: 10px;
+        }
+
+        .wizard-buttons button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+            flex: 1;
+        }
+
+        .wizard-buttons .previous,
+        .wizard-buttons .reset {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: var(--color);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .wizard-buttons .next {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .wizard-buttons .previous:hover,
+        .wizard-buttons .reset:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .wizard-buttons .next:hover {
+            background-color: rgba(255, 77, 77, 0.8);
+            box-shadow: 0 0 12px rgba(255, 77, 77, 0.3);
+        }
+
+        .swal2-popup {
+            background: var(--glass-color) !important;
+            backdrop-filter: blur(15px) !important;
+            border: 1px solid hsla(0, 0%, 65%, 0.2) !important;
+            border-radius: 15px !important;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3) !important;
+            color: var(--color) !important;
+        }
+
+        .swal2-title {
+            color: var(--color) !important;
+            font-family: "Poppins", sans-serif !important;
+            letter-spacing: 1px !important;
+        }
+
+        .swal2-content {
+            color: rgba(255, 255, 255, 0.8) !important;
+            font-family: "Poppins", sans-serif !important;
+        }
+
+        /* Confirm Button */
+        .swal2-confirm {
+            background-color: var(--primary-color) !important;
+            color: var(--color) !important;
+            border: none !important;
+            border-radius: 8px !important;
+            font-family: "Poppins", sans-serif !important;
+            transition: all 0.3s ease !important;
+        }
+
+        .swal2-confirm:hover {
+            background-color: #ff6666 !important;
+            transform: scale(1.03) !important;
+        }
+
+        /* Cancel Button */
+        .swal2-cancel {
+            background-color: rgba(255, 255, 255, 0.1) !important;
+            color: var(--color) !important;
+            border: 1px solid rgba(255, 255, 255, 0.2) !important;
+            border-radius: 8px !important;
+            font-family: "Poppins", sans-serif !important;
+            transition: all 0.3s ease !important;
+        }
+
+        .swal2-cancel:hover {
+            background-color: rgba(255, 255, 255, 0.2) !important;
+            transform: scale(1.03) !important;
+        }
+
+        /* Warning Icon */
+        .swal2-icon.swal2-warning {
+            color: var(--primary-color) !important;
+            border-color: var(--primary-color) !important;
+        }
+
+        /* Success Icon */
+        .swal2-icon.swal2-success {
+            border-color: #28a745 !important;
+            /* Green border */
+            color: #28a745 !important;
+            /* Green checkmark */
+        }
+
+        .swal2-icon.swal2-success .swal2-success-ring {
+            border-color: #28a745 !important;
+            /* Outer circle */
+        }
+
+        .swal2-icon.swal2-success [class^='swal2-success-line'] {
+            background-color: #28a745 !important;
+            /* Check lines */
+        }
+
+        .swal2-icon.swal2-success .swal2-success-circular-line-left,
+        .swal2-icon.swal2-success .swal2-success-circular-line-right,
+        .swal2-icon.swal2-success .swal2-success-fix {
+            display: none !important;
+        }
+
+
+        /* Animations */
+        @@keyframes float {
+            0% {
+                transform: translate(-45%, -45%) translateY(0);
             }
 
-            a {
-                text-decoration: none;
-                color: var(--color);
-                transition: color 0.3s ease;
+            50% {
+                transform: translate(-45%, -45%) translateY(-15px);
             }
 
-            a:hover {
-                color: var(--primary-color);
+            100% {
+                transform: translate(-45%, -45%) translateY(0);
+            }
+        }
+
+        @@keyframes float-two {
+            0% {
+                transform: translate(45%, 45%) translateY(0);
             }
 
-            h1 {
-                font-family: "Bebas Neue", sans-serif;
-                font-size: 3rem;
-                text-align: center;
-                margin-bottom: 0.5rem;
-                letter-spacing: 2px;
+            50% {
+                transform: translate(45%, 45%) translateY(-15px);
             }
 
-            .tagline {
-                font-size: 0.9rem;
-                text-align: center;
-                margin-bottom: 1.5rem;
-                font-style: italic;
+            100% {
+                transform: translate(45%, 45%) translateY(0);
+            }
+        }
+
+        @@keyframes fadeIn {
+            0% {
+                opacity: 0;
+                transform: translateY(20px);
             }
 
-            .container {
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                min-height: 100vh;
-                padding: 1rem;
-                position: relative;
-                z-index: 1;
-                width: 100%;
-                box-sizing: border-box;
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @@keyframes lift {
+
+            0%,
+            100% {
+                transform: translateX(-50%) translateY(0) rotate(0deg);
             }
 
-            .gym-background {
-                position: absolute;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                z-index: 0;
+            50% {
+                transform: translateX(-50%) translateY(-10px) rotate(2deg);
             }
+        }
 
-            .gym-icon {
-                position: absolute;
-                width: 50px;
-                height: 50px;
-                background-size: contain;
-                background-repeat: no-repeat;
-                opacity: 0.4;
-                animation: float-icon 6s ease-in-out infinite;
-            }
-
-            /* Dumbbell Icon */
-            .dumbbell-icon-1,
-            .dumbbell-icon-2 {
-                background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><rect x="2" y="9" width="4" height="6" /><rect x="18" y="9" width="4" height="6" /><line x1="6" y1="12" x2="18" y2="12" /></svg>');
-            }
-
-            .dumbbell-icon-1 {
-                top: 10%;
-                left: 15%;
-                animation-delay: 0s;
-            }
-
-            .dumbbell-icon-2 {
-                bottom: 20%;
-                right: 10%;
-                animation-delay: 1s;
-            }
-
-            /* Barbell Icon */
-            .barbell-icon-1,
-            .barbell-icon-2 {
-                background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><rect x="1" y="7" width="4" height="10" /><rect x="19" y="7" width="4" height="10" /><rect x="7" y="9" width="4" height="6" /><rect x="13" y="9" width="4" height="6" /><line x1="5" y1="12" x2="19" y2="12" /></svg>');
-            }
-
-            .barbell-icon-1 {
-                top: 20%;
-                right: 15%;
-                animation-delay: 0.5s;
-            }
-
-            .barbell-icon-2 {
-                bottom: 15%;
-                left: 15%;
-                animation-delay: 1.5s;
-            }
-
-            /* Kettlebell Icon */
-            .kettlebell-icon-1,
-            .kettlebell-icon-2 {
-                background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M9 3h6v3h-6z" /><path d="M12 6c-3 0-5 2-5 5v6h10v-6c0-3-2-5-5-5z" /></svg>');
-            }
-
-            .kettlebell-icon-1 {
-                top: 30%;
-                left: 20%;
-                animation-delay: 1s;
-            }
-
-            .kettlebell-icon-2 {
-                bottom: 25%;
-                right: 20%;
-                animation-delay: 2s;
-            }
-
-            .registration-container {
-                position: relative;
-                width: 100%;
-                max-width: 600px;
-                margin: 0 auto;
-                padding: 20px;
-                box-sizing: border-box;
-            }
-
-            .form-container {
-                border: 1px solid hsla(0, 0%, 65%, 0.2);
-                box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-                border-radius: 15px;
-                backdrop-filter: blur(15px);
-                background: var(--glass-color);
-                z-index: 99;
-                padding: 2rem;
-                animation: fadeIn 1s ease-out;
-                box-sizing: border-box;
-            }
-
-            .circle {
-                width: 8rem;
-                height: 8rem;
-                background: var(--primary-color);
-                border-radius: 50%;
-                position: absolute;
-                opacity: 0.8;
-            }
-
-            .circle-one {
-                top: 0;
-                left: 0;
-                z-index: -1;
-                transform: translate(-45%, -45%);
-                animation: float 4s ease-in-out infinite;
-            }
-
-            .circle-two {
-                bottom: 0;
-                right: 0;
-                z-index: -1;
-                transform: translate(45%, 45%);
-                animation: float-two 4s ease-in-out infinite;
-                animation-delay: 0.5s;
-            }
-
-            .illustration {
-                position: absolute;
-                top: -25%;
-                left: 50%;
-                transform: translateX(-50%);
-                width: 50%;
-                max-width: 150px;
-                z-index: 100;
-                animation: lift 2s ease-in-out infinite;
-                filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
-                transition: all 0.3s ease;
-            }
-
-            .register-forget {
-                display: flex;
-                justify-content: space-between;
-                margin-top: 1rem;
-                font-size: 0.9rem;
-            }
-
-            .opacity {
-                opacity: 0.7;
-                transition: opacity 0.3s ease;
-            }
-
-            .opacity:hover {
+        @@keyframes ripple {
+            0% {
+                transform: scale(0);
                 opacity: 1;
             }
 
+            100% {
+                transform: scale(4);
+                opacity: 0;
+            }
+        }
+
+        @@keyframes wobble {
+            0% {
+                transform: scale(1.025);
+            }
+
+            25% {
+                transform: scale(1);
+            }
+
+            75% {
+                transform: scale(1.025);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        @@keyframes float-icon {
+
+            0%,
+            100% {
+                transform: translateY(0);
+                opacity: 0.1;
+            }
+
+            50% {
+                transform: translateY(-20px);
+                opacity: 0.2;
+            }
+        }
+
+        /* Responsive Design */
+        @@media(max - width: 768px) {
+            .registration-container {
+                max-width: 90%;
+                padding: 10px;
+            }
+
+            .form-container {
+                padding: 1.5rem;
+            }
+
+            h1 {
+                font-size: 2.5rem;
+            }
+
             .theme-btn-container {
-                position: fixed;
-                bottom: 2rem;
-                left: 2rem;
-                display: flex;
-                gap: 10px;
+                bottom: 1rem;
+                left: 1rem;
             }
 
-            .theme-btn {
-                width: 25px;
-                height: 25px;
-                border-radius: 50%;
-                cursor: pointer;
-                transition: all 0.3s ease;
-                border: 2px solid rgba(255, 255, 255, 0.2);
+            .gym-icon {
+                width: 40px;
+                height: 40px;
             }
 
-            .theme-btn:hover {
-                transform: scale(1.2);
-                border-color: var(--primary-color);
-            }
-
-            /* Kendo Wizard Customization */
-            .k-wizard {
-                background: transparent !important;
-                border: none !important;
-                box-shadow: none !important;
-                width: 100%;
-            }
-
-            .k-wizard-step {
-                padding: 20px;
-                background: transparent !important;
-            }
-
-            .k-wizard-steps {
-                background: rgba(255, 255, 255, 0.1) !important;
-                backdrop-filter: blur(10px);
-                border-radius: 15px;
-                margin-bottom: 20px;
-                border: 1px solid hsla(0, 0%, 65%, 0.2);
-                display: flex;
-                justify-content: center;
-                flex-wrap: wrap;
-            }
-
-            .k-step {
-                color: var(--color) !important;
-                flex: 1;
-                text-align: center;
-            }
-
-            .k-step-current .k-step-indicator {
-                background-color: var(--primary-color) !important;
-                color: white !important;
-            }
-
-            .k-step-done .k-step-indicator {
-                background-color: rgba(255, 255, 255, 0.2) !important;
-            }
-
-            .k-form {
-                background: transparent !important;
-                color: var(--color) !important;
-                width: 100%;
-            }
-
-            .k-form-field>label {
-                color: var(--color) !important;
-            }
-
-            .k-textbox,
-            .k-textarea,
-            .k-input,
-            .k-dropdown-wrap,
-            .k-picker-wrap {
-                background: rgba(255, 255, 255, 0.1) !important;
-                color: var(--color) !important;
-                border: 1px solid rgba(255, 255, 255, 0.2) !important;
-                width: 100%;
-            }
-
-            .k-textbox:focus,
-            .k-textarea:focus,
-            .k-input:focus,
-            .k-dropdown-wrap.k-state-focused,
-            .k-picker-wrap.k-state-focused {
-                box-shadow: 0 0 0 2px rgba(255, 77, 77, 0.3) !important;
-                border-color: var(--primary-color) !important;
-            }
-
-            .k-multiselect-wrap,
-            .k-upload {
-                background: rgba(255, 255, 255, 0.1) !important;
-                border: 1px solid rgba(255, 255, 255, 0.2) !important;
-                color: var(--color) !important;
-                width: 100%;
-            }
-
-            .k-dropzone {
-                background: rgba(255, 255, 255, 0.05) !important;
-                border: 2px dashed rgba(255, 255, 255, 0.2) !important;
-                color: var(--color) !important;
-            }
-
-            .k-dropzone:hover {
-                border-color: var(--primary-color) !important;
-            }
-
-            .k-upload-button {
-                background-color: var(--primary-color) !important;
-                color: white !important;
-            }
-
-            .k-upload-button:hover {
-                background-color: rgba(255, 77, 77, 0.8) !important;
-            }
-
-            .k-form-error,
-            .email-error {
-                color: #ff3333 !important;
-                /* Bright red for visibility */
-                font-size: 0.9rem;
-                margin-top: 5px;
-                display: block;
-            }
-
-            .k-form-field .k-form-error {
-                color: #ff3333 !important;
-            }
-
-            /* Role Selection Styles */
             .role-selection {
-                display: flex;
-                justify-content: center;
-                margin-bottom: 20px;
-                gap: 20px;
+                flex-direction: row;
+                gap: 15px;
             }
 
             .role-option {
-                display: flex;
-                align-items: center;
+                margin: 5px 0;
             }
 
-            .role-option input[type="radio"] {
-                margin-right: 5px;
-                appearance: none;
-                width: 16px;
-                height: 16px;
-                border: 2px solid rgba(255, 255, 255, 0.5);
-                border-radius: 50%;
-                transition: all 0.3s ease;
-                cursor: pointer;
+            .k-wizard-steps {
+                flex-direction: row;
+                gap: 5px;
             }
 
-            .role-option input[type="radio"]:checked {
-                border-color: var(--primary-color);
-                background-color: var(--primary-color);
-            }
-
-            .role-option label {
-                cursor: pointer;
-            }
-
-            /* Wizard Buttons */
-            .wizard-buttons {
-                display: flex;
-                justify-content: space-between;
-                margin-top: 20px;
-                gap: 10px;
-            }
-
-            .wizard-buttons button {
-                padding: 10px 20px;
-                border: none;
-                border-radius: 8px;
-                cursor: pointer;
-                font-weight: 500;
-                letter-spacing: 1px;
-                transition: all 0.3s ease;
+            .k-step {
                 flex: 1;
+                font-size: 0.9rem;
             }
 
-            .wizard-buttons .previous,
-            .wizard-buttons .reset {
-                background-color: rgba(255, 255, 255, 0.1);
-                color: var(--color);
-                border: 1px solid rgba(255, 255, 255, 0.2);
+            .circle {
+                width: 6rem;
+                height: 6rem;
             }
+        }
 
-            .wizard-buttons .next {
-                background-color: var(--primary-color);
-                color: white;
-            }
-
-            .wizard-buttons .previous:hover,
-            .wizard-buttons .reset:hover {
-                background-color: rgba(255, 255, 255, 0.2);
-            }
-
-            .wizard-buttons .next:hover {
-                background-color: rgba(255, 77, 77, 0.8);
-                box-shadow: 0 0 12px rgba(255, 77, 77, 0.3);
-            }
-
-            .swal2-popup {
-                background: var(--glass-color) !important;
-                backdrop-filter: blur(15px) !important;
-                border: 1px solid hsla(0, 0%, 65%, 0.2) !important;
-                border-radius: 15px !important;
-                box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3) !important;
-                color: var(--color) !important;
-            }
-
-            .swal2-title {
-                color: var(--color) !important;
-                font-family: "Poppins", sans-serif !important;
-                letter-spacing: 1px !important;
-            }
-
-            .swal2-content {
-                color: rgba(255, 255, 255, 0.8) !important;
-                font-family: "Poppins", sans-serif !important;
-            }
-
-            /* Confirm Button */
-            .swal2-confirm {
-                background-color: var(--primary-color) !important;
-                color: var(--color) !important;
-                border: none !important;
-                border-radius: 8px !important;
-                font-family: "Poppins", sans-serif !important;
-                transition: all 0.3s ease !important;
-            }
-
-            .swal2-confirm:hover {
-                background-color: #ff6666 !important;
-                transform: scale(1.03) !important;
-            }
-
-            /* Cancel Button */
-            .swal2-cancel {
-                background-color: rgba(255, 255, 255, 0.1) !important;
-                color: var(--color) !important;
-                border: 1px solid rgba(255, 255, 255, 0.2) !important;
-                border-radius: 8px !important;
-                font-family: "Poppins", sans-serif !important;
-                transition: all 0.3s ease !important;
-            }
-
-            .swal2-cancel:hover {
-                background-color: rgba(255, 255, 255, 0.2) !important;
-                transform: scale(1.03) !important;
-            }
-
-            /* Warning Icon */
-            .swal2-icon.swal2-warning {
-                color: var(--primary-color) !important;
-                border-color: var(--primary-color) !important;
-            }
-
-            /* Success Icon */
-            .swal2-icon.swal2-success {
-                border-color: #28a745 !important;
-                /* Green border */
-                color: #28a745 !important;
-                /* Green checkmark */
-            }
-
-            .swal2-icon.swal2-success .swal2-success-ring {
-                border-color: #28a745 !important;
-                /* Outer circle */
-            }
-
-            .swal2-icon.swal2-success [class^='swal2-success-line'] {
-                background-color: #28a745 !important;
-                /* Check lines */
-            }
-
-            .swal2-icon.swal2-success .swal2-success-circular-line-left,
-            .swal2-icon.swal2-success .swal2-success-circular-line-right,
-            .swal2-icon.swal2-success .swal2-success-fix  {
-                display: none !important;
-            }
-
-
-            /* Animations */
-            @@keyframes float {
-                    0% {
-                        transform: translate(-45%, -45%) translateY(0);
-                    }
-
-                    50% {
-                        transform: translate(-45%, -45%) translateY(-15px);
-                    }
-
-                    100% {
-                        transform: translate(-45%, -45%) translateY(0);
-                    }
-                }
-
-                @@keyframes float-two {
-                        0% {
-                            transform: translate(45%, 45%) translateY(0);
-                        }
-
-                        50% {
-                            transform: translate(45%, 45%) translateY(-15px);
-                        }
-
-                        100% {
-                            transform: translate(45%, 45%) translateY(0);
-                        }
-                    }
-
-                    @@keyframes fadeIn {
-                            0% {
-                                opacity: 0;
-                                transform: translateY(20px);
-                            }
-
-                            100% {
-                                opacity: 1;
-                                transform: translateY(0);
-                            }
-                        }
-
-                        @@keyframes lift {
-
-                                0%,
-                                100% {
-                                    transform: translateX(-50%) translateY(0) rotate(0deg);
-                                }
-
-                                50% {
-                                    transform: translateX(-50%) translateY(-10px) rotate(2deg);
-                                }
-                            }
-
-                            @@keyframes ripple {
-                                    0% {
-                                        transform: scale(0);
-                                        opacity: 1;
-                                    }
-
-                                    100% {
-                                        transform: scale(4);
-                                        opacity: 0;
-                                    }
-                                }
-
-                                @@keyframes wobble {
-                                        0% {
-                                            transform: scale(1.025);
-                                        }
-
-                                        25% {
-                                            transform: scale(1);
-                                        }
-
-                                        75% {
-                                            transform: scale(1.025);
-                                        }
-
-                                        100% {
-                                            transform: scale(1);
-                                        }
-                                    }
-
-                                    @@keyframes float-icon {
-
-                                            0%,
-                                            100% {
-                                                transform: translateY(0);
-                                                opacity: 0.1;
-                                            }
-
-                                            50% {
-                                                transform: translateY(-20px);
-                                                opacity: 0.2;
-                                            }
-                                        }
-
-                                        /* Responsive Design */
-                                        @@media(max - width: 768px) {
-                                                .registration-container {
-                                                    max-width: 90%;
-                                                    padding: 10px;
-                                                }
-
-                                                .form-container {
-                                                    padding: 1.5rem;
-                                                }
-
-                                                h1 {
-                                                    font-size: 2.5rem;
-                                                }
-
-                                                .theme-btn-container {
-                                                    bottom: 1rem;
-                                                    left: 1rem;
-                                                }
-
-                                                .gym-icon {
-                                                    width: 40px;
-                                                    height: 40px;
-                                                }
-
-                                                .role-selection {
-                                                    flex-direction: row;
-                                                    gap: 15px;
-                                                }
-
-                                                .role-option {
-                                                    margin: 5px 0;
-                                                }
-
-                                                .k-wizard-steps {
-                                                    flex-direction: row;
-                                                    gap: 5px;
-                                                }
-
-                                                .k-step {
-                                                    flex: 1;
-                                                    font-size: 0.9rem;
-                                                }
-
-                                                .circle {
-                                                    width: 6rem;
-                                                    height: 6rem;
-                                                }
-                                            }
-
-                                            @@media(max - width: 480px) {
+        @@media(max - width: 480px) {
             .registration-container {
                 max-width: 100%;
                 padding: 5px;
@@ -809,6 +910,18 @@
             <div class="circle circle-two"></div>
         </div>
         <div class="theme-btn-container" role="radiogroup" aria-label="Theme selection"></div>
+
+        <!-- Add this right before </section> -->
+        <div class="role-selection-bottom">
+            <div class="role-option user-role selected" data-role="user">
+                <img src="~/Assets/user.png" alt="User Role" class="role-image">
+                <span class="role-name">User</span>
+            </div>
+            <div class="role-option instructor-role" data-role="instructor">
+                <img src="~/Assets/admin.png" alt="Instructor Role" class="role-image">
+                <span class="role-name">Instructor</span>
+            </div>
+        </div>
     </section>
 
     <script>
@@ -911,6 +1024,21 @@
                 detailsInfo: {},
                 profileImageInfo: {}
             };
+
+            // Role selection functionality
+            $(".role-option").click(function () {
+                $(".role-option").removeClass("selected");
+                $(this).addClass("selected");
+                selectedRole = $(this).data("role");
+                formDataStore.personalInfo.role = selectedRole;
+                formDataStore.detailsInfo = {};
+
+                // Refresh the wizard to show appropriate fields for the selected role
+                const wizard = $("#wizard").data("kendoWizard");
+                if (wizard) {
+                    wizard.refresh();
+                }
+            });
 
             function generateActivationToken() {
                 return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
@@ -1092,19 +1220,6 @@
                             buttonsTemplate: "",
                             items: [
                                 {
-                                    field: "role",
-                                    label: "Select Role:",
-                                    editor: function (container) {
-                                        var roleContainer = $('<div class="role-selection">').appendTo(container);
-                                        $('<div class="role-option">').appendTo(roleContainer)
-                                            .append('<input type="radio" name="role" id="userRole" value="user" checked>')
-                                            .append('<label for="userRole">User</label>');
-                                        $('<div class="role-option">').appendTo(roleContainer)
-                                            .append('<input type="radio" name="role" id="instructorRole" value="instructor">')
-                                            .append('<label for="instructorRole">Instructor</label>');
-                                    }
-                                },
-                                {
                                     field: "fullName",
                                     label: "Full Name:",
                                     validation: {
@@ -1200,24 +1315,36 @@
                                     editor: function (container, options) {
                                         var genderContainer = $('<div class="role-selection">').appendTo(container);
                                         
+                                        // Create a hidden input that will be validated
+                                        var hiddenInput = $('<input type="hidden" name="gender" required />')
+                                            .appendTo(genderContainer);
+                                        
                                         // Male option
-                                        $('<div class="role-option">').appendTo(genderContainer)
-                                            .append('<input type="radio" name="gender" id="male" value="Male" checked required data-required-msg="Gender is required" />')
-                                            .append('<label for="male">Male</label>');
-                                        
-                                        // Female option
-                                        $('<div class="role-option">').appendTo(genderContainer)
-                                            .append('<input type="radio" name="gender" id="female" value="Female" />')
-                                            .append('<label for="female">Female</label>');
-                                        
-                                        // Other option
-                                        $('<div class="role-option">').appendTo(genderContainer)
-                                            .append('<input type="radio" name="gender" id="other" value="Other" />')
-                                            .append('<label for="other">Other</label>');
+                                        $('<div class="gender-role-option">').appendTo(genderContainer)
+                                            .append('<input type="radio" name="genderRadio" id="male" value="Male" />')
+                                            .append('<label for="male">Male</label>')
+                                            .on("click", function() {
+                                                hiddenInput.val("Male").trigger("change");
+                                                formDataStore.personalInfo.gender = "Male";
+                                            });
 
-                                        genderContainer.find("input[name='gender']").on("change", function () {
-                                            formDataStore.personalInfo.gender = $(this).val();
-                                        });
+                                        // Female option
+                                        $('<div class="gender-role-option">').appendTo(genderContainer)
+                                            .append('<input type="radio" name="genderRadio" id="female" value="Female" />')
+                                            .append('<label for="female">Female</label>')
+                                            .on("click", function() {
+                                                hiddenInput.val("Female").trigger("change");
+                                                formDataStore.personalInfo.gender = "Female";
+                                            });
+
+                                        // Other option
+                                        $('<div class="gender-role-option">').appendTo(genderContainer)
+                                            .append('<input type="radio" name="genderRadio" id="other" value="Other" />')
+                                            .append('<label for="other">Other</label>')
+                                            .on("click", function() {
+                                                hiddenInput.val("Other").trigger("change");
+                                                formDataStore.personalInfo.gender = "Other";
+                                            });
                                     },
                                     validation: {
                                         required: true,
@@ -1246,16 +1373,16 @@
                                                     validateAge(input, container);
                                                 }
                                             });
-                                        
+
                                         input.on("change", function () {
                                             formDataStore.personalInfo.dateOfBirth = $(this).val();
                                         });
-                                        
+
                                         // Function to validate age
                                         function validateAge(input, container) {
                                             // Remove any existing age error message
                                             container.find('.age-error').remove();
-                                            
+
                                             if (input.val()) {
                                                 var today = new Date();
                                                 var birthDate = new Date(input.val());
@@ -1264,12 +1391,12 @@
                                                 if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
                                                     age--;
                                                 }
-                                                
+
                                                 // If under 18, show error message
-                                                if (age < 18) {
+                                                if (age < 15) {
                                                     $('<span class="k-form-error age-error">You must be at least 18 years old</span>')
                                                         .appendTo(container);
-                                                    
+
                                                     // Prevent form from proceeding
                                                     var wizard = $("#wizard").data("kendoWizard");
                                                     if (wizard) {
@@ -1287,9 +1414,9 @@
                                             }
                                             return true;
                                         }
-                                        
+
                                         // Initial validation
-                                        setTimeout(function() {
+                                        setTimeout(function () {
                                             if (input.val()) {
                                                 validateAge(input, container);
                                             }
@@ -1367,11 +1494,10 @@
                                     console.log("click");
                                     var step1Form = wizard.steps()[0].element.find("form").data("kendoForm");
                                     if (step1Form) {
-                                        step1Form.clear(); 
+                                        step1Form.clear();
                                         console.log("clear"); // Clear the Kendo form fields
                                     }
-                                    else
-                                    {
+                                    else {
                                         console.log("form not found");
                                     }
                                     formDataStore.personalInfo = {};
