@@ -1,6 +1,4 @@
 document.addEventListener("DOMContentLoaded", function () {
-    
-
     const chartOptions = {
         responsive: true,
         scales: {
@@ -298,18 +296,18 @@ document.addEventListener("DOMContentLoaded", function () {
         // Class data
         var contactData = [];
 
-        $.ajax({
-            url: "http://localhost:8080/api/Class/GetAllClasses",
-            type: "GET",
-            success: function (response) {
-                console.log(response.data);
-                contactData = response.data;
-                renderClasses(contactData);
-            },
-            error: function (error) {
-                console.log(error);
-            }
-        });
+        // $.ajax({
+        //     url: "http://localhost:8080/api/Class/GetAllClasses",
+        //     type: "GET",
+        //     success: function (response) {
+        //         console.log(response.data);
+        //         contactData = response.data;
+        //         renderClasses(contactData);
+        //     },
+        //     error: function (error) {
+        //         console.log(error);
+        //     }
+        // });
 
         // Function to format date and time
         function formatDateTime(dateStr, timeStr) {
@@ -457,7 +455,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     $(document).ready(function () {
-        localStorage.setItem("authToken", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJKV1RTZXJ2aWNlc0FjY2Vzc1Rva2VuIiwianRpIjoiMjlkZWE4YzUtMGE1Ny00NDRhLWJkMjgtMWVmYzAwMzEzYjEyIiwiVXNlck9iamVjdCI6IntcImluc3RydWN0b3JJZFwiOjEwLFwiaW5zdHJ1Y3Rvck5hbWVcIjpcIktodXNoaVwiLFwiZW1haWxcIjpcImtodXNoaTFAZ21haWwuY29tXCIsXCJwYXNzd29yZFwiOm51bGwsXCJjb25maXJtUGFzc3dvcmRcIjpudWxsLFwibW9iaWxlXCI6XCIxMjM0NTY3ODkwXCIsXCJnZW5kZXJcIjpcIkZlbWFsZVwiLFwiZG9iXCI6XCIyMDAzLTEwLTA1VDAwOjAwOjAwXCIsXCJzcGVjaWFsaXphdGlvblwiOlwiWW9nYVwiLFwiY2VydGlmaWNhdGVzXCI6e1wiWW9nYVwiOlwia2h1c2hpMUBnbWFpbC5jb21fWW9nYV82OTNhYmE5MS0zZmQyLTRjMGQtYjAxMS01YjAzYjhjMzhkYmUuanBnXCJ9LFwicHJvZmlsZUltYWdlXCI6XCJraHVzaGkxQGdtYWlsLmNvbV9wcm9maWxlLnBuZ1wiLFwiYXNzb2NpYXRpb25cIjpcIkZpdFByb1wiLFwiY3JlYXRlZEF0XCI6XCIyMDI1LTAzLTI2VDEzOjEyOjU3LjkyMjc5NFwiLFwic3RhdHVzXCI6XCJBY3RpdmVcIixcImlkUHJvb2ZcIjpcImtodXNoaTFAZ21haWwuY29tX2lkcHJvb2YucG5nXCIsXCJhY3RpdmF0aW9uVG9rZW5cIjpcImQ2ZjcwYjUwLTIyZDQtNDNiNi04OWEzLWI1ZjFjMmYzOWU1YVwiLFwiYWN0aXZhdGVkT25cIjpcIjIwMjUtMDMtMjVUMTY6MjQ6MzguMDU3MDY5XCIsXCJpZFByb29mRmlsZVwiOm51bGwsXCJjZXJ0aWZpY2F0ZUZpbGVzXCI6bnVsbCxcInByb2ZpbGVJbWFnZUZpbGVcIjpudWxsfSIsImV4cCI6MTc0MzE0NzMyNSwiaXNzIjoiaHR0cHM6Ly9sb2NhbGhvc3Q6ODA4MCIsImF1ZCI6Imh0dHBzOi8vbG9jYWxob3N0OjgwODEifQ.jjl4jKtkwF-AqBQdzos4E0LwpU39GsxwDd19F-snFjA");
+        localStorage.setItem("authToken", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJKV1RTZXJ2aWNlc0FjY2Vzc1Rva2VuIiwianRpIjoiMjlkZWE4YzUtMGE1Ny00NDRhLWJkMjgtMWVmYzAwMzEzYjEyIiwiVXNlck9iamVjdCI6IntcImluc3RydWN0b3JJZFwiOjEwLFwiaW5zdHJ1Y3Rvck5hbWVcIjpcIktodXNoaVwiLFwiZW1haWxcIjpcImtodXNoaTFAZ21haWwuY29tXCIsXCJwYXNzd29yZFwiOm51bGwsXCJjb25maXJtUGFzc3dvcmRcIjpudWxsLFwibW9iaXxlXCI6XCIxMjM0NTY3ODkwXCIsXCJnZW5kZXJcIjpcIkZlbWFsZVwiLFwiZG9iXCI6XCIyMDAzLTEwLTA1VDAwOjAwOjAwXCIsXCJzcGVjaWFsaXphdGlvblwiOlwiWW9nYVwiLFwiY2VydGlmaWNhdGVzXCI6e1wiWW9nYVwiOlwia2h1c2hpMUBnbWFpbC5jb21fWW9nYV82OTNhYmE5MS0zZmQyLTRjMGQtYjAxMS01YjAzYjhjMzhkYmUuanBnXCJ9LFwicHJvZmlsZUltYWdlXCI6XCJraHVzaGkxQGdtYWlsLmNvbV9wcm9maWxlLnBuZ1wiLFwiYXNzb2NpYXRpb25cIjpcIkZpdFByb1wiLFwiY3JlYXRlZEF0XCI6XCIyMDI1LTAzLTI2VDEzOjEyOjU3LjkyMjc5NFwiLFwic3RhdHVzXCI6XCJBY3RpdmVcIixcImlkUHJvb2ZcIjpcImtodXNoaTFAZ21haWwuY29tX2lkcHJvb2YucG5nXCIsXCJhY3RpdmF0aW9uVG9rZW5cIjpcImQ2ZjcwYjUwLTIyZDQtNDNiNi04OWEzLWI1ZjFjMmYzOWU1YVwiLFwiYWN0aXZhdGVkT25cIjpcIjIwMjUtMDMtMjVUMTY6MjQ6MzguMDU3MDY5XCIsXCJpZFByb29mRmlsZVwiOm51bGwsXCJjZXJ0aWZpY2F0ZUZpbGVzXCI6bnVsbCxcInByb2ZpbGVJbWFnZUZpbGVcIjpudWxsfSIsImV4cCI6MTc0MzE0NzMyNSwiaXNzIjoiaHR0cHM6Ly9sb2NhbGhvc3Q6ODA4MCIsImF1ZCI6Imh0dHBzOi8vbG9jYWxob3N0OjgwODEifQ.jjl4jKtkwF-AqBQdzos4E0LwpU39GsxwDd19F-snFjA");
 
         function parseJwt(token) {
             try {
@@ -586,30 +584,30 @@ document.addEventListener("DOMContentLoaded", function () {
 
             drawer.show();
 
-            $.ajax({
-                url: `http://localhost:8080/api/User/GetUserById/${userId}`,
-                type: "GET",
-                success: function (response) {
-                    $("#userName").val(response.userName);
-                    $("#email").val(response.email);
-                    $("#phone").val(response.mobile);
-                    $("#height").data("kendoNumericTextBox").value(response.height);
-                    $("#weight").data("kendoNumericTextBox").value(response.weight);
+            // $.ajax({
+            //     url: `http://localhost:8080/api/User/GetUserById/${userId}`,
+            //     type: "GET",
+            //     success: function (response) {
+            //         $("#userName").val(response.userName);
+            //         $("#email").val(response.email);
+            //         $("#phone").val(response.mobile);
+            //         $("#height").data("kendoNumericTextBox").value(response.height);
+            //         $("#weight").data("kendoNumericTextBox").value(response.weight);
 
-                    var goalValues = response.goal.split(", ").map(g => g.trim());
-                    $("#goal").data("kendoMultiSelect").value(goalValues);
+            //         var goalValues = response.goal.split(", ").map(g => g.trim());
+            //         $("#goal").data("kendoMultiSelect").value(goalValues);
 
-                    var medicalValues = response.medicalCondition.split(", ").map(mc => mc.trim());
-                    $("#medicalCondition").data("kendoMultiSelect").value(medicalValues);
+            //         var medicalValues = response.medicalCondition.split(", ").map(mc => mc.trim());
+            //         $("#medicalCondition").data("kendoMultiSelect").value(medicalValues);
 
-                    if (response.profileImage) {
-                        $("#imagePreview").attr("src", response.profileImage).show();
-                    }
-                },
-                error: function (xhr) {
-                    alert("Error fetching user details: " + xhr.responseText);
-                }
-            });
+            //         if (response.profileImage) {
+            //             $("#imagePreview").attr("src", response.profileImage).show();
+            //         }
+            //     },
+            //     error: function (xhr) {
+            //         alert("Error fetching user details: " + xhr.responseText);
+            //     }
+            // });
         };
 
         // Handle Image Preview
@@ -771,4 +769,233 @@ document.addEventListener("DOMContentLoaded", function () {
     function performLogout() {
         alert("You have been logged out. Redirecting to login page...");
     }
+});
+
+// Add these functions at the top of your document.ready
+$(document).ready(function() {
+    // Load dashboard data
+    loadDashboardData();
+    
+    // Function to load all dashboard data
+    function loadDashboardData() {
+        const instructorId = "1"; // You can get this from token/session
+        
+        // Load class counts
+        $.ajax({
+            url: `http://localhost:8080/api/Instructor/ClassCountByInstructor/${instructorId}`,
+            type: "GET",
+            success: function(response) {
+                if(response.success) {
+                    $("#totalClassesCount").text(response.count);
+                }
+            },
+            error: function() {
+                // Fallback to static data
+                $("#totalClassesCount").text("12");
+            }
+        });
+
+        // Load upcoming class count
+        $.ajax({
+            url: `http://localhost:8080/api/Instructor/UpcomingClassCountByInstructor/${instructorId}`,
+            type: "GET",
+            success: function(response) {
+                if(response.success) {
+                    $("#upcomingClassesCount").text(response.count);
+                }
+            },
+            error: function() {
+                // Fallback to static data
+                $("#upcomingClassesCount").text("8");
+            }
+        });
+
+        // Load upcoming classes table
+        $.ajax({
+            url: `http://localhost:8080/api/Instructor/UpcomingClassDetailsByInstructor/${instructorId}`,
+            type: "GET",
+            success: function(response) {
+                if(response.success) {
+                    renderUpcomingClassesTable(response.data);
+                }
+            },
+            error: function() {
+                // Keep showing static data
+                console.log("Error loading upcoming classes");
+            }
+        });
+
+        // Load total student count
+        $.ajax({
+            url: `http://localhost:8080/api/Instructor/UserCountByInstructor/${instructorId}`,
+            type: "GET",
+            success: function(response) {
+                if(response.success) {
+                    $("#totalStudentsCount").text(response.count);
+                    // Update the student engagement card
+                    updateStudentStats(response.count);
+                }
+            },
+            error: function() {
+                // Fallback to static data
+                $("#totalStudentsCount").text("142");
+                updateStudentStats(142);
+            }
+        });
+    }
+
+    // Function to render upcoming classes table
+    function renderUpcomingClassesTable(classes) {
+        if (!classes || classes.length === 0) return;
+
+        let tableHtml = '';
+        classes.forEach(function(c) {
+            tableHtml += `
+                <tr>
+                    <td>${c.className}</td>
+                    <td>${formatDate(c.startDate)}</td>
+                    <td>${formatTime(c.startTime)}</td>
+                    <td>${c.maxCapacity - c.availableCapacity}/${c.maxCapacity}</td>
+                    <td>
+                        <button class="btn btn-sm btn-primary" onclick="showClassDetails(${c.classId})">Details</button>
+                    </td>
+                </tr>
+            `;
+        });
+
+        $("#upcomingClassesTableBody").html(tableHtml);
+    }
+
+    // Helper functions
+    function formatDate(dateString) {
+        return new Date(dateString).toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
+    }
+
+    function formatTime(timeString) {
+        if (!timeString) return "";
+        return timeString.substring(0, 5);
+    }
+
+    // Add this helper function to update student stats
+    function updateStudentStats(totalStudents) {
+        const retentionRate = "87%"; // This could come from another API
+        
+        // Update the student engagement card
+        $("#totalStudentsCount").text(totalStudents);
+        $("#retentionRate").text(retentionRate);
+    }
+});
+
+// Add to your Dashboard.js
+function showClassDetails(classId) {
+    // Get class details from API
+    $.ajax({
+        url: `http://localhost:8080/api/Instructor/UpcomingClassDetailsByInstructor/1`,
+        type: "GET",
+        success: function(response) {
+            if(response.success) {
+                const classData = response.data.find(c => c.classId === classId);
+                if(classData) {
+                    renderClassDetails(classData);
+                }
+            }
+        },
+        error: function() {
+            alert("Error loading class details");
+        }
+    });
+}
+
+function renderClassDetails(classData) {
+    const html = `
+        <div class="detail-item">
+            <div class="detail-label">Class Name</div>
+            <div class="detail-value">${classData.className}</div>
+        </div>
+        <div class="detail-item">
+            <div class="detail-label">Date & Time</div>
+            <div class="detail-value">${formatDateTime(classData.startDate, classData.startTime)}</div>
+        </div>
+        <div class="detail-item">
+            <div class="detail-label">Duration</div>
+            <div class="detail-value">${formatDuration(classData.duration)}</div>
+        </div>
+        <div class="detail-item">
+            <div class="detail-label">Location</div>
+            <div class="detail-value">${classData.city}</div>
+        </div>
+        <div class="detail-item">
+            <div class="detail-label">Address</div>
+            <div class="detail-value">${classData.address}</div>
+        </div>
+        <div class="detail-item">
+            <div class="detail-label">Capacity</div>
+            <div class="detail-value">${classData.maxCapacity - classData.availableCapacity}/${classData.maxCapacity} Students</div>
+        </div>
+        <div class="detail-item">
+            <div class="detail-label">Status</div>
+            <div class="detail-value">
+                <span class="badge ${classData.status === 'Active' ? 'bg-success' : 'bg-warning'}">
+                    ${classData.status}
+                </span>
+            </div>
+        </div>
+        <div class="detail-item">
+            <div class="detail-label">Required Equipment</div>
+            <div class="detail-value">${classData.requiredEquipments || 'None'}</div>
+        </div>
+    `;
+
+    $("#classDetailsContent").html(html);
+    $("#classDetailsPopup").fadeIn(300);
+}
+
+// Add event listener for closing popup
+$(document).ready(function() {
+    // Close popup when clicking close button or outside
+    $(".close-popup, .class-details-popup").on("click", function(e) {
+        if (e.target === this) {
+            $("#classDetailsPopup").fadeOut(300);
+        }
+    });
+
+    // Prevent popup from closing when clicking inside content
+    $(".class-details-content").on("click", function(e) {
+        e.stopPropagation();
+    });
+});
+
+// Move helper functions to global scope
+function formatDateTime(dateStr, timeStr) {
+    const date = new Date(dateStr);
+    const options = { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' };
+    return date.toLocaleDateString('en-US', options) + ' at ' + timeStr.substring(0, 5);
+}
+
+function formatDuration(minutes) {
+    const hours = Math.floor(minutes / 60);
+    const mins = minutes % 60;
+    return hours > 0 ? `${hours}h ${mins}m` : `${mins}m`;
+}
+
+function formatDate(dateString) {
+    return new Date(dateString).toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+    });
+}
+
+function formatTime(timeString) {
+    if (!timeString) return "";
+    return timeString.substring(0, 5);
+}
+
+// Rest of your existing document.ready code...
+$(document).ready(function() {
+    // ... existing code ...
 });

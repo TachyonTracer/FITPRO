@@ -44,11 +44,10 @@
     <!-- Main Navigation TabStrip -->
     <div id="mainTabstrip">
         <ul>
-            <li class="k-active">All Classes</li>
-            <li>My Classes</li>
-            <li>Progress</li>
-            <li>Health</li>
-            <li>Settings</li>
+            <li class="k-active">Dashboard</li>
+            <li>Create Classes</li>
+            <li>Manage Schedule </li>
+            <li>Feedback</li>
         </ul>
         <div>
             <!-- Dashboard Content -->
@@ -64,11 +63,17 @@
                                         <h5 class="card-title">Class Overview</h5>
                                         <div class="row">
                                             <div class="col-6 text-center">
-                                                <div class="stat-value">12</div>
+                                                <div class="stat-value" id="totalClassesCount">
+                                                    <!-- Will be populated by JS -->
+                                                    Loading...
+                                                </div>
                                                 <small>Total Classes</small>
                                             </div>
                                             <div class="col-6 text-center">
-                                                <div class="stat-value">8</div>
+                                                <div class="stat-value" id="upcomingClassesCount">
+                                                    <!-- Will be populated by JS -->
+                                                    Loading...
+                                                </div>
                                                 <small>Upcoming Classes</small>
                                             </div>
                                         </div>
@@ -81,14 +86,20 @@
                             <div class="col-md-4 mb-4">
                                 <div class="card dashboard-card h-100 mx-2">
                                     <div class="card-body">
-                                        <h5 class="card-title">Student Engagement</h5>
+                                        <h5 class="card-title">User Engagement</h5>
                                         <div class="row">
                                             <div class="col-6 text-center">
-                                                <div class="stat-value">142</div>
-                                                <small>Total Students</small>
+                                                <div class="stat-value" id="totalStudentsCount">
+                                                    <!-- Will be populated by JS -->
+                                                    Loading...
+                                                </div>
+                                                <small>Total Users</small>
                                             </div>
                                             <div class="col-6 text-center">
-                                                <div class="stat-value">87%</div>
+                                                <div class="stat-value" id="retentionRate">
+                                                    <!-- Will be populated by JS -->
+                                                    Loading...
+                                                </div>
                                                 <small>Retention Rate</small>
                                             </div>
                                         </div>
@@ -134,51 +145,10 @@
                                                         <th>Actions</th>
                                                     </tr>
                                                 </thead>
-                                                <tbody>
+                                                <tbody id="upcomingClassesTableBody">
+                                                    <!-- Will be populated by JS -->
                                                     <tr>
-                                                        <td>Advanced Yoga</td>
-                                                        <td>April 15, 2025</td>
-                                                        <td>08:00 AM</td>
-                                                        <td>12/15</td>
-                                                        <td>
-                                                            <button class="btn btn-sm btn-primary">Details</button>
-                                                        </td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td>HIIT Fitness</td>
-                                                        <td>April 16, 2025</td>
-                                                        <td>06:00 PM</td>
-                                                        <td>8/12</td>
-                                                        <td>
-                                                            <button class="btn btn-sm btn-primary">Details</button>
-                                                        </td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td>Pilates Workshop</td>
-                                                        <td>April 17, 2025</td>
-                                                        <td>10:00 AM</td>
-                                                        <td>15/20</td>
-                                                        <td>
-                                                            <button class="btn btn-sm btn-primary">Details</button>
-                                                        </td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td>Strength Training</td>
-                                                        <td>April 18, 2025</td>
-                                                        <td>04:30 PM</td>
-                                                        <td>10/15</td>
-                                                        <td>
-                                                            <button class="btn btn-sm btn-primary">Details</button>
-                                                        </td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td>Meditation Class</td>
-                                                        <td>April 19, 2025</td>
-                                                        <td>09:00 AM</td>
-                                                        <td>18/20</td>
-                                                        <td>
-                                                            <button class="btn btn-sm btn-primary">Details</button>
-                                                        </td>
+                                                        <td colspan="5" class="text-center">Loading...</td>
                                                     </tr>
                                                 </tbody>
                                             </table>
@@ -250,6 +220,18 @@
 
     <!-- Logout Confirmation Dialog -->
     <div id="logoutDialog"></div>
+
+    <!-- Class Details Popup -->
+    <div id="classDetailsPopup" class="class-details-popup">
+        <div class="class-details-content">
+            <button class="close-popup">&times;</button>
+            <h3 class="mb-4">Class Details</h3>
+            <div class="class-details-grid" id="classDetailsContent">
+                <!-- Content will be populated dynamically -->
+            </div>
+        </div>
+    </div>
+
     <script src="@Url.Content("~/js/Instructor/Dashboard.js")" asp-append-version="true"></script>
 </body>
 
