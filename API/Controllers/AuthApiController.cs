@@ -8,6 +8,8 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using Repo;
+using System.Text.Json;
+using Nest;
 
 namespace API
 {
@@ -50,7 +52,7 @@ namespace API
                     }
                     if (!userObj.status)
                     {
-                        return Unauthorized(new { success = false, message = "Please activate your account." });
+                        return Unauthorized(new { success = false, message = "Please check your mail for account activation." });
                     }
                     user = userObj;
                 }
@@ -62,9 +64,19 @@ namespace API
                         return Unauthorized(new { success = false, message = "Invalid email or password." });
                     }
 
-                    if (instructorObj.status == "Pending" || instructorObj.status == "Inactive")
+                    if (instructorObj.status == "Unverified")
+                    {
+                        return Unauthorized(new { success = false, message = "Please check your mail for account activation" });
+                    }
+
+                    if (instructorObj.status == "Verified")
                     {
                         return Unauthorized(new { success = false, message = "Wait for admin approval." });
+                    }
+
+                    if (instructorObj.status == "Disapproved")
+                    {
+                        return Unauthorized(new { success = false, message = "Your account has been rejected." });
                     }
 
                     user = instructorObj;
@@ -107,7 +119,7 @@ namespace API
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"[ERROR] Login Failed: "+ ex);
+                Console.WriteLine($"[ERROR] Login Failed: " + ex);
                 return StatusCode(500, new { success = false, message = "Internal server error." });
             }
 
@@ -167,7 +179,7 @@ namespace API
             }
         }
         #endregion
-        
+
 
         #region Update Password
 
@@ -253,7 +265,7 @@ namespace API
 
         #endregion
 
-       #region Register Instructor
+        #region Register Instructor
         [HttpPost("register-instructor")]
         public async Task<IActionResult> RegisterInstructor([FromForm] Instructor instructor)
         {
@@ -379,7 +391,7 @@ namespace API
             }
         }
         #endregion
-        
+
         #region Check Email
         [HttpGet("check-email")]
         public async Task<IActionResult> CheckEmail(string email)
@@ -393,5 +405,77 @@ namespace API
             return new JsonResult(new { exists });
         }
         #endregion
+
+
+        #region Activate User
+        [HttpGet("activateuser")]
+        public async Task<IActionResult> ActivateUser([FromQuery] string token)
+        {
+            int result = await _authRepo.ActivateUser(token);
+
+            string redirectUrl;
+
+            if (result == 1)
+            {
+                // Activation successful
+                redirectUrl = "http://localhost:8081/auth/login?message=Activation%20Successful";
+            }
+            else if (result == -2)
+            {
+                redirectUrl = "http://localhost:8081/auth/login?message=Invalid%20Activation%20Token";
+
+            }
+            else if (result == -3)
+            {
+                // User already activated
+                redirectUrl = "http://localhost:8081/auth/login?message=Already%20Activated";
+            }
+            else
+            {
+                // Invalid token or other failure
+                redirectUrl = "http://localhost:8081/auth/login?message=Failed%20To%20Activate";
+            }
+
+            return Redirect(redirectUrl);
+        }
+        #endregion
+
+        #region Activate Instructor
+        [HttpGet("activateinstructor")]
+        public async Task<IActionResult> ActivateInstructor([FromQuery] string token)
+        {
+            int result = await _authRepo.ActivateInstructor(token);
+
+            if (result == 1)
+            {
+                return Redirect("http://localhost:8081/auth/login?message=Activation%20Successful");
+            }
+            else if (result == -2)
+            {
+                return Redirect("http://localhost:8081/auth/login?message=Invalid%20Activation%20Token");
+            }
+            else if (result == -3)
+            {
+                return Redirect("http://localhost:8081/auth/login?message=Already%20Activated");
+            }
+            else if (result == -4)
+            {
+                return Redirect("http://localhost:8081/auth/login?message=Invalid%20Status");
+            }
+            else if (result == -5)
+            {
+                return Redirect("http://localhost:8081/auth/login?message=Instructor%20Already%20Verified");
+            }
+            else if (result == -6)
+            {
+                return Redirect("http://localhost:8081/auth/login?message=Internal%20Error%20Try%20Again%20Later");
+            }
+            else
+            {
+                return Redirect("http://localhost:8081/auth/login?message=Unknown%20Error");
+            }
+        }
+        #endregion
+
     }
 }

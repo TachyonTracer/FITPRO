@@ -63,5 +63,40 @@ namespace API
         }
         #endregion
 
+        #region Instructor approval email 
+        [HttpPost]
+        [Route("SendApproveInstructorEmail")]
+        public async Task<IActionResult> SendApproveInstructorEmail([FromForm] string username, [FromForm] string email)
+        {
+            try
+            {
+                await _emailRepo.SendApproveInstructorEmail(email,username);
+                return Ok(new { success = true, message = "Instrucotr approval Email Sent Successfully!" });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { success = false, message = "Failed to send instrucotr approval email: " + ex.Message });
+            }
+        }
+        #endregion
+
+        #region Instructor disapproval email 
+        [HttpPost]
+        [Route("SendDisapproveInstructorEmail")]
+        public async Task<IActionResult> SendDisapproveInstructorEmail([FromForm] string username, [FromForm] string email)
+        {
+            try
+            {
+                await _emailRepo.SendDisapproveInstructorEmail(email,username);
+                return Ok(new { success = true, message = "Instrucotr disapproval Email Sent Successfully!" });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { success = false, message = "Failed to send instrucotr disapproval email: " + ex.Message });
+            }
+        }
+        #endregion
+
+
     }
 }

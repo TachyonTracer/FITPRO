@@ -13,9 +13,11 @@ namespace Repo
     public class AuthRepo : IAuthInterface
     {
         private readonly NpgsqlConnection _conn;
-        public AuthRepo(NpgsqlConnection conn)
+        private readonly IEmailInterface _email;
+        public AuthRepo(NpgsqlConnection conn, IEmailInterface email)
         {
             _conn = conn;
+            _email = email;
         }
 
         #region Reset Password
@@ -89,6 +91,7 @@ namespace Repo
                 }
 
                 // send email (email,usernmae, otp)
+                await _email.SendOtpEmail(userName, email, OTP.ToString());
                 result = 1;
             }
             catch (System.Exception ex)
@@ -343,15 +346,15 @@ namespace Repo
         }
         #endregion
 
-        #region Activation link
-        #endregion
-
         #endregion
 
 
         #region Register User
         public async Task<bool> RegisterUserAsync(User user)
         {
+            string email = null;
+            string username = null;
+            string activationURL = "http://localhost:8080/api/AuthApi/activateuser?token=";
             string activationToken = Guid.NewGuid().ToString();
             string query = @"INSERT INTO t_user 
                             (c_username, c_email, c_password, c_mobile, c_gender, c_dob, c_height, c_weight, 
@@ -367,6 +370,9 @@ namespace Repo
                     await _conn.CloseAsync();
 
                 await _conn.OpenAsync();
+
+
+
 
                 using (var command = new NpgsqlCommand(query, _conn))
                 {
@@ -385,7 +391,11 @@ namespace Repo
                     command.Parameters.AddWithValue("@status", user.status);
                     command.Parameters.AddWithValue("@activationToken", activationToken);
 
+                    username = user.userName;
+                    email = user.email;
+                    activationURL += activationToken;
                     int rowsAffected = await command.ExecuteNonQueryAsync();
+                    await _email.SendActivationLink(email, username, activationURL);
                     return rowsAffected > 0;
                 }
             }
@@ -401,6 +411,10 @@ namespace Repo
         #region  Register Instructor
         public async Task<bool> RegisterInstructorAsync(Instructor instructor)
         {
+
+            string email = null;
+            string username = null;
+            string activationURL = "http://localhost:8080/api/AuthApi/activateinstructor?token=";
             string activationToken = Guid.NewGuid().ToString();
             string query = @"INSERT INTO t_instructor 
                             (c_instructorname, c_email, c_password, c_mobile, c_gender, c_dob, c_specialization, 
@@ -435,6 +449,10 @@ namespace Repo
                     command.Parameters.AddWithValue("@activationToken", activationToken);
 
                     int rowsAffected = await command.ExecuteNonQueryAsync();
+                    username = instructor.instructorName;
+                    email = instructor.email;
+                    activationURL += activationToken;
+                    await _email.SendActivationLink(email, username, activationURL);
                     return rowsAffected > 0;
                 }
             }
@@ -474,6 +492,8 @@ namespace Repo
                     await _conn.CloseAsync();
             }
         }
+
+
         #endregion
 
         #region Login Repo
@@ -486,7 +506,7 @@ namespace Repo
                     c_height, c_weight, c_goal, c_medicalcondition, c_profileimage, 
                     c_createdat, c_status, c_activationtoken, c_activatedon 
                  FROM t_user 
-                 WHERE c_email = @Email AND c_password = @Password AND c_activatedon IS NOT NULL;";
+                 WHERE c_email = @Email AND c_password = @Password AND c_status IS NOT NULL;";
 
             try
             {
@@ -530,11 +550,17 @@ namespace Repo
             finally
             {
                 if (_conn.State == System.Data.ConnectionState.Open)
+                {
                     await _conn.CloseAsync();
+                }
             }
-
-            return null; // Return null if no user is found
+            return null;
         }
+        #endregion
+
+
+
+
         #endregion
 
         #region Login Admin
@@ -587,11 +613,13 @@ namespace Repo
             finally
             {
                 if (_conn.State == System.Data.ConnectionState.Open)
+                {
                     await _conn.CloseAsync();
+                }
             }
-
-            return null; // Return null if no user is found
+            return null;
         }
+
         #endregion
 
         #region Login Instructor
@@ -601,7 +629,7 @@ namespace Repo
                             c_specialization, c_certificates, c_profileimage, c_association, 
                             c_createdat, c_status, c_idproof, c_activationtoken, c_activatedon 
                      FROM t_instructor 
-                     WHERE c_email = @Email AND c_password = @Password AND c_activatedon IS NOT NULL;";
+                     WHERE c_email = @Email AND c_password = @Password AND c_status IS NOT NULL;";
 
             try
             {
@@ -649,6 +677,139 @@ namespace Repo
 
             return null; // Return null if no instructor is found
         }
+        #endregion
+
+
+
+        #region Activation user/Instructor
+        #region Activate User
+
+        public async Task<int> ActivateUser(string token)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(token))
+                    return -1; // No token provided
+
+                if (_conn.State == System.Data.ConnectionState.Closed)
+                {
+                    await _conn.OpenAsync();
+                }
+
+                string query = "SELECT c_userid, c_status FROM t_User WHERE c_activationtoken = @Token";
+                int userId = 0;
+                bool isActivated = false;
+
+                using (var cmd = new NpgsqlCommand(query, _conn))
+                {
+                    cmd.Parameters.AddWithValue("Token", token);
+
+                    using (var reader = await cmd.ExecuteReaderAsync())
+                    {
+                        if (!reader.Read())
+                            return -2; // Token not found
+
+                        userId = reader.GetInt32(0);
+                        isActivated = reader.GetBoolean(1);
+                    }
+                }
+
+                if (isActivated)
+                    return -3; // User already activated
+
+                string updateQuery = "UPDATE t_User SET c_status = TRUE, c_activatedon = NOW(), c_activationtoken = NULL WHERE c_userid = @UserId";
+
+                using (var updateCmd = new NpgsqlCommand(updateQuery, _conn))
+                {
+                    updateCmd.Parameters.AddWithValue("UserId", userId);
+                    await updateCmd.ExecuteNonQueryAsync();
+                }
+
+                return 1; // Activation successful
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error at activation user ---> " + ex.Message);
+                return -4; // Internal error
+            }
+            finally
+            {
+                if (_conn.State == System.Data.ConnectionState.Open)
+                {
+                    await _conn.CloseAsync();
+                }
+            }
+        }
+        #endregion
+
+
+        #region Activate Instructor
+
+        public async Task<int> ActivateInstructor(string token)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(token))
+                    return -1; // No token provided
+
+                if (_conn.State == System.Data.ConnectionState.Closed)
+                {
+                    await _conn.OpenAsync();
+                }
+
+                string query = "SELECT c_instructorid, c_status FROM t_Instructor WHERE c_activationtoken = @Token";
+                int instructorId = 0;
+                string status = "";
+
+                using (var cmd = new NpgsqlCommand(query, _conn))
+                {
+                    cmd.Parameters.AddWithValue("Token", token);
+
+                    using (var reader = await cmd.ExecuteReaderAsync())
+                    {
+                        if (!reader.Read())
+                            return -2; // Token not found
+
+                        instructorId = reader.GetInt32(0);
+                        status = reader.GetString(1);
+                    }
+                }
+
+                if (status == "Verified")
+                    return -3; // Already activated
+
+                if (status != "Unverified")
+                    return -4; // Invalid status (should never happen)
+
+                string updateQuery = "UPDATE t_Instructor SET c_status = 'Verified', c_activatedon = NOW(), c_activationtoken = NULL WHERE c_instructorid = @InstructorId AND c_status = 'Unverified'";
+
+                using (var updateCmd = new NpgsqlCommand(updateQuery, _conn))
+                {
+                    updateCmd.Parameters.AddWithValue("InstructorId", instructorId);
+                    int rowsAffected = await updateCmd.ExecuteNonQueryAsync();
+
+                    if (rowsAffected == 0)
+                        return -5; // Instructor was already verified before updating
+                }
+
+                return 1; // Activation successful
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error at activating instructor ---> " + ex.Message);
+                return -6; // Internal error
+
+            }
+
+            finally
+            {
+                if (_conn.State == System.Data.ConnectionState.Open)
+                {
+                    await _conn.CloseAsync();
+                }
+            }
+        }
+
         #endregion
 
         #endregion

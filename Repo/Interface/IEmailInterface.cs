@@ -10,6 +10,8 @@ namespace Repo
         Task sendSuccessResetPwdEmail(string username, string email);
         Task SendOtpEmail(string username, string email, string otp);
         Task SendActivationLink(string email, string username, string activationUrl);
+        Task SendApproveInstructorEmail(string email, string username);
+        Task SendDisapproveInstructorEmail(string email, string username);
 
     }
 }

@@ -1,120 +1,1052 @@
-@{
-    ViewData["Title"] = "Student Registration";
-    Layout = "~/Views/Shared/_Layout.cshtml";
-}
+<!DOCTYPE html>
+<html lang="en">
 
-<style>
-    body {
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        background-color: #f5f5f5;
-        margin: 0;
-        padding: 20px;
-    }
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Glassmorphism Registration - Fitness Hub</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700&family=Bebas+Neue&display=swap"
+        rel="stylesheet">
+    <link href="https://kendo.cdn.telerik.com/themes/6.7.0/default/default-main.css" rel="stylesheet">
+    <script src="https://kendo.cdn.telerik.com/2023.2.718/js/jquery.min.js"></script>
+    <script src="https://kendo.cdn.telerik.com/2023.2.718/js/kendo.all.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.17.2/dist/sweetalert2.all.min.js" \></script>
 
-    .registration-container {
-        max-width: 800px;
-        margin: 0 auto;
-        background-color: white;
-        border-radius: 8px;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        padding: 30px;
-    }
+    <style>
+        :root {
+            --background: #1a1a2e;
+            --color: #ffffff;
+            --primary-color: #ff4d4d;
+            --glass-color: rgba(255, 255, 255, 0.1);
+        }
 
-    h1 {
-        color: #333;
-        font-size: 24px;
-        margin-bottom: 20px;
-        text-align: center;
-    }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
 
-    .k-wizard {
-        border: none;
-        box-shadow: none;
-    }
+        .logo img {
+            height: 70px;
+            position: absolute;
+            top: 20px;
+            left: 50px;
+            display: block;
+            float: right;
+        }
 
-    .k-wizard-step {
-        padding: 20px;
-    }
+        /* Role Selection Styles */
+        .role-selection-bottom {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            display: flex;
+            gap: 20px;
+            z-index: 100;
+        }
 
-    .role-selection {
-        display: flex;
-        justify-content: center;
-        margin-bottom: 20px;
-    }
+        .role-option {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            padding: 10px;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+            width: 110px;
+        }
 
-    .role-option {
-        margin: 0 15px;
-    }
+        .gender.role-option {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            padding: 10px;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+            width: 110px;
+        }
 
-    .role-option input {
-        margin-right: 5px;
-    }
+        .role-option:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-5px);
+        }
 
-    .email-error {
-        color: red;
-        font-size: 12px;
-        margin-top: 5px;
-        display: none;
-    }
+        .role-option.selected {
+            background: var(--primary-color);
+            box-shadow: 0 0 15px rgba(255, 77, 77, 0.5);
+        }
 
-    /* Style for Kendo Upload button */
-    .k-upload-button {
-        background-color: #007bff;
-        color: white;
-        padding: 8px 16px;
-        border-radius: 4px;
-        border: none;
-        cursor: pointer;
-    }
+        .role-image {
+            width: 90px;
+            height: 80px;
+            margin-bottom: 5px;
+        }
 
-    .k-upload-button:hover {
-        background-color: #0056b3;
-    }
+        .role-name {
+            font-size: 0.8rem;
+            text-align: center;
+        }
 
-    .k-upload {
-        margin-top: 10px;
-    }
+        /* Responsive adjustments */
+        @@media(max-width: 768px) {
+            .role-selection-bottom {
+                bottom: 1rem;
+                right: 1rem;
+                gap: 15px;
+            }
+        }
 
-    .k-dropzone {
-        border: 2px dashed #ccc;
-        padding: 20px;
-        text-align: center;
-        color: #666;
-        margin-top: 10px;
-    }
+        @@media(max-width:480px) {
+            .role-selection-bottom {
+                bottom: 0.5rem;
+                right: 0.5rem;
+                gap: 10px;
+            }
 
-    .k-dropzone:hover {
-        border-color: #007bff;
-        color: #007bff;
-    }
-</style>
+            .role-option {
+                width: 70px;
+                padding: 8px;
+            }
 
-<div class="registration-container">
-    <h1>Registration Wizard</h1>
-    <div id="wizard"></div>
-</div>
+            .role-image {
+                width: 30px;
+                height: 30px;
+            }
+        }
 
-@section Scripts {
+        /* Custom placeholder styles */
+        .k-textbox input::placeholder,
+        .k-textarea textarea::placeholder,
+        .k-input input::placeholder,
+        .k-dropdown-wrap .k-input::placeholder,
+        .k-picker-wrap .k-input::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+            /* Default placeholder color */
+            transition: all 0.3s ease;
+        }
+
+        /* Interactive effects when focused */
+        .k-textbox input:focus::placeholder,
+        .k-textarea textarea:focus::placeholder,
+        .k-input input:focus::placeholder,
+        .k-dropdown-wrap .k-input:focus::placeholder,
+        .k-picker-wrap .k-input:focus::placeholder {
+            color: var(--primary-color);
+            /* Change to your primary color when focused */
+            transform: translateY(-5px);
+            font-size: 0.8em;
+        }
+
+        /* Animation for empty fields */
+        .k-textbox input:not(:focus):placeholder-shown,
+        .k-textarea textarea:not(:focus):placeholder-shown,
+        .k-input input:not(:focus):placeholder-shown {
+            animation: pulsePlaceholder 2s infinite;
+        }
+
+        @@keyframes pulsePlaceholder {
+            0% {
+                opacity: 0.6;
+            }
+
+            50% {
+                opacity: 0.3;
+            }
+
+            100% {
+                opacity: 0.6;
+            }
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: "Poppins", sans-serif;
+            background: var(--background);
+            color: var(--color);
+            letter-spacing: 1px;
+            transition: background 0.3s ease;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        a {
+            text-decoration: none;
+            color: var(--color);
+            transition: color 0.3s ease;
+        }
+
+        a:hover {
+            color: var(--primary-color);
+        }
+
+        h1 {
+            font-family: "Bebas Neue", sans-serif;
+            font-size: 3rem;
+            text-align: center;
+            margin-bottom: 0.5rem;
+            letter-spacing: 2px;
+        }
+
+        .tagline {
+            font-size: 0.9rem;
+            text-align: center;
+            margin-bottom: 1.5rem;
+            font-style: italic;
+        }
+
+        .container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 1rem;
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .gym-background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+        }
+
+        .gym-icon {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            background-size: contain;
+            background-repeat: no-repeat;
+            opacity: 0.4;
+            animation: float-icon 6s ease-in-out infinite;
+        }
+
+        /* Dumbbell Icon */
+        .dumbbell-icon-1,
+        .dumbbell-icon-2 {
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><rect x="2" y="9" width="4" height="6" /><rect x="18" y="9" width="4" height="6" /><line x1="6" y1="12" x2="18" y2="12" /></svg>');
+        }
+
+        .dumbbell-icon-1 {
+            top: 10%;
+            left: 15%;
+            animation-delay: 0s;
+        }
+
+        .dumbbell-icon-2 {
+            bottom: 20%;
+            right: 10%;
+            animation-delay: 1s;
+        }
+
+        /* Barbell Icon */
+        .barbell-icon-1,
+        .barbell-icon-2 {
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><rect x="1" y="7" width="4" height="10" /><rect x="19" y="7" width="4" height="10" /><rect x="7" y="9" width="4" height="6" /><rect x="13" y="9" width="4" height="6" /><line x1="5" y1="12" x2="19" y2="12" /></svg>');
+        }
+
+        .barbell-icon-1 {
+            top: 20%;
+            right: 15%;
+            animation-delay: 0.5s;
+        }
+
+        .barbell-icon-2 {
+            bottom: 15%;
+            left: 15%;
+            animation-delay: 1.5s;
+        }
+
+        /* Kettlebell Icon */
+        .kettlebell-icon-1,
+        .kettlebell-icon-2 {
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M9 3h6v3h-6z" /><path d="M12 6c-3 0-5 2-5 5v6h10v-6c0-3-2-5-5-5z" /></svg>');
+        }
+
+        .kettlebell-icon-1 {
+            top: 30%;
+            left: 20%;
+            animation-delay: 1s;
+        }
+
+        .kettlebell-icon-2 {
+            bottom: 25%;
+            right: 20%;
+            animation-delay: 2s;
+        }
+
+        .registration-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .form-container {
+            border: 1px solid hsla(0, 0%, 65%, 0.2);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            backdrop-filter: blur(15px);
+            background: var(--glass-color);
+            z-index: 99;
+            padding: 2rem;
+            animation: fadeIn 1s ease-out;
+            box-sizing: border-box;
+        }
+
+        .circle {
+            width: 8rem;
+            height: 8rem;
+            background: var(--primary-color);
+            border-radius: 50%;
+            position: absolute;
+            opacity: 0.8;
+        }
+
+        .circle-one {
+            top: 0;
+            left: 0;
+            z-index: -1;
+            transform: translate(-45%, -45%);
+            animation: float 4s ease-in-out infinite;
+        }
+
+        .circle-two {
+            bottom: 0;
+            right: 0;
+            z-index: -1;
+            transform: translate(45%, 45%);
+            animation: float-two 4s ease-in-out infinite;
+            animation-delay: 0.5s;
+        }
+
+        .illustration {
+            position: absolute;
+            top: -25%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 50%;
+            max-width: 150px;
+            z-index: 100;
+            animation: lift 2s ease-in-out infinite;
+            filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
+            transition: all 0.3s ease;
+        }
+
+        .register-forget {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 1rem;
+            font-size: 0.9rem;
+        }
+
+        .opacity {
+            opacity: 0.7;
+            transition: opacity 0.3s ease;
+        }
+
+        .opacity:hover {
+            opacity: 1;
+        }
+
+        .theme-btn-container {
+            position: fixed;
+            bottom: 2rem;
+            left: 2rem;
+            display: flex;
+            gap: 10px;
+        }
+
+        .theme-btn {
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .theme-btn:hover {
+            transform: scale(1.2);
+            border-color: var(--primary-color);
+        }
+
+        /* Kendo Wizard Customization */
+        .k-wizard {
+            background: transparent !important;
+            border: none !important;
+            box-shadow: none !important;
+            width: 100%;
+        }
+
+        .k-wizard-step {
+            padding: 20px;
+            background: transparent !important;
+        }
+
+        .k-wizard-steps {
+            background: rgba(255, 255, 255, 0.1) !important;
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            margin-bottom: 20px;
+            border: 1px solid hsla(0, 0%, 65%, 0.2);
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .k-step {
+            color: var(--color) !important;
+            flex: 1;
+            text-align: center;
+        }
+
+        .k-step-current .k-step-indicator {
+            background-color: var(--primary-color) !important;
+            color: white !important;
+        }
+
+        .k-step-done .k-step-indicator {
+            background-color: rgba(255, 255, 255, 0.2) !important;
+        }
+
+        .k-form {
+            background: transparent !important;
+            color: var(--color) !important;
+            width: 100%;
+        }
+
+        .k-form-field>label {
+            color: var(--color) !important;
+        }
+
+        .k-textbox,
+        .k-textarea,
+        .k-input,
+        .k-dropdown-wrap,
+        .k-picker-wrap {
+            background: rgba(255, 255, 255, 0.1) !important;
+            color: var(--color) !important;
+            border: 1px solid rgba(255, 255, 255, 0.2) !important;
+            width: 100%;
+        }
+
+        .k-textbox:focus,
+        .k-textarea:focus,
+        .k-input:focus,
+        .k-dropdown-wrap.k-state-focused,
+        .k-picker-wrap.k-state-focused {
+            box-shadow: 0 0 0 2px rgba(255, 77, 77, 0.3) !important;
+            border-color: var(--primary-color) !important;
+        }
+
+        .k-multiselect-wrap,
+        .k-upload {
+            background: rgba(255, 255, 255, 0.1) !important;
+            border: 1px solid rgba(255, 255, 255, 0.2) !important;
+            color: var(--color) !important;
+            width: 100%;
+        }
+
+        .k-dropzone {
+            background: rgba(255, 255, 255, 0.05) !important;
+            border: 2px dashed rgba(255, 255, 255, 0.2) !important;
+            color: var(--color) !important;
+        }
+
+        .k-dropzone:hover {
+            border-color: var(--primary-color) !important;
+        }
+
+        .k-upload-button {
+            background-color: var(--primary-color) !important;
+            color: white !important;
+        }
+
+        .k-upload-button:hover {
+            background-color: rgba(255, 77, 77, 0.8) !important;
+        }
+
+        .k-form-error,
+        .email-error {
+            color: #ff3333 !important;
+            /* Bright red for visibility */
+            font-size: 0.9rem;
+            margin-top: 5px;
+            display: block;
+        }
+
+        .k-form-field .k-form-error {
+            color: #ff3333 !important;
+        }
+
+        /* Role Selection Styles */
+        .role-selection {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+            gap: 20px;
+        }
+
+        .role-option {
+            display: flex;
+            align-items: center;
+        }
+
+        .role-option input[type="radio"] {
+            margin-right: 5px;
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            border-radius: 50%;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .gender-role-option input[type="radio"] {
+            margin-right: 5px;
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            border-radius: 50%;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .role-option input[type="radio"]:checked {
+            border-color: var(--primary-color);
+            background-color: var(--primary-color);
+        }
+
+        .gender-role-option input[type="radio"]:checked {
+            border-color: var(--primary-color);
+            background-color: var(--primary-color);
+        }
+
+        .role-option label {
+            cursor: pointer;
+        }
+
+        .gender-role-option label {
+            cursor: pointer;
+        }
+
+        /* Wizard Buttons */
+        .wizard-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+            gap: 10px;
+        }
+
+        .wizard-buttons button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+            flex: 1;
+        }
+
+        .wizard-buttons .previous,
+        .wizard-buttons .reset {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: var(--color);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .wizard-buttons .next {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .wizard-buttons .previous:hover,
+        .wizard-buttons .reset:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .wizard-buttons .next:hover {
+            background-color: rgba(255, 77, 77, 0.8);
+            box-shadow: 0 0 12px rgba(255, 77, 77, 0.3);
+        }
+
+        .swal2-popup {
+            background: var(--glass-color) !important;
+            backdrop-filter: blur(15px) !important;
+            border: 1px solid hsla(0, 0%, 65%, 0.2) !important;
+            border-radius: 15px !important;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3) !important;
+            color: var(--color) !important;
+        }
+
+        .swal2-title {
+            color: var(--color) !important;
+            font-family: "Poppins", sans-serif !important;
+            letter-spacing: 1px !important;
+        }
+
+        .swal2-content {
+            color: rgba(255, 255, 255, 0.8) !important;
+            font-family: "Poppins", sans-serif !important;
+        }
+
+        /* Confirm Button */
+        .swal2-confirm {
+            background-color: var(--primary-color) !important;
+            color: var(--color) !important;
+            border: none !important;
+            border-radius: 8px !important;
+            font-family: "Poppins", sans-serif !important;
+            transition: all 0.3s ease !important;
+        }
+
+        .swal2-confirm:hover {
+            background-color: #ff6666 !important;
+            transform: scale(1.03) !important;
+        }
+
+        /* Cancel Button */
+        .swal2-cancel {
+            background-color: rgba(255, 255, 255, 0.1) !important;
+            color: var(--color) !important;
+            border: 1px solid rgba(255, 255, 255, 0.2) !important;
+            border-radius: 8px !important;
+            font-family: "Poppins", sans-serif !important;
+            transition: all 0.3s ease !important;
+        }
+
+        .swal2-cancel:hover {
+            background-color: rgba(255, 255, 255, 0.2) !important;
+            transform: scale(1.03) !important;
+        }
+
+        /* Warning Icon */
+        .swal2-icon.swal2-warning {
+            color: var(--primary-color) !important;
+            border-color: var(--primary-color) !important;
+        }
+
+        /* Success Icon */
+        .swal2-icon.swal2-success {
+            border-color: #28a745 !important;
+            /* Green border */
+            color: #28a745 !important;
+            /* Green checkmark */
+        }
+
+        .swal2-icon.swal2-success .swal2-success-ring {
+            border-color: #28a745 !important;
+            /* Outer circle */
+        }
+
+        .swal2-icon.swal2-success [class^='swal2-success-line'] {
+            background-color: #28a745 !important;
+            /* Check lines */
+        }
+
+        .swal2-icon.swal2-success .swal2-success-circular-line-left,
+        .swal2-icon.swal2-success .swal2-success-circular-line-right,
+        .swal2-icon.swal2-success .swal2-success-fix {
+            display: none !important;
+        }
+
+
+        /* Animations */
+        @@keyframes float {
+            0% {
+                transform: translate(-45%, -45%) translateY(0);
+            }
+
+            50% {
+                transform: translate(-45%, -45%) translateY(-15px);
+            }
+
+            100% {
+                transform: translate(-45%, -45%) translateY(0);
+            }
+        }
+
+        @@keyframes float-two {
+            0% {
+                transform: translate(45%, 45%) translateY(0);
+            }
+
+            50% {
+                transform: translate(45%, 45%) translateY(-15px);
+            }
+
+            100% {
+                transform: translate(45%, 45%) translateY(0);
+            }
+        }
+
+        @@keyframes fadeIn {
+            0% {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @@keyframes lift {
+
+            0%,
+            100% {
+                transform: translateX(-50%) translateY(0) rotate(0deg);
+            }
+
+            50% {
+                transform: translateX(-50%) translateY(-10px) rotate(2deg);
+            }
+        }
+
+        @@keyframes ripple {
+            0% {
+                transform: scale(0);
+                opacity: 1;
+            }
+
+            100% {
+                transform: scale(4);
+                opacity: 0;
+            }
+        }
+
+        @@keyframes wobble {
+            0% {
+                transform: scale(1.025);
+            }
+
+            25% {
+                transform: scale(1);
+            }
+
+            75% {
+                transform: scale(1.025);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        @@keyframes float-icon {
+
+            0%,
+            100% {
+                transform: translateY(0);
+                opacity: 0.1;
+            }
+
+            50% {
+                transform: translateY(-20px);
+                opacity: 0.2;
+            }
+        }
+
+        /* Responsive Design */
+        @@media(max - width: 768px) {
+            .registration-container {
+                max-width: 90%;
+                padding: 10px;
+            }
+
+            .form-container {
+                padding: 1.5rem;
+            }
+
+            h1 {
+                font-size: 2.5rem;
+            }
+
+            .theme-btn-container {
+                bottom: 1rem;
+                left: 1rem;
+            }
+
+            .gym-icon {
+                width: 40px;
+                height: 40px;
+            }
+
+            .role-selection {
+                flex-direction: row;
+                gap: 15px;
+            }
+
+            .role-option {
+                margin: 5px 0;
+            }
+
+            .k-wizard-steps {
+                flex-direction: row;
+                gap: 5px;
+            }
+
+            .k-step {
+                flex: 1;
+                font-size: 0.9rem;
+            }
+
+            .circle {
+                width: 6rem;
+                height: 6rem;
+            }
+        }
+
+        @@media(max - width: 480px) {
+            .registration-container {
+                max-width: 100%;
+                padding: 5px;
+            }
+
+            .form-container {
+                padding: 1rem;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+
+            .tagline {
+                font-size: 0.8rem;
+            }
+
+            .circle {
+                width: 5rem;
+                height: 5rem;
+            }
+
+            .gym-icon {
+                width: 30px;
+                height: 30px;
+            }
+
+            .role-selection {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .k-wizard-steps {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .k-step {
+                font-size: 0.8rem;
+            }
+
+            .wizard-buttons {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .wizard-buttons button {
+                width: 100%;
+            }
+
+            .theme-btn-container {
+                bottom: 0.5rem;
+                left: 0.5rem;
+                gap: 5px;
+            }
+
+            .theme-btn {
+                width: 20px;
+                height: 20px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <section class="container">
+        <div class="gym-background">
+            <div class="logo">
+                <img src="~/Assets/LOGO 1.png" alt="FITPRO Logo">
+                      
+            </div>
+            <div class="gym-icon dumbbell-icon-1"></div>
+            <div class="gym-icon dumbbell-icon-2"></div>
+            <div class="gym-icon barbell-icon-1"></div>
+            <div class="gym-icon barbell-icon-2"></div>
+            <div class="gym-icon kettlebell-icon-1"></div>
+            <div class="gym-icon kettlebell-icon-2"></div>
+        </div>
+        <div class="registration-container">
+            <div class="circle circle-one"></div>
+            <div class="form-container">
+                <h1 class="opacity">Registration</h1>
+                <p class="tagline opacity">Power Up Your Fitness Journey!</p>
+                <div id="wizard"></div>
+                <div class="register-forget opacity">
+                    <a href="Login" aria-label="Go back to login">BACK TO LOGIN</a>
+                </div>
+            </div>
+            <div class="circle circle-two"></div>
+        </div>
+        <div class="theme-btn-container" role="radiogroup" aria-label="Theme selection"></div>
+
+        <!-- Add this right before </section> -->
+        <div class="role-selection-bottom">
+            <div class="role-option user-role selected" data-role="user">
+                <img src="~/Assets/user.png" alt="User Role" class="role-image">
+                <span class="role-name">User</span>
+            </div>
+            <div class="role-option instructor-role" data-role="instructor">
+                <img src="~/Assets/admin.png" alt="Instructor Role" class="role-image">
+                <span class="role-name">Instructor</span>
+            </div>
+        </div>
+    </section>
+
     <script>
+        const themes = [
+            {
+                background: "#1A1A2E",
+                color: "#FFFFFF",
+                primaryColor: "#FF4D4D",
+                glassColor: "rgba(255, 255, 255, 0.1)"
+            },
+            {
+                background: "#2C2C2C",
+                color: "#FFFFFF",
+                primaryColor: "#FFD700",
+                glassColor: "rgba(255, 255, 255, 0.1)"
+            },
+            {
+                background: "#3A3A3A",
+                color: "#FFFFFF",
+                primaryColor: "#00C4B4",
+                glassColor: "rgba(255, 255, 255, 0.1)"
+            },
+            {
+                background: "#FF4D4D",
+                color: "#FFFFFF",
+                primaryColor: "#1A1A2E",
+                glassColor: "rgba(255, 255, 255, 0.1)"
+            },
+            {
+                background: "#FFD700",
+                color: "#1A1A2E",
+                primaryColor: "#2C2C2C",
+                glassColor: "rgba(0, 0, 0, 0.1)"
+            },
+            {
+                background: "#00C4B4",
+                color: "#FFFFFF",
+                primaryColor: "#FF4D4D",
+                glassColor: "rgba(255, 255, 255, 0.1)"
+            }
+        ];
+
+        const setTheme = (theme) => {
+            const root = document.querySelector(":root");
+            const illustration = document.querySelector(".illustration");
+
+            root.style.setProperty("--background", theme.background);
+            root.style.setProperty("--color", theme.color);
+            root.style.setProperty("--primary-color", theme.primaryColor);
+            root.style.setProperty("--glass-color", theme.glassColor);
+
+            if (theme.color !== "#FFFFFF") {
+                illustration.style.background = "rgba(255, 255, 255, 0.3)";
+                illustration.style.borderRadius = "15px";
+                illustration.style.padding = "8px";
+            } else {
+                illustration.style.background = "none";
+                illustration.style.padding = "0";
+            }
+
+            const gymIcons = document.querySelectorAll(".gym-icon");
+            gymIcons.forEach(icon => {
+                icon.style.backgroundImage = icon.style.backgroundImage.replace(/stroke="[^"]*"/, `stroke="${theme.color}"`);
+            });
+        };
+
+        const displayThemeButtons = () => {
+            const btnContainer = document.querySelector(".theme-btn-container");
+            themes.forEach((theme, index) => {
+                const div = document.createElement("div");
+                div.className = "theme-btn";
+                div.style.background = theme.background;
+                div.setAttribute("role", "radio");
+                div.setAttribute("aria-checked", index === 0 ? "true" : "false");
+                div.setAttribute("tabindex", "0");
+                btnContainer.appendChild(div);
+
+                div.addEventListener("click", () => {
+                    setTheme(theme);
+                    document.querySelectorAll(".theme-btn").forEach(btn => btn.setAttribute("aria-checked", "false"));
+                    div.setAttribute("aria-checked", "true");
+                });
+
+                div.addEventListener("keydown", (e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        div.click();
+                    }
+                });
+            });
+        };
+
+        displayThemeButtons();
+
         $(document).ready(function () {
-            // Variables to store form data and selected role
-            let selectedRole = "user"; // Default to "user"
-            let emailValid = false; // Track email validity
+            let selectedRole = "user";
+            let emailValid = false;
             let formDataStore = {
                 personalInfo: {},
                 detailsInfo: {},
                 profileImageInfo: {}
             };
 
-            // Generate a random activation token (ideally should be done on the backend)
+            // Role selection functionality
+            $(".role-option").click(function () {
+                $(".role-option").removeClass("selected");
+                $(this).addClass("selected");
+                selectedRole = $(this).data("role");
+                formDataStore.personalInfo.role = selectedRole;
+                formDataStore.detailsInfo = {};
+
+                // Refresh the wizard to show appropriate fields for the selected role
+                const wizard = $("#wizard").data("kendoWizard");
+                if (wizard) {
+                    wizard.refresh();
+                }
+            });
+
             function generateActivationToken() {
-                return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+                return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
                     var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
                     return v.toString(16);
                 });
             }
 
-            // Configuration for user details step
             function getUserDetailsConfig() {
                 return {
                     formData: {
@@ -134,8 +1066,10 @@
                                 max: 300
                             },
                             validation: {
+                                required: true,
                                 min: 0,
-                                max: 300
+                                max: 300,
+                                messages: { required: "Height is required" }
                             }
                         },
                         {
@@ -148,8 +1082,10 @@
                                 max: 500
                             },
                             validation: {
+                                required: true,
                                 min: 0,
-                                max: 500
+                                max: 500,
+                                messages: { required: "Weight is required" }
                             }
                         },
                         {
@@ -157,41 +1093,33 @@
                             label: "Fitness Goal:",
                             editor: "MultiSelect",
                             editorOptions: {
-                                dataSource: [
-                                    "Weight Loss",
-                                    "Muscle Gain",
-                                    "General Fitness",
-                                    "Endurance Training",
-                                    "Flexibility Improvement",
-                                    "Sports Specific"
-                                ],
+                                dataSource: ["Weight Loss", "Muscle Gain", "General Fitness", "Endurance Training", "Flexibility Improvement", "Sports Specific"],
                                 placeholder: "Select your goals..."
                             },
-                            validation: { maxLength: 100 }
+                            validation: {
+                                required: true,
+                                maxLength: 100,
+                                messages: { required: "Please select at least one fitness goal" }
+                            }
                         },
                         {
                             field: "medicalCondition",
                             label: "Medical Conditions:",
                             editor: "MultiSelect",
                             editorOptions: {
-                                dataSource: [
-                                    "Diabetes",
-                                    "High Blood Pressure",
-                                    "Heart Disease",
-                                    "Asthma",
-                                    "Arthritis",
-                                    "Back Pain",
-                                    "None"
-                                ],
+                                dataSource: ["Diabetes", "High Blood Pressure", "Heart Disease", "Asthma", "Arthritis", "Back Pain", "None"],
                                 placeholder: "Select any conditions..."
                             },
-                            validation: { maxLength: 200 }
+                            validation: {
+                                required: true,
+                                maxLength: 200,
+                                messages: { required: "Please select at least one medical condition or 'None'" }
+                            }
                         }
                     ]
                 };
             }
 
-            // Configuration for instructor details step
             function getInstructorDetailsConfig() {
                 return {
                     formData: {
@@ -206,49 +1134,34 @@
                             label: "Specialization:",
                             editor: "MultiSelect",
                             editorOptions: {
-                                dataSource: [
-                                    "Yoga",
-                                    "Pilates",
-                                    "Weight Training",
-                                    "Cardio",
-                                    "CrossFit",
-                                    "Martial Arts",
-                                    "Dance",
-                                    "Nutrition"
-                                ],
+                                dataSource: ["Yoga", "Pilates", "Weight Training", "Cardio", "CrossFit", "Martial Arts", "Dance", "Nutrition"],
                                 placeholder: "Select your specializations..."
                             },
                             validation: {
                                 required: true,
-                                maxLength: 100
+                                maxLength: 100,
+                                messages: { required: "Please select at least one specialization" }
                             }
                         },
                         {
                             field: "association",
                             label: "Professional Association:",
-                            validation: { maxLength: 100 }
+                            validation: {
+                                required: true,
+                                maxLength: 100,
+                                messages: { required: "Professional Association is required" }
+                            }
                         },
                         {
                             field: "certificates",
                             label: "Professional Certificates:",
-                            editor: "Upload",
-                            editorOptions: {
-                                multiple: true,
-                                validation: {
-                                    allowedExtensions: [".pdf", ".jpg", ".png"]
-                                },
-                                showFileList: true,
-                                dropZone: ".k-dropzone"
-                            },
                             editor: function (container, options) {
                                 var input = $('<input type="file" />')
                                     .appendTo(container)
                                     .attr("name", options.field)
                                     .kendoUpload({
                                         multiple: true,
-                                        validation: {
-                                            allowedExtensions: [".pdf", ".jpg", ".png"]
-                                        },
+                                        validation: { allowedExtensions: [".pdf"] },
                                         showFileList: true,
                                         dropZone: ".k-dropzone",
                                         select: function (e) {
@@ -256,29 +1169,21 @@
                                         }
                                     });
                             },
-                            validation: { required: true }
+                            validation: {
+                                required: true,
+                                messages: { required: "Professional Certificates are required" }
+                            }
                         },
                         {
                             field: "idProof",
                             label: "ID Proof:",
-                            editor: "Upload",
-                            editorOptions: {
-                                multiple: false,
-                                validation: {
-                                    allowedExtensions: [".pdf", ".jpg", ".png"]
-                                },
-                                showFileList: true,
-                                dropZone: ".k-dropzone"
-                            },
                             editor: function (container, options) {
                                 var input = $('<input type="file" />')
                                     .appendTo(container)
                                     .attr("name", options.field)
                                     .kendoUpload({
                                         multiple: false,
-                                        validation: {
-                                            allowedExtensions: [".pdf", ".jpg", ".png"]
-                                        },
+                                        validation: { allowedExtensions: [".pdf"] },
                                         showFileList: true,
                                         dropZone: ".k-dropzone",
                                         select: function (e) {
@@ -286,20 +1191,19 @@
                                         }
                                     });
                             },
-                            validation: { required: true }
+                            validation: {
+                                required: true,
+                                messages: { required: "ID Proof is required" }
+                            }
                         }
                     ]
                 };
             }
 
-            // Create the wizard with only 3 steps
             var wizard = $("#wizard").kendoWizard({
-                stepper: {
-                    indicator: true,
-                    label: true
-                },
+                validateOnPrevious: true,
+                stepper: { indicator: true, label: true, linear: true },
                 steps: [
-                    // Step 1: Personal Information
                     {
                         title: "Personal Information",
                         form: {
@@ -313,39 +1217,26 @@
                                 password: "",
                                 confirmPassword: ""
                             },
+                            buttonsTemplate: "",
                             items: [
-                                {
-                                    field: "role",
-                                    label: "Select Role:",
-                                    editor: function (container) {
-                                        var roleContainer = $('<div class="role-selection">').appendTo(container);
-
-                                        $('<div class="role-option">').appendTo(roleContainer)
-                                            .append('<input type="radio" name="role" id="userRole" value="user" checked>')
-                                            .append('<label for="userRole">User</label>');
-
-                                        $('<div class="role-option">').appendTo(roleContainer)
-                                            .append('<input type="radio" name="role" id="instructorRole" value="instructor">')
-                                            .append('<label for="instructorRole">Instructor</label>');
-                                    }
-                                },
                                 {
                                     field: "fullName",
                                     label: "Full Name:",
                                     validation: {
                                         required: true,
                                         minLength: 2,
-                                        maxLength: 50
+                                        maxLength: 50,
+                                        messages: {
+                                            required: "Full Name is required",
+                                            minLength: "Full Name must be at least 2 characters long",
+                                            maxLength: "Full Name cannot exceed 50 characters"
+                                        }
                                     },
                                     editor: function (container, options) {
-                                        var input = $('<input type="text" />')
+                                        var input = $('<input type="text" required data-required-msg = "Full Name is required" pattern="^.{2,20}$" data-pattern-msg="Full Name must be at least 2 characters long"/>')
                                             .appendTo(container)
                                             .attr("name", options.field)
-                                            .kendoTextBox({
-                                                placeholder: "Enter your full name"
-                                            });
-
-                                        // Update formDataStore on change
+                                            .kendoTextBox({ placeholder: "Enter your full name" });
                                         input.on("change", function () {
                                             formDataStore.personalInfo.fullName = $(this).val();
                                         });
@@ -356,17 +1247,17 @@
                                     label: "Email:",
                                     validation: {
                                         required: true,
-                                        email: true
+                                        email: true,
+                                        messages: {
+                                            required: "Email is required",
+                                            email: "Please enter a valid email address"
+                                        }
                                     },
                                     editor: function (container, options) {
-                                        var input = $('<input type="email" />')
+                                        var input = $('<input type="email" required data-required-msg = "Email is required" type="email" data-email-msg="Please enter email in proper format!"/>')
                                             .appendTo(container)
                                             .attr("name", options.field)
-                                            .kendoTextBox({
-                                                placeholder: "Enter your email"
-                                            });
-
-                                        // Add email validation on blur
+                                            .kendoTextBox({ placeholder: "Enter your email" });
                                         input.on("blur", function () {
                                             var email = $(this).val();
                                             if (email) {
@@ -392,8 +1283,6 @@
                                                 });
                                             }
                                         });
-
-                                        // Update formDataStore on change
                                         input.on("change", function () {
                                             formDataStore.personalInfo.email = $(this).val();
                                         });
@@ -404,17 +1293,17 @@
                                     label: "Phone Number:",
                                     validation: {
                                         required: true,
-                                        phone: true
+                                        pattern: "^[0-9]{10}$",
+                                        messages: {
+                                            required: "Phone Number is required",
+                                            pattern: "Please enter a valid 10-digit phone number"
+                                        }
                                     },
                                     editor: function (container, options) {
-                                        var input = $('<input type="text" />')
+                                        var input = $('<input type="text" required data-required-msg = "Phone number is required" pattern="^[0-9]{10}$" data-pattern-msg="Please enter a valid 10-digit phone number" />')
                                             .appendTo(container)
                                             .attr("name", options.field)
-                                            .kendoTextBox({
-                                                placeholder: "Enter your phone number"
-                                            });
-
-                                        // Update formDataStore on change
+                                            .kendoTextBox({ placeholder: "Enter your phone number" });
                                         input.on("change", function () {
                                             formDataStore.personalInfo.phone = $(this).val();
                                         });
@@ -423,70 +1312,127 @@
                                 {
                                     field: "gender",
                                     label: "Gender:",
-                                    editor: function (container) {
-                                        var genderContainer = $('<div>').appendTo(container);
+                                    editor: function (container, options) {
+                                        var genderContainer = $('<div class="role-selection">').appendTo(container);
+                                        
+                                        // Create a hidden input that will be validated
+                                        var hiddenInput = $('<input type="hidden" name="gender" required />')
+                                            .appendTo(genderContainer);
+                                        
+                                        // Male option
+                                        $('<div class="gender-role-option">').appendTo(genderContainer)
+                                            .append('<input type="radio" name="genderRadio" id="male" value="Male" />')
+                                            .append('<label for="male">Male</label>')
+                                            .on("click", function() {
+                                                hiddenInput.val("Male").trigger("change");
+                                                formDataStore.personalInfo.gender = "Male";
+                                            });
 
-                                        $('<div class="role-option">').appendTo(genderContainer)
-                                            .append('<input type="radio" name="gender" id="male" value="Male" checked>')
-                                            .append('<label for="male">Male</label>');
+                                        // Female option
+                                        $('<div class="gender-role-option">').appendTo(genderContainer)
+                                            .append('<input type="radio" name="genderRadio" id="female" value="Female" />')
+                                            .append('<label for="female">Female</label>')
+                                            .on("click", function() {
+                                                hiddenInput.val("Female").trigger("change");
+                                                formDataStore.personalInfo.gender = "Female";
+                                            });
 
-                                        $('<div class="role-option">').appendTo(genderContainer)
-                                            .append('<input type="radio" name="gender" id="female" value="Female">')
-                                            .append('<label for="female">Female</label>');
-
-                                        $('<div class="role-option">').appendTo(genderContainer)
-                                            .append('<input type="radio" name="gender" id="other" value="Other">')
-                                            .append('<label for="other">Other</label>');
-
-                                        // Update formDataStore on change
-                                        genderContainer.find("input[name='gender']").on("change", function () {
-                                            formDataStore.personalInfo.gender = $(this).val();
-                                        });
+                                        // Other option
+                                        $('<div class="gender-role-option">').appendTo(genderContainer)
+                                            .append('<input type="radio" name="genderRadio" id="other" value="Other" />')
+                                            .append('<label for="other">Other</label>')
+                                            .on("click", function() {
+                                                hiddenInput.val("Other").trigger("change");
+                                                formDataStore.personalInfo.gender = "Other";
+                                            });
                                     },
                                     validation: {
-                                        required: true
+                                        required: true,
+                                        messages: {
+                                            required: "Gender is required"
+                                        }
                                     }
                                 },
                                 {
                                     field: "dateOfBirth",
                                     label: "Date of Birth:",
-                                    editor: "DatePicker",
-                                    validation: { required: true },
-                                    editorOptions: {
-                                        format: "yyyy-MM-dd"
+                                    validation: {
+                                        required: true,
+                                        messages: {
+                                            required: "Date of Birth is required"
+                                        }
                                     },
                                     editor: function (container, options) {
-                                        var input = $('<input />')
+                                        var input = $('<input placeholder="YYYY-MM-DD" required data-required-msg="Date of birth is required"/>')
                                             .appendTo(container)
                                             .attr("name", options.field)
                                             .kendoDatePicker({
-                                                format: "yyyy-MM-dd"
+                                                format: "yyyy-MM-dd",
+                                                max: new Date(),
+                                                change: function () {
+                                                    validateAge(input, container);
+                                                }
                                             });
 
-                                        // Update formDataStore on change
                                         input.on("change", function () {
                                             formDataStore.personalInfo.dateOfBirth = $(this).val();
                                         });
+
+                                        // Function to validate age
+                                        function validateAge(input, container) {
+                                            // Remove any existing age error message
+                                            container.find('.age-error').remove();
+
+                                            if (input.val()) {
+                                                var today = new Date();
+                                                var birthDate = new Date(input.val());
+                                                var age = today.getFullYear() - birthDate.getFullYear();
+                                                var m = today.getMonth() - birthDate.getMonth();
+                                                if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+                                                    age--;
+                                                }
+
+                                                // If under 18, show error message
+                                                if (age < 15) {
+                                                    $('<span class="k-form-error age-error">You must be at least 18 years old</span>')
+                                                        .appendTo(container);
+
+                                                    // Prevent form from proceeding
+                                                    var wizard = $("#wizard").data("kendoWizard");
+                                                    if (wizard) {
+                                                        wizard.enableStep(1, false);
+                                                    }
+                                                    return false;
+                                                } else {
+                                                    // Enable next step if age is valid
+                                                    var wizard = $("#wizard").data("kendoWizard");
+                                                    if (wizard) {
+                                                        wizard.enableStep(1, true);
+                                                    }
+                                                    return true;
+                                                }
+                                            }
+                                            return true;
+                                        }
+
+                                        // Initial validation
+                                        setTimeout(function () {
+                                            if (input.val()) {
+                                                validateAge(input, container);
+                                            }
+                                        }, 100);
                                     }
                                 },
                                 {
                                     field: "password",
                                     label: "Password:",
                                     editor: function (container, options) {
-                                        var input = $('<input type="password" />')
+                                        var input = $('<input type="password" required data-required-msg = "Password is required"/>')
                                             .appendTo(container)
                                             .attr("name", options.field)
-                                            .kendoTextBox({
-                                                placeholder: "Enter your password"
-                                            });
-
-                                        input.attr("data-val-required", "Password is required");
-                                        input.attr("data-val-minlength", "8");
-                                        input.attr("data-val-minlength-min", "8");
-                                        input.attr("data-val-regex", "Password must contain at least one uppercase letter, one lowercase letter, and one number");
-                                        input.attr("data-val-regex-pattern", "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)[a-zA-Z\\d]{8,}$");
-
-                                        // Update formDataStore on change
+                                            .kendoTextBox({ placeholder: "Enter your password" })
+                                            .attr('data-pattern', "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[$!%*?&])[A-Za-z\\d$!%*?&]{8,}$")  // Pattern for password strength
+                                            .attr('data-pattern-msg', 'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character.');  // Custom pattern message
                                         input.on("change", function () {
                                             formDataStore.personalInfo.password = $(this).val();
                                         });
@@ -506,45 +1452,89 @@
                                     field: "confirmPassword",
                                     label: "Confirm Password:",
                                     editor: function (container, options) {
-                                        var input = $('<input type="password" />')
+                                        var input = $('<input type="password" required data-required-msg = "Confirm Password is required" />')
                                             .appendTo(container)
                                             .attr("name", options.field)
-                                            .kendoTextBox({
-                                                placeholder: "Confirm your password"
-                                            });
-
-                                        input.attr("data-val-required", "Please confirm your password");
-                                        input.attr("data-val-equalto", "Passwords do not match");
-                                        input.attr("data-val-equalto-other", "password");
-
-                                        // Update formDataStore on change
+                                            .kendoTextBox({ placeholder: "Confirm your password" });
                                         input.on("change", function () {
                                             formDataStore.personalInfo.confirmPassword = $(this).val();
                                         });
                                     },
                                     validation: {
                                         required: true,
-                                        compare: "password",
+                                        equalTo: "password",
                                         messages: {
                                             required: "Please confirm your password",
-                                            compare: "Passwords do not match"
+                                            equalTo: "Passwords do not match"
                                         }
                                     }
                                 }
                             ]
+                        },
+                        content: function () {
+                            var form = $("<form>").kendoForm({
+                                formData: {
+                                    role: "user",
+                                    fullName: formDataStore.personalInfo.fullName || "",
+                                    email: formDataStore.personalInfo.email || "",
+                                    phone: formDataStore.personalInfo.phone || "",
+                                    gender: formDataStore.personalInfo.gender || "",
+                                    dateOfBirth: formDataStore.personalInfo.dateOfBirth || null,
+                                    password: formDataStore.personalInfo.password || "",
+                                    confirmPassword: formDataStore.personalInfo.confirmPassword || ""
+                                },
+                                items: this.form.items,
+                                buttonsTemplate: ""
+                            });
+
+                            var buttonContainer = $('<div class="wizard-buttons">').appendTo(form);
+                            $('<button type="button" class="reset">Reset</button>')
+                                .appendTo(buttonContainer)
+                                .on("click", function () {
+                                    console.log("click");
+                                    var step1Form = wizard.steps()[0].element.find("form").data("kendoForm");
+                                    if (step1Form) {
+                                        step1Form.clear();
+                                        console.log("clear"); // Clear the Kendo form fields
+                                    }
+                                    else {
+                                        console.log("form not found");
+                                    }
+                                    formDataStore.personalInfo = {};
+                                    emailValid = false;
+                                });
+                            $('<button type="button" class="next">Next</button>')
+                                .appendTo(buttonContainer)
+                                .on("click", function () {
+                                    var step1Form = wizard.steps()[0].element.find("form").data("kendoForm");
+                                    if (step1Form && step1Form.validate()) {
+                                        if (!emailValid) {
+                                            form.find("[name='email']").closest(".k-form-field").find(".email-error").remove();
+                                            form.find("[name='email']").closest(".k-form-field").append('<span class="email-error">Please fix the email validation error</span>');
+                                            return;
+                                        }
+                                        wizard.select(1);
+                                    }
+                                });
+
+                            return form;
                         }
                     },
-                    // Step 2: Role Specific Details (Dynamic based on role)
                     {
                         title: "Details",
                         content: function () {
                             var formConfig = selectedRole === "user" ? getUserDetailsConfig() : getInstructorDetailsConfig();
+                            var formData = {
+                                ...formConfig.formData,
+                                ...formDataStore.detailsInfo
+                            };
+
                             var form = $("<form>").kendoForm({
-                                formData: formConfig.formData,
-                                items: formConfig.items
+                                formData: formData,
+                                items: formConfig.items,
+                                buttonsTemplate: ""
                             });
 
-                            // Attach change handlers to update formDataStore
                             form.find("[name='height']").on("change", function () {
                                 formDataStore.detailsInfo.height = $(this).val();
                             });
@@ -570,16 +1560,53 @@
                                 formDataStore.detailsInfo.idProof = e.files;
                             });
 
+                            var buttonContainer = $('<div class="wizard-buttons">').appendTo(form);
+                            $('<button type="button" class="previous">Previous</button>')
+                                .appendTo(buttonContainer)
+                                .on("click", function () {
+                                    wizard.select(0);
+                                });
+                            $('<button type="button" class="next">Next</button>')
+                                .appendTo(buttonContainer)
+                                .on("click", function () {
+                                    var step2Form = wizard.steps()[1].element.find("form").data("kendoForm");
+                                    if (step2Form && step2Form.validate()) {
+                                        if (selectedRole === "instructor") {
+                                            if (!formDataStore.detailsInfo.certificates || formDataStore.detailsInfo.certificates.length === 0) {
+                                                form.find("[name='certificates']").closest(".k-form-field").find(".k-form-error").remove();
+                                                form.find("[name='certificates']").closest(".k-form-field").append('<span class="k-form-error">Please upload at least one professional certificate.</span>');
+                                                return;
+                                            }
+                                            if (!formDataStore.detailsInfo.idProof || formDataStore.detailsInfo.idProof.length === 0) {
+                                                form.find("[name='idProof']").closest(".k-form-field").find(".k-form-error").remove();
+                                                form.find("[name='idProof']").closest(".k-form-field").append('<span class="k-form-error">Please upload an ID proof.</span>');
+                                                return;
+                                            }
+                                        }
+                                        wizard.select(2);
+                                    }
+                                });
+
+                            if (selectedRole === "user") {
+                                if (formDataStore.detailsInfo.goal) {
+                                    form.find("[name='goal']").data("kendoMultiSelect").value(formDataStore.detailsInfo.goal);
+                                }
+                                if (formDataStore.detailsInfo.medicalCondition) {
+                                    form.find("[name='medicalCondition']").data("kendoMultiSelect").value(formDataStore.detailsInfo.medicalCondition);
+                                }
+                            } else {
+                                if (formDataStore.detailsInfo.specialization) {
+                                    form.find("[name='specialization']").data("kendoMultiSelect").value(formDataStore.detailsInfo.specialization);
+                                }
+                            }
+
                             return form;
                         }
                     },
-                    // Step 3: Profile Image
                     {
                         title: "Profile Image",
                         form: {
-                            formData: {
-                                profileImage: null
-                            },
+                            formData: { profileImage: null },
                             items: [
                                 {
                                     field: "profileImage",
@@ -587,9 +1614,7 @@
                                     editor: "Upload",
                                     editorOptions: {
                                         multiple: false,
-                                        validation: {
-                                            allowedExtensions: [".jpg", ".png", ".jpeg"]
-                                        },
+                                        validation: { allowedExtensions: [".jpg", ".png", ".jpeg"] },
                                         showFileList: true,
                                         dropZone: ".k-dropzone"
                                     },
@@ -599,9 +1624,7 @@
                                             .attr("name", options.field)
                                             .kendoUpload({
                                                 multiple: false,
-                                                validation: {
-                                                    allowedExtensions: [".jpg", ".png", ".jpeg"]
-                                                },
+                                                validation: { allowedExtensions: [".jpg", ".png", ".jpeg"] },
                                                 showFileList: true,
                                                 dropZone: ".k-dropzone",
                                                 select: function (e) {
@@ -609,38 +1632,55 @@
                                                 }
                                             });
                                     },
-                                    validation: { required: true }
+                                    validation: { required: true, messages: { required: "Profile image is required" } }
                                 }
                             ]
+                        },
+                        content: function () {
+                            var form = $("<form>").kendoForm({
+                                formData: this.form.formData,
+                                items: this.form.items
+                            });
+
+                            var buttonContainer = $('<div class="wizard-buttons">').appendTo(form);
+                            $('<button type="button" class="previous">Previous</button>')
+                                .appendTo(buttonContainer)
+                                .on("click", function () {
+                                    wizard.select(1);
+                                });
+                            $('<button type="button" id ="abcd"class="next">Submit</button>')
+                                .appendTo(buttonContainer)
+                                .on("click", function () {
+                                    var step3Form = wizard.steps()[2].element.find("form").data("kendoForm");
+                                    if (step3Form && step3Form.validate()) {
+                                        wizard.trigger("done");
+                                    }
+                                });
+
+                            return form;
                         }
                     }
                 ],
-                // Form submission
                 done: function (e) {
                     e.preventDefault();
 
-                    // Check if email is valid before proceeding
                     if (!emailValid) {
                         alert("Please fix the email validation error before proceeding.");
                         return;
                     }
 
-                    // Create FormData object for file uploads
                     var formData = new FormData();
-
-                    // Map personal info to form data
-                    formData.append("userName", formDataStore.personalInfo.fullName || ""); // For User
-                    formData.append("instructorName", formDataStore.personalInfo.fullName || ""); // For Instructor
+                    formData.append("userName", formDataStore.personalInfo.fullName || "");
+                    formData.append("instructorName", formDataStore.personalInfo.fullName || "");
                     formData.append("email", formDataStore.personalInfo.email || "");
                     formData.append("password", formDataStore.personalInfo.password || "");
                     formData.append("confirmPassword", formDataStore.personalInfo.confirmPassword || "");
                     formData.append("mobile", formDataStore.personalInfo.phone || "");
-                    formData.append("gender", formDataStore.personalInfo.gender || "Male"); // Default to "Male" if not set
+                    formData.append("gender", formDataStore.personalInfo.gender || "Male");
                     formData.append("dob", formDataStore.personalInfo.dateOfBirth || "");
-                    formData.append("activationToken", generateActivationToken()); // Generate a random token
-                    formData.append("status", selectedRole === "user" ? "false" : "pending"); // Default status for user and instructor
+                    formData.append("activationToken", generateActivationToken());
+                    formData.append("status", selectedRole === "user" ? "false" : "pending");
 
-                    // Map user-specific or instructor-specific details
                     if (selectedRole === "user") {
                         formData.append("height", formDataStore.detailsInfo.height || "");
                         formData.append("weight", formDataStore.detailsInfo.weight || "");
@@ -649,18 +1689,14 @@
                     } else {
                         formData.append("specialization", formDataStore.detailsInfo.specialization ? formDataStore.detailsInfo.specialization.join(", ") : "");
                         formData.append("association", formDataStore.detailsInfo.association || "");
-
-                        // Handle certificates
                         if (formDataStore.detailsInfo.certificates && formDataStore.detailsInfo.certificates.length > 0) {
                             for (var i = 0; i < formDataStore.detailsInfo.certificates.length; i++) {
-                                formData.append("certificates", formDataStore.detailsInfo.certificates[i].rawFile);
+                                formData.append("certificateFiles", formDataStore.detailsInfo.certificates[i].rawFile);
                             }
                         } else {
                             alert("Professional Certificates are required for instructors.");
                             return;
                         }
-
-                        // Handle ID proof
                         if (formDataStore.detailsInfo.idProof && formDataStore.detailsInfo.idProof.length > 0) {
                             formData.append("idProofFile", formDataStore.detailsInfo.idProof[0].rawFile);
                         } else {
@@ -669,7 +1705,6 @@
                         }
                     }
 
-                    // Handle profile image upload
                     if (formDataStore.profileImageInfo.profileImage && formDataStore.profileImageInfo.profileImage.length > 0) {
                         formData.append("profileImageFile", formDataStore.profileImageInfo.profileImage[0].rawFile);
                     } else {
@@ -677,56 +1712,71 @@
                         return;
                     }
 
-                    // Determine the API endpoint based on the role
+                    console.log(...formData.entries());
+
                     var url = selectedRole === "user" ? "http://localhost:8080/api/AuthApi/register-user" : "http://localhost:8080/api/AuthApi/register-instructor";
 
-                    // Send the form data to the API
                     $.ajax({
                         url: url,
                         type: "POST",
                         data: formData,
-                        processData: false, // Prevent jQuery from processing the data
-                        contentType: false, // Prevent jQuery from setting content type
+                        processData: false,
+                        contentType: false,
                         success: function (response) {
                             if (response.success) {
-                                alert(response.message);
-                                // Optionally redirect or reset the form
-                                window.location.href = "/Home/Index"; // Redirect to a success page
+                                Swal.fire({
+                                    icon: "success",
+                                    title: "Registration Successful",
+                                    text: response.message,
+                                }).then(() => {
+                                    window.location.href = "./Login";
+                                });
+                                @* alert(response.message); *@  
                             } else {
-                                alert(response.message);
+                                Swal.fire({
+                                    icon: "error",
+                                    title: "Registration Failed",
+                                    text: response.message,
+                                });
+                                @* alert(response.message); *@
                             }
                         },
                         error: function (xhr, status, error) {
-                            alert("Error submitting the form: " + (xhr.responseJSON?.title || error));
+                            @* alert("Error submitting the form: " + (xhr.responseJSON?.title || error)); *@
+                            const errorMessage = xhr.responseJSON?.message || "Login failed";
+                            Swal.fire({
+                                icon: "error",
+                                title: "Login Failed",
+                                text: errorMessage
+                            });
                         }
                     });
                 }
             }).data("kendoWizard");
 
-            // Update the selectedRole variable when the role changes
             wizard.wrapper.on("change", "input[name='role']", function () {
-                selectedRole = $(this).val(); // Update the selectedRole variable
+                selectedRole = $(this).val();
                 formDataStore.personalInfo.role = selectedRole;
-                wizard.refresh(); // Refresh the wizard to reload the second step
+                formDataStore.detailsInfo = {};
+                wizard.refresh();
             });
 
-            // Update fullName in formDataStore
-            wizard.wrapper.on("change", "input[name='fullName']", function () {
-                formDataStore.personalInfo.fullName = $(this).val();
-            });
-
-            // Ensure the second step is updated when activated
             wizard.bind("activate", function (e) {
                 if (e.step.options.title === "Details") {
                     var stepElement = e.step.element;
-                    stepElement.empty(); // Clear the current content
+                    stepElement.empty();
                     var formConfig = selectedRole === "user" ? getUserDetailsConfig() : getInstructorDetailsConfig();
+                    var formData = {
+                        ...formConfig.formData,
+                        ...formDataStore.detailsInfo
+                    };
+
                     var form = $("<form>").kendoForm({
-                        formData: formConfig.formData,
-                        items: formConfig.items
+                        formData: formData,
+                        items: formConfig.items,
+                        buttonsTemplate: ""
                     });
 
-                    // Re-attach change handlers
                     form.find("[name='height']").on("change", function () {
                         formDataStore.detailsInfo.height = $(this).val();
                     });
@@ -752,9 +1802,51 @@
                         formDataStore.detailsInfo.idProof = e.files;
                     });
 
+                    var buttonContainer = $('<div class="wizard-buttons">').appendTo(form);
+                    $('<button type="button" class="previous">Previous</button>')
+                        .appendTo(buttonContainer)
+                        .on("click", function () {
+                            wizard.select(0);
+                        });
+                    $('<button type="button" class="next">Next</button>')
+                        .appendTo(buttonContainer)
+                        .on("click", function () {
+                            var step2Form = wizard.steps()[1].element.find("form").data("kendoForm");
+                            if (step2Form && step2Form.validate()) {
+                                if (selectedRole === "instructor") {
+                                    if (!formDataStore.detailsInfo.certificates || formDataStore.detailsInfo.certificates.length === 0) {
+                                        form.find("[name='certificates']").closest(".k-form-field").find(".k-form-error").remove();
+                                        form.find("[name='certificates']").closest(".k-form-field").append('<span class="k-form-error">Please upload at least one professional certificate.</span>');
+                                        return;
+                                    }
+                                    if (!formDataStore.detailsInfo.idProof || formDataStore.detailsInfo.idProof.length === 0) {
+                                        form.find("[name='idProof']").closest(".k-form-field").find(".k-form-error").remove();
+                                        form.find("[name='idProof']").closest(".k-form-field").append('<span class="k-form-error">Please upload an ID proof.</span>');
+                                        return;
+                                    }
+                                }
+                                wizard.select(2);
+                            }
+                        });
+
+                    if (selectedRole === "user") {
+                        if (formDataStore.detailsInfo.goal) {
+                            form.find("[name='goal']").data("kendoMultiSelect").value(formDataStore.detailsInfo.goal);
+                        }
+                        if (formDataStore.detailsInfo.medicalCondition) {
+                            form.find("[name='medicalCondition']").data("kendoMultiSelect").value(formDataStore.detailsInfo.medicalCondition);
+                        }
+                    } else {
+                        if (formDataStore.detailsInfo.specialization) {
+                            form.find("[name='specialization']").data("kendoMultiSelect").value(formDataStore.detailsInfo.specialization);
+                        }
+                    }
+
                     stepElement.append(form);
                 }
             });
         });
     </script>
-}
+</body>
+
+</html>
