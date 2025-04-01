@@ -19,15 +19,14 @@ public class InstructorRepo : IInstructorInterface
 	#region Edit Profile Basic
 	public async Task<int> EditProfileBasic(Instructor instructor)
 	{
-
 		string query = @"
-					UPDATE t_instructor SET 
-						c_instructorname = @c_instructorname,
-						c_mobile = @c_mobile,
-						c_gender = @c_gender,
-						c_dob = @c_dob,
-						c_profileimage = @c_profileimage
-					WHERE c_instructorid = @c_instructorid";
+		UPDATE t_instructor SET 
+			c_instructorname = @c_instructorname,
+			c_mobile = @c_mobile,
+			c_gender = @c_gender,
+			c_dob = @c_dob,
+			c_profileimage = COALESCE(@c_profileimage, c_profileimage)
+		WHERE c_instructorid = @c_instructorid";
 
 		if (_conn.State != System.Data.ConnectionState.Open)
 		{
@@ -36,39 +35,30 @@ public class InstructorRepo : IInstructorInterface
 
 		try
 		{
-
 			using (NpgsqlCommand cmd = new NpgsqlCommand(query, _conn))
 			{
-
 				cmd.Parameters.AddWithValue("@c_instructorid", instructor.instructorId);
 				cmd.Parameters.AddWithValue("@c_instructorname", instructor.instructorName ?? (object)DBNull.Value);
 				cmd.Parameters.AddWithValue("@c_mobile", instructor.mobile ?? (object)DBNull.Value);
 				cmd.Parameters.AddWithValue("@c_gender", instructor.gender ?? (object)DBNull.Value);
-				cmd.Parameters.AddWithValue("@c_dob", NpgsqlTypes.NpgsqlDbType.Date,instructor.dob );
-				cmd.Parameters.AddWithValue("@c_profileimage", instructor.profileImage ?? (object)DBNull.Value);
-
+				cmd.Parameters.AddWithValue("@c_dob", NpgsqlTypes.NpgsqlDbType.Date, instructor.dob);
+				cmd.Parameters.AddWithValue("@c_profileimage", (object?)instructor.profileImage ?? DBNull.Value); // Keep existing if null
 
 				int rowsAffected = await cmd.ExecuteNonQueryAsync();
 				return rowsAffected;
-
 			}
-
 		}
 		catch (Exception ex)
 		{
 			Console.WriteLine("Error While Updating Profile Basic : " + ex.Message);
 			return -1;
-
 		}
 		finally
 		{
-
 			await _conn.CloseAsync();
-
 		}
-
 	}
-
+	
 	#endregion
 
 	#region Get One Instrctor
@@ -148,21 +138,21 @@ public class InstructorRepo : IInstructorInterface
 
 	#endregion
 
-    #region User Story: List Instructors
-    
-    #region Get All Instructors
-    public async Task<List<Instructor>> GetAllInstructors()
-    {
-        var instructorList = new List<Instructor>();
+	#region User Story: List Instructors
 
-        try
-        {
-            if(_conn.State != ConnectionState.Open)
-            {
-                await _conn.OpenAsync();
-            }
+	#region Get All Instructors
+	public async Task<List<Instructor>> GetAllInstructors()
+	{
+		var instructorList = new List<Instructor>();
 
-            using(var cmd = new NpgsqlCommand(@"SELECT 
+		try
+		{
+			if (_conn.State != ConnectionState.Open)
+			{
+				await _conn.OpenAsync();
+			}
+
+			using (var cmd = new NpgsqlCommand(@"SELECT 
                                         c_instructorid,
                                         c_instructorname,
                                         c_email,
@@ -177,48 +167,48 @@ public class InstructorRepo : IInstructorInterface
                                         c_status,
                                         c_idproof
                                         FROM t_instructor", _conn))
-            {
-                using(var dr =  await cmd.ExecuteReaderAsync())
-                {
-                    while(dr.Read())
-                    {
-                        instructorList.Add(new Instructor()
-                        {
-                            instructorId = Convert.ToInt32(dr["c_instructorid"]),
-                            instructorName = Convert.ToString(dr["c_instructorname"]),
-                            email = Convert.ToString(dr["c_email"]),
-                            password = Convert.ToString(dr["c_password"]),
-                            mobile = Convert.ToString(dr["c_mobile"]),
-                            gender = Convert.ToString(dr["c_gender"]),
-                            dob = Convert.ToDateTime(dr["c_dob"]).Date,
-                            specialization = Convert.ToString(dr["c_specialization"]),
-                            certificates = JsonDocument.Parse(Convert.ToString(dr["c_certificates"])),
-                            profileImage = Convert.ToString(dr["c_profileimage"]),
-                            association = Convert.ToString(dr["c_association"]),
-                            status = Convert.ToString(dr["c_status"]),
-                            idProof = Convert.ToString(dr["c_idproof"])                       
-                        });
-                    }
-                }
-            }
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine("------>Error while Fetching All Instructors" + ex.Message);
-        }
-        finally
-        {
-            if(_conn.State != ConnectionState.Closed)
-            {
-                await _conn.CloseAsync();
-            }
-        }
-        return instructorList;
-    }
-    #endregion
+			{
+				using (var dr = await cmd.ExecuteReaderAsync())
+				{
+					while (dr.Read())
+					{
+						instructorList.Add(new Instructor()
+						{
+							instructorId = Convert.ToInt32(dr["c_instructorid"]),
+							instructorName = Convert.ToString(dr["c_instructorname"]),
+							email = Convert.ToString(dr["c_email"]),
+							password = Convert.ToString(dr["c_password"]),
+							mobile = Convert.ToString(dr["c_mobile"]),
+							gender = Convert.ToString(dr["c_gender"]),
+							dob = Convert.ToDateTime(dr["c_dob"]).Date,
+							specialization = Convert.ToString(dr["c_specialization"]),
+							certificates = JsonDocument.Parse(Convert.ToString(dr["c_certificates"])),
+							profileImage = Convert.ToString(dr["c_profileimage"]),
+							association = Convert.ToString(dr["c_association"]),
+							status = Convert.ToString(dr["c_status"]),
+							idProof = Convert.ToString(dr["c_idproof"])
+						});
+					}
+				}
+			}
+		}
+		catch (Exception ex)
+		{
+			Console.WriteLine("------>Error while Fetching All Instructors" + ex.Message);
+		}
+		finally
+		{
+			if (_conn.State != ConnectionState.Closed)
+			{
+				await _conn.CloseAsync();
+			}
+		}
+		return instructorList;
+	}
+	#endregion
 
 
-    #endregion
+	#endregion
 
 
 	#region Class Count By Instructor
@@ -226,12 +216,12 @@ public class InstructorRepo : IInstructorInterface
 	{
 		try
 		{
-			if(_conn.State != ConnectionState.Open)
-            {
-                await _conn.OpenAsync();
-            }
+			if (_conn.State != ConnectionState.Open)
+			{
+				await _conn.OpenAsync();
+			}
 
-			using(var cmd = new NpgsqlCommand(@"SELECT COUNT(*)
+			using (var cmd = new NpgsqlCommand(@"SELECT COUNT(*)
 												FROM t_class
 												WHERE c_instructorid = @c_instructorid", _conn))
 			{
@@ -242,17 +232,17 @@ public class InstructorRepo : IInstructorInterface
 			}
 		}
 		catch (Exception ex)
-        {
-            Console.WriteLine("------>Error while Fetching Class Count by Instructor: " + ex.Message);
+		{
+			Console.WriteLine("------>Error while Fetching Class Count by Instructor: " + ex.Message);
 			return -1;
-        }
-        finally
-        {
-            if(_conn.State != ConnectionState.Closed)
-            {
-                await _conn.CloseAsync();
-            }
-        }
+		}
+		finally
+		{
+			if (_conn.State != ConnectionState.Closed)
+			{
+				await _conn.CloseAsync();
+			}
+		}
 	}
 	#endregion
 
@@ -262,12 +252,12 @@ public class InstructorRepo : IInstructorInterface
 	{
 		try
 		{
-			if(_conn.State != ConnectionState.Open)
-            {
-                await _conn.OpenAsync();
-            }
+			if (_conn.State != ConnectionState.Open)
+			{
+				await _conn.OpenAsync();
+			}
 
-			using(var cmd = new NpgsqlCommand(@"SELECT COUNT(*)
+			using (var cmd = new NpgsqlCommand(@"SELECT COUNT(*)
 												FROM t_class
 												WHERE c_instructorid = @c_instructorid
 												AND c_startdate > @date", _conn))
@@ -280,17 +270,17 @@ public class InstructorRepo : IInstructorInterface
 			}
 		}
 		catch (Exception ex)
-        {
-            Console.WriteLine("------>Error while Fetching Upcoming Class Count by Instructor: " + ex.Message);
+		{
+			Console.WriteLine("------>Error while Fetching Upcoming Class Count by Instructor: " + ex.Message);
 			return -1;
-        }
-        finally
-        {
-            if(_conn.State != ConnectionState.Closed)
-            {
-                await _conn.CloseAsync();
-            }
-        }
+		}
+		finally
+		{
+			if (_conn.State != ConnectionState.Closed)
+			{
+				await _conn.CloseAsync();
+			}
+		}
 	}
 	#endregion
 
@@ -300,12 +290,12 @@ public class InstructorRepo : IInstructorInterface
 	{
 		try
 		{
-			if(_conn.State != ConnectionState.Open)
-            {
-                await _conn.OpenAsync();
-            }
+			if (_conn.State != ConnectionState.Open)
+			{
+				await _conn.OpenAsync();
+			}
 
-			using(var cmd = new NpgsqlCommand(@"SELECT SUM(c_maxcapacity - c_availablecapacity)
+			using (var cmd = new NpgsqlCommand(@"SELECT SUM(c_maxcapacity - c_availablecapacity)
 												FROM t_class
 												WHERE c_instructorid = @c_instructorid", _conn))
 			{
@@ -316,17 +306,17 @@ public class InstructorRepo : IInstructorInterface
 			}
 		}
 		catch (Exception ex)
-        {
-            Console.WriteLine("------>Error while Fetching user Count by Instructor: " + ex.Message);
+		{
+			Console.WriteLine("------>Error while Fetching user Count by Instructor: " + ex.Message);
 			return -1;
-        }
-        finally
-        {
-            if(_conn.State != ConnectionState.Closed)
-            {
-                await _conn.CloseAsync();
-            }
-        }
+		}
+		finally
+		{
+			if (_conn.State != ConnectionState.Closed)
+			{
+				await _conn.CloseAsync();
+			}
+		}
 	}
 	#endregion
 
@@ -338,12 +328,12 @@ public class InstructorRepo : IInstructorInterface
 
 		try
 		{
-			if(_conn.State != ConnectionState.Open)
-            {
-                await _conn.OpenAsync();
-            }
+			if (_conn.State != ConnectionState.Open)
+			{
+				await _conn.OpenAsync();
+			}
 
-			using(var cmd = new NpgsqlCommand(@"SELECT 
+			using (var cmd = new NpgsqlCommand(@"SELECT 
 													c_classid, 
 													c_classname, 
 													c_instructorid,
@@ -369,48 +359,48 @@ public class InstructorRepo : IInstructorInterface
 			{
 				cmd.Parameters.AddWithValue("@c_instructorid", Convert.ToInt32(instructorId));
 				cmd.Parameters.AddWithValue("@date", DateTime.Now);
-				
-				using(var dr =  await cmd.ExecuteReaderAsync())
-                {
-                    while(await dr.ReadAsync())
-                    {
-                        upcomingClassList.Add(new Class()
-                        {
-                            classId = Convert.ToInt32(dr["c_classid"]),
-                            className = Convert.ToString(dr["c_classname"]),
-                            instructorId = Convert.ToInt32(dr["c_instructorid"]),
-                            description = dr["c_description"] == DBNull.Value ? null : JsonDocument.Parse(Convert.ToString(dr["c_description"])),
-                            type = Convert.ToString(dr["c_type"]),
-                            startDate = Convert.ToDateTime(dr["c_startdate"]),
-                            endDate = Convert.ToDateTime(dr["c_enddate"]),
-                            startTime = dr["c_starttime"] == DBNull.Value ? null : TimeSpan.Parse(Convert.ToString(dr["c_starttime"])),
-                            endTime = dr["c_endtime"] == DBNull.Value ? null : TimeSpan.Parse(Convert.ToString(dr["c_endtime"])),
-                            duration = Convert.ToInt32(dr["c_duration"]),
-                            maxCapacity = Convert.ToInt32(dr["c_maxcapacity"]),
-                            availableCapacity = Convert.ToInt32(dr["c_availablecapacity"]),
-                            requiredEquipments = Convert.ToString(dr["c_requiredequipments"]),
-                            createdAt = Convert.ToDateTime(dr["c_createdat"]),
-                            status = Convert.ToString(dr["c_status"]),
-                            city = Convert.ToString(dr["c_city"]),
-                            address = Convert.ToString(dr["c_address"]),
-                            assets = dr["c_assets"] == DBNull.Value ? null : JsonDocument.Parse(Convert.ToString(dr["c_assets"])),
-                            fee = Convert.ToDecimal(dr["c_fees"])
-                        });
-                    }
-                }	
+
+				using (var dr = await cmd.ExecuteReaderAsync())
+				{
+					while (await dr.ReadAsync())
+					{
+						upcomingClassList.Add(new Class()
+						{
+							classId = Convert.ToInt32(dr["c_classid"]),
+							className = Convert.ToString(dr["c_classname"]),
+							instructorId = Convert.ToInt32(dr["c_instructorid"]),
+							description = dr["c_description"] == DBNull.Value ? null : JsonDocument.Parse(Convert.ToString(dr["c_description"])),
+							type = Convert.ToString(dr["c_type"]),
+							startDate = Convert.ToDateTime(dr["c_startdate"]),
+							endDate = Convert.ToDateTime(dr["c_enddate"]),
+							startTime = dr["c_starttime"] == DBNull.Value ? null : TimeSpan.Parse(Convert.ToString(dr["c_starttime"])),
+							endTime = dr["c_endtime"] == DBNull.Value ? null : TimeSpan.Parse(Convert.ToString(dr["c_endtime"])),
+							duration = Convert.ToInt32(dr["c_duration"]),
+							maxCapacity = Convert.ToInt32(dr["c_maxcapacity"]),
+							availableCapacity = Convert.ToInt32(dr["c_availablecapacity"]),
+							requiredEquipments = Convert.ToString(dr["c_requiredequipments"]),
+							createdAt = Convert.ToDateTime(dr["c_createdat"]),
+							status = Convert.ToString(dr["c_status"]),
+							city = Convert.ToString(dr["c_city"]),
+							address = Convert.ToString(dr["c_address"]),
+							assets = dr["c_assets"] == DBNull.Value ? null : JsonDocument.Parse(Convert.ToString(dr["c_assets"])),
+							fee = Convert.ToDecimal(dr["c_fees"])
+						});
+					}
+				}
 			}
 		}
 		catch (Exception ex)
-        {
-            Console.WriteLine("------>Error while Fetching Upcoming Class Details by Instructor: " + ex.Message);
-        }
-        finally
-        {
-            if(_conn.State != ConnectionState.Closed)
-            {
-                await _conn.CloseAsync();
-            }
-        }
+		{
+			Console.WriteLine("------>Error while Fetching Upcoming Class Details by Instructor: " + ex.Message);
+		}
+		finally
+		{
+			if (_conn.State != ConnectionState.Closed)
+			{
+				await _conn.CloseAsync();
+			}
+		}
 		return upcomingClassList;
 	}
 	#endregion
