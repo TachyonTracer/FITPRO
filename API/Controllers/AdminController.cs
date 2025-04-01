@@ -21,31 +21,6 @@ namespace API
 
 		#region Analytics Related
 
-		#region Top Goals
-
-		[HttpGet("top-goals")]
-		public async Task<IActionResult> GetTopUserGoals()
-		{
-			try
-			{
-				var goals = await _adminRepo.GetTopUserGoalsAsync();
-
-				if (goals != null && goals.Any())
-				{
-					return Ok(new { success = true, message = "Data retrieved successfully", data = goals });
-				}
-				else
-				{
-					return Ok(new { success = false, message = "No goals found", data = (object)null });
-				}
-			}
-			catch (Exception ex)
-			{
-				return StatusCode(500, new { success = false, message = "An error occurred", error = ex.Message });
-			}
-		}
-		#endregion
-
 		#region Top Specialization
 		[HttpGet("top-specialization")]
 		public async Task<IActionResult> GetTopSpecializationGoals()
@@ -111,6 +86,70 @@ namespace API
 			{
 				int instructorCount = await _adminRepo.CountInstructors();
 				return Ok(new { success = true, message = "Instructor count retrieved successfully", count = instructorCount });
+			}
+			catch (Exception ex)
+			{
+				return StatusCode(500, new { success = false, message = "An error occurred", error = ex.Message });
+			}
+		}
+		#endregion
+
+		#region Total Revenue
+		[HttpGet("total-revenue")]
+		public async Task<IActionResult> GetTotalRevenue()
+		{
+			try
+			{
+				int totalRevenue = await _adminRepo.TotalRevenue();
+				return Ok(new { success = true, message = "Total revenue retrieved successfully", count = totalRevenue });
+			}
+			catch (Exception ex)
+			{
+				return StatusCode(500, new { success = false, message = "An error occurred", error = ex.Message });
+			}
+		}
+		#endregion
+
+
+		#region Active and Inactive Users API
+		[HttpGet("user-engagement")]
+		public async Task<IActionResult> GetActiveInactiveUserCount()
+		{
+			try
+			{
+				// Get the active and inactive user counts
+				var (activeUserCount, inactiveUserCount) = await _adminRepo.CountActiveInactiveUsers();
+
+				return Ok(new 
+				{ 
+					success = true, 
+					message = "Active and Inactive user counts retrieved successfully", 
+					activeUsers = activeUserCount, 
+					inactiveUsers = inactiveUserCount 
+				});
+			}
+			catch (Exception ex)
+			{
+				return StatusCode(500, new 
+				{ 
+					success = false, 
+					message = "An error occurred", 
+					error = ex.Message 
+				});
+			}
+		}
+		#endregion
+
+		#region User Activity (Last 7 Days)
+		[HttpGet("user-activity")]
+		public async Task<IActionResult> GetUserActivityLast7Days()
+		{
+			try
+			{
+				// Fetch user activity data for the last 7 days
+				var userActivityData = await _adminRepo.GetUserActivityLast7Days();
+
+				return Ok(new { success = true, message = "User activity data retrieved successfully", data = userActivityData });
 			}
 			catch (Exception ex)
 			{

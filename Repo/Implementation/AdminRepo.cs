@@ -11,64 +11,9 @@ public class AdminRepo : IAdminInterface
 	{
 		_conn = conn;
 
-	}	
-
-	#region Analytics Related Method By Paras
-
-	#region GetTopUserGoalsAsync
-	public async Task<IEnumerable<dynamic>> GetTopUserGoalsAsync()
-	{
-		List<dynamic> goals = new List<dynamic>();
-		var query = @"
-            SELECT unnest(string_to_array(c_goal, ',')) AS goal, COUNT(*) AS goal_count
-			FROM t_User
-			WHERE c_goal IS NOT NULL AND c_goal <> ''
-			GROUP BY goal
-			ORDER BY goal_count DESC
-			LIMIT 10";
-
-		if (_conn.State != ConnectionState.Open)
-		{
-			await _conn.OpenAsync();
-		}
-
-
-		try
-		{
-
-			using (var cmd = new NpgsqlCommand(query, _conn))
-			using (var reader = await cmd.ExecuteReaderAsync())
-			{
-				while (await reader.ReadAsync())
-				{
-					var goal = new
-					{
-						Goal = reader.GetString(0),
-						GoalCount = reader.GetInt32(1)
-					};
-					goals.Add(goal);
-				}
-			}
-
-		}
-		catch (Exception ex)
-		{
-
-			Console.WriteLine($"Exception Message : {ex.Message}");
-
-		}
-		finally
-		{
-			if (_conn.State != ConnectionState.Closed)
-			{
-				await _conn.CloseAsync();
-			}
-		}
-		return goals;
-
 	}
 
-	#endregion
+	#region Analytics Related Method By Paras
 
 	#region GetTopSpecialization
 	public async Task<IEnumerable<dynamic>> GetTopSpecialization()
@@ -80,7 +25,7 @@ public class AdminRepo : IAdminInterface
 			WHERE c_specialization IS NOT NULL AND c_specialization <> ''
 			GROUP BY specialization
 			ORDER BY specialization_count DESC
-			LIMIT 5";
+			LIMIT 10";
 
 		if (_conn.State != ConnectionState.Open)
 		{
@@ -196,7 +141,7 @@ public class AdminRepo : IAdminInterface
 	#region CountInstructors
 	public async Task<int> CountInstructors()
 	{
-		var query = @"SELECT COUNT(*) FROM t_instructor";
+		var query = @"SELECT COUNT(*) FROM t_instructor WHERE c_status LIKE 'Approve'";
 
 		if (_conn.State != ConnectionState.Open)
 		{
@@ -226,6 +171,142 @@ public class AdminRepo : IAdminInterface
 	}
 
 	#endregion
+
+
+	#region TotalRevenue
+	public async Task<int> TotalRevenue()
+	{
+		var query = @"SELECT SUM((c_maxcapacity- c_availablecapacity) * c_fees) AS total_revenue 
+						FROM t_class
+						WHERE EXTRACT(MONTH FROM c_startdate) = EXTRACT(MONTH FROM CURRENT_DATE);";
+
+		if (_conn.State != ConnectionState.Open)
+		{
+			await _conn.OpenAsync();
+		}
+
+		try
+		{
+			using (var cmd = new NpgsqlCommand(query, _conn))
+			{
+				var sum = await cmd.ExecuteScalarAsync();
+				return Convert.ToInt32(sum);
+			}
+		}
+		catch (Exception ex)
+		{
+			Console.WriteLine($"Exception: {ex.Message}");
+			return -1;
+		}
+		finally
+		{
+			if (_conn.State != ConnectionState.Closed)
+			{
+				await _conn.CloseAsync();
+			}
+		}
+	}
+
+	#endregion
+
+	#region CountActiveInactiveUsers
+	public async Task<(int activeUsers, int inactiveUsers)> CountActiveInactiveUsers()
+	{
+		var query = @"
+        SELECT 
+            COUNT(CASE WHEN c_status = true THEN 1 END) AS active_users,
+            COUNT(CASE WHEN c_status = false THEN 1 END) AS inactive_users
+        FROM t_user";
+
+		if (_conn.State != ConnectionState.Open)
+		{
+			await _conn.OpenAsync();
+		}
+
+		try
+		{
+			using (var cmd = new NpgsqlCommand(query, _conn))
+			{
+				var reader = await cmd.ExecuteReaderAsync();
+
+				if (await reader.ReadAsync())
+				{
+					int activeUsers = reader.IsDBNull("active_users") ? 0 : reader.GetInt32("active_users");
+					int inactiveUsers = reader.IsDBNull("inactive_users") ? 0 : reader.GetInt32("inactive_users");
+
+					return (activeUsers, inactiveUsers);
+				}
+
+				return (0, 0); // Return (0,0) if no data is found
+			}
+		}
+		catch (Exception ex)
+		{
+			Console.WriteLine($"Exception: {ex.Message}");
+			return (0, 0); // Return (0,0) if an error occurs
+		}
+		finally
+		{
+			if (_conn.State != ConnectionState.Closed)
+			{
+				await _conn.CloseAsync();
+			}
+		}
+	}
+	#endregion
+
+
+	#region GetUserActivityLast7Days
+	public async Task<List<KeyValuePair<string, int>>> GetUserActivityLast7Days()
+	{
+		var query = @"
+			SELECT 
+				DATE_TRUNC('day', c_createdat) AS activity_day, 
+				COUNT(*) AS user_count
+			FROM t_User
+			WHERE c_createdat >= CURRENT_DATE - INTERVAL '7 days'
+			GROUP BY activity_day
+			ORDER BY activity_day ASC";
+
+		if (_conn.State != ConnectionState.Open)
+		{
+			await _conn.OpenAsync();
+		}
+
+		try
+		{
+			using (var cmd = new NpgsqlCommand(query, _conn))
+			{
+				var reader = await cmd.ExecuteReaderAsync();
+				var result = new List<KeyValuePair<string, int>>();
+
+				while (await reader.ReadAsync())
+				{
+					var activityDay = reader.GetDateTime("activity_day").ToString("yyyy-MM-dd");
+					var userCount = reader.GetInt32("user_count");
+					
+					result.Add(new KeyValuePair<string, int>(activityDay, userCount));
+				}
+
+				return result;
+			}
+		}
+		catch (Exception ex)
+		{
+			Console.WriteLine($"Exception: {ex.Message}");
+			return new List<KeyValuePair<string, int>>(); // Return empty list on error
+		}
+		finally
+		{
+			if (_conn.State != ConnectionState.Closed)
+			{
+				await _conn.CloseAsync();
+			}
+		}
+	}
+	#endregion
+
+
 
 	#endregion
 
