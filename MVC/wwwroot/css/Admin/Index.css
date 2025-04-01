@@ -37,10 +37,8 @@ body {
   position: fixed;
   width: 100%;
   top: 0;
-  z-index: 9000;
+  z-index: 50;
 }
-
-
 
 .logo-container {
   display: flex;
@@ -112,7 +110,7 @@ body {
   backdrop-filter: blur(10px);
   min-width: 200px;
   box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
-  z-index: 9000;
+  z-index: 1;
   border-radius: 8px;
   overflow: hidden;
   border: 1px solid var(--border-color);
@@ -131,7 +129,6 @@ body {
 }
 
 .user-profile-container:hover .profile-dropdown {
-  z-index: 1000;
   display: block;
 }
 
@@ -201,7 +198,6 @@ h2 {
 
 .k-tabstrip-items .k-item:hover:not(.k-active) {
   color: rgba(255, 255, 255, 0.8);
-  z-index: 1000;
 }
 
 .k-tabstrip > .k-content {
@@ -376,31 +372,19 @@ h2 {
   position: fixed;
   top: 70px;
   width: 100%;
-  z-index: 4;
+  z-index: 5;
   height: calc(100vh - 70px);
   overflow: hidden;
 }
 
-.admin {
+.k-tabstrip-items {
   background: rgba(0, 0, 0, 0.3);
   backdrop-filter: blur(10px);
   border-bottom: 1px solid var(--border-color);
   padding: 0 30px;
   display: flex;
   position: relative;
-  z-index: 5;
-}
-.modal-backdrop {
-  --bs-backdrop-zindex: 0;
-  --bs-backdrop-bg: #000;
-  --bs-backdrop-opacity: 0.5;
-  position: fixed;
-  top: 0;
-  left: 0;
-  z-index: var(--bs-backdrop-zindex);
-  width: 100vw;
-  height: 100vh;
-  background-color: var(--bs-backdrop-bg);
+  z-index: 5; /* Ensure tabstrip is above content but below dropdown */
 }
 
 .k-item {
@@ -517,7 +501,7 @@ h2 {
   height: calc(100% - 50px);
   overflow-y: auto;
   position: relative;
-  z-index: 1;
+  z-index: 1; /* Lower z-index than dropdown */
 }
 
 .k-content.active {
@@ -661,4 +645,3 @@ h2 {
     grid-template-columns: 1fr;
   }
 }
-

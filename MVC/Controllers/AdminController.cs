@@ -9,12 +9,17 @@ namespace MVC
         {
             return View();
         }
-
-        public ActionResult Test()
+        
+        public ActionResult PartialInstructorView()
         {
             return View();
         }
-
+        
+        public ActionResult PartialApprovedView()
+        {
+            return View();
+        }
+        
 
     }
 }

@@ -1,7 +1,7 @@
-$(document).ready(function () {
-  var uri = "http://localhost:8080";
-  var userId;
+var uri = "http://localhost:8080";
 
+$(document).ready(function () {
+  var userId;
   userId = getUserIdFromToken();
 
   // Initialize Main Navigation TabStrip with select event
@@ -10,22 +10,21 @@ $(document).ready(function () {
       open: {
         effects: "fadeIn",
       },
-    }
-
+    },
   });
-  const dropdownItems = $('.dropdown-item');
-  const subContents = $('.sub-content');
 
-  dropdownItems.each(function() {
-    $(this).on('click', function() {
+  const dropdownItems = $(".dropdown-item");
+  const subContents = $(".sub-content");
 
+  dropdownItems.each(function () {
+    $(this).on("click", function () {
       // Hide all sub-content sections
-      subContents.each(function() {
+      subContents.each(function () {
         $(this).hide();
       });
 
       // Show the selected sub-content section
-      const section = $(this).data('section');
+      const section = $(this).data("section");
       $(`#${section}-instructors`).show();
     });
   });
@@ -35,204 +34,257 @@ $(document).ready(function () {
   // Function to fetch the count from API and update the respective card
   function fetchAndUpdateCount(url, elementId) {
     $.ajax({
-        url: url,
-        method: 'GET',
-        success: function (data) {
-            if (data.success) {
-                $(elementId).text(data.count);
-            } else {
-                $(elementId).text('Error retrieving data');
-            }
-        },
-        error: function () {
-            $(elementId).text('Error fetching data');
+      url: url,
+      method: "GET",
+      success: function (data) {
+        if (data.success) {
+          if (elementId == "#revenue") {
+            $(elementId).html("₹" + data.count);
+          } else {
+            $(elementId).text(data.count);
+          }
+        } else {
+          $(elementId).text("Error retrieving data");
         }
+      },
+      error: function () {
+        $(elementId).text("Error fetching data");
+      },
     });
+  }
+
+  // Fetch counts for users, classes, and instructors
+  fetchAndUpdateCount(`${uri}/api/Admin/count-users`, "#total-users");
+  fetchAndUpdateCount(`${uri}/api/Admin/count-classes`, "#total-classes");
+  fetchAndUpdateCount(
+    `${uri}/api/Admin/count-instructors`,
+    "#active-instructors"
+  );
+  fetchAndUpdateCount(`${uri}/api/Admin/total-revenue`, "#revenue");
+
+
+  // User Activity Chart (Line)
+const activityCtx = document.getElementById("activityChart").getContext("2d");
+const activityChart = new Chart(activityCtx, {
+  type: "line",
+  data: {
+    labels: [], // Dates will be populated dynamically
+    datasets: [
+      {
+        label: "Active Users",
+        data: [], // User counts will be populated dynamically
+        borderColor: "#ff4d4d",
+        backgroundColor: "rgba(255, 77, 77, 0.2)",
+        fill: true,
+        tension: 0.4,
+        pointBackgroundColor: "#ff4d4d",
+        pointBorderColor: "#fff",
+      },
+    ],
+  },
+  options: {
+    responsive: true,
+    scales: {
+      y: {
+        beginAtZero: true,
+        grid: { color: "rgba(255, 255, 255, 0.1)" },
+        ticks: { color: "#fff" },
+      },
+      x: {
+        grid: { color: "rgba(255, 255, 255, 0.1)" },
+        ticks: { color: "#fff" },
+      },
+    },
+    plugins: { legend: { labels: { color: "#fff" } } },
+  },
+});
+
+// Fetch user activity data (active users for the last 7 days)
+async function fetchUserActivityData() {
+  try {
+    // Fetch the data from the backend API
+    const response = await fetch(`${uri}/api/Admin/user-activity`);
+    const data = await response.json();
+
+    if (data.success) {
+      // Extract the dates and user counts from the API response
+      const dates = data.data.map(item => item.key);  
+      const activityCounts = data.data.map(item => item.value); 
+
+      // Update the chart labels
+      activityChart.data.labels = dates;
+      activityChart.data.datasets[0].data = activityCounts;
+
+      activityChart.update(); // Refresh the chart
+    } else {
+      console.error('Failed to fetch user activity data.');
+    }
+  } catch (error) {
+    console.error("Error fetching user activity data:", error);
+  }
 }
 
-// Fetch counts for users, classes, and instructors
-fetchAndUpdateCount(`${uri}/api/Admin/count-users`, '#userCount');
-fetchAndUpdateCount(`${uri}/api/Admin/count-classes`, '#classCount');
-fetchAndUpdateCount(`${uri}/api/Admin/count-instructors`, '#instructorCount');
+// Call the function to fetch and update the chart
+fetchUserActivityData();
 
 
-// Fetch Top Goals Data and Create Top Goals Chart
-$.get(`${uri}/api/Admin/top-goals`, function (response) {
-    if (response.success && response.data) {
-        const goalsData = response.data;
-        const goalCategories = goalsData.map(goal => goal.goal); 
-        const goalValues = goalsData.map(goal => goal.goalCount);
- 
-        // Initialize Kendo Chart for Top Goals
-        $("#topGoalsChart").kendoChart({
-            chartArea: {
-                background: "rgba(0, 0, 0, 0.05)"
-            },
-            title: {
-                text: "Top User Goals",
-                color: "#FFFFFF",
-                font: "24px Arial"
-            },
-            legend: {
-                visible: true,
-                position: "top",
-                labels: {
-                    color: "#FFFFFF"  
-                }
-            },
-            seriesDefaults: {
-                type: "column",
-                labels: {
-                    visible: true,
-                    background: "transparent",
-                    color: "#FFFFFF"
-                },
-                border: {
-                    width: 0
-                },
-                shadow: {
-                    visible: false 
-                }
-            },
-            series: [{
-                type: "column",
-                name: "Goals",
-                data: goalValues,
-                color: "#ff4d4d",
-            }],
-            categoryAxis: {
-                categories: goalCategories,
-                labels: {
-                    color: "#FFFFFF" 
-                },
-                title: {
-                    color: "#FFFFFF",
-                    text: "Goals"
-                },
-                majorGridLines: {
-                    visible: false // Hides the grid lines on the category axis
-                }
-            },
-            valueAxis: {
-                labels: {
-                    color: "#FFFFFF" 
-                },
-                title: {
-                    color: "#FFFFFF",
-                    text: "Count"
-                },
-                majorGridLines: {
-                    visible: false // Hides the grid lines on the category axis
-                }
-            }
-        });
-    } else {
-        $('#topGoalsChart').text('Error fetching data');
+  // User Engagement Chart (Doughnut)
+  const engagementCtx = document
+    .getElementById("engagementChart")
+    .getContext("2d");
+
+  // Initial chart setup (with placeholder data)
+  const engagementChart = new Chart(engagementCtx, {
+    type: "doughnut",
+    data: {
+      labels: ["Active", "Inactive"],
+      datasets: [
+        {
+          data: [0, 0],
+          backgroundColor: ["#ff4d4d", "#666"],
+          borderColor: "#fff",
+          borderWidth: 1,
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { position: "bottom", labels: { color: "#fff", padding: 15 } },
+        title: { display: false },
+      },
+      cutout: "60%", // Makes it more compact
+    },
+  });
+
+  // Fetch user engagement data (active & inactive users)
+  async function fetchUserEngagementData() {
+    try {
+      const response = await fetch(`${uri}/api/Admin/user-engagement`);
+      const data = await response.json();
+
+      const activeUsers = data.activeUsers;
+      const inactiveUsers = data.inactiveUsers;
+
+      // Update the chart with the new data
+      engagementChart.data.datasets[0].data = [activeUsers, inactiveUsers];
+      engagementChart.update();
+    } catch (error) {
+      console.error("Error fetching user engagement data:", error);
     }
-});
+  }
 
+  // Call the function to fetch and update the chart
+  fetchUserEngagementData();
 
+  // Top 10 Specializations Chart (Bar) with API Data
+  const specializationCtx = document
+    .getElementById("specializationChart")
+    .getContext("2d");
+  let specializationChart;
 
-// Fetch Top Specialization Data and Create Top Specialization Chart
-// $.get(`${uri}/api/Admin/top-specialization`, function (response) {
-//     if (response.success && response.data) {
-//         const specializationData = response.data;
-//         const specializationCategories = specializationData.map(spec => spec.specialization); // Assuming 'name' is a key
-//         const specializationValues = specializationData.map(spec => spec.specializationGoalCount); // Assuming 'count' is a key
+  async function fetchSpecializationData() {
+    try {
+      const response = await fetch(`${uri}/api/Admin/top-specialization`);
+      const result = await response.json();
 
-//         // Initialize Kendo Chart for Top Specialization
-//         $("#topSpecializationChart").kendoChart({
-//             title: {
-//                 text: "Top Specializations"
-//             },
-//             series: [{
-//                 type: "column",
-//                 name: "Specializations",
-//                 data: specializationValues
-//             }],
-//             categoryAxis: {
-//                 categories: specializationCategories,
-//                 title: {
-//                     text: "Specializations"
-//                 }
-//             },
-//             valueAxis: {
-//                 title: {
-//                     text: "Count"
-//                 }
-//             }
-//         });
-//     } else {
-//         $('#topSpecializationChart').text('Error fetching data');
-//     }
-// });
+      if (result.success && result.data) {
+        const labels = result.data.map((item) => item.specialization);
+        const counts = result.data.map((item) => item.specializationGoalCount);
 
-
-
-$.get(`${uri}/api/Admin/top-specialization`, function (response) {
-    if (response.success && response.data) {
-        const specializationData = response.data;
-        const specializationCategories = specializationData.map(spec => spec.specialization); // Assuming 'specialization' is a key
-        const specializationValues = specializationData.map(spec => spec.specializationGoalCount); // Assuming 'specializationGoalCount' is a key
-
-        // Define custom colors for each slice of the pie
-        const pieColors = [
-            "#2C7A7B", // Primary Teal
-            "#FF7043", // Warm Coral
-            "#B39DDB", // Soft Lavender
-            "#28a745",
-            "#FFB74D"  // Muted Gold
-        ];
-
-        // Initialize Kendo Chart for Top Specialization (Pie Chart)
-        $("#topSpecializationChart").kendoChart({
-            chartArea: {
-                background: "rgba(0, 0, 0, 0.05)" // Set a light background for the chart area
-            },
-            title: {
-                text: "Top Specializations",
-                color: "#FFFFFF", // White color for the title
-                font: "bold 24px Arial" // Increase font size
-            },
-            legend: {
-                visible: true, // Keep the legend visible
-                position: "bottom", // Place the legend at the bottom
-                labels: {
-                    color: "#FFFFFF" // Set legend text color to white
-                }
-            },
-            seriesDefaults: {
-                type: "donut", // Change to pie chart
-                labels: {
-                    visible: true,
-                    position: "inside", // Labels positioned inside the pie slices
-                    background: "transparent",
-                    color: "#FFFFFF", // White labels for high contrast
-                    font: "bold 14px Arial"
+        // Update or create the chart
+        if (specializationChart) {
+          specializationChart.data.labels = labels;
+          specializationChart.data.datasets[0].data = counts;
+          specializationChart.update();
+        } else {
+          specializationChart = new Chart(specializationCtx, {
+            type: "bar",
+            data: {
+              labels: labels,
+              datasets: [
+                {
+                  label: "Class Count",
+                  data: counts,
+                  backgroundColor: "rgba(255, 77, 77, 0.5)",
+                  borderColor: "#ff4d4d",
+                  borderWidth: 1,
                 },
+              ],
             },
-            series: [{
-                type: "donut", // Pie chart
-                name: "Specializations",
-                data: specializationValues.map((value, index) => ({
-                    category: specializationCategories[index],
-                    value: value,
-                    color: pieColors[index] // Assign custom color to each slice
-                }))
-            }],
-            tooltip: {
-                visible: true,
-                template: "#= category #: #= value #" // Tooltip format showing category and value
-            }
-        });
-    } else {
-        $('#topSpecializationChart').text('Error fetching data');
+            options: {
+              responsive: true,
+              scales: {
+                y: {
+                  beginAtZero: true,
+                  grid: { color: "rgba(255, 255, 255, 0.1)" },
+                  ticks: { color: "#fff" },
+                },
+                x: {
+                  grid: { color: "rgba(255, 255, 255, 0.1)" },
+                  ticks: { color: "#fff" },
+                },
+              },
+              plugins: { legend: { labels: { color: "#fff" } } },
+            },
+          });
+        }
+      } else {
+        console.error("No specialization data found:", result.message);
+      }
+    } catch (error) {
+      console.error("Error fetching specialization data:", error);
     }
-});
+  }
 
+  // Initial fetch
+  fetchSpecializationData();
+
+  // Class Management
+  const classes = [
+    {
+      name: "Yoga Flow",
+      type: "Online",
+      level: "Beginner",
+      instructor: "Jane Doe",
+    },
+    {
+      name: "HIIT Blast",
+      type: "In-Person",
+      level: "Advanced",
+      instructor: "John Smith",
+    },
+    {
+      name: "Pilates Core",
+      type: "Online",
+      level: "Intermediate",
+      instructor: "Emily Brown",
+    },
+  ];
+
+  function renderClasses(filteredClasses) {
+    const classList = document.getElementById("classList");
+    classList.innerHTML = "";
+    filteredClasses.forEach((cls) => {
+      const card = `
+            <div class="k-card">
+                <div class="k-card-header">${cls.name}</div>
+                <div class="k-card-body">
+                    <p>Type: ${cls.type}</p>
+                    <p>Level: ${cls.level}</p>
+                    <p>Instructor: ${cls.instructor}</p>
+                </div>
+                <div class="k-card-footer">
+                    <button class="k-button">Edit</button>
+                </div>
+            </div>
+        `;
+      classList.innerHTML += card;
+    });
+  }
 
   // Old content
-  
+
   function getUserIdFromToken() {
     const token = localStorage.getItem("authToken");
     if (!token) {
@@ -259,7 +311,6 @@ $.get(`${uri}/api/Admin/top-specialization`, function (response) {
     }
   }
 
-
   // Initialize Main Navigation TabStrip
   $("#mainTabstrip").kendoTabStrip({
     animation: {
@@ -268,7 +319,6 @@ $.get(`${uri}/api/Admin/top-specialization`, function (response) {
       },
     },
   });
-
 
   // Initialize Logout Dialog
   $("#logoutDialog").kendoDialog({
@@ -286,6 +336,22 @@ $.get(`${uri}/api/Admin/top-specialization`, function (response) {
     ],
     visible: false,
   });
+
+
+  //instructor data
+  $("#loadInstructorContent").on("click", function () {
+    $.ajax({
+        url: "http://localhost:8081/instructor/verifiedinstructor", // Path to the other HTML page
+        type: "GET",
+        success: function (data) {
+            // Inject only the body content into the target div
+            $("#verified-instructors").html($(data).find("body").html());
+        },
+        error: function (error) {
+            console.log("Error loading content:", error);
+        }
+    });
+});
 
   // Class data
   var contactData = [];
@@ -335,86 +401,86 @@ $.get(`${uri}/api/Admin/top-specialization`, function (response) {
     } else {
       data.forEach(function (c) {
         html += `<div class="col-md-4 mb-4">
-                          <div class="card h-100">
-                              <div class="card-body">
-                                  <h5 class="card-title">${c.className}</h5>
-                                  <div class="mb-2">
-                                      <span class="badge badge-level me-1">${
-                                        c.description
-                                      }</span>
-                                      <span class="badge badge-type">${
-                                        c.type
-                                      }</span>
-                                  </div>
-                                  <p class="card-text">${c.description}</p>
-                                  <div class="class-detail">
-                                      <strong>Start:</strong> ${formatDateTime(
-                                        c.startDate,
-                                        c.startTime
-                                      )}
-                                  </div>
-                                  <div class="class-detail">
-                                      <strong>End:</strong> ${formatDateTime(
-                                        c.endDate,
-                                        c.endTime
-                                      )}
-                                  </div>
-                                  <div class="class-detail">
-                                      <strong>Duration:</strong> ${formatDuration(
-                                        c.duration
-                                      )}
-                                  </div>
-                                  <div class="class-detail">
-                                      <strong>Location:</strong> ${c.city}
-                                  </div>
-                                  <div class="class-detail">
-                                      <strong>Address:</strong> ${c.address}
-                                  </div>
-                                  <div class="class-detail">
-                                      <strong>Max Capacity:</strong> ${
-                                        c.maxCapacity
-                                      }
-                                  </div>
-                                  <div class="class-detail">
-                                      <strong>Available Seats:</strong> ${
-                                        c.availableCapacity
-                                      }
-                                  </div>
-                                  <div class="class-detail">
-                                      <strong>Equipment:</strong> ${
-                                        c.requiredEquipments
-                                      }
-                                  </div>
-                                  <div class="class-detail">
-                                      <strong>Price:</strong> $${c.fee.toFixed(
-                                        2
-                                      )}
-                                  </div>
-                                  <div class="class-detail">
-                                      <strong>Status:</strong> <span class="badge ${
-                                        c.status === "Active"
-                                          ? "bg-success"
-                                          : "bg-warning"
-                                      }">${c.status}</span>
-                                  </div>
-                              </div>
-                              <div class="card-footer bg-transparent">
-                                  <button class="btn btn-success w-100 book-btn" data-id="${
-                                    c.classId
-                                                            }" ${
-                                    c.availableCapacity === 0 || c.status !== "Active" ? "disabled" : ""
-                                    }>
-                                      ${
-                                        c.availableCapacity === 0
-                                          ? "Class Full"
-                                          : c.status !== "Active"
-                                          ? "Not Available"
-                                          : "Book Now"
-                                      }
-                                  </button>
-                              </div>
-                          </div>
-                      </div>`;
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <h5 class="card-title">${c.className}</h5>
+                                    <div class="mb-2">
+                                        <span class="badge badge-level me-1">${
+                                          c.description
+                                        }</span>
+                                        <span class="badge badge-type">${
+                                          c.type
+                                        }</span>
+                                    </div>
+                                    <p class="card-text">${c.description}</p>
+                                    <div class="class-detail">
+                                        <strong>Start:</strong> ${formatDateTime(
+                                          c.startDate,
+                                          c.startTime
+                                        )}
+                                    </div>
+                                    <div class="class-detail">
+                                        <strong>End:</strong> ${formatDateTime(
+                                          c.endDate,
+                                          c.endTime
+                                        )}
+                                    </div>
+                                    <div class="class-detail">
+                                        <strong>Duration:</strong> ${formatDuration(
+                                          c.duration
+                                        )}
+                                    </div>
+                                    <div class="class-detail">
+                                        <strong>Location:</strong> ${c.city}
+                                    </div>
+                                    <div class="class-detail">
+                                        <strong>Address:</strong> ${c.address}
+                                    </div>
+                                    <div class="class-detail">
+                                        <strong>Max Capacity:</strong> ${
+                                          c.maxCapacity
+                                        }
+                                    </div>
+                                    <div class="class-detail">
+                                        <strong>Available Seats:</strong> ${
+                                          c.availableCapacity
+                                        }
+                                    </div>
+                                    <div class="class-detail">
+                                        <strong>Equipment:</strong> ${
+                                          c.requiredEquipments
+                                        }
+                                    </div>
+                                    <div class="class-detail">
+                                        <strong>Price:</strong> $${c.fee.toFixed(
+                                          2
+                                        )}
+                                    </div>
+                                    <div class="class-detail">
+                                        <strong>Status:</strong> <span class="badge ${
+                                          c.status === "Active"
+                                            ? "bg-success"
+                                            : "bg-warning"
+                                        }">${c.status}</span>
+                                    </div>
+                                </div>
+                                <div class="card-footer bg-transparent">
+                                    <button class="btn btn-success w-100 book-btn" data-id="${
+                                      c.classId
+                                    }" ${
+          c.availableCapacity === 0 || c.status !== "Active" ? "disabled" : ""
+        }>
+                                        ${
+                                          c.availableCapacity === 0
+                                            ? "Class Full"
+                                            : c.status !== "Active"
+                                            ? "Not Available"
+                                            : "Book Now"
+                                        }
+                                    </button>
+                                </div>
+                            </div>
+                        </div>`;
       });
     }
     $("#classList").html(html);
@@ -538,9 +604,4 @@ function showLogoutConfirmation() {
 // Perform logout
 function performLogout() {
   alert("You have been logged out. Redirecting to login page...");
-}
-function viewPDF(pdfUrl, title) {
-  $('#document-title').text(title);
-  $('#pdf-viewer-modal iframe').attr('src', pdfUrl);
-  new bootstrap.Modal('#pdf-preview-modal').show();
 }

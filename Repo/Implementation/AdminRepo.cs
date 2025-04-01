@@ -6,11 +6,10 @@ public class AdminRepo : IAdminInterface
 {
 	private readonly NpgsqlConnection _conn;
 
-
 	public AdminRepo(NpgsqlConnection conn)
 	{
 		_conn = conn;
-
+		
 	}
 
 	#region Analytics Related Method By Paras
