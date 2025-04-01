@@ -1,105 +1,195 @@
-<!DOCTYPE html>
 <html lang="en">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FitPro - Class Card</title>
-    <link href="~/css/bookclass.css" rel="stylesheet" />
+    <title>FitPro - Yoga Flow Class</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="~/css/bookclass.css" />
+
 </head>
 
 <body>
-    <div class="class-card">
-        <!-- Banner Image (Left Side) -->
-        <div class="banner-container">
-            <div class="class-badge">Yoga</div>
-            <img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=350&h=150&fit=crop"
-                alt="Yoga Banner" class="banner">
-            <!--<img src="/api/placeholder/400/500" alt="Yoga Banner" class="banner">-->
+    @model Repo.Class;
 
-            <div class="banner-overlay"></div>
-            <h2 class="class-title">Yoga Flow</h2>
+
+    <!-- Full width banner with movie-style design -->
+    <div class="banner-container">
+        <div class="class-badge">@Model.type</div>
+        <img src="~/ClassAssets/@Url.Content(Model.assets.RootElement.GetProperty("banner").GetString())"
+            alt="Yoga Banner" class="banner">
+        <div class="banner-overlay"></div>
+        <h2 class="class-title">@Model.className</h2>
+
+        <!-- Meta information like movie details -->
+        <div class="meta-info">
+            <span>@Model.duration mins</span>
+            <span>@Model.city</span>
+            <span>@Model.startDate.ToString("MMMM dd, yyyy")</span>
         </div>
+    </div>
 
-        <!-- Right Side (Details, Slider, Total Price, Buttons) -->
-        <div class="right-side">
-            <!-- Class Details -->
-            <div class="class-details">
-                <div class="section-header">Basic Information</div>
-                <p><span>Instructor:</span> Jane Doe</p>
-                <p><span>Date:</span> March 30, 2025</p>
-                <p><span>Time:</span> 6:00 PM - 7:00 PM</p>
-                <p><span>Duration:</span> 60 mins</p>
-                <p><span>Location:</span> Studio A</p>
-                <p><span>City:</span> Surat</p>
-                <p><span>Level:</span> Intermediate</p>
-                <p><span>Price:</span> $15</p>
-
-                <div class="section-header">Schedule</div>
-                <p><span>Start Date:</span> March 28, 2025</p>
-                <p><span>End Date:</span> March 29, 2025</p>
-
-                <div class="section-header">Equipment</div>
-                <p><span>Required Equipment:</span></p>
-                <div class="tags">
-                    <span class="tag">Yoga Mat</span>
-                    <span class="tag">Water Bottle</span>
-                    <span class="tag">Towel</span>
+    <!-- Main content - No scroll layout -->
+    <div class="container main-content">
+        <div class="info-grid">
+            <!-- Left column - Class details -->
+            <div>
+                <h5>Class Details</h5>
+                <div class="class-info">
+                    <div class="info-item">
+                        <span class="info-label">Instructor</span>
+                        <span class="info-value">Jane Doe</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Date</span>
+                        <span>@Model.startDate.ToString("MMMM dd, yyyy")</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Time</span>
+                        <span class="info-value">@Model.startTime- @Model.endTime</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Duration</span>
+                        <span class="info-value">@Model.duration mins</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Location</span>
+                        <span class="info-value">@Model.address</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Status</span>
+                        <span class="info-value">@Model.status</span>
+                    </div>
                 </div>
 
-                <div class="section-header">Availability</div>
-                <p><span>Capacity:</span> 20 spots <span style="color: #4CAF50;">(12 remaining)</span> <span
-                        class="availability"></span></p>
+                <div class="section-divider"></div>
 
-                <div class="section-header">Description</div>
-                <p>A dynamic yoga class blending strength and flexibility with mindful breathing.</p>
+                <div class="info-item">
+                    <span class="info-label">Required Equipment</span>
+                    <div class="tags">
+                        @foreach (var equipment in Model.requiredEquipments.Split(','))
+                        {
+                            <span class="tag">@equipment.Trim()</span>
+                        }
+                    </div>
+                </div>
+
+                <div class="info-item">
+                    <span class="info-label">Availability</span>
+                    <span class="info-value">@Model.maxCapacity spots <span
+                            class="available-spots">(@Model.availableCapacity
+                            remaining)</span></span>
+                </div>
+
+                <div class="class-description">
+                    <h3>Class Details</h3>
+
+                    <div>
+                        <strong>Purpose:</strong>
+                        <p>@Model.description.RootElement.GetProperty("purpose").GetString()</p>
+                    </div>
+
+                    <div>
+                        <strong>Benefits:</strong>
+                        <p>@Model.description.RootElement.GetProperty("benefits").GetString()</p>
+                    </div>
+
+
+                </div>
+
+
             </div>
 
-            <!-- Slider -->
-            <div class="slider">
-                <div class="slides" id="slides">
-                    <div class="slide">
-                        <img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=350&h=150&fit=crop"
-                            alt="Class Image 1">
-                        <!--<img src="/api/placeholder/350/150" alt="Class Image 1">-->
-
-                    </div>
-                    <div class="slide">
-                        <img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=350&h=150&fit=crop"
-                            alt="Class Image 2">
-                    </div>
-                    <div class="slide">
-                        <img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=350&h=150&fit=crop"
-                            alt="Class Image 3">
-                    </div>
-                    <div class="slide">
-                        <img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=350&h=150&fit=crop"
-                            alt="Class Image 4">
-                    </div>
-                    <div class="slide">
-                        <img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=350&h=150&fit=crop"
-                            alt="Class Image 5">
+            <!-- Right column - Image and booking -->
+            <div class="booking-column">
+                <!-- Mini image slider -->
+                <div class="mini-slider">
+                    <img src="~/ClassAssets/@Url.Content(Model.assets.RootElement.GetProperty("picture 1").GetString())"
+                        alt="Yoga Class" class="slide-image" id="slider-image">
+                    <div class="slider-nav">
+                        <button class="nav-btn" id="prev-btn"><i class="fas fa-chevron-left"></i></button>
+                        <button class="nav-btn" id="next-btn"><i class="fas fa-chevron-right"></i></button>
                     </div>
                 </div>
-                <div class="slider-nav">
-                    <button class="nav-btn" id="prev-btn">&lt;</button>
-                    <button class="nav-btn" id="next-btn">&gt;</button>
+
+                <!-- Booking section -->
+                <div class="booking-section">
+                    <div class="total-price">Total Price: $@Model.fee</div>
+                    <div class="buttons">
+                        <button class="book-btn">Book Now</button>
+                        <button class="cancel-btn">Cancel</button>
+                    </div>
                 </div>
-                <div class="slide-indicators" id="indicators"></div>
-            </div>
-
-            <!-- Total Price -->
-            <div class="total-price" id="total-price">Total Price to Pay: $15</div>
-
-            <!-- Buttons -->
-            <div class="buttons">
-                <button class="book-btn">Book Now</button>
-                <button class="cancel-btn">Cancel</button>
             </div>
         </div>
     </div>
 
-    <script src="~/js/bookclass.js">
+    <!-- JavaScript -->
+    <script>
+       document.addEventListener('DOMContentLoaded', function () {
+    // Simple image slider
+    const images = [
+        "../ClassAssets/@Url.Content(Model.assets.RootElement.GetProperty("picture 2").GetString())",
+        "../ClassAssets/@Url.Content(Model.assets.RootElement.GetProperty("picture 3").GetString())",
+        "../ClassAssets/@Url.Content(Model.assets.RootElement.GetProperty("picture 4").GetString())",
+        "../ClassAssets/@Url.Content(Model.assets.RootElement.GetProperty("picture 5").GetString())",
+        "../ClassAssets/@Url.Content(Model.assets.RootElement.GetProperty("picture 1").GetString())",
+
+    ];
+
+    const imageElement = document.getElementById('slider-image');
+    const prevBtn = document.getElementById('prev-btn');
+    const nextBtn = document.getElementById('next-btn');
+    let currentImageIndex = 0;
+
+    // Show image by index
+    function showImage(index) {
+        imageElement.src = images[index];
+    }
+
+    // Next button click
+    nextBtn.addEventListener('click', function () {
+        currentImageIndex = (currentImageIndex + 1) % images.length;
+        showImage(currentImageIndex);
+    });
+
+    // Previous button click
+    prevBtn.addEventListener('click', function () {
+        currentImageIndex = (currentImageIndex - 1 + images.length) % images.length;
+        showImage(currentImageIndex);
+    });
+
+    // Auto-rotate images every 4 seconds
+    setInterval(function () {
+        currentImageIndex = (currentImageIndex + 1) % images.length;
+        showImage(currentImageIndex);
+    }, 4000);
+
+    // Theme toggle functionality
+    const themeToggle = document.getElementById('theme-toggle');
+    const themeIcon = themeToggle.querySelector('i');
+
+    // Since we're starting with dark theme, initialize with sun icon
+    themeIcon.classList.add('fa-sun');
+
+    themeToggle.addEventListener('click', function () {
+        // We'd implement theme switching logic here
+        // For now, we'll just toggle the icon
+        if (themeIcon.classList.contains('fa-sun')) {
+            themeIcon.classList.remove('fa-sun');
+            themeIcon.classList.add('fa-moon');
+            alert('This would switch to light theme!');
+        } else {
+            themeIcon.classList.remove('fa-moon');
+            themeIcon.classList.add('fa-sun');
+            alert('This would switch to dark theme!');
+        }
+    });
+});
+
 
     </script>
 </body>
