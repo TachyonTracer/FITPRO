@@ -1,13 +1,20 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+namespace Repo;
 
-namespace Repo
+public interface IUserInterface
 {
-    public interface IUserInterface
-    {
-        public Task<bool> RegisterUser(User user);
-        public Task<bool> IsEmailExists(string email);  
-    }
+	#region User Story: List Users
+	Task<List<User>> GetAllUsers();
+	Task<User> GetAllUsersById(int userId);
+
+	Task<List<User>> GetAllUsersByClassId(int classId);
+
+	public Task<List<User>> GetAllUsersByInstructorId(int instructorId);
+
+	#endregion
+
+	#region User Story: List Users Desgin
+	 Task<bool> SuspendUser(string userId);
+	 #endregion
+
+	
 }
