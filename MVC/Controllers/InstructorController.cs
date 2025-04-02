@@ -10,5 +10,16 @@ namespace MVC
             return View();
         }
 
+        public IActionResult ScheduleClass()
+        {
+            return View();
+        }
+
+        public IActionResult PartialScheduleClass()
+        {
+            return View();
+        }
+
+
     }
 }

@@ -18,7 +18,16 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="@Url.Content("~/css/Instructor/Dashboard.css")" asp-append-version="true">
+    <link rel="stylesheet" href="@Url.Content("~/css/Instructor/PartialScheduleClass.css")" asp-append-version="true">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+
+
+
+    <script src="@Url.Content("~/js/Instructor/PartialScheduleClass.js")" asp-append-version="true"></script>
 
 </head>
 
@@ -51,7 +60,7 @@
     <div id="mainTabstrip">
         <ul>
             <li class="k-active">Dashboard</li>
-            <li>Create Classes</li>
+            <li>Schedule Classes</li>
             <li>Manage Schedule </li>
             <li>Feedback</li>
         </ul>
@@ -184,11 +193,12 @@
             </div>
         </div>
         <div>
-            <!-- Classes Content -->
+            <!-- Schedule Classes -->
             <div class="content-area">
-                <div class="container" id="myClasses">
-                    <h2>Classes Content-></h2>
-                    <p>This would be the classes management section.</p>
+                <div class="container" id="scheduleClasses">
+                    @Html.Partial("~/Views/Instructor/PartialScheduleClass.cshtml")
+                    @* <h2>Classes Content-></h2>
+                    <p>This would be the classes management section.</p> *@
                 </div>
             </div>
         </div>

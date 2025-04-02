@@ -1,0 +1,209 @@
+<div class="modal fade" id="mapModal" tabindex="-1">
+    <div class="modal-dialog modal-lg" style="margin-top: 220px;">
+        <div class="modal-content bg-dark text-light">
+            <div class="modal-header">
+                <h5 class="modal-title">Select Location</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="map" style="height: 400px;"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="confirmLocationBtn">Confirm</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container" style="margin: 0 auto; padding: 0 15px;">
+    <div class=" form-container">
+        <h1 id="createClassh1">Create a Class</h1>
+        <p class="tagline">Fill in the details to schedule your class</p>
+        <form id="classForm" novalidate>
+            <div class="row">
+                <!-- Left Column -->
+                <div class="col-md-6">
+
+                    <div class="section mb-4">
+                        <h2 class="section-title">Basic Information</h2>
+                        <div class="mb-3">
+                            <label for="className" class="form-label">Class Title</label>
+                            <input type="text" class="form-control" id="className" placeholder="e.g., Yoga Basics"
+                                required minlength="2" maxlength="100">
+                            <div class="invalid-feedback">Class name must be between 2 and 100 characters</div>
+                        </div>
+
+
+                        <div class="mb-3">
+                            <label for="classDescription" class="form-label">Class Purpose</label>
+                            <div class="textarea-container">
+                                <textarea class="form-control" id="classDescription" rows="5"
+                                    placeholder="Click here to start writing your class purpose..." required></textarea>
+                                <div class="invalid-feedback">Description is required.</div>
+
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="classDescription" class="form-label">Class Benefits</label>
+
+                            <div class="textarea-container">
+                                <textarea class="form-control" id="classBenefits" rows="5"
+                                    placeholder="Click here to start writing your class benefits..."
+                                    required></textarea>
+                                <div class="invalid-feedback">Benefits description is required.</div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="classType" class="form-label">Class Type</label>
+                            <select class="form-select" id="classType" required>
+                                <option value="" disabled selected>Select class type...</option>
+                            </select>
+                            <div class="invalid-feedback">Please select a class type</div>
+                        </div>
+                        <div class="mb-3 fee-container">
+                            <label for="fee" class="form-label">Class Fee</label>
+                            <input type="number" class="form-control fee-input" id="fee" min="0" max="100000"
+                                step="0.01" placeholder="0.00" required>
+                            <div class="invalid-feedback">Fee must be between $0 and $100,000</div>
+                        </div>
+                    </div>
+
+                    <div class="section mb-4">
+                        <h2 class="section-title">Class Details</h2>
+                        <div class="mb-3">
+                            <label for="maxCapacity" class="form-label">Max Capacity</label>
+                            <input type="number" class="form-control" id="maxCapacity" min="1" max="1000"
+                                placeholder="e.g., 20" required>
+                            <div class="invalid-feedback">Capacity must be between 1 and 1000</div>
+                        </div>
+
+                        <div class="mb-3 equipment-dropdown">
+                            <label class="form-label">Required Equipment</label>
+                            <div class="dropdown">
+                                <button
+                                    class="btn form-control dropdown-toggle d-flex justify-content-between align-items-center"
+                                    type="button" id="equipmentDropdown" data-bs-toggle="dropdown"
+                                    aria-expanded="false">
+                                    <span id="equipmentDropdownText">Select equipment...</span>
+                                </button>
+                                <ul class="dropdown-menu" aria-labelledby="equipmentDropdown">
+                                    <!-- Will be populated by JavaScript -->
+                                </ul>
+                            </div>
+
+                            <div id="selectedEquipment" class="mt-2"></div>
+                        </div>
+                        @* <div class="invalid-feedback">Equipment is required.</div> *@
+
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="section mb-4">
+                        <h2 class="section-title">Schedule</h2>
+                        <div class="row mb-3">
+                            <div class="col-6">
+                                <label for="startDate" class="form-label">Start Date</label>
+                                <input type="date" class="form-control custom-datepicker" id="startDate" required>
+                                <div class="invalid-feedback">Start date is required
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <label for="endDate" class="form-label">End Date</label>
+                                <input type="date" class="form-control custom-datepicker" id="endDate" required>
+                                <div class="invalid-feedback">End Date is required</div>
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-6">
+                                <label for="startTime" class="form-label">Start Time</label>
+                                <input type="time" class="form-control" id="startTime" required>
+                                <div class="invalid-feedback">Start time is required</div>
+                            </div>
+                            <div class="col-6">
+                                <label for="endTime" class="form-label">End Time</label>
+                                <input type="time" class="form-control" id="endTime" required>
+                                <div class="invalid-feedback">End time is required</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="section mb-4">
+                        <h2 class="section-title">Location</h2>
+                        <div class="mb-3">
+                            <label for="address" class="form-label">Address</label>
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="address"
+                                    placeholder="Select Address From Map" required
+                                    style="border-top-right-radius: 0; border-bottom-right-radius: 0px;">
+
+                                <button
+                                    class="btn btn-outline-secondary d-flex align-items-center justify-content-center"
+                                    type="button" id="openMapBtn" style="height:50px; width: 42px; padding: 0; border-left: none;
+                                        border-top-left-radius: 0; border-bottom-left-radius: 0;">
+                                    <i class="bi bi-geo-alt-fill">📌</i>
+                                </button>
+                                <div class="invalid-feedback">Please select an address using the map</div>
+
+                            </div>
+
+                        </div>
+                        <div class="mb-3">
+                            <label for="city" class="form-label">City</label>
+                            <input type="text" class="form-control" id="city" list="cityList" placeholder="City"
+                                required maxlength="50" readonly>
+                            <datalist id="cityList">
+                                <option value="New York"></option>
+                                <option value="Los Angeles"></option>
+                                <option value="Chicago"></option>
+                                <option value="Houston"></option>
+                                <option value="Miami"></option>
+                            </datalist>
+                            <div class="invalid-feedback">City is required (max 50 characters)</div>
+                        </div>
+                    </div>
+
+                    <div class="section mb-4">
+                        <h2 class="section-title">Media</h2>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Upload Images</label>
+
+                            <div id="dropZone" class="drop-zone">
+                                <input type="file" id="imageInput" multiple accept="image/*" style="display:none;">
+                                <p id="dropText">Drag and drop images or click to select</p>
+                            </div>
+
+                            <div id="imagePreview"></div>
+                            <div class="invalid-feedback"></div>
+                        </div>
+                    </div>
+                </div>
+
+                @* <div class="col-md-6">
+                    <div class="section mb-4">
+                        <h2 class="section-title">Media</h2>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Upload Images</label>
+
+                            <div id="dropZone" class="drop-zone">
+                                <input type="file" id="imageInput" multiple accept="image/*" style="display:none;">
+                                <p id="dropText">Drag and drop images or click to select</p>
+                            </div>
+
+                            <div id="imagePreview"></div>
+                            <div class="invalid-feedback"></div>
+                        </div>
+                    </div>
+                </div> *@
+            </div>
+
+            <input type="hidden" id="instructorId" value="1">
+            <input type="hidden" id="status" value="Active">
+
+            <button type="submit" id="createClassBtn" class="btn">Create Class</button>
+        </form>
+    </div>
+</div>
