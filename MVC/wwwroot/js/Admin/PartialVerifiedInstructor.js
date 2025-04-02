@@ -128,7 +128,7 @@ function approveInstructor() {
                 success: function (response) {
                     Swal.fire({
                         title: "Success",
-                        text: "Instructor Approved successfully!",
+                        text: "Instructor approved, Approval mail send successfull!",
                         icon: "success",
                         confirmButtonText: "OK"
                     }).then(() => {
@@ -176,7 +176,7 @@ function disapproveInstructor() {
                 success: function (response) {
                     Swal.fire({
                         title: "Success",
-                        text: "Instructor disapproved successfully!",
+                        text: "Instructor disapproved, Disapprove mail send successfull!",
                         icon: "success",
                         confirmButtonText: "OK"
                     }).then(() => {

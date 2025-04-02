@@ -131,7 +131,7 @@ namespace API
             var result = await _instructorRepo.ApproveInstructor(id);
             if (result)
             {
-                return Ok(new {success = true, message = "Instructor approved successfully!" });
+                return Ok(new {success = true, message = "Instructor approved, Approval mail send successfully!." });
             }
             return BadRequest(new { message = "Failed to approve instructor." });
         }
@@ -150,7 +150,7 @@ namespace API
             var result = await _instructorRepo.DisapproveInstructor(id);
             if (result)
             {
-                return Ok(new {success = true, message = "Instructor disapproved successfully!" });
+                return Ok(new {success = true, message = "Instructor disapproved, Disapprove mail send successfully!." });
             }
             return BadRequest(new { message = "Failed to disapprove instructor." });
         }
