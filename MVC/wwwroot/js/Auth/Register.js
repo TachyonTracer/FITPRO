@@ -175,7 +175,7 @@ $(document).ready(function () {
       items: [
         {
           field: "height",
-          label: "Height (cm):",
+          label: "Height (min 100cm):",
           editor: "NumericTextBox",
           editorOptions: {
             format: "n0",
@@ -191,7 +191,7 @@ $(document).ready(function () {
         },
         {
           field: "weight",
-          label: "Weight (kg):",
+          label: "Weight (min 35kg):",
           editor: "NumericTextBox",
           editorOptions: {
             format: "n2",
