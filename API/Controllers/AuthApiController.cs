@@ -95,6 +95,11 @@ namespace API
                         return Unauthorized(new { success = false, message = "Your account has been rejected." });
                     }
 
+                    if (instructorObj.status == "Suspended")
+                    {
+                        return Unauthorized(new { success = false, message = "Your account has been suspended." });
+                    }
+
                     user = instructorObj;
                     role = "instructor";
                 }

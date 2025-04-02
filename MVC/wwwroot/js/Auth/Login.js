@@ -243,16 +243,17 @@ document.addEventListener("DOMContentLoaded", () => {
           icon: "success",
           title: "Login Successful",
           text: "You have successfully logged in!",
-        })
-        console.log("Token:", result.token);
-        console.log("Token:", result.userRole);
-        if (result.userRole == "user") {
-          window.location.href = "/user"  
-        } else if (result.userRole == "instructor") {
-          window.location.href = "/instructor"
-        } else if (result.userRole == "admin") {
-          window.location.href = "/admin"
-        }
+        }).then(() => {
+            // Perform redirection based on user role
+            if (result.userRole == "user") {
+              window.location.href = "/user";  
+            } else if (result.userRole == "instructor") {
+              window.location.href = "/instructor";
+            } else if (result.userRole == "admin") {
+              window.location.href = "/admin";
+            }
+        });
+        
 
       },
       error: function (xhr) {
