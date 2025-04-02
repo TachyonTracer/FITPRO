@@ -306,7 +306,7 @@ public class InstructorRepo : IInstructorInterface
                 await _conn.OpenAsync();
             }
 
-            using (var cmd = new NpgsqlCommand("UPDATE t_instructor SET c_status = 'Approve' WHERE c_instructorid = @InstructorId", _conn))
+            using (var cmd = new NpgsqlCommand("UPDATE t_instructor SET c_status = 'Approved' WHERE c_instructorid = @InstructorId", _conn))
             {
                 cmd.Parameters.AddWithValue("@InstructorId", Convert.ToInt32(instructorId));
 
@@ -361,7 +361,7 @@ public class InstructorRepo : IInstructorInterface
                 await _conn.OpenAsync();
             }
 
-            using (var cmd = new NpgsqlCommand("UPDATE t_instructor SET c_status = 'Disapprove' WHERE c_instructorid = @InstructorId", _conn))
+            using (var cmd = new NpgsqlCommand("UPDATE t_instructor SET c_status = 'Disapproved' WHERE c_instructorid = @InstructorId", _conn))
             {
                 cmd.Parameters.AddWithValue("@InstructorId", Convert.ToInt32(instructorId));
 
