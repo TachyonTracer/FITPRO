@@ -42,8 +42,23 @@ namespace API
                 }
 
                 object user;
+                string role;
+                if (userCredentials.email == "admin@gmail.com")
+                {
+                    var adminObj = await _authRepo.LoginAdmin(userCredentials); // Fetch admin from DB
+                    if (adminObj == null)
+                    {
+                        return Unauthorized(new { success = false, message = "Invalid admin credentials." });
+                    }
+                    else
+                    {
+                        user = adminObj;
+                        role = "admin";
+                    }
+                }
+                else
 
-                if (userCredentials.role.ToLower() == "user")
+                if (userCredentials.role.ToLower() == "user" && userCredentials.email != "admin@gmail.com")
                 {
                     var userObj = await _authRepo.LoginUser(userCredentials);
                     if (userObj == null)
@@ -55,6 +70,7 @@ namespace API
                         return Unauthorized(new { success = false, message = "Please check your mail for account activation." });
                     }
                     user = userObj;
+                    role = "user";
                 }
                 else if (userCredentials.role.ToLower() == "instructor")
                 {
@@ -80,19 +96,9 @@ namespace API
                     }
 
                     user = instructorObj;
+                    role = "instructor";
                 }
-                else if (userCredentials.role.ToLower() == "user")
-                {
-                    var adminObj = await _authRepo.LoginAdmin(userCredentials); // Fetch admin from DB
-                    if (adminObj == null)
-                    {
-                        return Unauthorized(new { success = false, message = "Invalid admin credentials." });
-                    }
-                    else
-                    {
-                        user = adminObj;
-                    }
-                }
+
                 else
                 {
                     return BadRequest(new { success = false, message = "Invalid role specified." });
@@ -115,7 +121,9 @@ namespace API
                     expires: DateTime.UtcNow.AddDays(1),
                     signingCredentials: signIn
                 );
-                return Ok(new { success = true, message = "Login Successful", token = new JwtSecurityTokenHandler().WriteToken(token) });
+
+
+                return Ok(new { success = true, message = "Login Successful", token = new JwtSecurityTokenHandler().WriteToken(token), userRole = role });
             }
             catch (Exception ex)
             {

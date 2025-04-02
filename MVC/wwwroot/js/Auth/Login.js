@@ -67,14 +67,14 @@ document.addEventListener("DOMContentLoaded", () => {
       message: !minLength
         ? "Password must be at least 8 characters long"
         : !hasUpperCase
-        ? "Password must contain at least one uppercase letter"
-        : !hasLowerCase
-        ? "Password must contain at least one lowercase letter"
-        : !hasNumber
-        ? "Password must contain at least one number"
-        : !hasSpecialChar
-        ? "Password must contain at least one special character"
-        : "",
+          ? "Password must contain at least one uppercase letter"
+          : !hasLowerCase
+            ? "Password must contain at least one lowercase letter"
+            : !hasNumber
+              ? "Password must contain at least one number"
+              : !hasSpecialChar
+                ? "Password must contain at least one special character"
+                : "",
     };
   }
 
@@ -238,13 +238,22 @@ document.addEventListener("DOMContentLoaded", () => {
       contentType: "application/json",
       success: function (result) {
         localStorage.setItem("token", result.token);
+
         Swal.fire({
           icon: "success",
           title: "Login Successful",
           text: "You have successfully logged in!",
-        }).then(() => {
-          console.log("Token:", result.token);
-        });
+        })
+        console.log("Token:", result.token);
+        console.log("Token:", result.userRole);
+        if (result.userRole == "user") {
+          window.location.href = "/user"  
+        } else if (result.userRole == "instructor") {
+          window.location.href = "/instructor"
+        } else if (result.userRole == "admin") {
+          window.location.href = "/admin"
+        }
+
       },
       error: function (xhr) {
         const errorMessage = xhr.responseJSON?.message || "Login failed";
