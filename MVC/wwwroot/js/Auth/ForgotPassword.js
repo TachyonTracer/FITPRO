@@ -2,7 +2,7 @@ document.addEventListener("DOMContentLoaded", function () {
   const formContainer = document.querySelector(".form-container form");
   const emailInput = document.getElementById("email");
   const submitButton = document.getElementById("submitter-button");
-  let base_url = "http://localhost:8080"; // Change this to your actual API base URL
+  let base_url = "http://localhost:8080";
 
   function showMessage(message, success = true) {
     let messageDiv = document.querySelector(".message");

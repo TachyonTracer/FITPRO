@@ -140,7 +140,7 @@ public class AdminRepo : IAdminInterface
 	#region CountInstructors
 	public async Task<int> CountInstructors()
 	{
-		var query = @"SELECT COUNT(*) FROM t_instructor WHERE c_status LIKE 'Approve'";
+		var query = @"SELECT COUNT(*) FROM t_instructor WHERE c_status LIKE 'Approved'";
 
 		if (_conn.State != ConnectionState.Open)
 		{

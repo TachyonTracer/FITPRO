@@ -1,3 +1,5 @@
+var uri = "http://localhost:8080";
+
 document.addEventListener("DOMContentLoaded", () => {
   const captchaContainer = document.getElementById("captcha-container");
   const captchaQuestion = document.getElementById("captcha-question");
@@ -232,7 +234,7 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     $.ajax({
-      url: "http://localhost:8080/api/AuthApi/login",
+      url: `${uri}/api/AuthApi/login`,
       type: "POST",
       data: JSON.stringify(payload),
       contentType: "application/json",

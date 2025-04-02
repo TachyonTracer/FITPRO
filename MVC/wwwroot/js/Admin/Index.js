@@ -354,7 +354,7 @@ $(document).ready(function () {
   var contactData = [];
 
   $.ajax({
-    url: "http://localhost:8080/api/Class/GetAllClasses",
+    url: `${uri}/api/Class/GetAllClasses`,
     type: "GET",
     success: function (response) {
       console.log(response.data);
@@ -632,7 +632,7 @@ function timeAgo(timestamp) {
 
 const connection = new signalR.HubConnectionBuilder()
   .withUrl(
-    `http://localhost:8080/notificationHub?userId=${userId}&role=${role}`
+    `${uri}/notificationHub?userId=${userId}&role=${role}`
   )
   .withAutomaticReconnect()
   .build();

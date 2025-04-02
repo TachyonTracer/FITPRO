@@ -1,3 +1,4 @@
+var uri = "http://localhost:8080";
 const themes = [
   {
     background: "#1A1A2E",
@@ -412,7 +413,7 @@ $(document).ready(function () {
                     var email = $(this).val();
                     if (email) {
                       $.ajax({
-                        url: "http://localhost:8080/api/AuthApi/check-email",
+                        url: `${uri}/api/AuthApi/check-email`,
                         method: "GET",
                         data: { email: email },
                         success: function (response) {
@@ -1096,8 +1097,8 @@ $(document).ready(function () {
 
         var url =
           selectedRole === "user"
-            ? "http://localhost:8080/api/AuthApi/register-user"
-            : "http://localhost:8080/api/AuthApi/register-instructor";
+            ? `${uri}/api/AuthApi/register-user`
+            : `${uri}/api/AuthApi/register-instructor`;
 
         $.ajax({
           url: url,
