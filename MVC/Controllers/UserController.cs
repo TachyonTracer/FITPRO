@@ -28,11 +28,10 @@ namespace MVC
         public async Task<IActionResult> BookClass(string id)
         {
             try
-            {
-                Class ClassDetails = await _Class.GetOne("42");
+            {   
+                Class ClassDetails = await _Class.GetOne(id);
                 if (ClassDetails != null)
                 {
-                    Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(ClassDetails));
 
                     return View(ClassDetails);
                 }

@@ -74,7 +74,7 @@ function renderClasses(data) {
                                 <div class="card h-100">
                                     <div id="carousel-${c.classId}" class="carousel slide" data-bs-ride="carousel">
                                         <div class="carousel-inner">
-                                            ${Object.entries(c.assets)
+                                            ${Object.entries(c?.assets)
                     .filter(([key]) => key.startsWith('picture'))
                     .map(([key, value], index) => `
                                                 <div class="carousel-item ${index === 0 ? 'active' : ''}">
@@ -127,7 +127,8 @@ function renderClasses(data) {
                                         </div>
                                     </div>
                                     <div class="card-footer bg-transparent">
-                                        <button class="btn btn-success w-100 book-btn" data-id="${c.classId}" ${c.availableCapacity === 0 || c.status !== 'Active' ? 'disabled' : ''}>
+                                        <button class="btn btn-success w-100 book-btn" onclick="ConformBooking(this.getAttribute('data-id'))" 
+                                        data-id="${c.classId}" ${c.availableCapacity === 0 || c.status !== 'Active' ? 'disabled' : ''}>
                                             ${c.availableCapacity === 0 ? 'Class Full' : c.status !== 'Active' ? 'Not Available' : 'Book Now'}
                                         </button>
                                     </div>
@@ -149,7 +150,7 @@ function renderBookedClasses(data) {
                                 <div class="card h-100">
                                     <div id="carousel-booked-${c.classId}" class="carousel slide" data-bs-ride="carousel">
                                         <div class="carousel-inner">
-                                            ${Object.entries(c.assets)
+                                            ${Object.entries(c?.assets)
                     .filter(([key]) => key.startsWith('picture'))
                     .map(([key, value], index) => `
                                                 <div class="carousel-item ${index === 0 ? 'active' : ''}">
@@ -228,6 +229,13 @@ function loadBookedClasses() {
 }
 
 $(document).ready(function () {
+
+    // Define function in the global scope
+    window.ConformBooking = function (classId) {
+        window.location.href = `/user/bookclass/${classId}`;
+    };
+
+
 
 
 
@@ -435,18 +443,18 @@ $(document).ready(function () {
     $("#filterBtn").click(applyFilters);
 
     // Booking functionality
-    $("#classList").on("click", ".book-btn", function () {
-        var classId = $(this).data("id");
-        var selectedClass = contactData.find(c => c.classId === classId);
+    // $("#classList").on("click", ".book-btn", function () {
+    //     var classId = $(this).data("id");
+    //     var selectedClass = contactData.find(c => c.classId === classId);
 
-        if (selectedClass && selectedClass.availableCapacity > 0) {
-            selectedClass.availableCapacity--;
-            renderClasses(contactData);
-            alert(`Booking confirmed for ${selectedClass.className}!\nDate: ${formatDateTime(selectedClass.startDate, selectedClass.startTime)}\nPrice: $${selectedClass.fee.toFixed(2)}`);
-        } else {
-            alert("Sorry, no seats available for " + selectedClass.className);
-        }
-    });
+    //     if (selectedClass && selectedClass.availableCapacity > 0) {
+    //         selectedClass.availableCapacity--;
+    //         renderClasses(contactData);
+    //         alert(`Booking confirmed for ${selectedClass.className}!\nDate: ${formatDateTime(selectedClass.startDate, selectedClass.startTime)}\nPrice: $${selectedClass.fee.toFixed(2)}`);
+    //     } else {
+    //         alert("Sorry, no seats available for " + selectedClass.className);
+    //     }
+    // });
 
     // Profile form submission
     // @* $(document).on("submit", "#profileForm", function(e) {

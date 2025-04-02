@@ -137,6 +137,10 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
+
+            var amount = @(Model.fee) * 100;
+
+            localStorage.setItem("authToken", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJKV1RTZXJ2aWNlc0FjY2Vzc1Rva2VuIiwianRpIjoiMjlkZWE4YzUtMGE1Ny00NDRhLWJkMjgtMWVmYzAwMzEzYjEyIiwiVXNlck9iamVjdCI6IntcImluc3RydWN0b3JJZFwiOjEwLFwiaW5zdHJ1Y3Rvck5hbWVcIjpcIktodXNoaVwiLFwiZW1haWxcIjpcImtodXNoaTFAZ21haWwuY29tXCIsXCJwYXNzd29yZFwiOm51bGwsXCJjb25maXJtUGFzc3dvcmRcIjpudWxsLFwibW9iaWxlXCI6XCIxMjM0NTY3ODkwXCIsXCJnZW5kZXJcIjpcIkZlbWFsZVwiLFwiZG9iXCI6XCIyMDAzLTEwLTA1VDAwOjAwOjAwXCIsXCJzcGVjaWFsaXphdGlvblwiOlwiWW9nYVwiLFwiY2VydGlmaWNhdGVzXCI6e1wiWW9nYVwiOlwia2h1c2hpMUBnbWFpbC5jb21fWW9nYV82OTNhYmE5MS0zZmQyLTRjMGQtYjAxMS01YjAzYjhjMzhkYmUuanBnXCJ9LFwicHJvZmlsZUltYWdlXCI6XCJraHVzaGkxQGdtYWlsLmNvbV9wcm9maWxlLnBuZ1wiLFwiYXNzb2NpYXRpb25cIjpcIkZpdFByb1wiLFwiY3JlYXRlZEF0XCI6XCIyMDI1LTAzLTI2VDEzOjEyOjU3LjkyMjc5NFwiLFwic3RhdHVzXCI6XCJBY3RpdmVcIixcImlkUHJvb2ZcIjpcImtodXNoaTFAZ21haWwuY29tX2lkcHJvb2YucG5nXCIsXCJhY3RpdmF0aW9uVG9rZW5cIjpcImQ2ZjcwYjUwLTIyZDQtNDNiNi04OWEzLWI1ZjFjMmYzOWU1YVwiLFwiYWN0aXZhdGVkT25cIjpcIjIwMjUtMDMtMjVUMTY6MjQ6MzguMDU3MDY5XCIsXCJpZFByb29mRmlsZVwiOm51bGwsXCJjZXJ0aWZpY2F0ZUZpbGVzXCI6bnVsbCxcInByb2ZpbGVJbWFnZUZpbGVcIjpudWxsfSIsImV4cCI6MTc0MzE0NzMyNSwiaXNzIjoiaHR0cHM6Ly9sb2NhbGhvc3Q6ODA4MCIsImF1ZCI6Imh0dHBzOi8vbG9jYWxob3N0OjgwODEifQ.jjl4jKtkwF-AqBQdzos4E0LwpU39GsxwDd19F-snFjA");
             // Simple image slider
             const images = [
                 "../ClassAssets/@Url.Content(Model.assets.RootElement.GetProperty("picture 2").GetString())",
@@ -216,14 +220,16 @@
                     $.ajax({
                         url: 'http://localhost:8080/Checkout/create-checkout-session',
                         type: 'POST',
+                        targrt: '_blank',
                         contentType: 'application/json',
                         data: JSON.stringify({
                             ClassName: "jack",
                             ClassDescription: "demo",
-                            amount: 100000,
-                            currency: "INR"
+                            amount: amount,
+                            currency: "INR",
+                            classId : @Model.classId
                         }),
-                        success: function (session) {
+                        succe
                             if (!session.sessionId) {
                                 Swal.fire({
                                     title: "Payment Error",
@@ -251,7 +257,7 @@
                                             contentType: 'application/json',
                                             data: JSON.stringify({
                                                 classId: @Model.classId,
-                                                userId: 10
+                                                userId: userid
                                             }),
                                             success: function (response) {
                                                 if (response.success) {
@@ -261,7 +267,10 @@
                                                         icon: "success",
                                                         confirmButtonText: "OK"
                                                     }).then(() => {
-                                                        window.location.href = "/User/UserDashBord";
+
+
+
+                                                        @* window.location.href = "/User/Index"; *@
                                                     });
                                                 } else {
                                                     Swal.fire({
@@ -309,7 +318,7 @@
 
             // Handle Cancel button click
             $('#cancel-btn').on('click', function () {
-                window.location.href = "/User/UserDashbord"
+                window.location.href = "/User/index"
             });
 
 

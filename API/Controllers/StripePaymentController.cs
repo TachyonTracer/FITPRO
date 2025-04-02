@@ -41,8 +41,8 @@ namespace StripeCheckoutDemo.Controllers
                 },
             },
                     Mode = "payment",
-                    SuccessUrl = "http://localhost:8081/Home/Success",
-                    CancelUrl = "http://localhost:8081/user/bookclass",
+                    SuccessUrl = "http://localhost:8081/user/bookclass/" + model.classId,
+                    CancelUrl = "http://localhost:8081/user/bookclass/" + model.classId,
                 };
                 var service = new SessionService();
                 var session = service.Create(options);
