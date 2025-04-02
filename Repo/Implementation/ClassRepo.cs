@@ -384,7 +384,7 @@ public class ClassRepo : IClassInterface
             {
                 cm.Parameters.AddWithValue("@c_classname", classData.className);
                 cm.Parameters.AddWithValue("@c_instructorid", classData.instructorId);
-                cm.Parameters.AddWithValue("@c_description", classData.description != null ? JsonSerializer.Serialize(classData.description) : (object)DBNull.Value);
+                cm.Parameters.AddWithValue("@c_description", classData.description);
                 cm.Parameters.AddWithValue("@c_type", classData.type);
                 cm.Parameters.AddWithValue("@c_startdate", classData.startDate);
                 cm.Parameters.AddWithValue("@c_enddate", classData.endDate);
@@ -392,7 +392,7 @@ public class ClassRepo : IClassInterface
                 cm.Parameters.AddWithValue("@c_endtime", classData.endTime);
                 cm.Parameters.AddWithValue("@c_duration", classData.duration);
                 cm.Parameters.AddWithValue("@c_maxcapacity", classData.maxCapacity);
-                cm.Parameters.AddWithValue("@c_availablecapacity", classData.availableCapacity);
+                cm.Parameters.AddWithValue("@c_availablecapacity", classData.maxCapacity);
                 cm.Parameters.AddWithValue("@c_requiredequipments", classData.requiredEquipments ?? (object)DBNull.Value);
                 cm.Parameters.AddWithValue("@c_createdat", classData.createdAt);
                 cm.Parameters.AddWithValue("@c_status", classData.status);

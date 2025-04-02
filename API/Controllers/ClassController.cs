@@ -101,20 +101,23 @@ namespace API
         #region Schedule class
 
         [HttpPost("Scheduleclass")]
-        public async Task<IActionResult> Scheduleclass([FromForm] Class classData)
+        public async Task<IActionResult> Scheduleclass([FromForm] Class classData, [FromForm] string description)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(new { success = false, message = "Invalid input data", errors = ModelState });
-            }
+            // if (!ModelState.IsValid)
+            // {
+            //     return BadRequest(new { success = false, message = "Invalid input data", errors = ModelState });
+            // }
+
 
             try
             {
 
-                if (classData.description != null && classData.description.RootElement.ValueKind == JsonValueKind.String)
+                Dictionary<string, string>? descriptionDict = JsonSerializer.Deserialize<Dictionary<string, string>>(description);
+
+                if (descriptionDict != null)
                 {
-                    string descriptionJson = classData.description.RootElement.GetString();
-                    classData.description = JsonDocument.Parse(descriptionJson);
+                    string formattedJson = JsonSerializer.Serialize(descriptionDict);
+                    classData.description = JsonDocument.Parse(formattedJson);
                 }
 
 
@@ -165,12 +168,12 @@ namespace API
 
                 return result switch
                 {
-                    1 => Ok(new { succes= true, message = "Class scheduled successfully." }),
-                    -2 => Conflict(new {succes= false,  message = "Class with the same name and type already exists for this instructor." }),
-                    -3 => Conflict(new {succes= false,  message = "Instructor already has another class during this time." }),
-                    -4 => BadRequest(new {succes= false,  message = "Class duration should be at least 1 hour." }),
-                    0 => StatusCode(500, new {succes= false,  message = "Class scheduling failed. Please try again." }),
-                    _ => StatusCode(500, new {succes= false,  message = "An unexpected error occurred." })
+                    1 => Ok(new { success = true, message = "Class scheduled successfully." }),
+                    -2 => Conflict(new { success = false, message = "Class with the same name and type already exists for this instructor." }),
+                    -3 => Conflict(new { success = false, message = "Instructor already has another class during this time." }),
+                    -4 => BadRequest(new { success = false, message = "Class duration should be at least 1 hour." }),
+                    0 => StatusCode(500, new { success = false, message = "Class scheduling failed. Please try again." }),
+                    _ => StatusCode(500, new { success = false, message = "An unexpected error occurred." })
                 };
             }
             catch (JsonException jsonEx)
