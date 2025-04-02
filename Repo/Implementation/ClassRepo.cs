@@ -424,7 +424,7 @@ public class ClassRepo : IClassInterface
 
     #region UpdateClass
 
-    public async Task<Response> UpdateClass(Class updatedClass)
+    public async Task<Response> UpdateClass(Class updatedClass, string descriptionJson = null)
     {
         Response response = new Response();
         try
@@ -462,6 +462,13 @@ public class ClassRepo : IClassInterface
                 }
             }
 
+            // Parse description JSON string into JsonDocument if provided
+            JsonDocument? descriptionDoc = updatedClass.description;
+            if (!string.IsNullOrEmpty(descriptionJson))
+            {
+                descriptionDoc = JsonDocument.Parse(descriptionJson);
+            }
+
             // Update class
             using (var cmd = new NpgsqlCommand(
                 @"UPDATE t_Class SET 
@@ -487,7 +494,7 @@ public class ClassRepo : IClassInterface
                 cmd.Parameters.AddWithValue("@classId", updatedClass.classId);
                 cmd.Parameters.AddWithValue("@className", updatedClass.className ?? (object)DBNull.Value);
                 cmd.Parameters.AddWithValue("@instructorId", updatedClass.instructorId);
-                cmd.Parameters.AddWithValue("@description", updatedClass.description ?? (object)DBNull.Value);
+                cmd.Parameters.AddWithValue("@description", (object)descriptionDoc ?? DBNull.Value); // Use parsed JsonDocument
                 cmd.Parameters.AddWithValue("@type", updatedClass.type ?? (object)DBNull.Value);
                 cmd.Parameters.AddWithValue("@startDate", updatedClass.startDate);
                 cmd.Parameters.AddWithValue("@endDate", updatedClass.endDate ?? (object)DBNull.Value);

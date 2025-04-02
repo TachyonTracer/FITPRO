@@ -72,7 +72,7 @@ namespace API
         #endregion
 
         #region  GetClassById
-        [HttpGet("ClassesById")]
+        [HttpGet("GetClassesByInstructorId")]
         public async Task<ActionResult> GetClassById(string id)
         {
             var classes = await _classRepo.GetClassById(id);
@@ -165,12 +165,12 @@ namespace API
 
                 return result switch
                 {
-                    1 => Ok(new { succes= true, message = "Class scheduled successfully." }),
-                    -2 => Conflict(new {succes= false,  message = "Class with the same name and type already exists for this instructor." }),
-                    -3 => Conflict(new {succes= false,  message = "Instructor already has another class during this time." }),
-                    -4 => BadRequest(new {succes= false,  message = "Class duration should be at least 1 hour." }),
-                    0 => StatusCode(500, new {succes= false,  message = "Class scheduling failed. Please try again." }),
-                    _ => StatusCode(500, new {succes= false,  message = "An unexpected error occurred." })
+                    1 => Ok(new { succes = true, message = "Class scheduled successfully." }),
+                    -2 => Conflict(new { succes = false, message = "Class with the same name and type already exists for this instructor." }),
+                    -3 => Conflict(new { succes = false, message = "Instructor already has another class during this time." }),
+                    -4 => BadRequest(new { succes = false, message = "Class duration should be at least 1 hour." }),
+                    0 => StatusCode(500, new { succes = false, message = "Class scheduling failed. Please try again." }),
+                    _ => StatusCode(500, new { succes = false, message = "An unexpected error occurred." })
                 };
             }
             catch (JsonException jsonEx)
@@ -214,10 +214,10 @@ namespace API
                     return NotFound(new { success = false, message = "Class not found" });
                 }
 
-                // Handle file uploads if any
+                // Handle file uploads only if new files are provided
                 if (request.assetFiles != null && request.assetFiles.Length > 0)
                 {
-                    var assetsPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "Assets");
+                    var assetsPath = Path.Combine(Directory.GetCurrentDirectory(), "../MVC/wwwroot", "ClassAssets");
                     if (!Directory.Exists(assetsPath))
                     {
                         Directory.CreateDirectory(assetsPath);
@@ -238,7 +238,6 @@ namespace API
                                 await file.CopyToAsync(stream);
                             }
 
-                            // First image gets "banner" key, others get "picture X"
                             if (i == 0)
                             {
                                 assetDict["banner"] = uniqueFileName;
@@ -250,18 +249,16 @@ namespace API
                         }
                     }
 
-                    // Serialize the dictionary to JSON and set it as the assets
+                    // Update assets only if new files are uploaded
                     request.assets = JsonDocument.Parse(JsonSerializer.Serialize(assetDict));
                 }
                 else
                 {
-                    // Keep existing assets if no new files uploaded
+                    // Preserve existing assets if no new files are uploaded
                     request.assets = existingClass.assets;
                 }
 
-                // If description needs to be updated, it should come as a proper JsonDocument
-                // Since we're using [FromForm], you might need to handle it differently
-                // For now, we'll keep the existing description if not provided
+                // Preserve existing description if not provided
                 if (request.description == null)
                 {
                     request.description = existingClass.description;
