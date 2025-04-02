@@ -252,7 +252,7 @@ public class InstructorRepo : IInstructorInterface
                                         c_status,
                                         c_idproof
                                         FROM t_instructor
-                                        WHERE c_status = 'Approve'", _conn))
+                                        WHERE c_status = 'Approved'", _conn))
             {
                 using (var dr = await cmd.ExecuteReaderAsync())
                 {
