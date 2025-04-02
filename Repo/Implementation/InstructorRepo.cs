@@ -319,20 +319,20 @@ public class InstructorRepo : IInstructorInterface
                                         c_instructorname,
                                         c_email
                                         FROM t_instructor
-                                        WHERE c_instructorid = @c_instructorid", _conn) )
-            {
-                readcmd.Parameters.AddWithValue("@c_instructorid", Convert.ToInt32(instructorId));
-
-                var reader = await readcmd.ExecuteReaderAsync();
-                if (reader.Read())
+                                        WHERE c_instructorid = @c_instructorid", _conn))
                 {
-                    var instructorName = Convert.ToString(reader["c_instructorname"]);
-                    var email = Convert.ToString(reader["c_email"]);
+                    readcmd.Parameters.AddWithValue("@c_instructorid", Convert.ToInt32(instructorId));
 
-                    await _email.SendApproveInstructorEmail(email, instructorName);
+                    var reader = await readcmd.ExecuteReaderAsync();
+                    if (reader.Read())
+                    {
+                        var instructorName = Convert.ToString(reader["c_instructorname"]);
+                        var email = Convert.ToString(reader["c_email"]);
+
+                        await _email.SendApproveInstructorEmail(email, instructorName);
+                    }
                 }
-            }
-                
+
             }
         }
         catch (Exception ex)
@@ -368,6 +368,24 @@ public class InstructorRepo : IInstructorInterface
                 // Execute the command and check affected rows
                 int rowsAffected = await cmd.ExecuteNonQueryAsync();
                 isSuccess = rowsAffected > 0;
+                using (var readcmd = new NpgsqlCommand(@"SELECT 
+                                        c_instructorid,
+                                        c_instructorname,
+                                        c_email
+                                        FROM t_instructor
+                                        WHERE c_instructorid = @c_instructorid", _conn))
+                {
+                    readcmd.Parameters.AddWithValue("@c_instructorid", Convert.ToInt32(instructorId));
+
+                    var reader = await readcmd.ExecuteReaderAsync();
+                    if (reader.Read())
+                    {
+                        var instructorName = Convert.ToString(reader["c_instructorname"]);
+                        var email = Convert.ToString(reader["c_email"]);
+
+                        await _email.SendDisapproveInstructorEmail(email, instructorName);
+                    }
+                }
             }
         }
         catch (Exception ex)
@@ -385,8 +403,8 @@ public class InstructorRepo : IInstructorInterface
     }
     #endregion
 
-     #region Suspend Intructor
-     public async Task<bool> SuspendInstructor(string instructorId)
+    #region Suspend Intructor
+    public async Task<bool> SuspendInstructor(string instructorId)
     {
         bool isSuccess = false;
         try
@@ -400,7 +418,7 @@ public class InstructorRepo : IInstructorInterface
             {
                 cmd.Parameters.AddWithValue("@InstructorId", Convert.ToInt32(instructorId));
 
-               
+
                 int rowsAffected = await cmd.ExecuteNonQueryAsync();
                 isSuccess = rowsAffected > 0;
             }
