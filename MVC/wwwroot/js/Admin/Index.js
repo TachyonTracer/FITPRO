@@ -612,9 +612,8 @@ function performLogout() {
 /* Notification JavaScript Starts*/
 /* Includes All the JS Functions for Notification Badge, Icons, Buttons and List */
 
-var userId = "U2"; // Change this dynamically based on logged-in user
-var isAdmin = true; // Set this dynamically based on role
-var role = "user" // instructor or user
+var userId = "12"; // Change this dynamically based on logged-in user
+var role = "admin" // instructor or user
 var counter = 0;
 var fetcherConn = "";
 if(role == "admin") {

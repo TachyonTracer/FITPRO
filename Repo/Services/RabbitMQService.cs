@@ -71,9 +71,9 @@ public class RabbitMQService
             if (role == "admin")
             {
                 // Store in Redis for admin users
-                await _redisService.StoreNotificationForAdmin("A1", message);
-                await _redisService.StoreNotificationForAdmin("A2", message);
-                await _redisService.StoreNotificationForAdmin("A3", message);
+                await _redisService.StoreNotificationForAdmin("12", message);
+                // await _redisService.StoreNotificationForAdmin("A2", message);
+                // await _redisService.StoreNotificationForAdmin("A3", message);
                 
                 // Notify admin UI via SignalR
                 Console.WriteLine("Sending New Notification to Admin: " + message);
@@ -87,8 +87,7 @@ public class RabbitMQService
                 await _redisService.StoreNotificationForInstructor(instructorId, message);
                 
                 // Notify user UI via SignalR
-                Console.WriteLine("Sending New Notification to User: " + message);
-                // await _hubContext.Clients.User(userId).SendAsync("NewUserNotification", message);
+                Console.WriteLine("Sending New Notification to instructor: " + message);
                 await _hubContext.Clients.Group($"instructor:{instructorId}").SendAsync("NewInstructorNotification", message);
             } 
             else 
@@ -100,7 +99,6 @@ public class RabbitMQService
                 
                 // Notify user UI via SignalR
                 Console.WriteLine("Sending New Notification to User: " + message);
-                // await _hubContext.Clients.User(userId).SendAsync("NewUserNotification", message);
                 await _hubContext.Clients.Group($"user:{userId}").SendAsync("NewUserNotification", message);
             } 
         };

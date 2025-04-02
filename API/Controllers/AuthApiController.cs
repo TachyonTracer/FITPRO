@@ -18,11 +18,13 @@ namespace API
     public class AuthApiController : ControllerBase
     {
         private readonly IConfiguration _myConfig;
+        private readonly RabbitMQService _rabbitMQService;
         private readonly IAuthInterface _authRepo;
 
-        public AuthApiController(IConfiguration myConfig, IAuthInterface authRepo)
+        public AuthApiController(IConfiguration myConfig, IAuthInterface authRepo, RabbitMQService rabbitMQService)
         {
             _myConfig = myConfig;
+            _rabbitMQService = rabbitMQService;
             _authRepo = authRepo;
         }
         #region  Login 
@@ -375,6 +377,8 @@ namespace API
 
                     if (result)
                     {
+                        // Sending Instructor Notification to Admin (12)
+                        _rabbitMQService.PublishNotification("12", "admin", $"New Instructor Registered::{instructor.instructorName} needs Approval to be an Instructor::{DateTimeOffset.UtcNow.ToUnixTimeSeconds()}");
                         return new JsonResult(new { success = true, message = "Instructor registered successfully" });
                     }
                     else
