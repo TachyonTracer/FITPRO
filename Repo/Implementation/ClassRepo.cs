@@ -23,6 +23,22 @@ public class ClassRepo : IClassInterface
                 await _conn.OpenAsync();
             }
 
+            // First check if user has already booked this class
+            using (var checkExistingBooking = new NpgsqlCommand(
+                "SELECT COUNT(*) FROM t_Bookings WHERE c_userid = @userId AND c_classid = @classId", _conn))
+            {
+                checkExistingBooking.Parameters.AddWithValue("@userId", req.userId);
+                checkExistingBooking.Parameters.AddWithValue("@classId", req.classId);
+                int existingBookings = Convert.ToInt32(await checkExistingBooking.ExecuteScalarAsync());
+                
+                if (existingBookings > 0)
+                {
+                    response.success = false;
+                    response.message = "You have already booked this class";
+                    return response;
+                }
+            }
+
             // Start a transaction
             using (var transaction = await _conn.BeginTransactionAsync())
             {
@@ -30,52 +46,70 @@ public class ClassRepo : IClassInterface
                 {
                     // Check if class exists and has available capacity
                     using (var checkCmd = new NpgsqlCommand(
-                        "SELECT c_availablecapacity FROM t_Class WHERE c_classid = @classId FOR UPDATE", _conn, transaction))
+                        "SELECT c_availablecapacity, c_maxcapacity FROM t_Class WHERE c_classid = @classId FOR UPDATE", 
+                        _conn, 
+                        transaction))
                     {
                         checkCmd.Parameters.AddWithValue("@classId", req.classId);
-                        var result = await checkCmd.ExecuteScalarAsync();
-
-                        if (result == null)
+                        using (var reader = await checkCmd.ExecuteReaderAsync())
                         {
-                            response.message = "Class not found";
-                            return response;
-                        }
+                            if (!await reader.ReadAsync())
+                            {
+                                response.success = false;
+                                response.message = "Class not found";
+                                return response;
+                            }
 
-                        int availableCapacity = Convert.ToInt32(result);
-                        if (availableCapacity <= 0)
-                        {
-                            response.message = "No available seats in this class";
-                            return response;
+                            int availableCapacity = Convert.ToInt32(reader["c_availablecapacity"]);
+                            int maxCapacity = Convert.ToInt32(reader["c_maxcapacity"]);
+
+                            if (availableCapacity <= 0)
+                            {
+                                response.success = false;
+                                response.message = "Class is full - no available seats";
+                                return response;
+                            }
                         }
                     }
 
                     // Create booking
                     using (var bookingCmd = new NpgsqlCommand(
                         "INSERT INTO t_Bookings (c_bookingid, c_userid, c_classid, c_createdat) " +
-                        "VALUES (DEFAULT, @userId, @classId, @createdAt) RETURNING c_bookingid", _conn, transaction))
+                        "VALUES (DEFAULT, @userId, @classId, @createdAt) RETURNING c_bookingid", 
+                        _conn, 
+                        transaction))
                     {
                         bookingCmd.Parameters.AddWithValue("@userId", req.userId);
                         bookingCmd.Parameters.AddWithValue("@classId", req.classId);
-                        bookingCmd.Parameters.AddWithValue("@createdAt", req.createdAt);
+                        bookingCmd.Parameters.AddWithValue("@createdAt", DateTime.UtcNow);
                         await bookingCmd.ExecuteScalarAsync();
                     }
 
                     // Decrease available capacity
                     using (var updateCmd = new NpgsqlCommand(
                         "UPDATE t_Class SET c_availablecapacity = c_availablecapacity - 1 " +
-                        "WHERE c_classid = @classId", _conn, transaction))
+                        "WHERE c_classid = @classId AND c_availablecapacity > 0", 
+                        _conn, 
+                        transaction))
                     {
                         updateCmd.Parameters.AddWithValue("@classId", req.classId);
-                        await updateCmd.ExecuteNonQueryAsync();
+                        int rowsAffected = await updateCmd.ExecuteNonQueryAsync();
+                        
+                        if (rowsAffected == 0)
+                        {
+                            throw new Exception("Failed to update class capacity");
+                        }
                     }
 
                     // Commit transaction
                     await transaction.CommitAsync();
+                    response.success = true;
                     response.message = "Class booked successfully";
                 }
                 catch (Exception ex)
                 {
                     await transaction.RollbackAsync();
+                    response.success = false;
                     response.message = $"Booking failed: {ex.Message}";
                     return response;
                 }
@@ -83,6 +117,7 @@ public class ClassRepo : IClassInterface
         }
         catch (Exception ex)
         {
+            response.success = false;
             response.message = $"Error connecting to database: {ex.Message}";
         }
         finally
