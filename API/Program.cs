@@ -102,9 +102,9 @@ builder.Services.AddSession(options =>
 // Load Redis connection string
 string redisConnectionString = builder.Configuration.GetConnectionString("Redis") ?? "localhost:6379";
 // Register RedisService with connection string
-builder.Services.AddSingleton<RedisService>(provider => new RedisService(redisConnectionString));
+builder.Services.AddScoped<RedisService>(provider => new RedisService(redisConnectionString));
 builder.Services.AddSignalR(); // Register SignalR before RabbitMQService
-builder.Services.AddSingleton<RabbitMQService>(); // Register RabbitMQService after SignalR
+builder.Services.AddScoped<RabbitMQService>(); // Register RabbitMQService after SignalR
 
 // *** Notifications: Builder Configurations Ends *** //
 
@@ -152,8 +152,14 @@ app.MapGet("/weatherforecast", () =>
 
 // Map SignalR Hub
 app.MapHub<NotificationHub>("/notificationHub");
-var rabbitMQService = app.Services.GetRequiredService<RabbitMQService>(); // Start RabbitMQ Listener **after** app is built
-rabbitMQService.StartListening();
+// var rabbitMQService = app.Services.GetRequiredService<RabbitMQService>(); // Start RabbitMQ Listener **after** app is built
+// rabbitMQService.StartListening();
+
+using (var scope = app.Services.CreateScope())
+{
+    var rabbitMQService = scope.ServiceProvider.GetRequiredService<RabbitMQService>();
+    rabbitMQService.StartListening();
+}
 
 // *** Notifications: App Configurations Ends *** //
 

@@ -655,10 +655,10 @@ h2 {
     display: none;
     width: 320px;
     position: absolute;
-    right: -125px;
+    left: -136px;
     z-index: 1000;
     background: #fff;
-    border-radius: 8px;
+    border-radius: 14px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     overflow: hidden;
 }
@@ -687,6 +687,12 @@ h2 {
     display: inline-block;
     margin-right: 10px;
     border-radius: 50%;
+}
+
+.p-2.border-top.bg-light .btn {
+  font-size: 14px; /* Reduce font size */
+  padding: 8px 10px; /* Adjust padding */
+  height: auto; /* Ensure it doesn't stretch too much */
 }
 
 #notificationList .list-group-item strong {
