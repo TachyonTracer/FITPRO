@@ -77,7 +77,7 @@ function selectInstructor(instructorId) {
             // ID Proof
             if (instructor.idProof) {
                 documentsGrid.append(`
-                    <div class="document-card" onclick="viewPDF('/Id_Proof/${instructor.idProof}', 'ID Proof')" >
+                    <div class="document-card" onclick="viewPDFs('/Id_Proof/${instructor.idProof}', 'ID Proof')" >
                         <i class="bi bi-credit-card"></i>
                         <h6 class="mb-0">ID Proof</h6>
                     </div>
@@ -92,7 +92,7 @@ function selectInstructor(instructorId) {
                     if (typeof cert === 'string' && (cert.includes('.pdf') || cert.includes('.jpg') || cert.includes('.png'))) {
                         const certKey = certKeys[index] || `Certificate ${index + 1}`;
                         documentsGrid.append(`
-                            <div class="document-card" onclick="viewPDF('/Certificates/${cert}', '${certKey}')">
+                            <div class="document-card" onclick="viewPDFs('/Certificates/${cert}', '${certKey}')">
                                 <i class="bi bi-award"></i>
                                 <h6 class="mb-0">${certKey}</h6>
                             </div>
@@ -132,8 +132,11 @@ function suspendInstructor() {
                         icon: "success",
                         confirmButtonText: "OK"
                     }).then(() => {
+                        currentInstructorId = null;
                        loadInstructorList();
-                       $("#approved-details").hide();
+                    //    $("#approved-details").hide();
+                    $("#approved-details").addClass('d-none');
+                    $("#approved-default-message").removeClass('d-none');
                     });
                 },
                 error: function () {
@@ -151,7 +154,7 @@ function suspendInstructor() {
 
 
 // View PDF in Modal
-function viewPDF(pdfUrl, title) {
+function viewPDFs(pdfUrl, title) {
     $('#approved-document-title').text(title);
     $('#approved-pdf-viewer-modal iframe').attr('src', pdfUrl);
     new bootstrap.Modal('#approved-pdf-preview-modal').show();
@@ -160,4 +163,5 @@ function viewPDF(pdfUrl, title) {
 // Load instructor list on page load
 $(document).ready(function () {
     loadInstructorList();
+    loadVerifiedInstructorList();
 });

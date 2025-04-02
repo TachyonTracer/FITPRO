@@ -132,8 +132,13 @@ function approveInstructor() {
                         icon: "success",
                         confirmButtonText: "OK"
                     }).then(() => {
-                        loadVerifiedInstructorList()
-                        $("#verified-details").hide();
+                        currentVerifiedInstructorId = null;
+                        $("#verified-details").addClass('d-none');
+                        $("#verified-default-message").removeClass('d-none');
+                        // Reload both lists
+                        loadVerifiedInstructorList();
+                        loadInstructorList();
+                        
                     });
                 },
                 error: function () {
@@ -175,8 +180,13 @@ function disapproveInstructor() {
                         icon: "success",
                         confirmButtonText: "OK"
                     }).then(() => {
-                        loadVerifiedInstructorList()
-                       $("#verified-details").hide();
+                        currentVerifiedInstructorId = null;
+                        
+                        $("#verified-details").addClass('d-none');
+                        $("#verified-default-message").removeClass('d-none');
+                        // Reload both lists
+                        loadVerifiedInstructorList();
+                        loadInstructorList();
                     });
                 },
                 error: function () {
@@ -192,13 +202,14 @@ function disapproveInstructor() {
     });
 }
 
-function viewPDF(pdfUrl, title) {
-    $('#document-title').text(title); // Set the title
-    $('#pdf-viewer-modal iframe').attr('src', pdfUrl); // Set the iframe src
-    $('#pdf-preview-modal').modal('show'); // Show the modal using jQuery
-}
 
+function viewPDF(pdfUrl, title) {
+    $('#verified-document-title').text(title);
+    $('#verified-pdf-viewer-modal iframe').attr('src', pdfUrl);
+    new bootstrap.Modal('#verified-pdf-preview-modal').show();
+}
 // Load verified instructor list on page load
 $(document).ready(function () {
     loadVerifiedInstructorList();
+    loadInstructorList();
 });

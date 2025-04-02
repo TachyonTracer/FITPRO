@@ -146,26 +146,62 @@
     margin-bottom: 10px;
 }
 
-#pdf-viewer-modal {
+/* #verified-pdf-preview-modal {
     height: calc(100% - 60px);
     z-index: 1050;
 }
 
-#pdf-preview-modal .modal-dialog {
+#verified-pdf-preview-modal .modal-dialog {
     max-width: 90%;
     height: 90vh;
     z-index: 1051;
 }
 
-#pdf-preview-modal .modal-content {
+#verified-pdf-preview-modal .modal-content {
     height: 100%;
     background: var(--glass-color);
     backdrop-filter: blur(15px);
     border: 1px solid hsla(0, 0%, 65%, 0.2);
     color: var(--color);
-    z-index: 1052;
+
+    border-radius: 15px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+#verified-pdf-preview-modal .modal-body {
+    position: relative;
+    padding: 0;
+}  */
+
+#verified-pdf-preview-modal {
+    z-index: 1060;
 }
 
+#verified-pdf-preview-modal .modal-dialog {
+    max-width: 90%;
+    height: 90vh;
+}
+
+#verified-pdf-preview-modal .modal-content {
+    height: 100%;
+    background: var(--glass-color);
+    backdrop-filter: blur(15px);
+    border: 1px solid hsla(0, 0%, 65%, 0.2);
+    color: var(--color);
+    border-radius: 15px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+#verified-pdf-viewer-container {
+    height: 80vh;
+    overflow: hidden;
+}
+
+#verified-pdf-iframe {
+    min-height: 60vh;
+    width: 100%;
+    height: 100%;
+    border: none;
+} 
 
 /* Buttons (Updated from first CSS) */
 .btn-success {
@@ -423,7 +459,7 @@
     position: fixed;
     top: 0;
     left: 0;
-    z-index: 5000;
+    z-index:0;
     width: 100vw;
     height: 100vh;
     background-color: var(--bs-backdrop-bg);
@@ -435,3 +471,57 @@
     margin-bottom: 10px;
     color:white
   }
+
+  /* #approved-pdf-preview-modal .modal-dialog {
+    max-width: 90%;
+    height: 90vh;
+}
+
+#approved-pdf-preview-modal .modal-content {
+    height: 100%;
+    background: var(--glass-color);
+    backdrop-filter: blur(15px);
+    border: 1px solid hsla(0, 0%, 65%, 0.2);
+    color: var(--color);
+    border-radius: 15px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    overflow: hidden;
+    margin-top: 200px;
+}
+
+
+#approved-pdf-preview-modal {
+    height: calc(100% - 60px);
+} */
+
+
+#approved-pdf-preview-modal {
+    z-index: 1060;
+}
+
+#approved-pdf-preview-modal .modal-dialog {
+    max-width: 90%;
+    height: 90vh;
+}
+
+#approved-pdf-preview-modal .modal-content {
+    height: 100%;
+    background: var(--glass-color);
+    backdrop-filter: blur(15px);
+    border: 1px solid hsla(0, 0%, 65%, 0.2);
+    color: var(--color);
+    border-radius: 15px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+#approved-pdf-viewer-container {
+    height: 80vh;
+    overflow: hidden;
+}
+
+#aaproved-pdf-iframe {
+    min-height: 60vh;
+    width: 100%;
+    height: 100%;
+    border: none;
+} 
