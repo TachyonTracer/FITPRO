@@ -21,7 +21,7 @@ public class ClassRepo : IClassInterface
         List<Class> classes = new List<Class>();
         try
         {
-            using (var cmd = new NpgsqlCommand("SELECT * FROM t_Class", _conn))
+            using (var cmd = new NpgsqlCommand("SELECT t1.*,t2.c_instructorname FROM t_Class t1 join t_instructor t2 on t1.c_instructorid = t2.c_instructorid", _conn))
             {
                 if (_conn.State == System.Data.ConnectionState.Closed)
                 {
@@ -38,7 +38,7 @@ public class ClassRepo : IClassInterface
                             className = reader["c_classname"].ToString(),
                             instructorId = Convert.ToInt32(reader["c_instructorid"]),
                             description = reader["c_description"] == DBNull.Value ? null : JsonDocument.Parse(reader["c_description"].ToString()),
-
+                            instructorName = reader["c_instructorname"].ToString(),
                             type = reader["c_type"].ToString(),
                             startDate = Convert.ToDateTime(reader["c_startdate"]),
                             endDate = Convert.ToDateTime(reader["c_enddate"]),

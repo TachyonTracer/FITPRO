@@ -62,71 +62,69 @@ $(document).ready(function () {
   );
   fetchAndUpdateCount(`${uri}/api/Admin/total-revenue`, "#revenue");
 
-
   // User Activity Chart (Line)
-const activityCtx = document.getElementById("activityChart").getContext("2d");
-const activityChart = new Chart(activityCtx, {
-  type: "line",
-  data: {
-    labels: [], // Dates will be populated dynamically
-    datasets: [
-      {
-        label: "Active Users",
-        data: [], // User counts will be populated dynamically
-        borderColor: "#ff4d4d",
-        backgroundColor: "rgba(255, 77, 77, 0.2)",
-        fill: true,
-        tension: 0.4,
-        pointBackgroundColor: "#ff4d4d",
-        pointBorderColor: "#fff",
-      },
-    ],
-  },
-  options: {
-    responsive: true,
-    scales: {
-      y: {
-        beginAtZero: true,
-        grid: { color: "rgba(255, 255, 255, 0.1)" },
-        ticks: { color: "#fff" },
-      },
-      x: {
-        grid: { color: "rgba(255, 255, 255, 0.1)" },
-        ticks: { color: "#fff" },
-      },
+  const activityCtx = document.getElementById("activityChart").getContext("2d");
+  const activityChart = new Chart(activityCtx, {
+    type: "line",
+    data: {
+      labels: [], // Dates will be populated dynamically
+      datasets: [
+        {
+          label: "Active Users",
+          data: [], // User counts will be populated dynamically
+          borderColor: "#ff4d4d",
+          backgroundColor: "rgba(255, 77, 77, 0.2)",
+          fill: true,
+          tension: 0.4,
+          pointBackgroundColor: "#ff4d4d",
+          pointBorderColor: "#fff",
+        },
+      ],
     },
-    plugins: { legend: { labels: { color: "#fff" } } },
-  },
-});
+    options: {
+      responsive: true,
+      scales: {
+        y: {
+          beginAtZero: true,
+          grid: { color: "rgba(255, 255, 255, 0.1)" },
+          ticks: { color: "#fff" },
+        },
+        x: {
+          grid: { color: "rgba(255, 255, 255, 0.1)" },
+          ticks: { color: "#fff" },
+        },
+      },
+      plugins: { legend: { labels: { color: "#fff" } } },
+    },
+  });
 
-// Fetch user activity data (active users for the last 7 days)
-async function fetchUserActivityData() {
-  try {
-    // Fetch the data from the backend API
-    const response = await fetch(`${uri}/api/Admin/user-activity`);
-    const data = await response.json();
+  // Fetch user activity data (active users for the last 7 days)
+  async function fetchUserActivityData() {
+    try {
+      // Fetch the data from the backend API
+      const response = await fetch(`${uri}/api/Admin/user-activity`);
+      const data = await response.json();
 
-    if (data.success) {
-      // Extract the dates and user counts from the API response
-      const dates = data.data.map(item => item.key);  
-      const activityCounts = data.data.map(item => item.value); 
+      if (data.success) {
+        // Extract the dates and user counts from the API response
+        const dates = data.data.map((item) => item.key);
+        const activityCounts = data.data.map((item) => item.value);
 
-      // Update the chart labels
-      activityChart.data.labels = dates;
-      activityChart.data.datasets[0].data = activityCounts;
+        // Update the chart labels
+        activityChart.data.labels = dates;
+        activityChart.data.datasets[0].data = activityCounts;
 
-      activityChart.update(); // Refresh the chart
-    } else {
-      console.error('Failed to fetch user activity data.');
+        activityChart.update(); // Refresh the chart
+      } else {
+        console.error("Failed to fetch user activity data.");
+      }
+    } catch (error) {
+      console.error("Error fetching user activity data:", error);
     }
-  } catch (error) {
-    console.error("Error fetching user activity data:", error);
   }
-}
 
-// Call the function to fetch and update the chart
-fetchUserActivityData();
-
+  // Call the function to fetch and update the chart
+  fetchUserActivityData();
 
   // User Engagement Chart (Doughnut)
   const engagementCtx = document
@@ -337,21 +335,20 @@ fetchUserActivityData();
     visible: false,
   });
 
-
   //instructor data
   $("#loadInstructorContent").on("click", function () {
     $.ajax({
-        url: "http://localhost:8081/instructor/verifiedinstructor", // Path to the other HTML page
-        type: "GET",
-        success: function (data) {
-            // Inject only the body content into the target div
-            $("#verified-instructors").html($(data).find("body").html());
-        },
-        error: function (error) {
-            console.log("Error loading content:", error);
-        }
+      url: "http://localhost:8081/instructor/verifiedinstructor", // Path to the other HTML page
+      type: "GET",
+      success: function (data) {
+        // Inject only the body content into the target div
+        $("#verified-instructors").html($(data).find("body").html());
+      },
+      error: function (error) {
+        console.log("Error loading content:", error);
+      },
     });
-});
+  });
 
   // Class data
   var contactData = [];
@@ -401,86 +398,106 @@ fetchUserActivityData();
     } else {
       data.forEach(function (c) {
         html += `<div class="col-md-4 mb-4">
-                            <div class="card h-100">
-                                <div class="card-body">
-                                    <h5 class="card-title">${c.className}</h5>
-                                    <div class="mb-2">
-                                        <span class="badge badge-level me-1">${
-                                          c.description
-                                        }</span>
-                                        <span class="badge badge-type">${
-                                          c.type
-                                        }</span>
-                                    </div>
-                                    <p class="card-text">${c.description}</p>
-                                    <div class="class-detail">
-                                        <strong>Start:</strong> ${formatDateTime(
-                                          c.startDate,
-                                          c.startTime
-                                        )}
-                                    </div>
-                                    <div class="class-detail">
-                                        <strong>End:</strong> ${formatDateTime(
-                                          c.endDate,
-                                          c.endTime
-                                        )}
-                                    </div>
-                                    <div class="class-detail">
-                                        <strong>Duration:</strong> ${formatDuration(
-                                          c.duration
-                                        )}
-                                    </div>
-                                    <div class="class-detail">
-                                        <strong>Location:</strong> ${c.city}
-                                    </div>
-                                    <div class="class-detail">
-                                        <strong>Address:</strong> ${c.address}
-                                    </div>
-                                    <div class="class-detail">
-                                        <strong>Max Capacity:</strong> ${
-                                          c.maxCapacity
-                                        }
-                                    </div>
-                                    <div class="class-detail">
-                                        <strong>Available Seats:</strong> ${
-                                          c.availableCapacity
-                                        }
-                                    </div>
-                                    <div class="class-detail">
-                                        <strong>Equipment:</strong> ${
-                                          c.requiredEquipments
-                                        }
-                                    </div>
-                                    <div class="class-detail">
-                                        <strong>Price:</strong> $${c.fee.toFixed(
-                                          2
-                                        )}
-                                    </div>
-                                    <div class="class-detail">
-                                        <strong>Status:</strong> <span class="badge ${
-                                          c.status === "Active"
-                                            ? "bg-success"
-                                            : "bg-warning"
-                                        }">${c.status}</span>
-                                    </div>
-                                </div>
-                                <div class="card-footer bg-transparent">
-                                    <button class="btn btn-success w-100 book-btn" data-id="${
-                                      c.classId
-                                    }" ${
-          c.availableCapacity === 0 || c.status !== "Active" ? "disabled" : ""
-        }>
-                                        ${
-                                          c.availableCapacity === 0
-                                            ? "Class Full"
-                                            : c.status !== "Active"
-                                            ? "Not Available"
-                                            : "Book Now"
-                                        }
-                                    </button>
-                                </div>
-                            </div>
-                        </div>`;
+                              <div class="card h-100">
+                                  <div id="carousel-${
+                                    c.classId
+                                  }" class="carousel slide" data-bs-ride="carousel">
+                                      <div class="carousel-inner">
+                                          ${Object.entries(c.assets)
+                                            .filter(([key]) =>
+                                              key.startsWith("picture")
+                                            )
+                                            .map(
+                                              ([key, value], index) => `
+                                              <div class="carousel-item ${
+                                                index === 0 ? "active" : ""
+                                              }">
+                                                  <img src="../ClassAssets/${value}" style="height: 200px; object-fit: cover;">
+                                              </div>
+                                          `
+                                            )
+                                            .join("")}
+                                      </div>
+                                      <button class="carousel-control-prev" type="button" data-bs-target="#carousel-${
+                                        c.classId
+                                      }" data-bs-slide="prev">
+                                          <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                          <span class="visually-hidden">Previous</span>
+                                      </button>
+                                      <button class="carousel-control-next" type="button" data-bs-target="#carousel-${
+                                        c.classId
+                                      }" data-bs-slide="next">
+                                          <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                          <span class="visually-hidden">Next</span>
+                                      </button>
+                                  </div>
+                                  <div class="card-body">
+                                      <h5 class="card-title">${c.className}</h5>
+                                      <div class="mb-2">
+                                          <span class="badge badge-level me-1">${
+                                            c.type
+                                          }</span>
+                                          <span class="badge ${
+                                            c.status === "Active"
+                                              ? "bg-success"
+                                              : "bg-warning"
+                                          }">${c.status}</span>
+                                      </div>
+                                      <p class="card-text">${
+                                        c.description.purpose
+                                      }</p>
+                                      <div class="class-detail">
+                                          <strong>Start:</strong> ${formatDateTime(
+                                            c.startDate,
+                                            c.startTime
+                                          )}
+                                      </div>
+                                      <div class="class-detail">
+                                          <strong>End:</strong> ${formatDateTime(
+                                            c.endDate,
+                                            c.endTime
+                                          )}
+                                      </div>
+                                      <div class="class-detail">
+                                          <strong>Duration:</strong> ${formatDuration(
+                                            c.duration
+                                          )}
+                                      </div>
+                                      <div class="class-detail">
+                                          <strong>Location:</strong> ${c.city}
+                                      </div>
+                                      <div class="class-detail">
+                                          <strong>Address:</strong> ${c.address}
+                                      </div>
+                                      <div class="class-detail">
+                                          <strong>Instructor Name:</strong> ${
+                                            c.instructorName
+                                          }
+                                      </div>
+                                      <div class="class-detail">
+                                          <strong>Total Seats:</strong> ${
+                                            c.maxCapacity
+                                          }
+                                      </div>
+                                      <div class="class-detail">
+                                          <strong>Available Seats:</strong> ${
+                                            c.availableCapacity
+                                          }
+                                      </div>
+                                      <div class="class-detail">
+                                          <strong>Equipment:</strong> ${
+                                            c.requiredEquipments
+                                          }
+                                      </div>
+                                      <div class="class-detail">
+                                          <strong>Price:</strong> ₹${c.fee.toFixed(
+                                            2
+                                          )}
+                                      </div>
+                                  </div>
+                                  
+                              </div>
+                          </div>`;
       });
     }
     $("#classList").html(html);
@@ -541,26 +558,6 @@ fetchUserActivityData();
   // Filter on button click
   $("#filterBtn").click(applyFilters);
 
-  // Booking functionality
-  $("#classList").on("click", ".book-btn", function () {
-    var classId = $(this).data("id");
-    var selectedClass = contactData.find((c) => c.classId === classId);
-
-    if (selectedClass && selectedClass.availableCapacity > 0) {
-      selectedClass.availableCapacity--;
-      renderClasses(contactData);
-      alert(
-        `Booking confirmed for ${
-          selectedClass.className
-        }!\nDate: ${formatDateTime(
-          selectedClass.startDate,
-          selectedClass.startTime
-        )}\nPrice: $${selectedClass.fee.toFixed(2)}`
-      );
-    } else {
-      alert("Sorry, no seats available for " + selectedClass.className);
-    }
-  });
 });
 
 $(document).ready(function () {
@@ -606,22 +603,20 @@ function performLogout() {
   alert("You have been logged out. Redirecting to login page...");
 }
 
-
-
 /* Do Not Remove */
 /* Notification JavaScript Starts*/
 /* Includes All the JS Functions for Notification Badge, Icons, Buttons and List */
 
 var userId = "12"; // Change this dynamically based on logged-in user
-var role = "admin" // instructor or user
+var role = "admin"; // instructor or user
 var counter = 0;
 var fetcherConn = "";
-if(role == "admin") {
-    var fetcherConn = "NewAdminNotification";
-} else if(role == "instructor") {
-    var fetcherConn = "NewInstructorNotification"
+if (role == "admin") {
+  var fetcherConn = "NewAdminNotification";
+} else if (role == "instructor") {
+  var fetcherConn = "NewInstructorNotification";
 } else {
-  var fetcherConn = "NewUserNotification"
+  var fetcherConn = "NewUserNotification";
 }
 
 // Convert timestamp to seconds/minutes/hours ago
@@ -636,57 +631,59 @@ function timeAgo(timestamp) {
 }
 
 const connection = new signalR.HubConnectionBuilder()
-    .withUrl(`http://localhost:8080/notificationHub?userId=${userId}&role=${role}`)
-    .withAutomaticReconnect()
-    .build();
+  .withUrl(
+    `http://localhost:8080/notificationHub?userId=${userId}&role=${role}`
+  )
+  .withAutomaticReconnect()
+  .build();
 
 connection.start().then(() => {
-    console.log("Connected to SignalR!");
-    connection.invoke("FetchNotifications", userId, role);
+  console.log("Connected to SignalR!");
+  connection.invoke("FetchNotifications", userId, role);
 });
 
 // Receive new notification
 connection.on(fetcherConn, (message) => {
-    console.log("New Notification:", message);
-    addNotification(message);
+  console.log("New Notification:", message);
+  addNotification(message);
 });
 
 // Load unread notifications
 connection.on("ReceiveNotifications", (notifications) => {
-    console.log("Unread Notifications:", notifications);
-    updateNotificationList(notifications);
+  console.log("Unread Notifications:", notifications);
+  updateNotificationList(notifications);
 });
 
 // Open Notifications Dropdown
 function openNotifications() {
-    console.log("Fetching Notification on Toggle...");
-    connection.invoke("FetchNotifications", userId, role);
-    let dropdown = document.getElementById("notificationDropdown");
-    dropdown.style.display = dropdown.style.display === "none" ? "block" : "none";
+  console.log("Fetching Notification on Toggle...");
+  connection.invoke("FetchNotifications", userId, role);
+  let dropdown = document.getElementById("notificationDropdown");
+  dropdown.style.display = dropdown.style.display === "none" ? "block" : "none";
 }
 
 // Add Notification to List (New notifications appear on top)
 function addNotification(message) {
-    let list = document.getElementById("notificationList");
+  let list = document.getElementById("notificationList");
 
-    // Remove "No new notifications" message if it exists
-    let noNotificationItem = list.querySelector(".text-muted");
-    if (noNotificationItem) {
-        list.removeChild(noNotificationItem);
-    }
+  // Remove "No new notifications" message if it exists
+  let noNotificationItem = list.querySelector(".text-muted");
+  if (noNotificationItem) {
+    list.removeChild(noNotificationItem);
+  }
 
-    let item = document.createElement("li");
-    item.className = "list-group-item d-flex align-items-start";
-    
-    let parts = message.split("::");
+  let item = document.createElement("li");
+  item.className = "list-group-item d-flex align-items-start";
 
-    let title = parts[0];
-    let body = parts[1];      
+  let parts = message.split("::");
 
-    let timestamp = parseInt(parts[2]);
-    let timeAgoText = timeAgo(timestamp);
+  let title = parts[0];
+  let body = parts[1];
 
-    item.innerHTML = `
+  let timestamp = parseInt(parts[2]);
+  let timeAgoText = timeAgo(timestamp);
+
+  item.innerHTML = `
         <span class="bg-danger rounded-circle me-2 mt-2"></span>
         <div>
             <strong>${title}</strong><br>
@@ -695,35 +692,36 @@ function addNotification(message) {
         </div>
     `;
 
-    // Insert at the top instead of the bottom
-    list.prepend(item);
+  // Insert at the top instead of the bottom
+  list.prepend(item);
 
-    counter++;
-    updateBellIcon();
+  counter++;
+  updateBellIcon();
 }
 
 // Update Notification List
 function updateNotificationList(notifications) {
-    let list = document.getElementById("notificationList");
-    list.innerHTML = "";
-    counter = 0; // Reset counter before processing new notifications
+  let list = document.getElementById("notificationList");
+  list.innerHTML = "";
+  counter = 0; // Reset counter before processing new notifications
 
-    if (notifications.length === 0) {
-        list.innerHTML = '<li class="list-group-item text-center text-muted">No new notifications</li>';
-    } else {
-        notifications.forEach((message) => {
-            let item = document.createElement("li");
-            item.className = "list-group-item d-flex align-items-start";
+  if (notifications.length === 0) {
+    list.innerHTML =
+      '<li class="list-group-item text-center text-muted">No new notifications</li>';
+  } else {
+    notifications.forEach((message) => {
+      let item = document.createElement("li");
+      item.className = "list-group-item d-flex align-items-start";
 
-            let parts = message.split("::");
+      let parts = message.split("::");
 
-            let title = parts[0];
-            let body = parts[1];      
+      let title = parts[0];
+      let body = parts[1];
 
-            let timestamp = parseInt(parts[2]);
-            let timeAgoText = timeAgo(timestamp);
+      let timestamp = parseInt(parts[2]);
+      let timeAgoText = timeAgo(timestamp);
 
-            item.innerHTML = `
+      item.innerHTML = `
                 <span class="bg-danger rounded-circle me-2 mt-2"></span>
                 <div>
                     <strong>${title}</strong><br>
@@ -732,28 +730,28 @@ function updateNotificationList(notifications) {
                 </div>
             `;
 
-            // Insert at the top instead of the bottom
-            list.prepend(item);
+      // Insert at the top instead of the bottom
+      list.prepend(item);
 
-            counter++; // Increase counter for each unread notification
-        });
-    }
-    updateBellIcon();
+      counter++; // Increase counter for each unread notification
+    });
+  }
+  updateBellIcon();
 }
 
 // Update Bell Icon Count
 function updateBellIcon() {
-    let badge = document.getElementById("notificationCount");
-    badge.textContent = counter > 0 ? counter : 0;
-    badge.style.display = counter > 0 ? "inline" : "none";
+  let badge = document.getElementById("notificationCount");
+  badge.textContent = counter > 0 ? counter : 0;
+  badge.style.display = counter > 0 ? "inline" : "none";
 }
 
 // Mark All as Read
 function markAllAsRead() {
-    counter = 0;
-    connection.invoke("MarkAllAsRead", userId, role).then(() => {
-        updateNotificationList([]); // Clear notifications
-    });
+  counter = 0;
+  connection.invoke("MarkAllAsRead", userId, role).then(() => {
+    updateNotificationList([]); // Clear notifications
+  });
 }
 
 /* Do Not Remove */
