@@ -5,6 +5,7 @@ using Microsoft.Net.Http.Headers;
 using Microsoft.OpenApi.Models;
 using Npgsql;
 using Repo;
+using Stripe;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddScoped<IClassInterface,ClassRepo>();
@@ -40,6 +41,12 @@ builder.Services.AddSwaggerGen(c =>
         }
     );
 });
+
+
+// StripeConfiguration.ApiKey = builder.Configuration["Stripe:SecretKey"];
+// Configure Stripe settings
+builder.Services.Configure<StripeSettings>(builder.Configuration.GetSection("Stripe"));
+StripeConfiguration.ApiKey = builder.Configuration["Stripe:SecretKey"];
 
 builder.Services.AddScoped<NpgsqlConnection>((provider) =>
 {

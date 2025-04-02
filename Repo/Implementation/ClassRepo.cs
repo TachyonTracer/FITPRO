@@ -103,8 +103,10 @@ public class ClassRepo : IClassInterface
 
                     // Commit transaction
                     await transaction.CommitAsync();
-                    response.success = true;
+
                     response.message = "Class booked successfully";
+                    
+                    
                 }
                 catch (Exception ex)
                 {

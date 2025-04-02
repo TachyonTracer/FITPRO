@@ -10,6 +10,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="~/css/bookclass.css" />
 
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.17.2/dist/sweetalert2.all.min.js" \></script>
+
 </head>
 
 <body>
@@ -79,8 +81,8 @@
 
                 <div class="info-item">
                     <span class="info-label">Availability</span>
-                    <span class="info-value">@Model.maxCapacity spots <span
-                            class="available-spots">(@Model.availableCapacity
+                    <span class="info-value">@Model.maxCapacity spots <span class="available-spots"
+                            id="available-spots">(@Model.availableCapacity
                             remaining)</span></span>
                 </div>
 
@@ -119,76 +121,205 @@
                 <div class="booking-section">
                     <div class="total-price">Total Price: $@Model.fee</div>
                     <div class="buttons">
-                        <button class="book-btn">Book Now</button>
-                        <button class="cancel-btn">Cancel</button>
+                        <button class="book-btn" id="book-now-btn">Book Now</button>
+                        <button class="cancel-btn" id="cancel-btn">Cancel</button>
                     </div>
                 </div>
+
             </div>
         </div>
     </div>
+    </div>
 
     <!-- JavaScript -->
+    <script src="https://js.stripe.com/v3/"></script>
+
+
     <script>
-       document.addEventListener('DOMContentLoaded', function () {
-    // Simple image slider
-    const images = [
-        "../ClassAssets/@Url.Content(Model.assets.RootElement.GetProperty("picture 2").GetString())",
-        "../ClassAssets/@Url.Content(Model.assets.RootElement.GetProperty("picture 3").GetString())",
-        "../ClassAssets/@Url.Content(Model.assets.RootElement.GetProperty("picture 4").GetString())",
-        "../ClassAssets/@Url.Content(Model.assets.RootElement.GetProperty("picture 5").GetString())",
-        "../ClassAssets/@Url.Content(Model.assets.RootElement.GetProperty("picture 1").GetString())",
+        document.addEventListener('DOMContentLoaded', function () {
+            // Simple image slider
+            const images = [
+                "../ClassAssets/@Url.Content(Model.assets.RootElement.GetProperty("picture 2").GetString())",
+                "../ClassAssets/@Url.Content(Model.assets.RootElement.GetProperty("picture 3").GetString())",
+                "../ClassAssets/@Url.Content(Model.assets.RootElement.GetProperty("picture 4").GetString())",
+                "../ClassAssets/@Url.Content(Model.assets.RootElement.GetProperty("picture 5").GetString())",
+                "../ClassAssets/@Url.Content(Model.assets.RootElement.GetProperty("picture 1").GetString())",
 
-    ];
+            ];
 
-    const imageElement = document.getElementById('slider-image');
-    const prevBtn = document.getElementById('prev-btn');
-    const nextBtn = document.getElementById('next-btn');
-    let currentImageIndex = 0;
+            const imageElement = document.getElementById('slider-image');
+            const prevBtn = document.getElementById('prev-btn');
+            const nextBtn = document.getElementById('next-btn');
+            let currentImageIndex = 0;
 
-    // Show image by index
-    function showImage(index) {
-        imageElement.src = images[index];
-    }
+            // Show image by index
+            function showImage(index) {
+                imageElement.src = images[index];
+            }
 
-    // Next button click
-    nextBtn.addEventListener('click', function () {
-        currentImageIndex = (currentImageIndex + 1) % images.length;
-        showImage(currentImageIndex);
-    });
+            // Next button click
+            nextBtn.addEventListener('click', function () {
+                currentImageIndex = (currentImageIndex + 1) % images.length;
+                showImage(currentImageIndex);
+            });
 
-    // Previous button click
-    prevBtn.addEventListener('click', function () {
-        currentImageIndex = (currentImageIndex - 1 + images.length) % images.length;
-        showImage(currentImageIndex);
-    });
+            // Previous button click
+            prevBtn.addEventListener('click', function () {
+                currentImageIndex = (currentImageIndex - 1 + images.length) % images.length;
+                showImage(currentImageIndex);
+            });
 
-    // Auto-rotate images every 4 seconds
-    setInterval(function () {
-        currentImageIndex = (currentImageIndex + 1) % images.length;
-        showImage(currentImageIndex);
-    }, 4000);
+            // Auto-rotate images every 4 seconds
+            setInterval(function () {
+                currentImageIndex = (currentImageIndex + 1) % images.length;
+                showImage(currentImageIndex);
+            }, 4000);
 
-    // Theme toggle functionality
-    const themeToggle = document.getElementById('theme-toggle');
-    const themeIcon = themeToggle.querySelector('i');
+            function getUserIdFromToken() {
+                const token = localStorage.getItem("authToken");
+                if (!token) {
+                    console.warn("No auth token found in localStorage.");
+                    return null;
+                }
+                const decoded = parseJwt(token);
+                if (decoded) {
+                    console.log("this is line 144 decoded:" + JSON.parse(decoded.UserObject).userId);
 
-    // Since we're starting with dark theme, initialize with sun icon
-    themeIcon.classList.add('fa-sun');
+                    return JSON.parse(decoded.UserObject).userId;
+                }
+                console.warn("Invalid or malformed token.");
+                return null;
+            }
 
-    themeToggle.addEventListener('click', function () {
-        // We'd implement theme switching logic here
-        // For now, we'll just toggle the icon
-        if (themeIcon.classList.contains('fa-sun')) {
-            themeIcon.classList.remove('fa-sun');
-            themeIcon.classList.add('fa-moon');
-            alert('This would switch to light theme!');
-        } else {
-            themeIcon.classList.remove('fa-moon');
-            themeIcon.classList.add('fa-sun');
-            alert('This would switch to dark theme!');
-        }
-    });
-});
+            function parseJwt(token) {
+                try {
+                    const base64Url = token.split(".")[1];
+                    const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+                    return JSON.parse(atob(base64));
+                } catch (error) {
+                    console.error("Invalid token:", error);
+                    return null;
+                }
+            }
+
+
+            var userid = getUserIdFromToken();
+
+            $('#book-now-btn').on('click', function (e) {
+                e.preventDefault();
+
+                var available_spots = parseInt(document.getElementById("available-spots").value, 10);
+
+                if (@Model.availableCapacity > 0) {
+                    var stripe = Stripe('pk_test_51R9873B6NxmJUHpLwRmbtVWKFWIAFHzLx27IWuda1MiaD1WtS6G9uimHfT4bepFIzXCYNQ0BpcYEo1FWSH651Zjp00H0cXnR7g');
+
+                    $.ajax({
+                        url: 'http://localhost:8080/Checkout/create-checkout-session',
+                        type: 'POST',
+                        contentType: 'application/json',
+                        data: JSON.stringify({
+                            ClassName: "jack",
+                            ClassDescription: "demo",
+                            amount: 100000,
+                            currency: "INR"
+                        }),
+                        success: function (session) {
+                            if (!session.sessionId) {
+                                Swal.fire({
+                                    title: "Payment Error",
+                                    text: "Failed to initiate payment. Please try again later.",
+                                    icon: "error",
+                                    confirmButtonText: "OK"
+                                });
+                                return;
+                            }
+
+                            stripe.redirectToCheckout({ sessionId: session.sessionId })
+                                .then(function (result) {
+                                    if (result.error) {
+                                        Swal.fire({
+                                            title: "Payment Error",
+                                            text: result.error.message,
+                                            icon: "error",
+                                            confirmButtonText: "OK"
+                                        });
+                                    } else {
+                                        // Proceed with class booking after successful payment
+                                        $.ajax({
+                                            url: 'http://localhost:8080/api/Class/BookClass',
+                                            type: 'POST',
+                                            contentType: 'application/json',
+                                            data: JSON.stringify({
+                                                classId: @Model.classId,
+                                                userId: 10
+                                            }),
+                                            success: function (response) {
+                                                if (response.success) {
+                                                    Swal.fire({
+                                                        title: "Booking Confirmed",
+                                                        text: "Your class has been successfully booked!",
+                                                        icon: "success",
+                                                        confirmButtonText: "OK"
+                                                    }).then(() => {
+                                                        window.location.href = "/User/UserDashBord";
+                                                    });
+                                                } else {
+                                                    Swal.fire({
+                                                        title: "Booking Failed",
+                                                        text: response.message || "Unable to complete the booking. Please try again.",
+                                                        icon: "error",
+                                                        confirmButtonText: "OK"
+                                                    });
+                                                }
+                                            },
+                                            error: function (xhr, status, error) {
+                                                Swal.fire({
+                                                    title: "Booking Error",
+                                                    text: xhr.responseJSON?.message || "An unexpected error occurred.",
+                                                    icon: "error",
+                                                    confirmButtonText: "OK"
+                                                });
+                                            }
+                                        });
+                                    }
+                                });
+                        },
+                        error: function (xhr, status, error) {
+                            Swal.fire({
+                                title: "Payment Error",
+                                text: "Unable to process payment. Please try again later.",
+                                icon: "error",
+                                confirmButtonText: "OK"
+                            });
+                            console.error('Error:', error);
+                        }
+                    });
+                } else {
+                    Swal.fire({
+                        title: "Booking Unavailable",
+                        text: "All slots are currently full. Please try again later or choose a different class.",
+                        icon: "info",
+                        confirmButtonText: "OK"
+                    });
+                }
+            });
+
+
+
+
+            // Handle Cancel button click
+            $('#cancel-btn').on('click', function () {
+                window.location.href = "/User/UserDashbord"
+            });
+
+
+
+        });
+
+
+
+
+
 
 
     </script>

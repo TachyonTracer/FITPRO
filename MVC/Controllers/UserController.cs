@@ -24,18 +24,27 @@ namespace MVC
         }
 
 
-      [HttpGet]
+        [HttpGet]
         public async Task<IActionResult> BookClass(string id)
         {
-
-            Class ClassDetails = await _Class.GetOne("42");
-            if (ClassDetails != null)
+            try
             {
-                Console.WriteLine(ClassDetails);
+                Class ClassDetails = await _Class.GetOne("42");
+                if (ClassDetails != null)
+                {
+                    Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(ClassDetails));
 
-                return View(ClassDetails);
+                    return View(ClassDetails);
+                }
+
             }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+            }
+
             return View();
+
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
