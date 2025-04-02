@@ -252,7 +252,7 @@ namespace API
 
                 if (result)
                 {
-                    return new JsonResult(new { success = true, message = "User registered successfully" });
+                    return new JsonResult(new { success = true, message = "User registered successfully \n Please check your email for the activation link." });
                 }
                 else
                 {
@@ -375,7 +375,7 @@ namespace API
 
                     if (result)
                     {
-                        return new JsonResult(new { success = true, message = "Instructor registered successfully" });
+                        return new JsonResult(new { success = true, message = "Instructor registered successfully \n Please check your email for the activation link." });
                     }
                     else
                     {
