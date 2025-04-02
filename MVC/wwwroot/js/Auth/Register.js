@@ -298,7 +298,7 @@ $(document).ready(function () {
         },
         {
           field: "certificates",
-          label: "Professional Certificates:",
+          label: "Professional Certificates (Pdf):",
           editor: function (container, options) {
             var input = $('<input type="file" />')
               .appendTo(container)
@@ -320,7 +320,7 @@ $(document).ready(function () {
         },
         {
           field: "idProof",
-          label: "ID Proof:",
+          label: "ID Proof (Pdf):",
           editor: function (container, options) {
             var input = $('<input type="file" />')
               .appendTo(container)
@@ -1123,10 +1123,10 @@ $(document).ready(function () {
             }
           },
           error: function (xhr, status, error) {
-            const errorMessage = xhr.responseJSON?.message || "Login failed";
+            const errorMessage = xhr.responseJSON?.message || "Registration Failed";
             Swal.fire({
               icon: "error",
-              title: "Login Failed",
+              title: "Registration Failed",
               text: errorMessage,
             });
           },
