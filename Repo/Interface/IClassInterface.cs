@@ -9,5 +9,5 @@ public interface IClassInterface
 
     Task<int> ScheduleClass( Class classData);
 
-    Task<Response> UpdateClass(Class updatedClass, string descriptionJson = null);
+    Task<Response> UpdateClass(Class updatedClass);
 }

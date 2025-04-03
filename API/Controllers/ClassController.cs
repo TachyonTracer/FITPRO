@@ -217,6 +217,23 @@ namespace API
                     return NotFound(new { success = false, message = "Class not found" });
                 }
 
+                // Handle description
+                if (request.description == null && !string.IsNullOrEmpty(Request.Form["description"]))
+                {
+                    try
+                    {
+                        request.description = JsonDocument.Parse(Request.Form["description"]);
+                    }
+                    catch (JsonException ex)
+                    {
+                        return BadRequest(new { success = false, message = "Invalid description format", error = ex.Message });
+                    }
+                }
+                else if (request.description == null)
+                {
+                    request.description = existingClass.description;
+                }
+
                 // Handle file uploads only if new files are provided
                 if (request.assetFiles != null && request.assetFiles.Length > 0)
                 {
@@ -252,19 +269,11 @@ namespace API
                         }
                     }
 
-                    // Update assets only if new files are uploaded
                     request.assets = JsonDocument.Parse(JsonSerializer.Serialize(assetDict));
                 }
                 else
                 {
-                    // Preserve existing assets if no new files are uploaded
                     request.assets = existingClass.assets;
-                }
-
-                // Preserve existing description if not provided
-                if (request.description == null)
-                {
-                    request.description = existingClass.description;
                 }
 
                 var response = await _classRepo.UpdateClass(request);
