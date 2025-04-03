@@ -442,23 +442,36 @@ $(document).ready(function () {
                 label: "Phone Number:",
                 validation: {
                   required: true,
-                  pattern: "^[0-9]{10}$",
+                  pattern: "^[1-9][0-9]{9}$", // Ensures 10 digits and does NOT start with 0
                   messages: {
                     required: "Phone Number is required",
-                    pattern: "Please enter a valid 10-digit phone number",
+                    pattern:
+                      "Please enter a valid 10-digit phone number that does not start with 0",
                   },
                 },
                 editor: function (container, options) {
                   var input = $(
-                    '<input type="text" required data-required-msg = "Phone number is required" pattern="^[0-9]{10}$" data-pattern-msg="Please enter a valid 10-digit phone number" />'
+                    '<input type="text" required ' +
+                    'data-required-msg="Phone number is required" ' +
+                    'pattern="^[1-9][0-9]{9}$" ' +
+                    'data-pattern-msg="Please enter a valid 10-digit phone number that does not start with 0" />'
                   )
-                    .appendTo(container)
-                    .attr("name", options.field)
-                    .kendoTextBox({ placeholder: "Enter your phone number" });
+                  .appendTo(container)
+                  .attr("name", options.field)
+                  .kendoTextBox({ placeholder: "Enter your phone number" });
+                  
+                  // Prevent non-numeric input
+                  input.on("keypress", function(e) {
+                    // Allow only number keys (0-9) and control keys
+                    if (e.which < 48 || e.which > 57) {
+                      e.preventDefault();
+                    }
+                  });
+                  
                   input.on("change", function () {
                     formDataStore.personalInfo.phone = $(this).val();
                   });
-                },
+                }
               },
               {
                 field: "gender",
@@ -522,10 +535,16 @@ $(document).ready(function () {
                     .kendoDatePicker({
                       format: "yyyy-MM-dd",
                       max: new Date(),
+                      dateInput: false, // Prevents manual typing
                       change: function () {
                         validateAge(input, container);
                       },
                     });
+
+                  // Prevent manual typing
+                  input.on("keydown paste", function (e) {
+                    e.preventDefault();
+                  });
 
                   input.on("change", function () {
                     formDataStore.personalInfo.dateOfBirth = $(this).val();
@@ -545,7 +564,7 @@ $(document).ready(function () {
                         age--;
                       }
 
-                      // If under 18, show error message
+                      // If under 15 or over 70, show error message
                       if (age < 15 || age > 70) {
                         var errorMessage =
                           age < 15
