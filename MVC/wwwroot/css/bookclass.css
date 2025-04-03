@@ -5,8 +5,8 @@
     --dark-text-primary: #e0e0e0;
     --dark-text-secondary: #b0b0b0;
     --dark-border: #3a3a3a;
-    --accent-color: #ff4d79;
-    --accent-hover: #e83a68;
+    --accent-color: #e83a68;
+    --accent-hover: #ff4d4d;
     --tag-bg: #303030;
     --tag-text: #b0b0b0;
 }
@@ -319,7 +319,7 @@ footer {
 }
 
 .book-btn {
-    background-color: var(--accent-color);
+    background-color: #ef5353;
     color: white;
     border: none;
     border-radius: 6px;
@@ -334,7 +334,7 @@ footer {
 }
 
 .book-btn:hover {
-    background-color: var(--accent-hover);
+    background-color: #ff4d4d;
     transform: translateY(-2px);
     box-shadow: 0px 6px 12px rgba(255, 77, 121, 0.3);
 }
