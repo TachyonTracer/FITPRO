@@ -39,7 +39,7 @@ namespace Repo
                     await _conn.OpenAsync();
                 }
 
-                string userQuery = "SELECT c_userid,c_username, 'User' FROM t_User WHERE c_email = @Email";
+                string userQuery = "SELECT c_userid,c_username, 'User' FROM t_User WHERE c_email = @Email and c_status = TRUE";
                 using (var cmd = new NpgsqlCommand(userQuery, _conn))
                 {
                     cmd.Parameters.AddWithValue("@Email", email);
@@ -55,7 +55,7 @@ namespace Repo
                 // If not found in t_User, check in t_Instructor
                 if (userID == 0)
                 {
-                    string instructorQuery = "SELECT c_instructorid, c_instructorname, 'Instructor' FROM t_Instructor WHERE c_email = @Email";
+                    string instructorQuery = "SELECT c_instructorid, c_instructorname, 'Instructor' FROM t_Instructor WHERE c_email = @Email and c_status = 'Verified'";
                     using (var cmd = new NpgsqlCommand(instructorQuery, _conn))
                     {
                         cmd.Parameters.AddWithValue("@Email", email);
@@ -430,6 +430,7 @@ namespace Repo
                     await _conn.CloseAsync();
 
                 await _conn.OpenAsync();
+                instructor.status = "Unverified";
 
                 using (var command = new NpgsqlCommand(query, _conn))
                 {

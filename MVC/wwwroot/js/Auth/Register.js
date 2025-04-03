@@ -155,14 +155,11 @@ $(document).ready(function () {
   });
 
   function generateActivationToken() {
-    return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(
-      /[xy]/g,
-      function (c) {
-        var r = (Math.random() * 16) | 0,
-          v = c == "x" ? r : (r & 0x3) | 0x8;
-        return v.toString(16);
-      }
-    );
+    return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
+      var r = (Math.random() * 16) | 0,
+        v = c == "x" ? r : (r & 0x3) | 0x8;
+      return v.toString(16);
+    });
   }
 
   function getUserDetailsConfig() {
@@ -247,8 +244,7 @@ $(document).ready(function () {
             required: true,
             maxLength: 200,
             messages: {
-              required:
-                "Please select at least one medical condition or 'None'",
+              required: "Please select at least one medical condition or 'None'",
             },
           },
         },
@@ -431,9 +427,7 @@ $(document).ready(function () {
                         error: function () {
                           emailValid = false;
                           input.next(".email-error").remove();
-                          input.after(
-                            '<span class="email-error">Error checking email</span>'
-                          );
+                          input.after('<span class="email-error">Error checking email</span>');
                         },
                       });
                     }
@@ -470,19 +464,15 @@ $(document).ready(function () {
                 field: "gender",
                 label: "Gender:",
                 editor: function (container, options) {
-                  var genderContainer = $(
-                    '<div class="role-selection">'
-                  ).appendTo(container);
+                  var genderContainer = $('<div class="role-selection">').appendTo(container);
 
-                  var hiddenInput = $(
-                    '<input type="hidden" name="gender" required />'
-                  ).appendTo(genderContainer);
+                  var hiddenInput = $('<input type="hidden" name="gender" required />').appendTo(
+                    genderContainer
+                  );
 
                   $('<div class="gender-role-option">')
                     .appendTo(genderContainer)
-                    .append(
-                      '<input type="radio" name="genderRadio" id="male" value="Male" />'
-                    )
+                    .append('<input type="radio" name="genderRadio" id="male" value="Male" />')
                     .append('<label for="male">Male</label>')
                     .on("click", function () {
                       hiddenInput.val("Male").trigger("change");
@@ -491,9 +481,7 @@ $(document).ready(function () {
 
                   $('<div class="gender-role-option">')
                     .appendTo(genderContainer)
-                    .append(
-                      '<input type="radio" name="genderRadio" id="female" value="Female" />'
-                    )
+                    .append('<input type="radio" name="genderRadio" id="female" value="Female" />')
                     .append('<label for="female">Female</label>')
                     .on("click", function () {
                       hiddenInput.val("Female").trigger("change");
@@ -502,9 +490,7 @@ $(document).ready(function () {
 
                   $('<div class="gender-role-option">')
                     .appendTo(genderContainer)
-                    .append(
-                      '<input type="radio" name="genderRadio" id="other" value="Other" />'
-                    )
+                    .append('<input type="radio" name="genderRadio" id="other" value="Other" />')
                     .append('<label for="other">Other</label>')
                     .on("click", function () {
                       hiddenInput.val("Other").trigger("change");
@@ -555,17 +541,23 @@ $(document).ready(function () {
                       var birthDate = new Date(input.val());
                       var age = today.getFullYear() - birthDate.getFullYear();
                       var m = today.getMonth() - birthDate.getMonth();
-                      if (
-                        m < 0 ||
-                        (m === 0 && today.getDate() < birthDate.getDate())
-                      ) {
+                      if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
                         age--;
                       }
 
                       // If under 18, show error message
-                      if (age < 15) {
+                      if (age < 15 || age > 70) {
+                        var errorMessage =
+                          age < 15
+                            ? "You must be at least 15 years old."
+                            : "Age cannot be more than 70.";
+
+                        // Remove existing error message before adding a new one
+                        $(".age-error").remove();
+
+                        // Append the error message
                         $(
-                          '<span class="k-form-error age-error">You must be at least 15 years old</span>'
+                          '<span class="k-form-error age-error">' + errorMessage + "</span>"
                         ).appendTo(container);
 
                         // Prevent form from proceeding
@@ -575,6 +567,9 @@ $(document).ready(function () {
                         }
                         return false;
                       } else {
+                        // Remove error message if age is valid
+                        $(".age-error").remove();
+
                         // Enable next step if age is valid
                         var wizard = $("#wizard").data("kendoWizard");
                         if (wizard) {
@@ -598,9 +593,7 @@ $(document).ready(function () {
                 field: "password",
                 label: "Password:",
                 editor: function (container, options) {
-                  var input = $(
-                    '<input type="password" name="password" required />'
-                  )
+                  var input = $('<input type="password" name="password" required />')
                     .appendTo(container)
                     .kendoTextBox({
                       placeholder: "Enter your password",
@@ -615,10 +608,7 @@ $(document).ready(function () {
                     });
 
                   // Add pattern attribute for validation
-                  input.attr(
-                    "pattern",
-                    "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).{8,}$"
-                  );
+                  input.attr("pattern", "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).{8,}$");
                   input.attr(
                     "data-pattern-msg",
                     "Password must contain: 8+ chars, 1 uppercase, 1 lowercase, 1 number"
@@ -640,8 +630,7 @@ $(document).ready(function () {
                   messages: {
                     required: "Password is required",
                     minLength: "Password must be at least 8 characters",
-                    pattern:
-                      "Must contain: 8+ chars, 1 uppercase, 1 lowercase, 1 number",
+                    pattern: "Must contain: 8+ chars, 1 uppercase, 1 lowercase, 1 number",
                   },
                 },
               },
@@ -659,9 +648,7 @@ $(document).ready(function () {
 
                   // Add validation message container
                   $(
-                    '<span class="k-invalid-msg" data-for="' +
-                      options.field +
-                      '"></span>'
+                    '<span class="k-invalid-msg" data-for="' + options.field + '"></span>'
                   ).appendTo(container);
 
                   // Handle change event
@@ -697,33 +684,24 @@ $(document).ready(function () {
                 gender: formDataStore.personalInfo.gender || "",
                 dateOfBirth: formDataStore.personalInfo.dateOfBirth || null,
                 password: formDataStore.personalInfo.password || "",
-                confirmPassword:
-                  formDataStore.personalInfo.confirmPassword || "",
+                confirmPassword: formDataStore.personalInfo.confirmPassword || "",
                 acceptTerms: formDataStore.personalInfo.acceptTerms || false,
               },
               items: this.form.items,
               buttonsTemplate: "",
             });
 
-            var buttonContainer = $('<div class="wizard-buttons">').appendTo(
-              form
-            );
+            var buttonContainer = $('<div class="wizard-buttons">').appendTo(form);
             $('<button type="button" class="reset">Reset</button>')
               .appendTo(buttonContainer)
               .on("click", function () {
                 console.log("click");
-                var step1Form = wizard
-                  .steps()[0]
-                  .element.find("form")
-                  .data("kendoForm");
+                var step1Form = wizard.steps()[0].element.find("form").data("kendoForm");
                 if (step1Form) {
                   step1Form.clear();
                   console.log("clear"); // Clear the Kendo form fields
                   // Manually reset the terms checkbox
-                  step1Form.element
-                    .find("[name='acceptTerms']")
-                    .data("kendoCheckBox")
-                    .value(false);
+                  step1Form.element.find("[name='acceptTerms']").data("kendoCheckBox").value(false);
                   formDataStore.personalInfo.acceptTerms = false;
                 } else {
                   console.log("form not found");
@@ -734,10 +712,7 @@ $(document).ready(function () {
             $('<button type="button" class="next">Next</button>')
               .appendTo(buttonContainer)
               .on("click", function () {
-                var step1Form = wizard
-                  .steps()[0]
-                  .element.find("form")
-                  .data("kendoForm");
+                var step1Form = wizard.steps()[0].element.find("form").data("kendoForm");
                 if (step1Form && step1Form.validate()) {
                   if (!formDataStore.personalInfo.acceptTerms) {
                     Swal.fire({
@@ -772,9 +747,7 @@ $(document).ready(function () {
           title: "Details",
           content: function () {
             var formConfig =
-              selectedRole === "user"
-                ? getUserDetailsConfig()
-                : getInstructorDetailsConfig();
+              selectedRole === "user" ? getUserDetailsConfig() : getInstructorDetailsConfig();
             var formData = {
               ...formConfig.formData,
               ...formDataStore.detailsInfo,
@@ -793,19 +766,13 @@ $(document).ready(function () {
               formDataStore.detailsInfo.weight = $(this).val();
             });
             form.find("[name='goal']").on("change", function () {
-              formDataStore.detailsInfo.goal = $(this)
-                .data("kendoMultiSelect")
-                .value();
+              formDataStore.detailsInfo.goal = $(this).data("kendoMultiSelect").value();
             });
             form.find("[name='medicalCondition']").on("change", function () {
-              formDataStore.detailsInfo.medicalCondition = $(this)
-                .data("kendoMultiSelect")
-                .value();
+              formDataStore.detailsInfo.medicalCondition = $(this).data("kendoMultiSelect").value();
             });
             form.find("[name='specialization']").on("change", function () {
-              formDataStore.detailsInfo.specialization = $(this)
-                .data("kendoMultiSelect")
-                .value();
+              formDataStore.detailsInfo.specialization = $(this).data("kendoMultiSelect").value();
             });
             form.find("[name='association']").on("change", function () {
               formDataStore.detailsInfo.association = $(this).val();
@@ -817,9 +784,7 @@ $(document).ready(function () {
               formDataStore.detailsInfo.idProof = e.files;
             });
 
-            var buttonContainer = $('<div class="wizard-buttons">').appendTo(
-              form
-            );
+            var buttonContainer = $('<div class="wizard-buttons">').appendTo(form);
             $('<button type="button" class="previous">Previous</button>')
               .appendTo(buttonContainer)
               .on("click", function () {
@@ -828,10 +793,7 @@ $(document).ready(function () {
             $('<button type="button" class="next">Next</button>')
               .appendTo(buttonContainer)
               .on("click", function () {
-                var step2Form = wizard
-                  .steps()[1]
-                  .element.find("form")
-                  .data("kendoForm");
+                var step2Form = wizard.steps()[1].element.find("form").data("kendoForm");
                 if (step2Form && step2Form.validate()) {
                   if (selectedRole === "instructor") {
                     if (
@@ -863,9 +825,7 @@ $(document).ready(function () {
                       form
                         .find("[name='idProof']")
                         .closest(".k-form-field")
-                        .append(
-                          '<span class="k-form-error">Please upload an ID proof.</span>'
-                        );
+                        .append('<span class="k-form-error">Please upload an ID proof.</span>');
                       return;
                     }
                   }
@@ -938,9 +898,7 @@ $(document).ready(function () {
                 field: "acceptTerms",
                 label: " ",
                 editor: function (container, options) {
-                  var input = $(
-                    '<input type="checkbox" name="acceptTerms" required />'
-                  )
+                  var input = $('<input type="checkbox" name="acceptTerms" required />')
                     .appendTo(container)
                     .kendoCheckBox({
                       label: "I agree to the Terms and Conditions",
@@ -950,9 +908,9 @@ $(document).ready(function () {
                     });
 
                   // Add terms and conditions link
-                  $(
-                    '<a class="terms-link" onclick="showTerms()">(View Terms)</a>'
-                  ).appendTo(container);
+                  $('<a class="terms-link" onclick="showTerms()">(View Terms)</a>').appendTo(
+                    container
+                  );
                 },
                 validation: {
                   required: true,
@@ -969,9 +927,7 @@ $(document).ready(function () {
               items: this.form.items,
             });
 
-            var buttonContainer = $('<div class="wizard-buttons">').appendTo(
-              form
-            );
+            var buttonContainer = $('<div class="wizard-buttons">').appendTo(form);
             $('<button type="button" class="previous">Previous</button>')
               .appendTo(buttonContainer)
               .on("click", function () {
@@ -980,10 +936,7 @@ $(document).ready(function () {
             $('<button type="button" id ="abcd"class="next">Submit</button>')
               .appendTo(buttonContainer)
               .on("click", function () {
-                var step3Form = wizard
-                  .steps()[2]
-                  .element.find("form")
-                  .data("kendoForm");
+                var step3Form = wizard.steps()[2].element.find("form").data("kendoForm");
                 if (step3Form && step3Form.validate()) {
                   wizard.trigger("done");
                 }
@@ -1003,33 +956,22 @@ $(document).ready(function () {
 
         var formData = new FormData();
         formData.append("userName", formDataStore.personalInfo.fullName || "");
-        formData.append(
-          "instructorName",
-          formDataStore.personalInfo.fullName || ""
-        );
+        formData.append("instructorName", formDataStore.personalInfo.fullName || "");
         formData.append("email", formDataStore.personalInfo.email || "");
         formData.append("password", formDataStore.personalInfo.password || "");
-        formData.append(
-          "confirmPassword",
-          formDataStore.personalInfo.confirmPassword || ""
-        );
+        formData.append("confirmPassword", formDataStore.personalInfo.confirmPassword || "");
         formData.append("mobile", formDataStore.personalInfo.phone || "");
         formData.append("gender", formDataStore.personalInfo.gender || "Male");
         formData.append("dob", formDataStore.personalInfo.dateOfBirth || "");
         formData.append("activationToken", generateActivationToken());
-        formData.append(
-          "status",
-          selectedRole === "user" ? "false" : "pending"
-        );
+        formData.append("status", selectedRole === "user" ? "false" : "pending");
 
         if (selectedRole === "user") {
           formData.append("height", formDataStore.detailsInfo.height || "");
           formData.append("weight", formDataStore.detailsInfo.weight || "");
           formData.append(
             "goal",
-            formDataStore.detailsInfo.goal
-              ? formDataStore.detailsInfo.goal.join(", ")
-              : ""
+            formDataStore.detailsInfo.goal ? formDataStore.detailsInfo.goal.join(", ") : ""
           );
           formData.append(
             "medicalCondition",
@@ -1044,19 +986,12 @@ $(document).ready(function () {
               ? formDataStore.detailsInfo.specialization.join(", ")
               : ""
           );
-          formData.append(
-            "association",
-            formDataStore.detailsInfo.association || ""
-          );
+          formData.append("association", formDataStore.detailsInfo.association || "");
           if (
             formDataStore.detailsInfo.certificates &&
             formDataStore.detailsInfo.certificates.length > 0
           ) {
-            for (
-              var i = 0;
-              i < formDataStore.detailsInfo.certificates.length;
-              i++
-            ) {
+            for (var i = 0; i < formDataStore.detailsInfo.certificates.length; i++) {
               formData.append(
                 "certificateFiles",
                 formDataStore.detailsInfo.certificates[i].rawFile
@@ -1066,14 +1001,8 @@ $(document).ready(function () {
             alert("Professional Certificates are required for instructors.");
             return;
           }
-          if (
-            formDataStore.detailsInfo.idProof &&
-            formDataStore.detailsInfo.idProof.length > 0
-          ) {
-            formData.append(
-              "idProofFile",
-              formDataStore.detailsInfo.idProof[0].rawFile
-            );
+          if (formDataStore.detailsInfo.idProof && formDataStore.detailsInfo.idProof.length > 0) {
+            formData.append("idProofFile", formDataStore.detailsInfo.idProof[0].rawFile);
           } else {
             alert("ID Proof is required for instructors.");
             return;
@@ -1148,9 +1077,7 @@ $(document).ready(function () {
       var stepElement = e.step.element;
       stepElement.empty();
       var formConfig =
-        selectedRole === "user"
-          ? getUserDetailsConfig()
-          : getInstructorDetailsConfig();
+        selectedRole === "user" ? getUserDetailsConfig() : getInstructorDetailsConfig();
       var formData = {
         ...formConfig.formData,
         ...formDataStore.detailsInfo,
@@ -1169,19 +1096,13 @@ $(document).ready(function () {
         formDataStore.detailsInfo.weight = $(this).val();
       });
       form.find("[name='goal']").on("change", function () {
-        formDataStore.detailsInfo.goal = $(this)
-          .data("kendoMultiSelect")
-          .value();
+        formDataStore.detailsInfo.goal = $(this).data("kendoMultiSelect").value();
       });
       form.find("[name='medicalCondition']").on("change", function () {
-        formDataStore.detailsInfo.medicalCondition = $(this)
-          .data("kendoMultiSelect")
-          .value();
+        formDataStore.detailsInfo.medicalCondition = $(this).data("kendoMultiSelect").value();
       });
       form.find("[name='specialization']").on("change", function () {
-        formDataStore.detailsInfo.specialization = $(this)
-          .data("kendoMultiSelect")
-          .value();
+        formDataStore.detailsInfo.specialization = $(this).data("kendoMultiSelect").value();
       });
       form.find("[name='association']").on("change", function () {
         formDataStore.detailsInfo.association = $(this).val();
@@ -1202,10 +1123,7 @@ $(document).ready(function () {
       $('<button type="button" class="next">Next</button>')
         .appendTo(buttonContainer)
         .on("click", function () {
-          var step2Form = wizard
-            .steps()[1]
-            .element.find("form")
-            .data("kendoForm");
+          var step2Form = wizard.steps()[1].element.find("form").data("kendoForm");
           if (step2Form && step2Form.validate()) {
             if (selectedRole === "instructor") {
               if (
@@ -1237,9 +1155,7 @@ $(document).ready(function () {
                 form
                   .find("[name='idProof']")
                   .closest(".k-form-field")
-                  .append(
-                    '<span class="k-form-error">Please upload an ID proof.</span>'
-                  );
+                  .append('<span class="k-form-error">Please upload an ID proof.</span>');
                 return;
               }
             }
@@ -1249,10 +1165,7 @@ $(document).ready(function () {
 
       if (selectedRole === "user") {
         if (formDataStore.detailsInfo.goal) {
-          form
-            .find("[name='goal']")
-            .data("kendoMultiSelect")
-            .value(formDataStore.detailsInfo.goal);
+          form.find("[name='goal']").data("kendoMultiSelect").value(formDataStore.detailsInfo.goal);
         }
         if (formDataStore.detailsInfo.medicalCondition) {
           form
