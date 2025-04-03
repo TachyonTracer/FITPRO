@@ -93,8 +93,10 @@ function suspendUser() {
                         icon: "success",
                         confirmButtonText: "OK"
                     }).then(() => {
-                        loadUserList();
-                       $("#details").hide();
+                        currentUserId = null;
+                        $("#details").addClass('d-none');
+                        $("#default-message").removeClass('d-none');
+                        loadUserList();      
                     });
                 },
                 error: function () {

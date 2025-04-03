@@ -5,8 +5,8 @@
     --dark-text-primary: #e0e0e0;
     --dark-text-secondary: #b0b0b0;
     --dark-border: #3a3a3a;
-    --accent-color: #ff4d79;
-    --accent-hover: #e83a68;
+    --accent-color: #ef5353;;
+    --accent-hover: #ff4d4d;
     --tag-bg: #303030;
     --tag-text: #b0b0b0;
 }
@@ -230,7 +230,7 @@ footer {
     gap: 12px;
 }
 
-.book-btn {
+.book-btn{
     background-color: var(--accent-color);
     color: white;
     border: none;
