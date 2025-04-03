@@ -248,7 +248,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }).then(() => {
             // Perform redirection based on user role
             if (result.userRole == "user") {
-              window.location.href = "/user";  
+              window.location.href = "/user/Dashboard";  
             } else if (result.userRole == "instructor") {
               window.location.href = "/instructor";
             } else if (result.userRole == "admin") {

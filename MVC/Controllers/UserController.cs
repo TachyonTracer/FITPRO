@@ -9,7 +9,7 @@ namespace MVC
         {
             return View();
         }
-        public ActionResult User()
+        public ActionResult Dashboard()
         {
             return View();
         }

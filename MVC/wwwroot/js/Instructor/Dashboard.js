@@ -140,15 +140,8 @@ function getUserIdFromToken() {
   return null;
 }
 
-// // Show logout confirmation
-// function showLogoutConfirmation() {
-//   $("#logoutDialog").data("kendoDialog").open();
-// }
 
-// // Perform logout
-// function performLogout() {
-//   alert("You have been logged out. Redirecting to login page...");
-// }
+
 
 document.addEventListener("DOMContentLoaded", function () {
   const chartOptions = {
@@ -674,10 +667,7 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 });
 
-// Perform logout
-function performLogout() {
-  alert("You have been logged out. Redirecting to login page...");
-}
+
 
 // Load dashboard data
 loadDashboardData();
@@ -806,3 +796,39 @@ $(".close-popup, .class-details-popup").on("click", function (e) {
 $(".class-details-content").on("click", function (e) {
   e.stopPropagation();
 });
+
+// Modify the existing performLogout function
+  function performLogout() {
+    Swal.fire({
+        title: 'Logging Out',
+        text: 'Please wait...',
+        timer: 1000,
+        timerProgressBar: true,
+        didOpen: () => {
+            Swal.showLoading();
+            // Clear the authentication token
+            localStorage.removeItem("authToken");
+        }
+    }).then(() => {
+        // Redirect to login page 
+        window.location.href = "/Auth/Login";
+    });
+  }
+  
+  // Add a showLogoutConfirmation function
+  function showLogoutConfirmation() {
+    Swal.fire({
+        title: 'Logout Confirmation',
+        text: 'Are you sure you want to logout?',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#ff4d4d',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: 'Yes, Logout',
+        cancelButtonText: 'Cancel'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            performLogout();
+        }
+    });
+  }

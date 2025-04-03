@@ -646,30 +646,6 @@ $("#profileDrawer").kendoDrawer({
   autoCollapse: false,
 });
 
-$("#logoutDialog").kendoDialog({
-  title: "Logout Confirmation",
-  content: "<p>Are you sure you want to logout?</p>",
-  actions: [
-    { text: "Cancel" },
-    {
-      text: "Logout",
-      primary: true,
-      action: function (e) {
-        performLogout();
-      },
-    },
-  ],
-  visible: false,
-});
-
 window.showProfileDrawer = function () {
   $("#profileDrawer").data("kendoDrawer").show();
 };
-
-window.showLogoutConfirmation = function () {
-  $("#logoutDialog").data("kendoDialog").open();
-};
-
-function performLogout() {
-  alert("You have been logged out. Redirecting to login page...");
-}

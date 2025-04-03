@@ -426,9 +426,9 @@ namespace API
 
         #region Activate User
         [HttpGet("activateuser")]
-        public async Task<IActionResult> ActivateUser([FromQuery] string authToken)
+        public async Task<IActionResult> ActivateUser([FromQuery] string token)
         {
-            int result = await _authRepo.ActivateUser(authToken);
+            int result = await _authRepo.ActivateUser(token);
 
             string redirectUrl;
 
