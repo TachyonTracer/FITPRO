@@ -28,12 +28,12 @@ function getUserIdFromToken() {
     const decoded = parseJwt(token);
     if (decoded) {
         console.log("using parsing " + decoded + " " + decoded.UserObject);
-        console.log("using parsing " + JSON.parse(decoded.UserObject).instructorId);
-        console.log("using parsing printing its type " + typeof (JSON.parse(decoded.UserObject).instructorId));
-        let userId = JSON.parse(decoded.UserObject).instructorId;
+        console.log("using parsing " + JSON.parse(decoded.UserObject).userId);
+        console.log("using parsing printing its type " + typeof (JSON.parse(decoded.UserObject).userId));
+        let userId = JSON.parse(decoded.UserObject).userId;
         console.log("user id is +" + userId);
 
-        return "10";
+        return JSON.parse(decoded.UserObject).userId;
     }
     console.warn("Invalid or malformed token.");
     return null;
@@ -426,9 +426,8 @@ $(document).ready(function () {
 });
 
 $(document).ready(function () {
-    localStorage.setItem("authToken", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJKV1RTZXJ2aWNlc0FjY2Vzc1Rva2VuIiwianRpIjoiMjlkZWE4YzUtMGE1Ny00NDRhLWJkMjgtMWVmYzAwMzEzYjEyIiwiVXNlck9iamVjdCI6IntcImluc3RydWN0b3JJZFwiOjEwLFwiaW5zdHJ1Y3Rvck5hbWVcIjpcIktodXNoaVwiLFwiZW1haWxcIjpcImtodXNoaTFAZ21haWwuY29tXCIsXCJwYXNzd29yZFwiOm51bGwsXCJjb25maXJtUGFzc3dvcmRcIjpudWxsLFwibW9iaWxlXCI6XCIxMjM0NTY3ODkwXCIsXCJnZW5kZXJcIjpcIkZlbWFsZVwiLFwiZG9iXCI6XCIyMDAzLTEwLTA1VDAwOjAwOjAwXCIsXCJzcGVjaWFsaXphdGlvblwiOlwiWW9nYVwiLFwiY2VydGlmaWNhdGVzXCI6e1wiWW9nYVwiOlwia2h1c2hpMUBnbWFpbC5jb21fWW9nYV82OTNhYmE5MS0zZmQyLTRjMGQtYjAxMS01YjAzYjhjMzhkYmUuanBnXCJ9LFwicHJvZmlsZUltYWdlXCI6XCJraHVzaGkxQGdtYWlsLmNvbV9wcm9maWxlLnBuZ1wiLFwiYXNzb2NpYXRpb25cIjpcIkZpdFByb1wiLFwiY3JlYXRlZEF0XCI6XCIyMDI1LTAzLTI2VDEzOjEyOjU3LjkyMjc5NFwiLFwic3RhdHVzXCI6XCJBY3RpdmVcIixcImlkUHJvb2ZcIjpcImtodXNoaTFAZ21haWwuY29tX2lkcHJvb2YucG5nXCIsXCJhY3RpdmF0aW9uVG9rZW5cIjpcImQ2ZjcwYjUwLTIyZDQtNDNiNi04OWEzLWI1ZjFjMmYzOWU1YVwiLFwiYWN0aXZhdGVkT25cIjpcIjIwMjUtMDMtMjVUMTY6MjQ6MzguMDU3MDY5XCIsXCJpZFByb29mRmlsZVwiOm51bGwsXCJjZXJ0aWZpY2F0ZUZpbGVzXCI6bnVsbCxcInByb2ZpbGVJbWFnZUZpbGVcIjpudWxsfSIsImV4cCI6MTc0MzE0NzMyNSwiaXNzIjoiaHR0cHM6Ly9sb2NhbGhvc3Q6ODA4MCIsImF1ZCI6Imh0dHBzOi8vbG9jYWxob3N0OjgwODEifQ.jjl4jKtkwF-AqBQdzos4E0LwpU39GsxwDd19F-snFjA");
 
-    // @* function parseJwt(token) {
+    // function parseJwt(token) {
     //     try {
     //         const base64Url = token.split('.')[1];
     //         const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
@@ -454,7 +453,7 @@ $(document).ready(function () {
     //     }
     //     console.warn("Invalid or malformed token.");
     //     return null;
-    // } *@
+    // }
 
     var drawer = $("#profileDrawer").kendoDrawer({
         template: `
