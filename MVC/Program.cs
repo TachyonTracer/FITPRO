@@ -1,7 +1,15 @@
-var builder = WebApplication.CreateBuilder(args);
+using Npgsql;
+using Repo;
 
+var builder = WebApplication.CreateBuilder(args);
+builder.Services.AddScoped<NpgsqlConnection>((provider) =>
+{
+    var connectionString = provider.GetRequiredService<IConfiguration>().GetConnectionString("pgconn");
+    return new NpgsqlConnection(connectionString);
+});
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+builder.Services.AddScoped<IClassInterface, ClassRepo>();
 
 var app = builder.Build();
 

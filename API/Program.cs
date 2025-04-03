@@ -5,13 +5,13 @@ using Microsoft.Net.Http.Headers;
 using Microsoft.OpenApi.Models;
 using Npgsql;
 using Repo;
+using Stripe;
 
 var builder = WebApplication.CreateBuilder(args);
 
 
 // Add services to the container.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddScoped<IInstructorInterface, InstructorRepo>();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddControllers();
@@ -58,6 +58,11 @@ builder.Services.AddScoped<IAuthInterface, AuthRepo>();
 builder.Services.AddScoped<IInstructorInterface, InstructorRepo>();
 builder.Services.AddScoped<IClassInterface, ClassRepo>();
 builder.Services.AddScoped<IUserInterface, UserRepo>();
+
+// StripeConfiguration.ApiKey = builder.Configuration["Stripe:SecretKey"];
+// Configure Stripe settings
+builder.Services.Configure<StripeSettings>(builder.Configuration.GetSection("Stripe"));
+StripeConfiguration.ApiKey = builder.Configuration["Stripe:SecretKey"];
 
 builder.Services.AddScoped<NpgsqlConnection>((provider) =>
 {

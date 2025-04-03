@@ -18,6 +18,51 @@ namespace API
         #region User-Stroy : List Class 
         
         #region Class:Booking
+        [HttpPost("IsClassAlreadyBooked")]
+        public async Task<IActionResult> IsClassIsClassAlreadyBooked(Booking bookingdata)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+
+                }
+                bool result = await _classRepo.IsClassAlreadyBooked(bookingdata);
+                if (result)
+                {
+
+                    return Ok(new
+                    {
+                        success = false,
+                        message = "You have already book this class"
+
+
+                    });
+                }
+                else
+                {
+                    return Ok(new
+                    {
+                        success = true,
+                        message = "You can book this class "
+                    });
+                }
+
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new
+                {
+                    success = false,
+                    message = ex.Message
+
+                });
+                Console.WriteLine(ex);
+            }
+
+        }
+
         [HttpPost("BookClass")]
         public async Task<IActionResult> BookClass([FromBody] Booking request)
         {
@@ -49,6 +94,7 @@ namespace API
             });
         }
         #endregion
+
         #region GetAll
         [HttpGet("GetAllClasses")]
         // [Authorize]
@@ -57,7 +103,6 @@ namespace API
             List<Class> classes = await _classRepo.GetAllClasses();
             return Ok(new { sucess = true, message = "class fetch successfully", data = classes });
         }
-
         #endregion
 
         #region GetOne
@@ -310,6 +355,50 @@ namespace API
 
         #endregion
 
+        #region GetBookedClasses
+        [HttpGet("GetBookedClassesByUser/{userId}")]
+        public async Task<IActionResult> GetBookedClassesByUser(string userId)
+        {
+            if (string.IsNullOrEmpty(userId))
+            {
+                return BadRequest(new { success = false, message = "User ID is required" });
+            }
 
+            var classes = await _classRepo.GetBookedClassesByUserId(userId);
+
+            if (classes == null || classes.Count == 0)
+            {
+                return Ok(new { success = true, message = "No classes booked by this user", data = new List<Class>() });
+            }
+
+            return Ok(new { success = true, message = "Booked classes fetched successfully", data = classes });
+        }
+        #endregion
+
+        #region Cancel Booking
+        [HttpDelete("CancelBooking/{userId}/{classId}")]
+        public async Task<IActionResult> CancelBooking(int userId, int classId)
+        {
+            if (userId <= 0 || classId <= 0)
+            {
+                return BadRequest(new
+                {
+                    success = false,
+                    message = "All IDs must be positive integers"
+                });
+            }
+
+            var (success, message) = await _classRepo.CancelBooking(userId, classId);
+
+            if (!success)
+            {
+                return Ok(new { success = false, message });
+            }
+
+            return Ok(new { success, message });
+        }
+        #endregion
+
+        
     }
 }

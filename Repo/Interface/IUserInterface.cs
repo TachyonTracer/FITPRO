@@ -1,3 +1,4 @@
+using Elastic.Clients.Elasticsearch.Security;
 namespace Repo;
 
 public interface IUserInterface
@@ -14,7 +15,9 @@ public interface IUserInterface
 
 	#region User Story: List Users Desgin
 	 Task<bool> SuspendUser(string userId);
-	 #endregion
+	#endregion
 
-	
+	public Task<bool> UpdateUserProfileAsync(User user);
+    Task<User> GetUserByIdAsync(int userId);
+
 }
