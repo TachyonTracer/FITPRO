@@ -31,7 +31,7 @@ CREATE TABLE t_Instructor (
     c_profileimage TEXT,
     c_association TEXT,
     c_createdat TIMESTAMP WITHOUT TIME ZONE,
-    c_status VARCHAR(30),
+    c_status VARCHAR(30) DEFAULT 'Unverified',
     c_idproof VARCHAR(100),
     c_activationtoken VARCHAR(150),
     c_activatedon TIMESTAMP WITHOUT TIME ZONE

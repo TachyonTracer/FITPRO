@@ -4,23 +4,35 @@ namespace MVC
 {
     public class InstructorController : Controller
     {
-        // GET: InstructorController
+        #region Instructor Dashboard
         public ActionResult Index()
         {
             return View();
         }
 
+        public IActionResult ScheduleClass()
+        {
+            return View();
+        }
+
+        public IActionResult PartialScheduleClass()
+        {
+            return View();
+        }
+    
+        #endregion
         
+        #region Approved/Verified Instructor List Design
+        public ActionResult ApprovedInstructor()
+        {
+            return View();
+        }
 
         public ActionResult VerifiedInstructor()
         {
             return View();
         }
-
-        public ActionResult ApprovedInstructor()
-        {
-            return View();
-        }
+        #endregion
 
     }
 }

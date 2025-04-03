@@ -1,23 +1,19 @@
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using Repo;
 
 namespace API
 {
-    [Route("api/[controller]")]
     [ApiController]
+    [Route("api/[controller]")]
     public class InstructorController : ControllerBase
     {
         private readonly IInstructorInterface _instructorRepo;
 
-        #region Constructor
         public InstructorController(IInstructorInterface instructorRepo)
         {
             _instructorRepo = instructorRepo;
         }
-        #endregion
 
         #region Get All Instructors
         [HttpGet("GetAllInstructors")]
@@ -44,25 +40,85 @@ namespace API
         #endregion
 
 
-        #region Get One Instructor
-        [HttpGet("GetOneInstructor/{id}")]
-        // [Authorize]
-        public async Task<IActionResult> GetOneInstructor(string id)
+        #region  Get One Instructor By Id
+        [HttpGet("GetOneInstructorById/{instructorId}")]
+        public async Task<ActionResult<Instructor>> GetOneInstructorById(int instructorId)
         {
-            var instructor = await _instructorRepo.GetOneInstructor(id);
-            if (instructor != null)
+            var instructor = await _instructorRepo.GetOneInstructorByIdForProfile(instructorId);
+
+            if (instructor == null)
+            {
+                return NotFound(new { message = "Instructor not found" });
+            }
+
+            return Ok(instructor);
+
+        }
+
+        #endregion
+
+
+        #region Update Instructor Profile
+        [HttpPost("edit-profile-basic")]
+        public async Task<IActionResult> EditProfileBasic([FromForm] Instructor instructor)
+        {
+            try
+            {
+                if (instructor.profileImageFile != null && instructor.profileImageFile.Length > 0)
+                {
+                    var fileName = Guid.NewGuid().ToString() + Path.GetExtension(instructor.profileImageFile.FileName);
+                    var filePath = Path.Combine("../MVC/wwwroot/Instructor_Images", fileName);
+
+                    Directory.CreateDirectory(Path.Combine("../MVC/wwwroot/Instructor_Images"));
+
+                    instructor.profileImage = fileName;
+
+                    using (var stream = new FileStream(filePath, FileMode.Create))
+                    {
+                        await instructor.profileImageFile.CopyToAsync(stream);
+                    }
+                }
+
+
+                int result = await _instructorRepo.EditProfileBasic(instructor);
+
+
+                if (result > 0)
+                {
+                    return Ok(new { message = "Instructor profile updated successfully." });
+                }
+                else
+                {
+                    return Ok("Instructor not found or no changes made.");
+                }
+            }
+            catch (Exception ex)
+            {
+                return Ok(new { error = "An error occurred while updating profile.", details = ex.Message });
+            }
+        }
+        #endregion
+
+        
+        #region Class Count By Instructor
+        [HttpGet("ClassCountByInstructor/{instructorId}")]
+        public async Task<IActionResult>  ClassCountByInstructor(string instructorId)
+        {
+            var classCount = await _instructorRepo.ClassCountByInstructor(instructorId);
+            if (classCount != -1)
             {
                 return Ok(new
                 {
                     success = true,
-                    message = "One Instructor fetched successfully.",
-                    data = instructor
+                    message = "Class Count By Instructor fetched successfully",
+                    count = classCount
                 });
             }
-            return Ok(new
+
+            return BadRequest(new
             {
                 success = false,
-                message = "Instructor does not exists."
+                message = "Failed to fetch Class Count By Instructor"
             });
         }
         #endregion
@@ -87,6 +143,78 @@ namespace API
             {
                 success = false,
                 message = "No verified instructors found."
+            });
+        }
+        #endregion
+            
+
+        #region Upcoming Class Count By Instructor
+        [HttpGet("UpcomingClassCountByInstructor/{instructorId}")]
+        public async Task<IActionResult>  UpcomingClassCountByInstructor(string instructorId)
+        {
+            var classCount = await _instructorRepo.UpcomingClassCountByInstructor(instructorId);
+            if (classCount != -1)
+            {
+                return Ok(new
+                {
+                    message = "Upcoming Class Count By Instructor fetched successfully",
+                    count = classCount
+                });
+            }
+
+            return BadRequest(new
+            {
+                success = false,
+                message = "Failed to fetch Upcoming Class Count By Instructor"
+            });
+        }
+        #endregion
+
+
+        #region User Count By Instructor
+        [HttpGet("UserCountByInstructor/{instructorId}")]
+        public async Task<IActionResult>  UserCountByInstructor(string instructorId)
+        {
+            var classCount = await _instructorRepo.UserCountByInstructor(instructorId);
+            if (classCount != -1)
+            {
+                return Ok(new
+                {
+                    success = true,
+                    message = "User Count By Instructor fetched successfully",
+                    count = classCount
+                });
+            }
+
+            return BadRequest(new
+            {
+                success = false,
+                message = "Failed to fetch User Count By Instructor"
+            });
+        }
+        #endregion
+
+
+        #region Upcoming Class Details By Instructor
+        [HttpGet("UpcomingClassDetailsByInstructor/{instructorId}")]
+        // [Authorize]
+        public async Task<IActionResult> UpcomingClassDetailsByInstructor(string instructorId)
+        {
+            List<Class> upcomingClassList = await _instructorRepo.UpcomingClassDetailsByInstructor(instructorId);
+            if (upcomingClassList != null)
+            {
+                return Ok(new
+                {
+                    success = true,
+                    message = "Upcoming Class Details fetched successfully.",
+                    data = upcomingClassList
+                });
+            }
+
+            return Ok(new
+            {
+                success = false,
+                message = "Error occured while fetching upcoming class details."
             });
         }
         #endregion
@@ -176,4 +304,5 @@ namespace API
         #endregion
         #endregion
     }
+
 }

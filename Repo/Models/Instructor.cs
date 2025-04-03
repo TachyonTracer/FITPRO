@@ -43,7 +43,6 @@ public class Instructor
     [StringLength(100, ErrorMessage = "Specialization must not exceed 100 characters")]
     public string specialization { get; set; }
 
-    
     public JsonDocument? certificates { get; set; }
 
     public string? profileImage { get; set; }
