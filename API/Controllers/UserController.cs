@@ -163,9 +163,9 @@ namespace API
 		{
 			try
 			{
-				_rabbitMQService.PublishNotification("A1", "admin", $"New Admin Notification::Nevil Registered recently::{DateTimeOffset.UtcNow.ToUnixTimeSeconds()}");
-				_rabbitMQService.PublishNotification("I2", "instructor", $"New Instructor Notification::Admin Assigned a new task for you::{DateTimeOffset.UtcNow.ToUnixTimeSeconds()}");
-				_rabbitMQService.PublishNotification("U2", "user", $"New User Notification::Admin Assigned a new task for you::{DateTimeOffset.UtcNow.ToUnixTimeSeconds()}");
+				_rabbitMQService.PublishNotification("12", "admin", $"New Admin Notification::Nevil Registered recently::{DateTimeOffset.UtcNow.ToUnixTimeSeconds()}");
+				_rabbitMQService.PublishNotification("29", "instructor", $"Class Full !!!::One of your class is fully booked!::{DateTimeOffset.UtcNow.ToUnixTimeSeconds()}");
+				// _rabbitMQService.PublishNotification("U2", "user", $"New User Notification::Admin Assigned a new task for you::{DateTimeOffset.UtcNow.ToUnixTimeSeconds()}");
 
 				return Ok(new { success = true, data = "successfully sent user notification" });
 			}
