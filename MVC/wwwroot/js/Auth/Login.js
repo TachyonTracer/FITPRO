@@ -239,7 +239,7 @@ document.addEventListener("DOMContentLoaded", () => {
       data: JSON.stringify(payload),
       contentType: "application/json",
       success: function (result) {
-        localStorage.setItem("token", result.token);
+        localStorage.setItem("authToken", result.authToken);
 
         Swal.fire({
           icon: "success",

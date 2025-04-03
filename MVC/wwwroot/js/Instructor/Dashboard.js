@@ -347,9 +347,9 @@ document.addEventListener("DOMContentLoaded", function () {
     .data("kendoDrawer");
 
   // Initialize Kendo UI Components with Validations
-  $("#instructorName").kendoTextBox({
-    placeholder: "Enter instructor name",
-  });
+  // $("#instructorName2").kendoTextBox({
+  //   placeholder: "Enter instructor name",
+  // });
   $("#mobile").kendoMaskedTextBox({
     mask: "0000000000",
     placeholder: "__________",
@@ -539,7 +539,7 @@ document.addEventListener("DOMContentLoaded", function () {
     e.preventDefault();
     $(".validation-message").text("");
     let valid = true;
-    const instructorName = $("#instructorName").val().trim();
+    const instructorName = $("#instructorName2").val().trim();
     const mobile = $("#mobile").val().replace(/\D/g, "");
     const gender = $("#gender").data("kendoDropDownList").value();
     const dob = $("#dob").data("kendoDatePicker").value();

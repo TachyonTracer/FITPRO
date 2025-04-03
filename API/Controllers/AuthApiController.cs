@@ -121,7 +121,7 @@ namespace API
 
                 var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_myConfig["Jwt:Key"]));
                 var signIn = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-                var token = new JwtSecurityToken(
+                var authToken = new JwtSecurityToken(
                     _myConfig["Jwt:Issuer"],
                     _myConfig["Jwt:Audience"],
                     claims,
@@ -130,7 +130,7 @@ namespace API
                 );
 
 
-                return Ok(new { success = true, message = "Login Successful", token = new JwtSecurityTokenHandler().WriteToken(token), userRole = role });
+                return Ok(new { success = true, message = "Login Successful", authToken = new JwtSecurityTokenHandler().WriteToken(authToken), userRole = role });
             }
             catch (Exception ex)
             {
@@ -426,9 +426,9 @@ namespace API
 
         #region Activate User
         [HttpGet("activateuser")]
-        public async Task<IActionResult> ActivateUser([FromQuery] string token)
+        public async Task<IActionResult> ActivateUser([FromQuery] string authToken)
         {
-            int result = await _authRepo.ActivateUser(token);
+            int result = await _authRepo.ActivateUser(authToken);
 
             string redirectUrl;
 

@@ -471,6 +471,7 @@ function showEditClassForm(classData) {
       updateClass(result.value);
     }
   });
+  
 }
 
 function populateEditEquipmentDropdown(classType, requiredEquipments) {
