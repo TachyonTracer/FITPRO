@@ -706,7 +706,13 @@ h1 {
         font-size: 0.9rem;
     }
 }
-
+#alert-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1050; /* Ensure it's above other content */
+    min-width: 300px;
+}
 .logo img {
     height: 70px;
     position: fixed;

@@ -690,7 +690,7 @@ function loadDashboardData() {
     url: `${uri}/api/Instructor/UpcomingClassCountByInstructor/${instructorId}`,
     type: "GET",
     success: function (response) {
-      if (response.success) {
+      if (response.count >=0) {
         $("#upcomingClassesCount").text(response.count);
       }
     },
@@ -706,7 +706,7 @@ function loadDashboardData() {
     type: "GET",
     success: function (response) {
       if (response.success) {
-        renderUpcomingClassesTable(response.data);
+        renderUpcomingClassesTable(response.data );
       }
     },
     error: function () {
@@ -736,7 +736,7 @@ function loadDashboardData() {
 
 // Function to render upcoming classes table
 function renderUpcomingClassesTable(classes) {
-  if (!classes || classes.length === 0) return;
+  if (!classes || classes.length === 0) {return "Class Not found"};
 
   let tableHtml = "";
   classes.forEach(function (c) {

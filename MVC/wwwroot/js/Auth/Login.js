@@ -1,5 +1,39 @@
 var uri = "http://localhost:8080";
 
+function getQueryParam(name) {
+  const params = new URLSearchParams(window.location.search);
+  return params.get(name);
+}
+
+window.onload = function () {
+  const message = getQueryParam("message");
+  if (message) {
+    const alertContainer = document.getElementById("alert-container");
+    const decodedMessage = decodeURIComponent(message);
+
+    // Determine alert color based on message
+    const alertType = decodedMessage === "Activation Successful" ? "alert-success" : "alert-danger";
+
+    // Create alert element
+    const alertDiv = document.createElement("div");
+    alertDiv.className = `alert ${alertType} alert-dismissible fade show`;
+    alertDiv.role = "alert";
+    alertDiv.innerHTML = `
+          ${decodedMessage}
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      `;
+
+    // Append to container
+    alertContainer.appendChild(alertDiv);
+
+    // Auto-dismiss after 5 seconds
+    setTimeout(() => {
+      alertDiv.classList.remove("show");
+      setTimeout(() => alertDiv.remove(), 500); // Wait for fade-out effect
+    }, 5000);
+  }
+};
+
 document.addEventListener("DOMContentLoaded", () => {
   const captchaContainer = document.getElementById("captcha-container");
   const captchaQuestion = document.getElementById("captcha-question");
