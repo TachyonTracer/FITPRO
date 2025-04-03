@@ -11,8 +11,52 @@ public class ClassRepo : IClassInterface
         _conn = conn;
     }
 
+    public async Task<bool> IsClassAlreadyBooked(Booking bookingData)
+    {
+        try
+        {
+            using (var cm = new NpgsqlCommand(@"select * from t_bookings where c_userid = @c_userid AND c_classid = @c_classid", _conn))
+            {
+                cm.Parameters.AddWithValue("@c_userid", bookingData.userId);
+                cm.Parameters.AddWithValue("@c_classid", bookingData.classId);
+            
 
-    #region Book:Class
+                if (_conn.State != ConnectionState.Open)
+                {
+                    await _conn.OpenAsync();
+                }
+                var result = await cm.ExecuteReaderAsync();
+                if (result.HasRows)
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+
+            }
+
+
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+            return false;
+        }
+        finally
+        {
+            if (_conn.State != ConnectionState.Closed)
+            {
+                await _conn.CloseAsync();
+            }
+
+        }
+
+    }
+
+
+   #region Book:Class
     public async Task<Response> BookClass(Booking req)
     {
         Response response = new Response();
@@ -103,10 +147,8 @@ public class ClassRepo : IClassInterface
 
                     // Commit transaction
                     await transaction.CommitAsync();
-
+                    response.success = true;
                     response.message = "Class booked successfully";
-                    
-                    
                 }
                 catch (Exception ex)
                 {
@@ -212,7 +254,7 @@ public class ClassRepo : IClassInterface
                             classId = Convert.ToInt32(reader["c_classid"]),
                             className = reader["c_classname"].ToString(),
                             instructorId = Convert.ToInt32(reader["c_instructorid"]),
-                            
+
                             description = reader["c_description"] == DBNull.Value ? null : JsonDocument.Parse(reader["c_description"].ToString()),
 
                             type = reader["c_type"].ToString(),
@@ -321,7 +363,6 @@ public class ClassRepo : IClassInterface
               INNER JOIN t_instructor i on i.c_instructorid = c.c_instructorid
               WHERE b.c_userid = @userId", _conn))
             {
-                System.Console.WriteLine("user id inside repo is " + userId);
                 cmd.Parameters.AddWithValue("@userId", int.Parse(userId));
 
                 using (var reader = await cmd.ExecuteReaderAsync())
@@ -405,7 +446,7 @@ public class ClassRepo : IClassInterface
                         // var timeSinceBooking = DateTime.Now - bookingTime;
 
 
-                    return timeUntilClass.TotalHours > 24;
+                        return timeUntilClass.TotalHours > 24;
                     }
                 }
             }
@@ -428,7 +469,7 @@ public class ClassRepo : IClassInterface
     public async Task<(bool success, string message)> CancelBooking(int userId, int classId)
     {
 
-         var bookingId = 0;
+        var bookingId = 0;
         try
         {
             if (_conn.State == ConnectionState.Closed)

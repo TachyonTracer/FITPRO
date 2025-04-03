@@ -14,7 +14,52 @@ namespace API
             _classRepo = classRepo;
         }
 
-        #region Class:Booking
+        [HttpPost("IsClassAlreadyBooked")]
+        public async Task<IActionResult> IsClassIsClassAlreadyBooked(Booking bookingdata)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+
+                }
+                bool result = await _classRepo.IsClassAlreadyBooked(bookingdata);
+                if (result)
+                {
+
+                    return Ok(new
+                    {
+                        success = false,
+                        message = "You have already book this class"
+
+
+                    });
+                }
+                else
+                {
+                    return Ok(new
+                    {
+                        success = true,
+                        message = "You can book this class "
+                    });
+                }
+
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new
+                {
+                    success = false,
+                    message = ex.Message
+
+                });
+                Console.WriteLine(ex);
+            }
+
+        }
+
+      #region Class:Booking
         [HttpPost("BookClass")]
         public async Task<IActionResult> BookClass([FromBody] Booking request)
         {
@@ -107,7 +152,7 @@ namespace API
         [HttpDelete("CancelBooking/{userId}/{classId}")]
         public async Task<IActionResult> CancelBooking(int userId, int classId)
         {
-            if (    userId <= 0 || classId <= 0)
+            if (userId <= 0 || classId <= 0)
             {
                 return BadRequest(new
                 {
@@ -120,7 +165,7 @@ namespace API
 
             if (!success)
             {
-                return Ok(new { success=false, message });
+                return Ok(new { success = false, message });
             }
 
             return Ok(new { success, message });

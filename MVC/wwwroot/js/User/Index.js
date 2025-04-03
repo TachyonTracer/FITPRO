@@ -123,7 +123,7 @@ function renderClasses(data) {
                                             <strong>Equipment:</strong> ${c.requiredEquipments}
                                         </div>
                                         <div class="class-detail">
-                                            <strong>Price:</strong> $${c.fee.toFixed(2)}
+                                            <strong>Price:</strong> ₹${c.fee.toFixed(2)}
                                         </div>
                                     </div>
                                     <div class="card-footer bg-transparent">
@@ -196,7 +196,7 @@ function renderBookedClasses(data) {
                                             <strong>Equipment:</strong> ${c.requiredEquipments}
                                         </div>
                                         <div class="class-detail">
-                                            <strong>Price:</strong> $${c.fee.toFixed(2)}
+                                            <strong>Price:</strong> ₹${c.fee.toFixed(2)}
                                         </div>
                                     </div>
                                     <div class="card-footer bg-transparent">
@@ -230,6 +230,8 @@ function loadBookedClasses() {
 
 $(document).ready(function () {
 
+    loadBookedClasses();
+
     // Define function in the global scope
     window.ConformBooking = function (classId) {
         window.location.href = `/user/bookclass/${classId}`;
@@ -256,60 +258,6 @@ $(document).ready(function () {
         }
     });
 
-    // Function to render booked classes
-    function renderBookedClasses(data) {
-        var html = '<div class="container mt-4"><h2 class="mb-4">My Booked Classes</h2><div class="row" id="myClassList">';
-        if (data.length === 0) {
-            html += '<div class="col-12"><div class="alert alert-info text-center">You have no booked classes yet.</div></div>';
-        } else {
-            data.forEach(function (c) {
-                html += `<div class="col-md-4 mb-4">
-                                    <div class="card h-100">
-                                        <div class="card-body">
-                                            <h5 class="card-title">${c.className}</h5>
-                                            <div class="mb-2">
-                                                <span class="badge badge-level me-1">${c.description.level}</span>
-                                                <span class="badge badge-type">${c.type}</span>
-                                                <span class="badge ${c.status === 'Active' ? 'bg-success' : 'bg-warning'} float-end">${c.status}</span>
-                                            </div>
-                                            <p class="card-text">${c.description.overview}</p>
-                                            <div class="class-detail">
-                                                <strong>Start:</strong> ${formatDateTime(c.startDate, c.startTime)}
-                                            </div>
-                                            <div class="class-detail">
-                                                <strong>End:</strong> ${formatDateTime(c.endDate, c.endTime)}
-                                            </div>
-                                            <div class="class-detail">
-                                                <strong>Duration:</strong> ${formatDuration(c.duration)}
-                                            </div>
-                                            <div class="class-detail">
-                                                <strong>Location:</strong> ${c.city}
-                                            </div>
-                                            <div class="class-detail">
-                                                <strong>Address:</strong> ${c.address}
-                                            </div>
-                                            <div class="class-detail">
-                                                <strong>Instructor ID:</strong> ${c.instructorName}
-                                            </div>
-                                            <div class="class-detail">
-                                                <strong>Equipment:</strong> ${c.requiredEquipments}
-                                            </div>
-                                            <div class="class-detail">
-                                                <strong>Price:</strong> $${c.fee.toFixed(2)}
-                                            </div>
-                                        </div>
-                                        <div class="card-footer bg-transparent">
-                                            <button class="btn btn-danger w-100 cancel-btn" onclick="cancelBooking(9, ${c.classId})" ${c.status !== 'Active' ? 'disabled' : ''}>
-                                                ${c.status !== 'Active' ? 'Cannot Cancel' : 'Cancel Booking'}
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>`;
-            });
-        }
-        html += '</div></div>';
-        $("#myClasses").html(html);
-    }
 
 
     // Initialize Main Navigation TabStrip
@@ -394,7 +342,7 @@ $(document).ready(function () {
 
     // Search function (runs on input)
     function performSearch() {
-        var searchText = $("#searchText").val().toLowerCase();
+        var searchText = $("#searchText").val().toLowerCase().trim();
 
         if (searchText === "") {
             applyFilters();
@@ -402,35 +350,48 @@ $(document).ready(function () {
         }
 
         var searchedData = contactData.filter(function (c) {
+            // Search in class name, city, and type
             return c.className.toLowerCase().includes(searchText) ||
-                c.city.toLowerCase().includes(searchText);
+                   c.city.toLowerCase().includes(searchText) ||
+                   c.type.toLowerCase().includes(searchText);
         });
 
-        var type = $("#type").val();
-        var level = $("#level").val();
+        var location = $("#location").val();
+        var type = $("#types").val();
 
         var filteredData = searchedData.filter(function (c) {
             return (type === "" || c.type === type) &&
-                (level === "" || c.description.level === level);
+                   (location === "" || c.city === location);
+        });
+
+        console.log("Search results:", {
+            searchText: searchText,
+            totalResults: filteredData.length,
+            results: filteredData.map(c => ({
+                className: c.className,
+                city: c.city,
+                type: c.type
+            }))
         });
 
         renderClasses(filteredData);
     }
 
+    
     // Filter function (runs on button click)
     function applyFilters() {
         var searchText = $("#searchText").val().toLowerCase();
-        var type = $("#type").val();
-        var level = $("#level").val();
+        var location = $("#location").val();
+        var type = $("#types").val();
 
         var filteredData = contactData.filter(function (c) {
             var matchesSearch = searchText === "" ||
                 c.className.toLowerCase().includes(searchText) ||
                 c.city.toLowerCase().includes(searchText);
-            var matchesType = type === "" || c.type === type;
-            var matchesLevel = level === "" || c.description.level === level;
+            var matchesLocation = location === "" || c.city === location;
+            var matchesLevel = type === "" || c.type === type;
 
-            return matchesSearch && matchesType && matchesLevel;
+            return matchesSearch && matchesLocation && matchesLevel;
         });
 
         renderClasses(filteredData);

@@ -28,9 +28,10 @@ public class HomeController : Controller
     // }
 
    
-    public IActionResult Success()
+   [HttpGet]
+    public IActionResult Success( int id )
     {
-        return View();
+        return View(id);
     }
 
 

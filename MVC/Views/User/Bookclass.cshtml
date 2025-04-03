@@ -14,6 +14,7 @@
 
 </head>
 
+
 <body>
     @model Repo.Class;
 
@@ -47,8 +48,8 @@
                     </div>
                     <div class="info-item">
                         <span class="info-label">Date</span>
-                        <span>@Model.startDate.ToString("MMMM dd, yyyy")</span>
-                    </div>
+                    <span>@Model.startDate.ToString("MMMM dd, yyyy") To  @Model.endDate.Value.ToString("MMMM dd, yyyy")</span>   
+                 </div>
                     <div class="info-item">
                         <span class="info-label">Time</span>
                         <span class="info-value">@Model.startTime- @Model.endTime</span>
@@ -138,6 +139,8 @@
     <script>
         document.addEventListener('DOMContentLoaded', function () {
 
+           
+
             var amount = @(Model.fee) * 100;
 
             localStorage.setItem("authToken", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJKV1RTZXJ2aWNlc0FjY2Vzc1Rva2VuIiwianRpIjoiMjlkZWE4YzUtMGE1Ny00NDRhLWJkMjgtMWVmYzAwMzEzYjEyIiwiVXNlck9iamVjdCI6IntcImluc3RydWN0b3JJZFwiOjEwLFwiaW5zdHJ1Y3Rvck5hbWVcIjpcIktodXNoaVwiLFwiZW1haWxcIjpcImtodXNoaTFAZ21haWwuY29tXCIsXCJwYXNzd29yZFwiOm51bGwsXCJjb25maXJtUGFzc3dvcmRcIjpudWxsLFwibW9iaWxlXCI6XCIxMjM0NTY3ODkwXCIsXCJnZW5kZXJcIjpcIkZlbWFsZVwiLFwiZG9iXCI6XCIyMDAzLTEwLTA1VDAwOjAwOjAwXCIsXCJzcGVjaWFsaXphdGlvblwiOlwiWW9nYVwiLFwiY2VydGlmaWNhdGVzXCI6e1wiWW9nYVwiOlwia2h1c2hpMUBnbWFpbC5jb21fWW9nYV82OTNhYmE5MS0zZmQyLTRjMGQtYjAxMS01YjAzYjhjMzhkYmUuanBnXCJ9LFwicHJvZmlsZUltYWdlXCI6XCJraHVzaGkxQGdtYWlsLmNvbV9wcm9maWxlLnBuZ1wiLFwiYXNzb2NpYXRpb25cIjpcIkZpdFByb1wiLFwiY3JlYXRlZEF0XCI6XCIyMDI1LTAzLTI2VDEzOjEyOjU3LjkyMjc5NFwiLFwic3RhdHVzXCI6XCJBY3RpdmVcIixcImlkUHJvb2ZcIjpcImtodXNoaTFAZ21haWwuY29tX2lkcHJvb2YucG5nXCIsXCJhY3RpdmF0aW9uVG9rZW5cIjpcImQ2ZjcwYjUwLTIyZDQtNDNiNi04OWEzLWI1ZjFjMmYzOWU1YVwiLFwiYWN0aXZhdGVkT25cIjpcIjIwMjUtMDMtMjVUMTY6MjQ6MzguMDU3MDY5XCIsXCJpZFByb29mRmlsZVwiOm51bGwsXCJjZXJ0aWZpY2F0ZUZpbGVzXCI6bnVsbCxcInByb2ZpbGVJbWFnZUZpbGVcIjpudWxsfSIsImV4cCI6MTc0MzE0NzMyNSwiaXNzIjoiaHR0cHM6Ly9sb2NhbGhvc3Q6ODA4MCIsImF1ZCI6Imh0dHBzOi8vbG9jYWxob3N0OjgwODEifQ.jjl4jKtkwF-AqBQdzos4E0LwpU39GsxwDd19F-snFjA");
@@ -207,102 +210,97 @@
             }
 
 
-            var userid = getUserIdFromToken();
+            var userid = 10;
+            @* var userid = getUserIdFromToken(); *@
+            var classId = @Model.classId;
 
             $('#book-now-btn').on('click', function (e) {
                 e.preventDefault();
 
-                var available_spots = parseInt(document.getElementById("available-spots").value, 10);
+                var available_spots = @Model.availableCapacity;
 
                 if (@Model.availableCapacity > 0) {
                     var stripe = Stripe('pk_test_51R9873B6NxmJUHpLwRmbtVWKFWIAFHzLx27IWuda1MiaD1WtS6G9uimHfT4bepFIzXCYNQ0BpcYEo1FWSH651Zjp00H0cXnR7g');
 
                     $.ajax({
-                        url: 'http://localhost:8080/Checkout/create-checkout-session',
+                        url: 'http://localhost:8080/api/Class/IsClassAlreadyBooked',
                         type: 'POST',
-                        targrt: '_blank',
                         contentType: 'application/json',
                         data: JSON.stringify({
-                            ClassName: "jack",
-                            ClassDescription: "demo",
-                            amount: amount,
-                            currency: "INR",
-                            classId : @Model.classId
+                            userId: userid,
+                            classId: classId
                         }),
-                        succe
-                            if (!session.sessionId) {
-                                Swal.fire({
-                                    title: "Payment Error",
-                                    text: "Failed to initiate payment. Please try again later.",
-                                    icon: "error",
-                                    confirmButtonText: "OK"
-                                });
-                                return;
-                            }
+                        success: function (result) {
+                            if (result.success) {
+                                $.ajax({
+                                    url: 'http://localhost:8080/Checkout/create-checkout-session',
+                                    type: 'POST',
+                                    contentType: 'application/json',
+                                    data: JSON.stringify({
+                                        ClassName: "jack",
+                                        ClassDescription: "demo",
+                                        amount: amount,
+                                        currency: "INR",
+                                        classId: classId
+                                    }),
+                                    success: function (session) {
+                                        if (!session.sessionId) {
+                                            Swal.fire({
+                                                title: "Payment Error",
+                                                text: "Failed to initiate payment. Please try again later.",
+                                                icon: "error",
+                                                confirmButtonText: "OK"
+                                            });
+                                            return;
+                                        }
 
-                            stripe.redirectToCheckout({ sessionId: session.sessionId })
-                                .then(function (result) {
-                                    if (result.error) {
-                                        Swal.fire({
-                                            title: "Payment Error",
-                                            text: result.error.message,
-                                            icon: "error",
-                                            confirmButtonText: "OK"
-                                        });
-                                    } else {
-                                        // Proceed with class booking after successful payment
-                                        $.ajax({
-                                            url: 'http://localhost:8080/api/Class/BookClass',
-                                            type: 'POST',
-                                            contentType: 'application/json',
-                                            data: JSON.stringify({
-                                                classId: @Model.classId,
-                                                userId: userid
-                                            }),
-                                            success: function (response) {
-                                                if (response.success) {
+                                        localStorage.setItem("sessionId", session.sessionId);
+
+                                        stripe.redirectToCheckout({ sessionId: session.sessionId })
+                                            .then(function (result) {
+                                                if (result.error) {
                                                     Swal.fire({
-                                                        title: "Booking Confirmed",
-                                                        text: "Your class has been successfully booked!",
-                                                        icon: "success",
-                                                        confirmButtonText: "OK"
-                                                    }).then(() => {
-
-
-
-                                                        @* window.location.href = "/User/Index"; *@
-                                                    });
-                                                } else {
-                                                    Swal.fire({
-                                                        title: "Booking Failed",
-                                                        text: response.message || "Unable to complete the booking. Please try again.",
+                                                        title: "Payment Error",
+                                                        text: result.error.message,
                                                         icon: "error",
                                                         confirmButtonText: "OK"
                                                     });
+                                                } else {
+                                                    console.log("Payment Successful, proceeding with booking...");
                                                 }
-                                            },
-                                            error: function (xhr, status, error) {
-                                                Swal.fire({
-                                                    title: "Booking Error",
-                                                    text: xhr.responseJSON?.message || "An unexpected error occurred.",
-                                                    icon: "error",
-                                                    confirmButtonText: "OK"
-                                                });
-                                            }
+                                            });
+                                    },
+                                    error: function (xhr, status, error) {
+                                        Swal.fire({
+                                            title: "Payment Error",
+                                            text: "Unable to process payment. Please try again later.",
+                                            icon: "error",
+                                            confirmButtonText: "OK"
                                         });
+                                        console.error('Error:', error);
                                     }
                                 });
+
+                            } else {
+                                Swal.fire({
+                                    title: "Booking Failed",
+                                    text: result.message,
+                                    icon: "error",
+                                    confirmButtonText: "OK"
+                                });
+                            }
                         },
                         error: function (xhr, status, error) {
+                            console.error("Error checking class booking:", error);
                             Swal.fire({
-                                title: "Payment Error",
-                                text: "Unable to process payment. Please try again later.",
+                                title: "Booking Check Error",
+                                text: "An error occurred while checking class availability.",
                                 icon: "error",
                                 confirmButtonText: "OK"
                             });
-                            console.error('Error:', error);
                         }
                     });
+
                 } else {
                     Swal.fire({
                         title: "Booking Unavailable",
@@ -312,6 +310,7 @@
                     });
                 }
             });
+
 
 
 

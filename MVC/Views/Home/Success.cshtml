@@ -1,27 +1,126 @@
-@{
-    ViewData["Title"] = "Booking Successful";
-}
+    @model int
+    @{
+        ViewData["Title"] = "Booking Successful";
+    }
 
-<!DOCTYPE html>
-<html lang="en">
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Booking Successful</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="~/css/User/SuccessPayment.css" rel="Stylesheet" asp-append-version="true" />
-</head>
 
-<body>
-    <div class="container">
-        <div class="card p-4 text-center">
-            <div class="checkmark">✔</div>
-            <h1 class="mt-3">Booking Successful!</h1>
-            <p class="lead">Thank you for your booking. Your payment has been successfully processed.</p>
-            <a href="/User/Index" class="btn btn-success mt-3">Go to Dashboard</a>
+    <!DOCTYPE html>
+    <html lang="en">
+
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Booking Successful</title>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+        <link href="~/css/User/SuccessPayment.css" rel="stylesheet" asp-append-version="true" />
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.17.2/dist/sweetalert2.all.min.js" \></script>
+
+    </head>
+
+    <body>
+
+        <div class="container">
+            <div class="card p-4 text-center">
+                <div class="checkmark" id="checkmark">✔</div>
+
+                <h1 class="mt-3" id="message"></h1>
+                <a href="/User/Index" class="btn btn-success mt-3">Go to Dashboard</a>
+            </div>
         </div>
-    </div>
-</body>
 
-</html>
+        <script>
+            // Assign the Razor Model to a JavaScript variable
+            var classId = @Model;
+            var sessionId = localStorage.getItem("sessionId");
+            if (!sessionId) {
+                window.location.href = "/user/index"
+            }
+
+            document.addEventListener("DOMContentLoaded", function () {
+                localStorage.setItem("authToken", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJKV1RTZXJ2aWNlc0FjY2Vzc1Rva2VuIiwianRpIjoiMjlkZWE4YzUtMGE1Ny00NDRhLWJkMjgtMWVmYzAwMzEzYjEyIiwiVXNlck9iamVjdCI6IntcImluc3RydWN0b3JJZFwiOjEwLFwiaW5zdHJ1Y3Rvck5hbWVcIjpcIktodXNoaVwiLFwiZW1haWxcIjpcImtodXNoaTFAZ21haWwuY29tXCIsXCJwYXNzd29yZFwiOm51bGwsXCJjb25maXJtUGFzc3dvcmRcIjpudWxsLFwibW9iaWxlXCI6XCIxMjM0NTY3ODkwXCIsXCJnZW5kZXJcIjpcIkZlbWFsZVwiLFwiZG9iXCI6XCIyMDAzLTEwLTA1VDAwOjAwOjAwXCIsXCJzcGVjaWFsaXphdGlvblwiOlwiWW9nYVwiLFwiY2VydGlmaWNhdGVzXCI6e1wiWW9nYVwiOlwia2h1c2hpMUBnbWFpbC5jb21fWW9nYV82OTNhYmE5MS0zZmQyLTRjMGQtYjAxMS01YjAzYjhjMzhkYmUuanBnXCJ9LFwicHJvZmlsZUltYWdlXCI6XCJraHVzaGkxQGdtYWlsLmNvbV9wcm9maWxlLnBuZ1wiLFwiYXNzb2NpYXRpb25cIjpcIkZpdFByb1wiLFwiY3JlYXRlZEF0XCI6XCIyMDI1LTAzLTI2VDEzOjEyOjU3LjkyMjc5NFwiLFwic3RhdHVzXCI6XCJBY3RpdmVcIixcImlkUHJvb2ZcIjpcImtodXNoaTFAZ21haWwuY29tX2lkcHJvb2YucG5nXCIsXCJhY3RpdmF0aW9uVG9rZW5cIjpcImQ2ZjcwYjUwLTIyZDQtNDNiNi04OWEzLWI1ZjFjMmYzOWU1YVwiLFwiYWN0aXZhdGVkT25cIjpcIjIwMjUtMDMtMjVUMTY6MjQ6MzguMDU3MDY5XCIsXCJpZFByb29mRmlsZVwiOm51bGwsXCJjZXJ0aWZpY2F0ZUZpbGVzXCI6bnVsbCxcInByb2ZpbGVJbWFnZUZpbGVcIjpudWxsfSIsImV4cCI6MTc0MzE0NzMyNSwiaXNzIjoiaHR0cHM6Ly9sb2NhbGhvc3Q6ODA4MCIsImF1ZCI6Imh0dHBzOi8vbG9jYWxob3N0OjgwODEifQ.jjl4jKtkwF-AqBQdzos4E0LwpU39GsxwDd19F-snFjA");
+
+                function getUserIdFromToken() {
+                    const token = localStorage.getItem("authToken");
+                    if (!token) {
+                        console.warn("No auth token found in localStorage.");
+                        return null;
+                    }
+                    const decoded = parseJwt(token);
+                    if (decoded) {
+                        return JSON.parse(decoded.UserObject).userId;
+                    }
+                    console.warn("Invalid or malformed token.");
+                    return null;
+                }
+
+                function parseJwt(token) {
+                    try {
+                        const base64Url = token.split(".")[1];
+                        const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+                        return JSON.parse(atob(base64));
+                    } catch (error) {
+                        console.error("Invalid token:", error);
+                        return null;
+                    }
+                }
+
+                var userid = getUserIdFromToken();
+                console.log(userid);
+                console.log(classId);
+                var messageElement = document.getElementById("message");
+                var checkmark = document.getElementById("checkmark");
+
+                $.ajax({
+                    url: 'http://localhost:8080/api/Class/BookClass',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({
+                        classId: classId,
+                        userId: 10
+                    }),
+                    success: function (response) {
+                        if (response.success) {
+
+                            messageElement.textContent = response.message;
+
+                            Swal.fire({
+                                title: "Booking Confirmed",
+                                text: "Your class has been successfully booked!",
+                                icon: "success",
+                                confirmButtonText: "OK"
+                            })
+
+                            localStorage.removeItem("sessionId");
+                        } else {
+
+                            checkmark.textContent =  "X";
+                            checkmark.style.color = rgb(139, 26, 26);
+
+                            messageElement.textContent = response.message;
+
+                            Swal.fire({
+                                title: "Booking Failed",
+                                text: response.message || "Unable to complete the booking. Please try again.",
+                                icon: "error",
+                                confirmButtonText: "OK"
+                            });
+                        }
+                    },
+                    error: function (xhr) {
+                        messageElement.textContent = xhr.responseJSON?.message || "An unexpected error occurred";
+
+                        Swal.fire({
+                            title: "Booking Error",
+                            text: xhr.responseJSON?.message || "An unexpected error occurred.",
+                            icon: "error",
+                            confirmButtonText: "OK"
+                        });
+                    }
+                });
+            });
+        </script>
+
+    </body>
+
+    </html>

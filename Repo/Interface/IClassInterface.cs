@@ -9,4 +9,5 @@ public interface IClassInterface
     Task<(bool success, string message)> CancelBooking(int userId, int classId);
     Task<bool> IsCancellationAllowed(int bookingId, int maxHoursBefore = 24);
 
+    Task<bool> IsClassAlreadyBooked(Booking bookingData);
 }
