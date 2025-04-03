@@ -29,6 +29,15 @@ body {
 	cursor: default !important;
 }
 
+#openMapBtn {
+	height: 54px;
+	width: 42px;
+	padding: 0;
+	border-left: none;
+	border-top-left-radius: 0;
+	border-bottom-left-radius: 0;
+}
+
 .modal-backdrop {
 	--bs-backdrop-zindex: 1;
 	--bs-backdrop-bg: #000;

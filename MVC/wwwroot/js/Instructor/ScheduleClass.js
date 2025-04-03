@@ -1057,15 +1057,17 @@ document.addEventListener("DOMContentLoaded", function () {
 
 			
 
-                    if (!isTimeValid || !isDateValid || !isDescriptionValid || !isImageValid || !isAddresValid) {
+            if (!isTimeValid || !isDateValid || !isDescriptionValid || !isImageValid || !isAddresValid) {
 				return;
 			}
 			return;
 		}
 
-
-
-		const equipmentValues = selectedEquipment.map(item => item.value).join(', ');
+		const equipmentValues="";
+		if(selectedEquipment.length == 0) equipmentValues=" ";
+		else {
+			equipmentValues = selectedEquipment.map(item => item.value).join(', ');
+		}
 
 		let duration = null;
 		if (startTimeInput.value && endTimeInput.value) {

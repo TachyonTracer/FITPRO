@@ -435,7 +435,7 @@ document.addEventListener("DOMContentLoaded", function () {
 	document.getElementById("confirmLocationBtn").addEventListener("click", () => mapModal.hide());
 
 	const form = document.getElementById("classForm");
-            const selectedEquipmentDiv = document.getElementById("selectedEquipment");
+	const selectedEquipmentDiv = document.getElementById("selectedEquipment");
 	const startDateInput = document.getElementById("startDate");
 	const endDateInput = document.getElementById("endDate");
 	const startTimeInput = document.getElementById("startTime");
@@ -455,10 +455,10 @@ document.addEventListener("DOMContentLoaded", function () {
 		checkbox.addEventListener("change", updateSelectedEquipment);
 	});
 
-	
 
-            // Drag And Drop 
-            const dropZone = document.getElementById('dropZone');
+
+	// Drag And Drop 
+	const dropZone = document.getElementById('dropZone');
 	const imageInput = document.getElementById('imageInput');
 	const imagePreview = document.getElementById('imagePreview');
 	const dropText = document.getElementById('dropText');
@@ -532,15 +532,16 @@ document.addEventListener("DOMContentLoaded", function () {
 			processFilesInBatch(newFiles);
 
 			// Check if any files are selected and update validation state
-			if (selectedFiles.length === 0) {
-				dropZone.classList.add('is-invalid');
-				errorContainer.textContent = 'Please upload class images';
-				errorContainer.style.display = 'block';
-			} else {
-				// Remove error state as soon as files are added
-				dropZone.classList.remove('is-invalid');
-				errorContainer.style.display = 'none';
-			}
+			// if (selectedFiles.length === 0) {
+			// 	dropZone.classList.add('is-invalid');
+			// 	errorContainer.textContent = 'Please upload class images';
+			// 	errorContainer.style.display = 'block';
+			// } else {
+			// 	// Remove error state as soon as files are added
+			// 	dropZone.classList.remove('is-invalid');
+			// 	errorContainer.style.display = 'none';
+			// }
+			validateImages();
 		}
 
 		async function processFilesInBatch(files) {
@@ -578,7 +579,7 @@ document.addEventListener("DOMContentLoaded", function () {
 					// Display single message for extra banner images
 					if (bannerSizedFiles.length > 1) {
 						Swal.fire({
-							title: 'Invalid Banner Image',
+							title: 'Invalid Images',
 							text: `Only using the first banner image. ${bannerSizedFiles.length - 1} additional banner images were not added.`,
 							icon: 'error',
 							confirmButtonText: 'OK'
@@ -586,7 +587,7 @@ document.addEventListener("DOMContentLoaded", function () {
 					}
 				} else {
 					Swal.fire({
-						title: 'Invalid Banner Image',
+						title: 'Invalid Images',
 						text: `The banner image must have dimensions of ${BANNER_DIMENSIONS.width}x${BANNER_DIMENSIONS.height}.`,
 						icon: 'error',
 						confirmButtonText: 'OK'
@@ -594,7 +595,7 @@ document.addEventListener("DOMContentLoaded", function () {
 				}
 			} else if (hasBannerImage && bannerSizedFiles.length > 0) {
 				Swal.fire({
-					title: 'Invalid Banner Image',
+					title: 'Invalid Images',
 					text: 'You already have a banner image. Additional banner images were not added.',
 					icon: 'error',
 					confirmButtonText: 'OK'
@@ -625,7 +626,7 @@ document.addEventListener("DOMContentLoaded", function () {
 				const rejectedForSize = normalFilesToAdd.length - validNormalFiles.length;
 				if (rejectedForSize > 0) {
 					Swal.fire({
-						title: 'Invalid Banner Image',
+						title: 'Invalid Images',
 						text: `${rejectedForSize} normal image(s) exceeded the maximum size of ${NORMAL_MAX_SIZE / 1024 / 1024}MB`,
 						icon: 'error',
 						confirmButtonText: 'OK'
@@ -635,7 +636,7 @@ document.addEventListener("DOMContentLoaded", function () {
 				// Show message if we didn't use all normal files
 				if (normalSizedFiles.length > normalImagesNeeded) {
 					Swal.fire({
-						title: 'Invalid Banner Image',
+						title: 'Invalid Images',
 						text: `Only using ${normalImagesNeeded} normal images. ${normalSizedFiles.length - normalImagesNeeded} additional normal images were not added.`,
 						icon: 'error',
 						confirmButtonText: 'OK'
@@ -644,7 +645,7 @@ document.addEventListener("DOMContentLoaded", function () {
 			} else if (normalImagesNeeded === 0 && normalSizedFiles.length > 0) {
 				// If we already have max normal images
 				Swal.fire({
-					title: 'Invalid Banner Image',
+					title: 'Invalid Images',
 					text: 'You already have the maximum number of normal images. Additional normal images were not added.',
 					icon: 'error',
 					confirmButtonText: 'OK'
@@ -703,7 +704,7 @@ document.addEventListener("DOMContentLoaded", function () {
 					previewContainer.remove();
 					updateFileInput();
 					updateDropzoneText();
-					validateImages();
+					// validateImages();
 
 				});
 
@@ -767,8 +768,8 @@ document.addEventListener("DOMContentLoaded", function () {
                         box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
                     }
                     .image-preview-item {
-                        width: 150px;
-                        height: 150px;
+                        width: 250px;
+                        height: 250px;
                         object-fit: cover;
                     }
                     .image-label {
@@ -921,52 +922,192 @@ document.addEventListener("DOMContentLoaded", function () {
 	$startTime.on('change', validateTimeRange);
 	$endTime.on('change', validateTimeRange);
 
+	// function validateDescriptions() {
+	// 	const description1 = document.getElementById("classDescription");
+	// 	const description2 = document.getElementById("classBenefits");
+	// 	let isValid = true;
+
+	// 	$(description1).removeClass('is-invalid');
+	// 	$(description2).removeClass('is-invalid');
+
+	// 	description1.nextElementSibling.textContent = "";
+	// 	description2.nextElementSibling.textContent = "";
+
+	// 	if (!description1.value.trim()) {
+	// 		description1.classList.add("is-invalid");
+	// 		description1.nextElementSibling.textContent = "Description is required.";
+	// 		isValid = false;
+	// 	} else if (description1.value.trim().length < 50) {
+	// 		description1.classList.add("is-invalid");
+	// 		description1.nextElementSibling.textContent = "Description must be at least 50 characters.";
+	// 		isValid = false;
+	// 	} else if (description1.value.trim().length > 150) {
+	// 		description1.classList.add("is-invalid");
+	// 		description1.nextElementSibling.textContent = "Description cannot exceed 150 characters.";
+	// 		isValid = false;
+	// 	}
+
+	// 	if (!description2.value.trim()) {
+	// 		description2.classList.add("is-invalid");
+	// 		description2.nextElementSibling.textContent = "Benefits description is required.";
+	// 		isValid = false;
+	// 	} else if (description2.value.trim().length < 150 || description2.value.trim().length > 300) {
+	// 		description2.classList.add("is-invalid");
+	// 		description2.nextElementSibling.textContent = "Benefits description must be between 150 and 300 characters.";
+	// 		isValid = false;
+	// 	}
+
+	// 	return isValid;
+	// }
+	// document.getElementById("classDescription").addEventListener("input", validateDescriptions);
+	// document.getElementById("classBenefits").addEventListener("input", validateDescriptions);
+
 	function validateDescriptions() {
 		const description1 = document.getElementById("classDescription");
 		const description2 = document.getElementById("classBenefits");
 		let isValid = true;
 
-		$(description1).removeClass('is-invalid');
-		$(description2).removeClass('is-invalid');
+		// Remove previous validation states
+		$(description1).removeClass('is-invalid is-valid');
+		$(description2).removeClass('is-invalid is-valid');
 
+		// Clear previous error messages
 		description1.nextElementSibling.textContent = "";
 		description2.nextElementSibling.textContent = "";
 
+		// Validate first description
 		if (!description1.value.trim()) {
 			description1.classList.add("is-invalid");
 			description1.nextElementSibling.textContent = "Description is required.";
 			isValid = false;
-		} else if (description1.value.trim().length < 50) {
+		} else if (description1.value.trim().length < 50 || description1.value.trim().length > 200) {
 			description1.classList.add("is-invalid");
-			description1.nextElementSibling.textContent = "Description must be at least 50 characters.";
+			description1.nextElementSibling.textContent =
+				`Description must be between 50 and 200 characters (currently: ${description1.value.trim().length}).`;
 			isValid = false;
-		} else if (description1.value.trim().length > 150) {
-			description1.classList.add("is-invalid");
-			description1.nextElementSibling.textContent = "Description cannot exceed 150 characters.";
-			isValid = false;
+		} else {
+			description1.classList.add("is-valid");
 		}
 
+		// Validate second description
 		if (!description2.value.trim()) {
 			description2.classList.add("is-invalid");
 			description2.nextElementSibling.textContent = "Benefits description is required.";
 			isValid = false;
-		} else if (description2.value.trim().length < 150 || description2.value.trim().length > 300) {
+		} else if (description2.value.trim().length < 50 || description2.value.trim().length > 200) {
 			description2.classList.add("is-invalid");
-			description2.nextElementSibling.textContent = "Benefits description must be between 150 and 300 characters.";
+			description2.nextElementSibling.textContent =
+				`Benefits description must be between 50 and 200 characters (currently: ${description2.value.trim().length}).`;
 			isValid = false;
+		} else {
+			description2.classList.add("is-valid");
 		}
 
 		return isValid;
 	}
-	document.getElementById("classDescription").addEventListener("input", validateDescriptions);
-	document.getElementById("classBenefits").addEventListener("input", validateDescriptions);
 
+	// Add input event listeners for real-time validation
+	document.getElementById("classDescription").addEventListener("input", function () {
+		const maxLength = 200;
+		if (this.value.length > maxLength) {
+			this.value = this.value.slice(0, maxLength);
+		}
 
+		// Only show validation if form was previously validated or field is not empty
+		if (form.classList.contains('was-validated') || this.value.trim().length > 0) {
+			if (!this.value.trim()) {
+				this.classList.add("is-invalid");
+				this.nextElementSibling.textContent = "Description is required.";
+			} else if (this.value.trim().length < 50) {
+				this.classList.add("is-invalid");
+				this.nextElementSibling.textContent =
+					`Description must be at least 50 characters.`;
+			} else if (this.value.trim().length > 200) {
+				this.classList.add("is-invalid");
+				this.nextElementSibling.textContent = "Description cannot exceed 200 characters.";
+			} else {
+				this.classList.remove("is-invalid");
+				this.classList.add("is-valid");
+				this.nextElementSibling.textContent = "";
+			}
+		}
+
+		updateCharacterCounter(this);
+	});
+
+	document.getElementById("classBenefits").addEventListener("input", function () {
+		const maxLength = 200;
+		if (this.value.length > maxLength) {
+			this.value = this.value.slice(0, maxLength);
+		}
+
+		// Only show validation if form was previously validated or field is not empty
+		if (form.classList.contains('was-validated') || this.value.trim().length > 0) {
+			if (!this.value.trim()) {
+				this.classList.add("is-invalid");
+				this.nextElementSibling.textContent = "Benefits description is required.";
+			} else if (this.value.trim().length < 50) {
+				this.classList.add("is-invalid");
+				this.nextElementSibling.textContent =
+					`Benefits description must be at least 50 characters.`;
+			} else if (this.value.trim().length > 200) {
+				this.classList.add("is-invalid");
+				this.nextElementSibling.textContent = "Benefits description cannot exceed 200 characters.";
+			} else {
+				this.classList.remove("is-invalid");
+				this.classList.add("is-valid");
+				this.nextElementSibling.textContent = "";
+			}
+		}
+
+		updateCharacterCounter(this);
+	});
+	// Add blur event listeners for length validation
+	document.getElementById("classDescription").addEventListener("blur", function () {
+		const value = this.value.trim();
+		if (value && (value.length < 50 || value.length > 200)) {
+			this.classList.add("is-invalid");
+			this.nextElementSibling.textContent =
+				`Description must be between 50 and 200 characters.`;
+		} else if (value) {
+			this.classList.remove("is-invalid");
+			this.classList.add("is-valid");
+		}
+	});
+
+	document.getElementById("classBenefits").addEventListener("blur", function () {
+		const value = this.value.trim();
+		if (value && (value.length < 50 || value.length > 200)) {
+			this.classList.add("is-invalid");
+			this.nextElementSibling.textContent =
+				`Benefits description must be between 50 and 200 characters.`;
+		} else if (value) {
+			this.classList.remove("is-invalid");
+			this.classList.add("is-valid");
+		}
+	});
+
+	function updateCharacterCounter(element) {
+		const maxLength = 200;
+		let counter = element.parentElement.querySelector('.char-counter');
+		if (!counter) {
+			counter = document.createElement('small');
+			counter.className = 'char-counter';
+			counter.style.cssText = `
+            color: #fff;
+            display: block;
+            margin-top: 5px;
+            font-size: 0.875rem;
+            opacity: 0.8;
+        `;
+			element.parentElement.appendChild(counter);
+		}
+		counter.textContent = `${element.value.length}/${maxLength} characters`;
+	}
 
 	function validateImages() {
 		const dropZone = document.getElementById('dropZone');
 		let errorContainer = dropZone.parentNode.querySelector('.invalid-feedback');
-
 
 		if (!errorContainer) {
 			errorContainer = document.createElement('div');
@@ -974,22 +1115,40 @@ document.addEventListener("DOMContentLoaded", function () {
 			dropZone.parentNode.appendChild(errorContainer);
 		}
 
-		if (selectedFiles.length !== 6) {
-			dropZone.classList.add('is-invalid');
-			errorContainer.textContent = 'Please upload exactly 6 class images (1 banner + 5 normal images)';
-			errorContainer.style.display = 'block';
-			return false;
+		// Check for form validation state or if files are selected
+		if (form.classList.contains('was-validated') || selectedFiles.length > 0) {
+			if (selectedFiles.length === 0 || selectedFiles.length !== 6) {
+				dropZone.classList.add('is-invalid');
+				dropZone.classList.remove('is-valid');
+				errorContainer.textContent = 'Please upload class images';
+				errorContainer.style.display = 'block';
+				return false;
+			} else if (selectedFiles.length !== 6) {
+				dropZone.classList.add('is-invalid');
+				dropZone.classList.remove('is-valid');
+				errorContainer.textContent = `Please upload exactly 6 images (1 banner + 5 normal)`;
+				errorContainer.style.display = 'block';
+				return false;
+			}
+
+			const hasBanner = selectedFiles.some(file => file.isBanner);
+			if (!hasBanner) {
+				dropZone.classList.add('is-invalid');
+				dropZone.classList.remove('is-valid');
+				errorContainer.textContent = 'Please upload 1 banner image (1920x1080)';
+				errorContainer.style.display = 'block';
+				return false;
+			}
+
+			// If all validations pass
+			dropZone.classList.remove('is-invalid');
+			dropZone.classList.add('is-valid');
+			errorContainer.style.display = 'none';
+			return true;
 		}
 
-		const hasBanner = selectedFiles.some(file => file.isBanner);
-		if (!hasBanner) {
-			dropZone.classList.add('is-invalid');
-			errorContainer.textContent = 'Please upload 1 banner image (1920x1080)';
-			errorContainer.style.display = 'block';
-			return false;
-		}
-
-		dropZone.classList.remove('is-invalid');
+		// Reset validation state if no validation triggered
+		dropZone.classList.remove('is-invalid', 'is-valid');
 		errorContainer.style.display = 'none';
 		return true;
 	}
@@ -1016,6 +1175,130 @@ document.addEventListener("DOMContentLoaded", function () {
 
 	document.querySelectorAll('input[name="equipment"]').forEach(checkbox => {
 		checkbox.addEventListener("change", validateEquipment);
+	});
+
+	function validateClassName() {
+		const classNameInput = document.getElementById('className');
+		const value = classNameInput.value.trim();
+
+		classNameInput.classList.remove('is-invalid');
+		classNameInput.classList.add('is-valid');
+		classNameInput.nextElementSibling.textContent = '';
+
+
+		if (!value) {
+			classNameInput.classList.add('is-invalid');
+			classNameInput.nextElementSibling.textContent = 'Class name is required';
+			return false;
+		} else if (value.length < 2 || value.length > 100) {
+			classNameInput.classList.add('is-invalid');
+			classNameInput.nextElementSibling.textContent = 'Class name must be between 2 and 100 characters';
+			return false;
+		} else {
+			classNameInput.classList.remove('is-invalid');
+			classNameInput.classList.add('is-valid');
+			return true;
+		}
+	}
+
+	function validateClassType() {
+		const classTypeSelect = document.getElementById('classType');
+		if (!classTypeSelect.value) {
+			classTypeSelect.classList.add('is-invalid');
+			classTypeSelect.nextElementSibling.textContent = 'Please select a class type';
+			return false;
+		} else {
+			classTypeSelect.classList.remove('is-invalid');
+			classTypeSelect.classList.add('is-valid');
+			return true;
+		}
+	}
+
+	function validateFee() {
+		const feeInput = document.getElementById('fee');
+		const fee = parseFloat(feeInput.value);
+
+		if (!feeInput.value) {
+			feeInput.classList.add('is-invalid');
+			feeInput.nextElementSibling.textContent = 'Fee is required';
+			return false;
+		} else if (isNaN(fee) || fee < 0 || fee > 100000) {
+			feeInput.classList.add('is-invalid');
+			feeInput.nextElementSibling.textContent = 'Fee must be between $0 and $100,000';
+			return false;
+		} else {
+			feeInput.classList.remove('is-invalid');
+			feeInput.classList.add('is-valid');
+			return true;
+		}
+	}
+
+	function validateCapacity() {
+		const capacityInput = document.getElementById('maxCapacity');
+		const capacity = parseInt(capacityInput.value);
+
+		if (!capacityInput.value) {
+			capacityInput.classList.add('is-invalid');
+			capacityInput.nextElementSibling.textContent = 'Capacity is required';
+			return false;
+		} else if (isNaN(capacity) || capacity < 1 || capacity > 1000) {
+			capacityInput.classList.add('is-invalid');
+			capacityInput.nextElementSibling.textContent = 'Capacity must be between 1 and 1000';
+			return false;
+		} else {
+			capacityInput.classList.remove('is-invalid');
+			capacityInput.classList.add('is-valid');
+			return true;
+		}
+	}
+
+	document.getElementById('className').addEventListener('input', function () {
+		// if (form.classList.contains('was-validated')) {
+		validateClassName();
+		// }
+	});
+
+	document.getElementById('classType').addEventListener('change', function () {
+		// if (form.classList.contains('was-validated')) {
+		validateClassType();
+		// }
+	});
+
+	document.getElementById('fee').addEventListener('input', function () {
+		// if (form.classList.contains('was-validated')) {
+		validateFee();
+		// }
+	});
+
+	document.getElementById('maxCapacity').addEventListener('input', function () {
+		// if (form.classList.contains('was-validated')) {
+		validateCapacity();
+		// }
+	});
+
+	document.getElementById('address').addEventListener('input', function () {
+		// if (form.classList.contains('was-validated')) {
+		validateAddress();
+		// }
+	});
+
+	document.getElementById("confirmLocationBtn").addEventListener("click", function () {
+		validateAddress(); // Validate address when location is confirmed
+		mapModal.hide();
+	});
+
+	document.getElementById('imageInput').addEventListener('change', validateImages);
+	dropZone.addEventListener('drop', function (e) {
+		setTimeout(validateImages, 100); // Short delay to allow files to process
+	});
+
+	document.getElementById('imageInput').addEventListener('change', function (e) {
+		handleFileSelect(e.target.files);
+	});
+
+	dropZone.addEventListener('drop', function (e) {
+		e.preventDefault();
+		handleFileSelect(e.dataTransfer.files);
 	});
 
 
@@ -1048,16 +1331,20 @@ document.addEventListener("DOMContentLoaded", function () {
 		if (!form.checkValidity()) {
 			e.stopPropagation();
 			form.classList.add('was-validated');
-
+			const isClassNameValid = validateClassName();
+			const isClassTypeValid = validateClassType();
+			const isFeeValid = validateFee();
+			const isCapacityValid = validateCapacity();
 			const isTimeValid = validateTimeRange();
 			const isDateValid = validateDateRange();
 			const isDescriptionValid = validateDescriptions();
 			const isImageValid = validateImages();
-			const isAddresValid = validateAddress();
+			const isAddressValid = validateAddress();
+			//const isEquipmentValid = validateEquipment();
+			//const isDescriptionValid = validateDescriptions();
 
-			
 
-                    if (!isTimeValid || !isDateValid || !isDescriptionValid || !isImageValid || !isAddresValid) {
+			if (!isTimeValid || !isDateValid || !isDescriptionValid || !isImageValid || !isAddresValid) {
 				return;
 			}
 			return;
@@ -1109,10 +1396,10 @@ document.addEventListener("DOMContentLoaded", function () {
 		// 	formData.append(`assetFiles`, selectedFiles[i], selectedFiles[i].name);
 		// } 
 
-			selectedFiles.forEach((file, index) => {
-				formData.append('assetFiles', file);
-				console.log(`Appending file ${index}: ${file.name} (${file.isBanner ? 'Banner' : 'Normal'})`);
-			});
+		selectedFiles.forEach((file, index) => {
+			formData.append('assetFiles', file);
+			console.log(`Appending file ${index}: ${file.name} (${file.isBanner ? 'Banner' : 'Normal'})`);
+		});
 
 		console.log("Form Data Entries:");
 		for (let pair of formData.entries()) {
