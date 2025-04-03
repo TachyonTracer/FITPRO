@@ -13,7 +13,7 @@ namespace MVC
     {
 
 
-        public IActionResult Index()
+        public IActionResult Register()
         {
             return View();
         }
