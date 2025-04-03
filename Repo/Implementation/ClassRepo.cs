@@ -6,9 +6,12 @@ namespace Repo;
 public class ClassRepo : IClassInterface
 {
     public readonly NpgsqlConnection _conn;
-    public ClassRepo(NpgsqlConnection conn)
+    private readonly RabbitMQService _rabbitMQService;
+
+    public ClassRepo(NpgsqlConnection conn, RabbitMQService rabbitMQService)
     {
         _conn = conn;
+        _rabbitMQService = rabbitMQService;
     }
 
     public async Task<bool> IsClassAlreadyBooked(Booking bookingData)
@@ -66,7 +69,6 @@ public class ClassRepo : IClassInterface
             {
                 await _conn.OpenAsync();
             }
-
             // First check if user has already booked this class
             using (var checkExistingBooking = new NpgsqlCommand(
                 "SELECT COUNT(*) FROM t_Bookings WHERE c_userid = @userId AND c_classid = @classId", _conn))
@@ -90,7 +92,7 @@ public class ClassRepo : IClassInterface
                 {
                     // Check if class exists and has available capacity
                     using (var checkCmd = new NpgsqlCommand(
-                        "SELECT c_availablecapacity, c_maxcapacity FROM t_Class WHERE c_classid = @classId FOR UPDATE", 
+                        "SELECT c_availablecapacity, c_maxcapacity, c_instructorid, c_classname FROM t_Class WHERE c_classid = @classId FOR UPDATE", 
                         _conn, 
                         transaction))
                     {
@@ -106,12 +108,20 @@ public class ClassRepo : IClassInterface
 
                             int availableCapacity = Convert.ToInt32(reader["c_availablecapacity"]);
                             int maxCapacity = Convert.ToInt32(reader["c_maxcapacity"]);
+                            int instructorid = Convert.ToInt32(reader["c_instructorid"]);
+                            string className = Convert.ToString(reader["c_classname"]);
 
                             if (availableCapacity <= 0)
                             {
                                 response.success = false;
                                 response.message = "Class is full - no available seats";
                                 return response;
+                            }
+                            if (availableCapacity == 1) {
+                                // Sending Class Full Notification to Instructor
+                                _rabbitMQService.PublishNotification(instructorid.ToString(), "instructor", 
+                                    $"Class Full !!!::One of you class {className} is fully booked!::{DateTimeOffset.UtcNow.ToUnixTimeSeconds()}");
+
                             }
                         }
                     }

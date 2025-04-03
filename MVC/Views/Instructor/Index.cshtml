@@ -11,6 +11,8 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    @* SignalR JavaScript *@
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.0/signalr.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
         rel="stylesheet">
     <link href="https://kendo.cdn.telerik.com/themes/6.7.0/default/default-main.css" rel="stylesheet">
@@ -35,19 +37,48 @@
                 <img src="~/logo/fitProLogo.png" alt="">
             </a>
         </div>
+        <div class="header_content_Wraper">     
+            @* *** Notification Part Starts *** *@
 
-        <div class="user-profile-container">
-            <div class="user-profile">
-                <div class="user-avatar">
-                    <img id="userImage" src="" alt="Avatar"
-                        style="display: none; width: 40px; height: 40px; border-radius: 50%;" />
-                    <div id="userInitials" class="user-initials">DU</div>
+            <!-- Notification Bell Icon -->
+            <div class="position-relative d-inline-block notification-bell" style="margin-right: 22px; margin-top: 0px;">
+                <button class="btn btn-outline-light position-relative" onclick="openNotifications()">
+                    <i class="fas fa-bell"></i>
+                    <span id="notificationCount"
+                        class="badge bg-danger position-absolute top-0 start-100 translate-middle"></span>
+                </button>
+
+                <!-- Notifications Dropdown -->
+                <div id="notificationDropdown" class="dropdown-menu shadow mt-2 p-0"
+                    style="display: none; width: 320px; position: absolute;">
+
+                    <!-- Scrollable Notification List -->
+                    <ul id="notificationList" class="list-group list-group-flush">
+                        <li class="list-group-item text-center text-muted">No new notifications</li>
+                    </ul>
+
+                    <!-- Mark all as read -->
+                    <div class="p-2 border-top bg-light">
+                        <button class="btn btn-sm btn-danger w-100" onclick="markAllAsRead()">Mark all as read</button>
+                    </div>
                 </div>
-                <div class="user-name" id="userName">Default User</div>
             </div>
-            <div class="profile-dropdown">
-                <a href="#" onclick="showProfileDrawer()">Update Profile</a>
-                <a href="#" onclick="showLogoutConfirmation()">Logout</a>
+
+            @* *** Notification Part Ends *** *@
+
+            <div class="user-profile-container">
+                <div class="user-profile">
+                    <div class="user-avatar">
+                        <img id="userImage" src="" alt="Avatar"
+                            style="display: none; width: 40px; height: 40px; border-radius: 50%;" />
+                        <div id="userInitials" class="user-initials">DU</div>
+                    </div>
+                    <div class="user-name" id="userName">Default User</div>
+                </div>
+                <div class="profile-dropdown">
+                    <a href="#" onclick="showProfileDrawer()">Update Profile</a>
+                    <a href="#" onclick="showLogoutConfirmation()">Logout</a>
+                </div>
             </div>
         </div>
     </div>
