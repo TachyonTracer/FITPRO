@@ -38,7 +38,28 @@ namespace API
             });
         }
         #endregion
-
+        #region Get One Instructor
+        [HttpGet("GetOneInstructor/{id}")]
+        // [Authorize]
+        public async Task<IActionResult> GetOneInstructor(string id)
+        {
+            var instructor = await _instructorRepo.GetOneInstructor(id);
+            if (instructor != null)
+            {
+                return Ok(new
+                {
+                    success = true,
+                    message = "One Instructor fetched successfully.",
+                    data = instructor
+                });
+            }
+            return Ok(new
+            {
+                success = false,
+                message = "Instructor does not exists."
+            });
+        }
+        #endregion
 
         #region  Get One Instructor By Id
         [HttpGet("GetOneInstructorById/{instructorId}")]
