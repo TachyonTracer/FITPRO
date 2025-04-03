@@ -170,12 +170,41 @@
             <div class="content-area">
                 <div class="container" id="scheduleClasses">
                     @Html.Partial("~/Views/Instructor/PartialScheduleClass.cshtml")
-                    @* <h2>Classes Content-></h2>
-                    <p>This would be the classes management section.</p> *@
                 </div>
             </div>
         </div>
         <div>
+            <!--Update and delete Classes-->
+            <div class="content-area">
+                <div class="container mt-1">
+                    <h2 class="text-center mb-4">My Classes</h2>
+                    <div class="row mb-4">
+                        <div class="col-md-5">
+                            <input type="text" id="searchText" class="form-control" style="color: white;"
+                                placeholder="Search by class name or city">
+                        </div>
+                        <div class="col-md-4">
+                            <select id="type" class="form-control transparent-select">
+                                <option value="">All Types</option>
+                                <option value="yoga">Yoga</option>
+                                <option value="gym">Gym</option>
+                                <option value="calisthenics">Calisthenics</option>
+                                <option value="Zumba">Zumba</option>
+                                <option value="Cycling">Cycling</option>
+                                <option value="Weight training">Weight Training</option>
+                                <option value="Boxing">Boxing</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <button class="btn btn-primary w-100" id="filterBtn">Apply Filters</button>
+                        </div>
+                    </div>
+                    <div id="classList" class="row"></div>
+                </div>
+            </div>
+        </div>
+        <div>
+            <!--Feedback-->
             <div class="content-area">
                 <div class="container">
                     <h2>Feedback</h2>
@@ -183,8 +212,10 @@
                 </div>
             </div>
         </div>
+
     </div>
 
+    <!--Instructor Profile Drawer-->
     <div id="profileDrawer"></div>
     <div id="logoutDialog"></div>
     <div id="classDetailsPopup" class="class-details-popup">
