@@ -17,4 +17,6 @@ public interface IClassInterface
     Task<bool> IsCancellationAllowed(int bookingId, int maxHoursBefore = 24);
 
     Task<bool> IsClassAlreadyBooked(Booking bookingData);
+
+    Task<bool> ActivateClass(int classId);
 }

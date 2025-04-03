@@ -478,7 +478,14 @@ $(document).ready(function () {
                                           )}
                                       </div>
                                   </div>
-                                  
+                                  <div class="card-footer bg-transparent">
+                                        
+                                        <button class="btn btn-danger w-100 cancel-btn" 
+                                          onclick="suspendClass(${c.classId}, '${c.status}')"
+                                          ${c.status !== 'Active' ? 'Suspended' : ''}>
+                                          ${c.status !== 'Active' ? 'Activate Class' : 'Suspend Class'}
+                                      </button>
+                                    </div>
                               </div>
                           </div>`;
       });
@@ -486,54 +493,62 @@ $(document).ready(function () {
     $("#classList").html(html);
   }
 
-  // Search function (runs on input)
+
   function performSearch() {
-    var searchText = $("#searchText").val().toLowerCase();
+    var searchText = $("#searchText").val().toLowerCase().trim();
 
     if (searchText === "") {
-      applyFilters();
-      return;
+        applyFilters();
+        return;
     }
 
     var searchedData = contactData.filter(function (c) {
-      return (
-        c.className.toLowerCase().includes(searchText) ||
-        c.city.toLowerCase().includes(searchText)
-      );
+        // Search in class name, city, and type
+        return c.className.toLowerCase().includes(searchText) ||
+               c.city.toLowerCase().includes(searchText) ||
+               c.type.toLowerCase().includes(searchText);
     });
 
-    var type = $("#type").val();
-    var level = $("#level").val();
+    var location = $("#location").val();
+    var type = $("#types").val();
 
     var filteredData = searchedData.filter(function (c) {
-      return (
-        (type === "" || c.type === type) &&
-        (level === "" || c.description.level === level)
-      );
+        return (type === "" || c.type === type) &&
+               (location === "" || c.city === location);
+    });
+
+    console.log("Search results:", {
+        searchText: searchText,
+        totalResults: filteredData.length,
+        results: filteredData.map(c => ({
+            className: c.className,
+            city: c.city,
+            type: c.type
+        }))
     });
 
     renderClasses(filteredData);
-  }
+}
 
   // Filter function (runs on button click)
   function applyFilters() {
     var searchText = $("#searchText").val().toLowerCase();
-    var type = $("#type").val();
-    var level = $("#level").val();
+    var location = $("#location").val();
+    var type = $("#types").val();
 
     var filteredData = contactData.filter(function (c) {
-      var matchesSearch =
-        searchText === "" ||
-        c.className.toLowerCase().includes(searchText) ||
-        c.city.toLowerCase().includes(searchText);
-      var matchesType = type === "" || c.type === type;
-      var matchesLevel = level === "" || c.description.level === level;
+        var matchesSearch = searchText === "" ||
+            c.className.toLowerCase().includes(searchText) ||
+            c.city.toLowerCase().includes(searchText);
+        var matchesLocation = location === "" || c.city === location;
+        var matchesLevel = type === "" || c.type === type;
 
-      return matchesSearch && matchesType && matchesLevel;
+        return matchesSearch && matchesLocation && matchesLevel;
     });
 
     renderClasses(filteredData);
-  }
+}
+
 
   // Search on input
   $("#searchText").on("input", performSearch);
@@ -763,3 +778,74 @@ function markAllAsRead() {
 
 /* Do Not Remove */
 /* Notification JavaScript Ends */
+
+function suspendClass(classId, currentStatus) {
+  const action = currentStatus === 'Active' ? 'suspend' : 'activate';
+  const confirmationText = currentStatus === 'Active' 
+      ? 'Do you want to suspend this class?' 
+      : 'Do you want to activate this class?';
+
+  Swal.fire({
+      title: 'Are you sure?',
+      text: confirmationText,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: `Yes, ${action}`
+  }).then((result) => {
+      if (result.isConfirmed) {
+          const apiUrl = currentStatus === 'Active' 
+              ? `${uri}/api/Class/soft-delete/${classId}` 
+              : `${uri}/api/Class/activate-class/${classId}`;
+
+          $.ajax({
+              url: apiUrl,
+              type: currentStatus === 'Active' ? "DELETE" : "POST",
+              success: function (response) {
+                  if (response.success) {
+                      Swal.fire(
+                          'Success!',
+                          `Class ${action}d successfully`,
+                          'success'
+                      );
+                      refreshClasses();
+                      // Update the button and status dynamically
+                      const button = $(`#class-${classId} .cancel-btn`);
+                      button.text(currentStatus === 'Active' ? 'Activate Class' : 'Suspend Class');
+                      button.toggleClass('btn-danger btn-success');
+                      button.attr('onclick', `suspendClass(${classId}, '${currentStatus === 'Active' ? 'Inactive' : 'Active'}')`);
+                      button.prop('disabled', false);
+                  } else {
+                      Swal.fire(
+                          'Error!',
+                          response.message || `Failed to ${action} class.`,
+                          'error'
+                      );
+                  }
+              },
+              error: function () {
+                  Swal.fire(
+                      'Error!',
+                      `Failed to ${action} class. Please try again.`,
+                      'error'
+                  );
+              }
+          });
+      }
+  });
+}
+
+function refreshClasses() {
+  $.ajax({
+      url: `${uri}/api/Class/GetAllClasses`,
+      type: "GET",
+      success: function (response) {
+        renderClasses(response.data); // Re-render the classes
+      },
+      error: function (error) {
+          $("#classList").html('<div class="col-12"><div class="alert alert-warning text-center">Error refreshing classes.</div></div>');
+      }
+  });
+}
+

@@ -28,7 +28,7 @@
                 <div class="checkmark" id="checkmark">✔</div>
 
                 <h1 class="mt-3" id="message"></h1>
-                <a href="/User/Index" class="btn btn-success mt-3">Go to Dashboard</a>
+                <a href="/User/Dashboard" class="btn btn-success mt-3">Go to Dashboard</a>
             </div>
         </div>
 
@@ -37,7 +37,7 @@
             var classId = @Model;
             var sessionId = localStorage.getItem("sessionId");
             if (!sessionId) {
-                window.location.href = "/user/index"
+                window.location.href = "/user/Dashboard"
             }
 
             document.addEventListener("DOMContentLoaded", function () {

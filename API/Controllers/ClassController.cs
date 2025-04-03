@@ -399,6 +399,17 @@ namespace API
         }
         #endregion
 
-        
+        #region Activate Class
+        [HttpPost("activate-class/{classId}")]
+        public async Task<IActionResult> ActivateClass(int classId)
+        {
+            bool result = await _classRepo.ActivateClass(classId);
+            if (result)
+            {
+                return Ok(new { success = true, message = "Class activated successfully" });
+            }
+            return BadRequest(new { success = false, message = "Class is already active" });
+        }
+        #endregion
     }
 }

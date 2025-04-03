@@ -830,5 +830,45 @@ public class ClassRepo : IClassInterface
     }
 
     #endregion
+
+    #region Activate Class
+    public async Task<bool> ActivateClass(int classId)
+    {
+        try
+        {
+            string checkQuery = "SELECT c_status FROM t_class WHERE c_classid = @ClassId";
+            string query = "UPDATE t_class SET c_status = 'Active' WHERE c_classid = @ClassId";
+
+            await _conn.OpenAsync();
+
+            using (var checkCommand = new NpgsqlCommand(checkQuery, _conn))
+            {
+                checkCommand.Parameters.AddWithValue("@ClassId", classId);
+                string status = checkCommand.ExecuteScalar()?.ToString();
+
+                if (status == "Active")
+                {
+                    return false;
+                }
+            }
+
+            using (var command = new NpgsqlCommand(query, _conn))
+            {
+                command.Parameters.AddWithValue("@ClassId", classId);
+                return command.ExecuteNonQuery() > 0;
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+            return false;
+        }
+        finally
+        {
+            await _conn.CloseAsync();
+        }
+    }
+    #endregion
+
 }
 
