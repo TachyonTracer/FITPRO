@@ -390,8 +390,6 @@ namespace API
 
                     if (result)
                     {
-                        // Sending Instructor Notification to Admin (12)
-                        _rabbitMQService.PublishNotification("12", "admin", $"New Instructor Registered::{instructor.instructorName} needs Approval to be an Instructor::{DateTimeOffset.UtcNow.ToUnixTimeSeconds()}");
                         return new JsonResult(new { success = true, message = "Instructor registered successfully \n Please check your email for the activation link." });
                     }
                     else
@@ -461,29 +459,40 @@ namespace API
         [HttpGet("activateinstructor")]
         public async Task<IActionResult> ActivateInstructor([FromQuery] string token)
         {
-            int result = await _authRepo.ActivateInstructor(token);
+            var result = await _authRepo.ActivateInstructor(token);
 
-            if (result == 1)
+            int statusCode = result.Keys.First();
+            string instructorName = result.ContainsKey(1) ? result[1] : string.Empty;
+
+            if (statusCode == 1)
             {
+                // Sending Instructor Notification to Admin (12)
+                _rabbitMQService.PublishNotification("12", "admin", 
+                    $"New Instructor Registered::{instructorName} needs Approval to be an Instructor::{DateTimeOffset.UtcNow.ToUnixTimeSeconds()}");
+
                 return Redirect("http://localhost:8081/auth/login?message=Activation%20Successful");
             }
-            else if (result == -2)
+            else if (statusCode == -1)
+            {
+                return Redirect("http://localhost:8081/auth/login?message=No%20token%20provided");
+            }
+            else if (statusCode == -2)
             {
                 return Redirect("http://localhost:8081/auth/login?message=Invalid%20Activation%20Token");
             }
-            else if (result == -3)
+            else if (statusCode == -3)
             {
                 return Redirect("http://localhost:8081/auth/login?message=Already%20Activated");
             }
-            else if (result == -4)
+            else if (statusCode == -4)
             {
                 return Redirect("http://localhost:8081/auth/login?message=Invalid%20Status");
             }
-            else if (result == -5)
+            else if (statusCode == -5)
             {
                 return Redirect("http://localhost:8081/auth/login?message=Instructor%20Already%20Verified");
             }
-            else if (result == -6)
+            else if (statusCode == -6)
             {
                 return Redirect("http://localhost:8081/auth/login?message=Internal%20Error%20Try%20Again%20Later");
             }

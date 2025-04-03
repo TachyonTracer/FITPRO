@@ -1061,7 +1061,7 @@ $(document).ready(function () {
                 title: "Registration Successful ",
                 text: response.message,
               }).then(() => {
-                window.location.href = "./Login";
+                window.location.href = "./Auth/Login";
               });
             } else {
               Swal.fire({

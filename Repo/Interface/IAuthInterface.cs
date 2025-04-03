@@ -27,7 +27,7 @@ namespace Repo
 
         #region  Activation User/Instructor
         Task<int> ActivateUser(string token);
-        Task<int> ActivateInstructor(string token);
+        Task<Dictionary<int,string>> ActivateInstructor(string token);
         #endregion
     }
 }

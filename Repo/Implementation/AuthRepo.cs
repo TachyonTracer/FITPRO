@@ -746,20 +746,26 @@ namespace Repo
 
         #region Activate Instructor
 
-        public async Task<int> ActivateInstructor(string token)
+        public async Task<Dictionary<int, string>> ActivateInstructor(string token)
         {
             try
             {
+                var result = new Dictionary<int, string>();
+
                 if (string.IsNullOrEmpty(token))
-                    return -1; // No token provided
+                {
+                    result.Add(-1, "No token provided");
+                    return result;
+                }
 
                 if (_conn.State == System.Data.ConnectionState.Closed)
                 {
                     await _conn.OpenAsync();
                 }
 
-                string query = "SELECT c_instructorid, c_status FROM t_Instructor WHERE c_activationtoken = @Token";
+                string query = "SELECT c_instructorid, c_instructorname, c_status FROM t_Instructor WHERE c_activationtoken = @Token";
                 int instructorId = 0;
+                string instructorName = "";
                 string status = "";
 
                 using (var cmd = new NpgsqlCommand(query, _conn))
@@ -769,18 +775,28 @@ namespace Repo
                     using (var reader = await cmd.ExecuteReaderAsync())
                     {
                         if (!reader.Read())
-                            return -2; // Token not found
+                        {
+                            result.Add(-2, "Token not found");
+                            return result;
+                        }
 
                         instructorId = reader.GetInt32(0);
-                        status = reader.GetString(1);
+                        instructorName = reader.GetString(1);
+                        status = reader.GetString(2);
                     }
                 }
 
                 if (status == "Verified")
-                    return -3; // Already activated
+                {
+                    result.Add(-3, instructorName); // Already activated
+                    return result;
+                }
 
                 if (status != "Unverified")
-                    return -4; // Invalid status (should never happen)
+                {
+                    result.Add(-4, instructorName); // Invalid status (should never happen)
+                    return result;
+                }
 
                 string updateQuery = "UPDATE t_Instructor SET c_status = 'Verified', c_activatedon = NOW(), c_activationtoken = NULL WHERE c_instructorid = @InstructorId AND c_status = 'Unverified'";
 
@@ -790,18 +806,20 @@ namespace Repo
                     int rowsAffected = await updateCmd.ExecuteNonQueryAsync();
 
                     if (rowsAffected == 0)
-                        return -5; // Instructor was already verified before updating
+                    {
+                        result.Add(-5, instructorName); // Instructor was already verified before updating
+                        return result;
+                    }
                 }
 
-                return 1; // Activation successful
+                result.Add(1, instructorName); // Activation successful
+                return result;
             }
             catch (Exception ex)
             {
                 Console.WriteLine("Error at activating instructor ---> " + ex.Message);
-                return -6; // Internal error
-
+                return new Dictionary<int, string> { { -6, "Internal error" } }; // Internal error
             }
-
             finally
             {
                 if (_conn.State == System.Data.ConnectionState.Open)
