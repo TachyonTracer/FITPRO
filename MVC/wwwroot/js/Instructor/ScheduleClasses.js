@@ -202,7 +202,7 @@ var classData = [];
 
 function loadClasses() {
   $.ajax({
-    url: `http://localhost:8080/api/Class/GetClassesByInstructorId?id=${instructorId}`,
+    url: `${uri}/api/Class/GetClassesByInstructorId?id=${instructorId}`,
     type: "GET",
     success: function (response) {
       console.log(response.data);
@@ -450,7 +450,7 @@ function showEditClassForm(classData) {
 
 function updateClass(formData) {
   $.ajax({
-    url: "http://localhost:8080/api/Class/UpdateClass",
+    url: `${uri}/api/Class/UpdateClass`,
     type: "PUT",
     data: formData,
     processData: false,
