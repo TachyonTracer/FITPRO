@@ -314,3 +314,10 @@ h2 {
     background-color: var(--card-bg);
 }
 
+.form-control[readonly] {
+    background-color: rgba(255, 255, 255, 0.05) !important; /* Slightly transparent white for a glass effect */
+    border: 1px solid rgba(255, 255, 255, 0.1) !important; /* Subtle border */
+    color: rgba(255, 255, 255, 0.7) !important; /* Slightly dimmed text color to indicate readonly */
+    opacity: 1; /* Ensure the field is fully visible */
+    cursor: not-allowed; /* Show a "not-allowed" cursor to indicate it's non-editable */
+}
