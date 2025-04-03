@@ -9,12 +9,12 @@ namespace API
 	public class UserController : ControllerBase
 	{
 		private readonly IUserInterface _userRepo;
-        private readonly RabbitMQService _rabbitMQService;
+		private readonly RabbitMQService _rabbitMQService;
 
 		public UserController(IUserInterface userRepo, RabbitMQService rabbitMQService)
 		{
 			_userRepo = userRepo;
-            _rabbitMQService = rabbitMQService;
+			_rabbitMQService = rabbitMQService;
 		}
 
 		#region Get All Users For Admin Dashboard By Paras
@@ -157,26 +157,94 @@ namespace API
 
 		// Todo: remove before merge
 		#region TestUserNotification
-        [HttpGet]
-        [Route("GetUserNotification")]
-        public async Task<ActionResult> GetUserNotification()
-        {
-            try
-            {
-                _rabbitMQService.PublishNotification("A1", "admin", $"New Admin Notification::Nevil Registered recently::{DateTimeOffset.UtcNow.ToUnixTimeSeconds()}");
-                _rabbitMQService.PublishNotification("I2", "instructor", $"New Instructor Notification::Admin Assigned a new task for you::{DateTimeOffset.UtcNow.ToUnixTimeSeconds()}");
-                _rabbitMQService.PublishNotification("U2", "user", $"New User Notification::Admin Assigned a new task for you::{DateTimeOffset.UtcNow.ToUnixTimeSeconds()}");
+		[HttpGet]
+		[Route("GetUserNotification")]
+		public async Task<ActionResult> GetUserNotification()
+		{
+			try
+			{
+				_rabbitMQService.PublishNotification("A1", "admin", $"New Admin Notification::Nevil Registered recently::{DateTimeOffset.UtcNow.ToUnixTimeSeconds()}");
+				_rabbitMQService.PublishNotification("I2", "instructor", $"New Instructor Notification::Admin Assigned a new task for you::{DateTimeOffset.UtcNow.ToUnixTimeSeconds()}");
+				_rabbitMQService.PublishNotification("U2", "user", $"New User Notification::Admin Assigned a new task for you::{DateTimeOffset.UtcNow.ToUnixTimeSeconds()}");
 
-                return Ok(new { success = true, data = "successfully sent user notification" });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { success = false, message = "An error occurred while fetching admins.", error = ex.Message });
-            }
-        }
-        #endregion
+				return Ok(new { success = true, data = "successfully sent user notification" });
+			}
+			catch (Exception ex)
+			{
+				return StatusCode(500, new { success = false, message = "An error occurred while fetching admins.", error = ex.Message });
+			}
+		}
+		#endregion
 
+
+		#region Update User Profile
+		// Update profile with image upload
+		[HttpPut("UserUpdateProfile")]
+		public async Task<IActionResult> UpdateProfile([FromForm] User user)
+		{
+			try
+			{
+				if (!ModelState.IsValid)
+				{
+					return BadRequest(ModelState);
+				}
+
+				// Handle profile image upload
+				if (user.profileImageFile != null && user.profileImageFile.Length > 0)
+				{
+					var fileName = Guid.NewGuid().ToString() + Path.GetExtension(user.profileImageFile.FileName);
+					var filePath = Path.Combine("../MVC/wwwroot/User_Images", fileName);
+
+					// Create directory if it doesn't exist
+					Directory.CreateDirectory(Path.Combine("../MVC/wwwroot/User_Images"));
+
+					user.profileImage = fileName;
+
+					// Save the image to the server
+					using (var stream = new FileStream(filePath, FileMode.Create))
+					{
+						await user.profileImageFile.CopyToAsync(stream);
+					}
+				}
+
+				// Update the user's profile information
+				bool success = await _userRepo.UpdateUserProfileAsync(user);
+
+				if (!success)
+				{
+					return NotFound("User not found or update failed");
+				}
+
+				return Ok(new { message = "Profile updated successfully" });
+			}
+			catch (Exception ex)
+			{
+				return StatusCode(500, new { message = "Internal server error", error = ex.Message });
+			}
+		}
+		#endregion
+
+		#region GetUserById
+
+		[HttpGet("GetUserById/{userId}")]
+		public async Task<IActionResult> GetUserById(string userId)
+		{
+			try
+			{
+				var user = await _userRepo.GetUserByIdAsync(Convert.ToInt32(userId));
+
+				if (user == null)
+				{
+					return NotFound(new { message = "User not found" });
+				}
+
+				return Ok(user);
+			}
+			catch (Exception ex)
+			{
+				return StatusCode(500, new { message = "Internal server error", error = ex.Message });
+			}
+		}
+		#endregion
 	}
-
 }
-

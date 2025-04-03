@@ -1,0 +1,340 @@
+@{
+    Layout = null;
+}
+
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FitPro - Yoga Flow Class</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="~/css/bookclass.css" />
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.17.2/dist/sweetalert2.all.min.js" \></script>
+
+</head>
+
+
+<body>
+    @model Repo.Class;
+
+
+    <!-- Full width banner with movie-style design -->
+    <div class="banner-container">
+        <div class="class-badge">@Model.type</div>
+        <img src="~/ClassAssets/@Url.Content(Model.assets.RootElement.GetProperty("banner").GetString())"
+            alt="Yoga Banner" class="banner">
+        <div class="banner-overlay"></div>
+        <h2 class="class-title">@Model.className</h2>
+
+        <!-- Meta information like movie details -->
+        <div class="meta-info">
+            <span>@Model.duration mins</span>
+            <span>@Model.city</span>
+            <span>@Model.startDate.ToString("MMMM dd, yyyy")</span>
+        </div>
+    </div>
+
+    <!-- Main content - No scroll layout -->
+    <div class="container main-content">
+        <div class="info-grid">
+            <!-- Left column - Class details -->
+            <div>
+                <h5>Class Details</h5>
+                <div class="class-info">
+                    <div class="info-item">
+                        <span class="info-label">Instructor</span>
+                        <span class="info-value">Jane Doe</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Date</span>
+                    <span>@Model.startDate.ToString("MMMM dd, yyyy") To  @Model.endDate.Value.ToString("MMMM dd, yyyy")</span>   
+                 </div>
+                    <div class="info-item">
+                        <span class="info-label">Time</span>
+                        <span class="info-value">@Model.startTime- @Model.endTime</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Duration</span>
+                        <span class="info-value">@Model.duration mins</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Location</span>
+                        <span class="info-value">@Model.address</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Status</span>
+                        <span class="info-value">@Model.status</span>
+                    </div>
+                </div>
+
+                <div class="section-divider"></div>
+
+                <div class="info-item">
+                    <span class="info-label">Required Equipment</span>
+                    <div class="tags">
+                        @foreach (var equipment in Model.requiredEquipments.Split(','))
+                        {
+                            <span class="tag">@equipment.Trim()</span>
+                        }
+                    </div>
+                </div>
+
+                <div class="info-item">
+                    <span class="info-label">Availability</span>
+                    <span class="info-value">@Model.maxCapacity spots <span class="available-spots"
+                            id="available-spots">(@Model.availableCapacity
+                            remaining)</span></span>
+                </div>
+
+                <div class="class-description">
+                    <h3>Class Details</h3>
+
+                    <div>
+                        <strong>Purpose:</strong>
+                        <p>@Model.description.RootElement.GetProperty("purpose").GetString()</p>
+                    </div>
+
+                    <div>
+                        <strong>Benefits:</strong>
+                        <p>@Model.description.RootElement.GetProperty("benefits").GetString()</p>
+                    </div>
+
+
+                </div>
+
+
+            </div>
+
+            <!-- Right column - Image and booking -->
+            <div class="booking-column">
+                <!-- Mini image slider -->
+                <div class="mini-slider">
+                    <img src="~/ClassAssets/@Url.Content(Model.assets.RootElement.GetProperty("picture 1").GetString())"
+                        alt="Yoga Class" class="slide-image" id="slider-image">
+                    <div class="slider-nav">
+                        <button class="nav-btn" id="prev-btn"><i class="fas fa-chevron-left"></i></button>
+                        <button class="nav-btn" id="next-btn"><i class="fas fa-chevron-right"></i></button>
+                    </div>
+                </div>
+
+                <!-- Booking section -->
+                <div class="booking-section">
+                    <div class="total-price">Total Price: $@Model.fee</div>
+                    <div class="buttons">
+                        <button class="book-btn" id="book-now-btn">Book Now</button>
+                        <button class="cancel-btn" id="cancel-btn">Cancel</button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="https://js.stripe.com/v3/"></script>
+
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+
+           
+
+            var amount = @(Model.fee) * 100;
+
+            localStorage.setItem("authToken", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJKV1RTZXJ2aWNlc0FjY2Vzc1Rva2VuIiwianRpIjoiMjlkZWE4YzUtMGE1Ny00NDRhLWJkMjgtMWVmYzAwMzEzYjEyIiwiVXNlck9iamVjdCI6IntcImluc3RydWN0b3JJZFwiOjEwLFwiaW5zdHJ1Y3Rvck5hbWVcIjpcIktodXNoaVwiLFwiZW1haWxcIjpcImtodXNoaTFAZ21haWwuY29tXCIsXCJwYXNzd29yZFwiOm51bGwsXCJjb25maXJtUGFzc3dvcmRcIjpudWxsLFwibW9iaWxlXCI6XCIxMjM0NTY3ODkwXCIsXCJnZW5kZXJcIjpcIkZlbWFsZVwiLFwiZG9iXCI6XCIyMDAzLTEwLTA1VDAwOjAwOjAwXCIsXCJzcGVjaWFsaXphdGlvblwiOlwiWW9nYVwiLFwiY2VydGlmaWNhdGVzXCI6e1wiWW9nYVwiOlwia2h1c2hpMUBnbWFpbC5jb21fWW9nYV82OTNhYmE5MS0zZmQyLTRjMGQtYjAxMS01YjAzYjhjMzhkYmUuanBnXCJ9LFwicHJvZmlsZUltYWdlXCI6XCJraHVzaGkxQGdtYWlsLmNvbV9wcm9maWxlLnBuZ1wiLFwiYXNzb2NpYXRpb25cIjpcIkZpdFByb1wiLFwiY3JlYXRlZEF0XCI6XCIyMDI1LTAzLTI2VDEzOjEyOjU3LjkyMjc5NFwiLFwic3RhdHVzXCI6XCJBY3RpdmVcIixcImlkUHJvb2ZcIjpcImtodXNoaTFAZ21haWwuY29tX2lkcHJvb2YucG5nXCIsXCJhY3RpdmF0aW9uVG9rZW5cIjpcImQ2ZjcwYjUwLTIyZDQtNDNiNi04OWEzLWI1ZjFjMmYzOWU1YVwiLFwiYWN0aXZhdGVkT25cIjpcIjIwMjUtMDMtMjVUMTY6MjQ6MzguMDU3MDY5XCIsXCJpZFByb29mRmlsZVwiOm51bGwsXCJjZXJ0aWZpY2F0ZUZpbGVzXCI6bnVsbCxcInByb2ZpbGVJbWFnZUZpbGVcIjpudWxsfSIsImV4cCI6MTc0MzE0NzMyNSwiaXNzIjoiaHR0cHM6Ly9sb2NhbGhvc3Q6ODA4MCIsImF1ZCI6Imh0dHBzOi8vbG9jYWxob3N0OjgwODEifQ.jjl4jKtkwF-AqBQdzos4E0LwpU39GsxwDd19F-snFjA");
+            // Simple image slider
+            const images = [
+                "../ClassAssets/@Url.Content(Model.assets.RootElement.GetProperty("picture 2").GetString())",
+                "../ClassAssets/@Url.Content(Model.assets.RootElement.GetProperty("picture 3").GetString())",
+                "../ClassAssets/@Url.Content(Model.assets.RootElement.GetProperty("picture 4").GetString())",
+                "../ClassAssets/@Url.Content(Model.assets.RootElement.GetProperty("picture 5").GetString())",
+                "../ClassAssets/@Url.Content(Model.assets.RootElement.GetProperty("picture 1").GetString())",
+
+            ];
+
+            const imageElement = document.getElementById('slider-image');
+            const prevBtn = document.getElementById('prev-btn');
+            const nextBtn = document.getElementById('next-btn');
+            let currentImageIndex = 0;
+
+            // Show image by index
+            function showImage(index) {
+                imageElement.src = images[index];
+            }
+
+            // Next button click
+            nextBtn.addEventListener('click', function () {
+                currentImageIndex = (currentImageIndex + 1) % images.length;
+                showImage(currentImageIndex);
+            });
+
+            // Previous button click
+            prevBtn.addEventListener('click', function () {
+                currentImageIndex = (currentImageIndex - 1 + images.length) % images.length;
+                showImage(currentImageIndex);
+            });
+
+            // Auto-rotate images every 4 seconds
+            setInterval(function () {
+                currentImageIndex = (currentImageIndex + 1) % images.length;
+                showImage(currentImageIndex);
+            }, 4000);
+
+            function getUserIdFromToken() {
+                const token = localStorage.getItem("authToken");
+                if (!token) {
+                    console.warn("No auth token found in localStorage.");
+                    return null;
+                }
+                const decoded = parseJwt(token);
+                if (decoded) {
+                    console.log("this is line 144 decoded:" + JSON.parse(decoded.UserObject).userId);
+
+                    return JSON.parse(decoded.UserObject).userId;
+                }
+                console.warn("Invalid or malformed token.");
+                return null;
+            }
+
+            function parseJwt(token) {
+                try {
+                    const base64Url = token.split(".")[1];
+                    const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+                    return JSON.parse(atob(base64));
+                } catch (error) {
+                    console.error("Invalid token:", error);
+                    return null;
+                }
+            }
+
+
+            var userid = 10;
+            @* var userid = getUserIdFromToken(); *@
+            var classId = @Model.classId;
+
+            $('#book-now-btn').on('click', function (e) {
+                e.preventDefault();
+
+                var available_spots = @Model.availableCapacity;
+
+                if (@Model.availableCapacity > 0) {
+                    var stripe = Stripe('pk_test_51R9873B6NxmJUHpLwRmbtVWKFWIAFHzLx27IWuda1MiaD1WtS6G9uimHfT4bepFIzXCYNQ0BpcYEo1FWSH651Zjp00H0cXnR7g');
+
+                    $.ajax({
+                        url: 'http://localhost:8080/api/Class/IsClassAlreadyBooked',
+                        type: 'POST',
+                        contentType: 'application/json',
+                        data: JSON.stringify({
+                            userId: userid,
+                            classId: classId
+                        }),
+                        success: function (result) {
+                            if (result.success) {
+                                $.ajax({
+                                    url: 'http://localhost:8080/Checkout/create-checkout-session',
+                                    type: 'POST',
+                                    contentType: 'application/json',
+                                    data: JSON.stringify({
+                                        ClassName: "jack",
+                                        ClassDescription: "demo",
+                                        amount: amount,
+                                        currency: "INR",
+                                        classId: classId
+                                    }),
+                                    success: function (session) {
+                                        if (!session.sessionId) {
+                                            Swal.fire({
+                                                title: "Payment Error",
+                                                text: "Failed to initiate payment. Please try again later.",
+                                                icon: "error",
+                                                confirmButtonText: "OK"
+                                            });
+                                            return;
+                                        }
+
+                                        localStorage.setItem("sessionId", session.sessionId);
+
+                                        stripe.redirectToCheckout({ sessionId: session.sessionId })
+                                            .then(function (result) {
+                                                if (result.error) {
+                                                    Swal.fire({
+                                                        title: "Payment Error",
+                                                        text: result.error.message,
+                                                        icon: "error",
+                                                        confirmButtonText: "OK"
+                                                    });
+                                                } else {
+                                                    console.log("Payment Successful, proceeding with booking...");
+                                                }
+                                            });
+                                    },
+                                    error: function (xhr, status, error) {
+                                        Swal.fire({
+                                            title: "Payment Error",
+                                            text: "Unable to process payment. Please try again later.",
+                                            icon: "error",
+                                            confirmButtonText: "OK"
+                                        });
+                                        console.error('Error:', error);
+                                    }
+                                });
+
+                            } else {
+                                Swal.fire({
+                                    title: "Booking Failed",
+                                    text: result.message,
+                                    icon: "error",
+                                    confirmButtonText: "OK"
+                                });
+                            }
+                        },
+                        error: function (xhr, status, error) {
+                            console.error("Error checking class booking:", error);
+                            Swal.fire({
+                                title: "Booking Check Error",
+                                text: "An error occurred while checking class availability.",
+                                icon: "error",
+                                confirmButtonText: "OK"
+                            });
+                        }
+                    });
+
+                } else {
+                    Swal.fire({
+                        title: "Booking Unavailable",
+                        text: "All slots are currently full. Please try again later or choose a different class.",
+                        icon: "info",
+                        confirmButtonText: "OK"
+                    });
+                }
+            });
+
+
+
+
+
+            // Handle Cancel button click
+            $('#cancel-btn').on('click', function () {
+                window.location.href = "/User/index"
+            });
+
+
+
+        });
+
+
+
+
+
+
+
+    </script>
+</body>
+
+</html>

@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.Http;
 namespace Repo;
 public class Class
 {
+    internal string instructorNam;
+
     [Required(ErrorMessage = "Class ID is required")]
     public int classId { get; set; }
 
