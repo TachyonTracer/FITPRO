@@ -408,7 +408,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
         if (response.profileImage) {
-          $("#imagePreview")
+          $("#imagePreviewInstructor")
             .attr("src", "/Instructor_Images/" + response.profileImage)
             .show();
         }
