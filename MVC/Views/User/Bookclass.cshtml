@@ -109,7 +109,7 @@
 
                 <!-- Booking section -->
                 <div class="booking-section">
-                    <div class="total-price">Total Price: $<span id="class-fee"></span></div>
+                    <div class="total-price">Total Price: ₹<span id="class-fee"></span></div>
                     <div class="buttons">
                         <button class="book-btn" id="book-now-btn">Book Now</button>
                         <button class="cancel-btn" id="cancel-btn">Cancel</button>
@@ -133,7 +133,64 @@
                 console.error("Invalid token:", error);
                 return null;
             }
+            
         }
+
+        let images = [];
+
+        const imageElement = document.getElementById('slider-image');
+
+        const prevBtn = document.getElementById('prev-btn');
+
+        const nextBtn = document.getElementById('next-btn');
+
+        let currentImageIndex = 0;
+
+
+
+        // Show image by index
+
+        function showImage(index) {
+
+            imageElement.src = images[index];
+
+        }
+
+
+
+        // Next button click
+
+        nextBtn.addEventListener('click', function () {
+
+            currentImageIndex = (currentImageIndex + 1) % images.length;
+
+            showImage(currentImageIndex);
+
+        });
+
+
+
+        // Previous button click
+
+        prevBtn.addEventListener('click', function () {
+
+            currentImageIndex = (currentImageIndex - 1 + images.length) % images.length;
+
+            showImage(currentImageIndex);
+
+        });
+
+
+
+        // Auto-rotate images every 4 seconds
+
+        setInterval(function () {
+
+            currentImageIndex = (currentImageIndex + 1) % images.length;
+
+            showImage(currentImageIndex);
+
+        }, 4000);
 
         function getUserIdFromToken() {
             const token = localStorage.getItem("authToken");
@@ -173,6 +230,21 @@
                 success: function (response) {
                     if (response.sucess && response.data) {
                         const data = response.data;
+                        
+                        // Populate images array from API response
+                        images = [
+                            `/ClassAssets/${data.assets["picture 2"]}`,
+                            `/ClassAssets/${data.assets["picture 3"]}`,
+                            `/ClassAssets/${data.assets["picture 4"]}`,
+                            `/ClassAssets/${data.assets["picture 5"]}`,
+                            `/ClassAssets/${data.assets["picture 1"]}`
+                        ];
+
+                        // Set the initial image
+                        showImage(0);
+
+                        // Set banner image
+                        document.getElementById('class-banner').src = `/ClassAssets/${data.assets.banner}`;
 
                         // Populate the page with class data
                         $('#class-type').text(data.type || 'N/A');
@@ -225,7 +297,7 @@
                                                 data: JSON.stringify({
                                                     ClassName: data.className,
                                                     ClassDescription: data.description?.purpose || 'N/A',
-                                                    amount: data.fee * 100, // Stripe expects the amount in cents
+                                                    amount: data.fee * 100 ,// Stripe expects the amount in cents
                                                     currency: "INR",
                                                     classId: classId
                                                 }),
