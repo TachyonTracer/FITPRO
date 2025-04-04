@@ -239,118 +239,103 @@ namespace API
 
         #region UpdateClass
         [HttpPut("UpdateClass")]
-        public async Task<IActionResult> UpdateClass([FromForm] Class request)
+public async Task<IActionResult> UpdateClass([FromForm] Class request)
+{
+    if (!ModelState.IsValid)
+    {
+        return BadRequest(new
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(new
-                {
-                    success = false,
-                    message = "Invalid request data",
-                    errors = ModelState.Values.SelectMany(v => v.Errors.Select(e => e.ErrorMessage))
-                });
-            }
+            success = false,
+            message = "Invalid request data",
+            errors = ModelState.Values.SelectMany(v => v.Errors.Select(e => e.ErrorMessage))
+        });
+    }
 
+    try
+    {
+        // Get existing class data
+        var existingClass = await _classRepo.GetOne(request.classId.ToString());
+        if (existingClass == null)
+        {
+            return NotFound(new { success = false, message = "Class not found" });
+        }
+
+        // Handle description
+        if (request.description == null && !string.IsNullOrEmpty(Request.Form["description"]))
+        {
             try
             {
-                // Get existing class data
-                var existingClass = await _classRepo.GetOne(request.classId.ToString());
-                if (existingClass == null)
-                {
-                    return NotFound(new { success = false, message = "Class not found" });
-                }
-
-                // Handle description
-                if (request.description == null && !string.IsNullOrEmpty(Request.Form["description"]))
-                {
-                    try
-                    {
-                        request.description = JsonDocument.Parse(Request.Form["description"]);
-                    }
-                    catch (JsonException ex)
-                    {
-                        return BadRequest(new { success = false, message = "Invalid description format", error = ex.Message });
-                    }
-                }
-                else if (request.description == null)
-                {
-                    request.description = existingClass.description;
-                }
-
-                // Handle file uploads only if new files are provided
-                if (request.assetFiles != null && request.assetFiles.Length > 0)
-                {
-                    var assetsPath = Path.Combine(Directory.GetCurrentDirectory(), "../MVC/wwwroot", "ClassAssets");
-                    if (!Directory.Exists(assetsPath))
-                    {
-                        Directory.CreateDirectory(assetsPath);
-                    }
-
-                    var assetDict = new Dictionary<string, string>();
-
-                    for (int i = 0; i < request.assetFiles.Length; i++)
-                    {
-                        var file = request.assetFiles[i];
-                        if (file.Length > 0)
-                        {
-                            var uniqueFileName = $"{Guid.NewGuid()}{Path.GetExtension(file.FileName)}";
-                            var filePath = Path.Combine(assetsPath, uniqueFileName);
-
-                            using (var stream = new FileStream(filePath, FileMode.Create))
-                            {
-                                await file.CopyToAsync(stream);
-                            }
-
-                            if (i == 0)
-                            {
-                                assetDict["banner"] = uniqueFileName;
-                            }
-                            else
-                            {
-                                assetDict[$"picture {i}"] = uniqueFileName;
-                            }
-                        }
-                    }
-
-                    request.assets = JsonDocument.Parse(JsonSerializer.Serialize(assetDict));
-                }
-                else
-                {
-                    request.assets = existingClass.assets;
-                }
-
-                var response = await _classRepo.UpdateClass(request);
-
-                if (!response.success)
-                {
-                    if (response.message.Contains("Instructor not found"))
-                    {
-                        return BadRequest(new
-                        {
-                            success = false,
-                            message = "The specified instructor does not exist",
-                            field = "instructorId"
-                        });
-                    }
-
-                    return BadRequest(new
-                    {
-                        success = false,
-                        message = response.message
-                    });
-                }
-
-                return Ok(new
-                {
-                    success = true,
-                    message = "Class updated successfully"
-                });
+                request.description = JsonDocument.Parse(Request.Form["description"]);
             }
-            catch (Exception ex)
+            catch (JsonException ex)
             {
-                return StatusCode(500, new { success = false, message = ex.Message });
+                return BadRequest(new { success = false, message = "Invalid description format", error = ex.Message });
             }
         }
+        else if (request.description == null)
+        {
+            request.description = existingClass.description;
+        }
+
+        // Handle file uploads only if new files are provided
+        if (request.assetFiles != null && request.assetFiles.Length > 0)
+        {
+            var assetsPath = Path.Combine(Directory.GetCurrentDirectory(), "../MVC/wwwroot", "ClassAssets");
+            if (!Directory.Exists(assetsPath))
+            {
+                Directory.CreateDirectory(assetsPath);
+            }
+
+            var assetDict = new Dictionary<string, string>();
+
+            for (int i = 0; i < request.assetFiles.Length; i++)
+            {
+                var file = request.assetFiles[i];
+                if (file.Length > 0)
+                {
+                    var uniqueFileName = $"{Guid.NewGuid()}{Path.GetExtension(file.FileName)}";
+                    var filePath = Path.Combine(assetsPath, uniqueFileName);
+
+                    using (var stream = new FileStream(filePath, FileMode.Create))
+                    {
+                        await file.CopyToAsync(stream);
+                    }
+
+                    if (i == 0)
+                    {
+                        assetDict["banner"] = uniqueFileName;
+                    }
+                    else
+                    {
+                        assetDict[$"picture {i}"] = uniqueFileName;
+                    }
+                }
+            }
+
+            request.assets = JsonDocument.Parse(JsonSerializer.Serialize(assetDict));
+        }
+        else
+        {
+            request.assets = existingClass.assets;
+        }
+
+        int result = await _classRepo.UpdateClass(request);
+
+        return result switch
+        {
+            1 => Ok(new { success = true, message = "Class updated successfully" }),
+            -1 => NotFound(new { success = false, message = "Class not found" }),
+            -2 => Conflict(new { success = false, message = "Class with the same name and type already exists for this instructor" }),
+            -3 => Conflict(new { success = false, message = "Instructor already has another class during this time" }),
+            -4 => StatusCode(500, new { success = false, message = "An unexpected error occurred" }),
+            _ => StatusCode(500, new { success = false, message = "Class update failed" })
+        };
+    }
+    catch (Exception ex)
+    {
+        return StatusCode(500, new { success = false, message = ex.Message });
+    }
+}
         #endregion
 
         #endregion

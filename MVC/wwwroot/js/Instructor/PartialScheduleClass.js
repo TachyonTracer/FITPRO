@@ -29,7 +29,8 @@ document.addEventListener("DOMContentLoaded", function () {
 	  }
 	}
   
-	getUserIdFromToken();
+
+
   
 	fetchClassTypesFromAPI();
   
@@ -1310,7 +1311,49 @@ document.addEventListener("DOMContentLoaded", function () {
 	  e.preventDefault();
 	  handleFileSelect(e.dataTransfer.files);
 	});
-  
+
+   function calculateDuration(startTime, endTime, startDate, endDate) {
+    // Check for missing inputs
+    if (!startDate || !endDate || !startTime || !endTime) {
+      console.log("Missing inputs - returning 0");
+      return 0;
+    }
+
+    try {
+      // Parse dates and times
+      const startDateTime = new Date(`${startDate}T${startTime}`);
+      const endDateTime = new Date(`${startDate}T${endTime}`);
+
+      // Validate parsed dates
+      if (isNaN(startDateTime.getTime()) || isNaN(endDateTime.getTime())) {
+        console.log("Invalid date/time format - returning 0");
+        return 0;
+      }
+
+      // Calculate daily duration in hours
+      const dailyDurationHours = (endDateTime - startDateTime) / (1000 * 60 * 60);
+
+      // Calculate number of days between start and end date
+      const startDateObj = new Date(startDate);
+      const endDateObj = new Date(endDate);
+      const daysDifference = Math.ceil((endDateObj - startDateObj) / (1000 * 60 * 60 * 24)) + 1;
+
+      // Calculate total hours
+      const totalHours = Math.round(dailyDurationHours * daysDifference);
+
+      console.log(`Daily duration: ${dailyDurationHours} hours`);
+      console.log(`Days difference: ${daysDifference}`);
+      console.log(`Total hours: ${totalHours}`);
+
+      return totalHours > 0 ? totalHours : 0;
+    } catch (error) {
+      console.error("Error calculating duration:", error);
+      return 0;
+    }
+  }
+
+  var instructorId = getUserIdFromToken(); 
+
 	form.addEventListener("submit", function (e) {
 	  e.preventDefault();
   
@@ -1388,13 +1431,12 @@ document.addEventListener("DOMContentLoaded", function () {
 	  // }
   
 	  const equipmentValues = selectedEquipment.map((item) => item.value).join(", ");
-  
-	  let duration = null;
-	  if (startTimeInput.value && endTimeInput.value) {
-		const start = new Date(`2000-01-01T${startTimeInput.value}`);
-		const end = new Date(`2000-01-01T${endTimeInput.value}`);
-		duration = Math.round((end - start) / (1000 * 60));
-	  }
+const startTime = $startTime.val();
+    const endTime = $endTime.val();
+    const startDate = $startDate.val();
+    const endDate = $endDate.val();
+    let duration = calculateDuration(startTime, endTime, startDate, endDate);
+	  
   
 	  const assets = {
 		images: Array.from(imageInput.files).map((file) => ({
@@ -1409,14 +1451,14 @@ document.addEventListener("DOMContentLoaded", function () {
   
 	  formData.append("classId", "0");
 	  formData.append("className", document.getElementById("className").value);
-	  formData.append("instructorId", document.getElementById("instructorId").value);
+	  formData.append("instructorId", instructorId);
 	  formData.append("description", JSON.stringify(description));
 	  formData.append("type", document.getElementById("classType").value);
 	  formData.append("startDate", document.getElementById("startDate").value);
 	  formData.append("endDate", document.getElementById("endDate").value || "");
 	  formData.append("startTime", startTimeInput.value || "");
 	  formData.append("endTime", endTimeInput.value || "");
-	  formData.append("duration", duration ? duration.toString() : "");
+	  formData.append("duration", duration );
 	  formData.append("maxCapacity", document.getElementById("maxCapacity").value);
 	  formData.append("requiredEquipments", equipmentValues || "");
 	  formData.append("createdAt", new Date().toISOString());

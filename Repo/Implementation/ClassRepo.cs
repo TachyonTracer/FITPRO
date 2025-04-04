@@ -724,9 +724,8 @@ public class ClassRepo : IClassInterface
 
     #region UpdateClass
 
-    public async Task<Response> UpdateClass(Class updatedClass)
+    public async Task<int> UpdateClass(Class updatedClass)
     {
-        Response response = new Response();
         try
         {
             if (_conn.State == ConnectionState.Closed)
@@ -743,45 +742,76 @@ public class ClassRepo : IClassInterface
 
                 if (exists == 0)
                 {
-                    response.message = "Class not found";
-                    return response;
+                    return -1; // Class not found
                 }
             }
 
-            // Check if instructor exists
-            using (var checkInstructorCmd = new NpgsqlCommand(
-                "SELECT COUNT(1) FROM t_Instructor WHERE c_instructorid = @instructorId", _conn))
+            // Check for duplicate class name and type
+            using (var checkCmd = new NpgsqlCommand(@"
+            SELECT COUNT(*) FROM t_class 
+            WHERE c_instructorid = @c_instructorid 
+            AND c_classname = @c_classname
+            AND c_type = @c_type
+            AND c_classid != @c_classid", _conn))
             {
-                checkInstructorCmd.Parameters.AddWithValue("@instructorId", updatedClass.instructorId);
-                var instructorExists = (long)await checkInstructorCmd.ExecuteScalarAsync();
+                checkCmd.Parameters.AddWithValue("@c_instructorid", updatedClass.instructorId);
+                checkCmd.Parameters.AddWithValue("@c_classname", updatedClass.className);
+                checkCmd.Parameters.AddWithValue("@c_type", updatedClass.type);
+                checkCmd.Parameters.AddWithValue("@c_classid", updatedClass.classId);
 
-                if (instructorExists == 0)
+                int existingCount = Convert.ToInt32(await checkCmd.ExecuteScalarAsync());
+                if (existingCount > 0)
                 {
-                    response.message = "Instructor not found";
-                    return response;
+                    return -2; // Duplicate class name and type for instructor
+                }
+            }
+
+            // Check for overlapping class times
+            using (var checkTimeCmd = new NpgsqlCommand(@"
+            SELECT COUNT(*) FROM t_class 
+            WHERE c_instructorid = @c_instructorid
+            AND c_startdate = @c_startdate
+            AND c_classid != @c_classid
+            AND (
+                (@c_starttime BETWEEN c_starttime AND c_endtime) 
+                OR (@c_endtime BETWEEN c_starttime AND c_endtime) 
+                OR (c_starttime BETWEEN @c_starttime AND @c_endtime)
+                OR (c_endtime BETWEEN @c_starttime AND @c_endtime)
+            )", _conn))
+            {
+                checkTimeCmd.Parameters.AddWithValue("@c_instructorid", updatedClass.instructorId);
+                checkTimeCmd.Parameters.AddWithValue("@c_startdate", updatedClass.startDate);
+                checkTimeCmd.Parameters.AddWithValue("@c_starttime", updatedClass.startTime);
+                checkTimeCmd.Parameters.AddWithValue("@c_endtime", updatedClass.endTime);
+                checkTimeCmd.Parameters.AddWithValue("@c_classid", updatedClass.classId);
+
+                int overlappingCount = Convert.ToInt32(await checkTimeCmd.ExecuteScalarAsync());
+                if (overlappingCount > 0)
+                {
+                    return -3; // Time slot conflict
                 }
             }
 
             // Update class
             using (var cmd = new NpgsqlCommand(
                 @"UPDATE t_Class SET 
-                c_classname = @className,
-                c_instructorid = @instructorId,
-                c_description = @description,
-                c_type = @type,
-                c_startdate = @startDate,
-                c_enddate = @endDate,
-                c_starttime = @startTime,
-                c_endtime = @endTime,
-                c_duration = @duration,
-                c_maxcapacity = @maxCapacity,
-                c_availablecapacity = @availableCapacity,
-                c_requiredequipments = @requiredEquipments,
-                c_status = @status,
-                c_city = @city,
-                c_address = @address,
-                c_assets = @assets,
-                c_fees = @fee
+            c_classname = @className,
+            c_instructorid = @instructorId,
+            c_description = @description,
+            c_type = @type,
+            c_startdate = @startDate,
+            c_enddate = @endDate,
+            c_starttime = @startTime,
+            c_endtime = @endTime,
+            c_duration = @duration,
+            c_maxcapacity = @maxCapacity,
+            c_availablecapacity = @availableCapacity,
+            c_requiredequipments = @requiredEquipments,
+            c_status = @status,
+            c_city = @city,
+            c_address = @address,
+            c_assets = @assets,
+            c_fees = @fee
             WHERE c_classid = @classId", _conn))
             {
                 cmd.Parameters.AddWithValue("@classId", updatedClass.classId);
@@ -804,20 +834,13 @@ public class ClassRepo : IClassInterface
                 cmd.Parameters.AddWithValue("@fee", updatedClass.fee);
 
                 int rowsAffected = await cmd.ExecuteNonQueryAsync();
-
-                if (rowsAffected > 0)
-                {
-                    response.message = string.Empty; // success=true
-                }
-                else
-                {
-                    response.message = "Failed to update class";
-                }
+                return rowsAffected > 0 ? 1 : 0;
             }
         }
         catch (Exception ex)
         {
-            response.message = $"Error updating class: {ex.Message}";
+            Console.WriteLine($"Error: {ex.Message}");
+            return -4; // General error
         }
         finally
         {
@@ -826,7 +849,6 @@ public class ClassRepo : IClassInterface
                 await _conn.CloseAsync();
             }
         }
-        return response;
     }
 
     #endregion

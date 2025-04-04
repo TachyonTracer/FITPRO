@@ -888,7 +888,7 @@ document.addEventListener("DOMContentLoaded", function () {
 		const [startHours, startMinutes] = startTime.split(':').map(Number);
 		const [endHours, endMinutes] = endTime.split(':').map(Number);
 
-		const startTotalMinutes = startHours * 60 + startMinutes;
+		const startTotalMinutes = startHours * 60 + startMinutes ;
 		const endTotalMinutes = endHours * 60 + endMinutes;
 
 		// Ensure end time is after start time
@@ -1068,7 +1068,10 @@ document.addEventListener("DOMContentLoaded", function () {
 		if (startTimeInput.value && endTimeInput.value) {
 			const start = new Date(`2000-01-01T${startTimeInput.value}`);
 			const end = new Date(`2000-01-01T${endTimeInput.value}`);
-			duration = Math.round((end - start) / (1000 * 60));
+			let startDate= document.getElementById("startDate").value;
+			let endDate= document.getElementById("endDate").value;
+			let days = Math.abs(new Date(endDate) - new Date(startDate)) / (1000 * 60 * 60 * 24);
+			duration = days * (Math.round((end - start) / (1000 * 60)));
 		}
 
 		const assets = {

@@ -1,5 +1,27 @@
 var uri = "http://localhost:8080";
 
+// Function to format date and time
+function formatDateTime(dateStr, timeStr) {
+  const date = new Date(dateStr);
+  const options = {
+    weekday: "short",
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  };
+  return (
+    date.toLocaleDateString("en-US", options) +
+    " at " +
+    timeStr.substring(0, 5)
+  );
+}
+
+function formatDuration(minutes) {
+  const hours = Math.floor(minutes / 60);
+  const mins = minutes % 60;
+  return hours > 0 ? `${hours}h ${mins}m` : `${mins}m`;
+}
+
   function renderRefreshClasses(data) {
       var html = "";
       if (data.length === 0) {
@@ -7,7 +29,7 @@ var uri = "http://localhost:8080";
       } else {
           data.forEach(function (c) {
               html += `<div class="col-md-4 mb-4">
-                  <div class="card h-100">
+                  <div class="card h-100" id="classcard">
                       <div id="carousel-${c.classId}" class="carousel slide" data-bs-ride="carousel">
                           <div class="carousel-inner">
                               ${Object.entries(c.assets || {})
@@ -71,7 +93,7 @@ var uri = "http://localhost:8080";
                       <div class="card-footer bg-transparent">
                           <button class="btn btn-danger w-100 cancel-btn" 
                               onclick="suspendClass(${c.classId}, '${c.status}')"
-                              ${c.status !== "Active" ? "disabled" : ""}>
+                              ${c.status !== "Active" ? "Suspended" : ""}>
                               ${c.status !== "Active" ? "Activate Class" : "Suspend Class"}
                           </button>
                       </div>
@@ -347,7 +369,7 @@ $(document).ready(function () {
     classList.innerHTML = "";
     filteredClasses.forEach((cls) => {
       const card = `
-            <div class="k-card">
+            <div class="k-card" id="card>
                 <div class="k-card-header">${cls.name}</div>
                 <div class="k-card-body">
                     <p>Type: ${cls.type}</p>
@@ -431,28 +453,10 @@ $(document).ready(function () {
     },
   });
 
-  // Function to format date and time
-  function formatDateTime(dateStr, timeStr) {
-    const date = new Date(dateStr);
-    const options = {
-      weekday: "short",
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    };
-    return (
-      date.toLocaleDateString("en-US", options) +
-      " at " +
-      timeStr.substring(0, 5)
-    );
-  }
+  
 
   // Function to format duration
-  function formatDuration(minutes) {
-    const hours = Math.floor(minutes / 60);
-    const mins = minutes % 60;
-    return hours > 0 ? `${hours}h ${mins}m` : `${mins}m`;
-  }
+ 
 
   // Render classes
   function renderClasses(data) {
@@ -891,6 +895,9 @@ function suspendClass(classId, currentStatus) {
                           `Class ${action}d successfully`,
                           'success'
                       );
+                      // $("#Class").load(location.href + " #Class > *");
+                      
+                  
                       refreshClasses();
                       // Update the button and status dynamically
                       const button = $(`#class-${classId} .cancel-btn`);
