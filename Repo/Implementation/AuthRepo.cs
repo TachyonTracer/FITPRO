@@ -55,7 +55,7 @@ namespace Repo
                 // If not found in t_User, check in t_Instructor
                 if (userID == 0)
                 {
-                    string instructorQuery = "SELECT c_instructorid, c_instructorname, 'Instructor' FROM t_Instructor WHERE c_email = @Email and c_status = 'Verified'";
+                    string instructorQuery = "SELECT c_instructorid, c_instructorname, 'Instructor' FROM t_Instructor WHERE c_email = @Email and c_status = 'Approved'";
                     using (var cmd = new NpgsqlCommand(instructorQuery, _conn))
                     {
                         cmd.Parameters.AddWithValue("@Email", email);
@@ -431,6 +431,7 @@ namespace Repo
 
                 await _conn.OpenAsync();
                 instructor.status = "Unverified";
+                Console.WriteLine(activationToken);
 
                 using (var command = new NpgsqlCommand(query, _conn))
                 {
@@ -770,7 +771,7 @@ namespace Repo
 
                 using (var cmd = new NpgsqlCommand(query, _conn))
                 {
-                    cmd.Parameters.AddWithValue("Token", token);
+                    cmd.Parameters.AddWithValue("@Token", token);
 
                     using (var reader = await cmd.ExecuteReaderAsync())
                     {

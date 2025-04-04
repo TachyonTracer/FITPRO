@@ -1,5 +1,87 @@
 var uri = "http://localhost:8080";
 
+  function renderRefreshClasses(data) {
+      var html = "";
+      if (data.length === 0) {
+          html = '<div class="col-12"><div class="alert alert-warning text-center">No classes match your search criteria.</div></div>';
+      } else {
+          data.forEach(function (c) {
+              html += `<div class="col-md-4 mb-4">
+                  <div class="card h-100">
+                      <div id="carousel-${c.classId}" class="carousel slide" data-bs-ride="carousel">
+                          <div class="carousel-inner">
+                              ${Object.entries(c.assets || {})
+                                  .filter(([key]) => key.startsWith("picture"))
+                                  .map(
+                                      ([key, value], index) => `
+                                      <div class="carousel-item ${index === 0 ? "active" : ""}">
+                                          <img src="../ClassAssets/${value}" style="height: 200px; object-fit: cover;">
+                                      </div>
+                                  `
+                                  )
+                                  .join("")}
+                          </div>
+                          <button class="carousel-control-prev" type="button" data-bs-target="#carousel-${c.classId}" data-bs-slide="prev">
+                              <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                              <span class="visually-hidden">Previous</span>
+                          </button>
+                          <button class="carousel-control-next" type="button" data-bs-target="#carousel-${c.classId}" data-bs-slide="next">
+                              <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                              <span class="visually-hidden">Next</span>
+                          </button>
+                      </div>
+                      <div class="card-body">
+                          <h5 class="card-title">${c.className}</h5>
+                          <div class="mb-2">
+                              <span class="badge badge-level me-1">${c.type}</span>
+                              <span class="badge ${c.status === "Active" ? "bg-success" : "bg-warning"}">${c.status}</span>
+                          </div>
+                          <p class="card-text">${c.description?.purpose || "No description available"}</p>
+                          <div class="class-detail">
+                              <strong>Start:</strong> ${formatDateTime(c.startDate, c.startTime)}
+                          </div>
+                          <div class="class-detail">
+                              <strong>End:</strong> ${formatDateTime(c.endDate, c.endTime)}
+                          </div>
+                          <div class="class-detail">
+                              <strong>Duration:</strong> ${formatDuration(c.duration)}
+                          </div>
+                          <div class="class-detail">
+                              <strong>Location:</strong> ${c.city}
+                          </div>
+                          <div class="class-detail">
+                              <strong>Address:</strong> ${c.address}
+                          </div>
+                          <div class="class-detail">
+                              <strong>Instructor Name:</strong> ${c.instructorName}
+                          </div>
+                          <div class="class-detail">
+                              <strong>Total Seats:</strong> ${c.maxCapacity}
+                          </div>
+                          <div class="class-detail">
+                              <strong>Available Seats:</strong> ${c.availableCapacity}
+                          </div>
+                          <div class="class-detail">
+                              <strong>Equipment:</strong> ${c.requiredEquipments}
+                          </div>
+                          <div class="class-detail">
+                              <strong>Price:</strong> ₹${c.fee.toFixed(2)}
+                          </div>
+                      </div>
+                      <div class="card-footer bg-transparent">
+                          <button class="btn btn-danger w-100 cancel-btn" 
+                              onclick="suspendClass(${c.classId}, '${c.status}')"
+                              ${c.status !== "Active" ? "disabled" : ""}>
+                              ${c.status !== "Active" ? "Activate Class" : "Suspend Class"}
+                          </button>
+                      </div>
+                  </div>
+              </div>`;
+          });
+      }
+      $("#classList").html(html);
+  }
+
 $(document).ready(function () {
   var userId;
   userId = getUserIdFromToken();
@@ -834,18 +916,24 @@ function suspendClass(classId, currentStatus) {
           });
       }
   });
+
+  function refreshClasses() {
+    $.ajax({
+        url: `${uri}/api/Class/GetAllClasses`,
+        type: "GET",
+        success: function (response) {
+            renderRefreshClasses(response.data);
+        },
+        error: function (error) {
+            $("#classList").html('<div class="col-12"><div class="alert alert-warning text-center">Error refreshing classes.</div></div>');
+        },
+    });
 }
 
-function refreshClasses() {
-  $.ajax({
-      url: `${uri}/api/Class/GetAllClasses`,
-      type: "GET",
-      success: function (response) {
-        renderClasses(response.data); // Re-render the classes
-      },
-      error: function (error) {
-          $("#classList").html('<div class="col-12"><div class="alert alert-warning text-center">Error refreshing classes.</div></div>');
-      }
-  });
+refreshClasses(); // Call refreshClasses after defining renderClasses
+
 }
+
+
+
 

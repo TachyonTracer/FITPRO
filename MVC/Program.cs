@@ -9,7 +9,6 @@ builder.Services.AddScoped<NpgsqlConnection>((provider) =>
 });
 // Add services to the container.
 builder.Services.AddControllersWithViews();
-builder.Services.AddScoped<IClassInterface, ClassRepo>();
 
 var app = builder.Build();
 

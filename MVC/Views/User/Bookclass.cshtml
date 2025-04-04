@@ -15,28 +15,23 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="~/css/User/bookclass.css" />
 
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.17.2/dist/sweetalert2.all.min.js" \></script>
-
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.17.2/dist/sweetalert2.all.min.js"></script>
+     <script src="https://js.stripe.com/v3/"></script>
 </head>
 
-
 <body>
-    @model Repo.Class;
-
-
     <!-- Full width banner with movie-style design -->
     <div class="banner-container">
-        <div class="class-badge">@Model.type</div>
-        <img src="~/ClassAssets/@Url.Content(Model.assets.RootElement.GetProperty("banner").GetString())"
-            alt="Yoga Banner" class="banner">
+        <div class="class-badge" id="class-type"></div>
+        <img src="" alt="Class Banner" class="banner" id="class-banner">
         <div class="banner-overlay"></div>
-        <h2 class="class-title">@Model.className</h2>
+        <h2 class="class-title" id="class-name"></h2>
 
         <!-- Meta information like movie details -->
         <div class="meta-info">
-            <span>@Model.duration mins</span>
-            <span>@Model.city</span>
-            <span>@Model.startDate.ToString("MMMM dd, yyyy")</span>
+            <span id="class-duration"></span>
+            <span id="class-city"></span>
+            <span id="class-start-date"></span>
         </div>
     </div>
 
@@ -49,27 +44,27 @@
                 <div class="class-info">
                     <div class="info-item">
                         <span class="info-label">Instructor</span>
-                        <span class="info-value">Jane Doe</span>
+                        <span class="info-value" id="class-instructor"></span>
                     </div>
                     <div class="info-item">
                         <span class="info-label">Date</span>
-                    <span>@Model.startDate.ToString("MMMM dd, yyyy") To  @Model.endDate.Value.ToString("MMMM dd, yyyy")</span>   
-                 </div>
+                        <span id="class-date"></span>
+                    </div>
                     <div class="info-item">
                         <span class="info-label">Time</span>
-                        <span class="info-value">@Model.startTime- @Model.endTime</span>
+                        <span class="info-value" id="class-time"></span>
                     </div>
                     <div class="info-item">
                         <span class="info-label">Duration</span>
-                        <span class="info-value">@Model.duration mins</span>
+                        <span class="info-value" id="class-duration-detail"></span>
                     </div>
                     <div class="info-item">
                         <span class="info-label">Location</span>
-                        <span class="info-value">@Model.address</span>
+                        <span class="info-value" id="class-location"></span>
                     </div>
                     <div class="info-item">
                         <span class="info-label">Status</span>
-                        <span class="info-value">@Model.status</span>
+                        <span class="info-value" id="class-status"></span>
                     </div>
                 </div>
 
@@ -77,46 +72,35 @@
 
                 <div class="info-item">
                     <span class="info-label">Required Equipment</span>
-                    <div class="tags">
-                        @foreach (var equipment in Model.requiredEquipments.Split(','))
-                        {
-                            <span class="tag">@equipment.Trim()</span>
-                        }
-                    </div>
+                    <div class="tags" id="class-equipment"></div>
                 </div>
 
                 <div class="info-item">
                     <span class="info-label">Availability</span>
-                    <span class="info-value">@Model.maxCapacity spots <span class="available-spots"
-                            id="available-spots">(@Model.availableCapacity
-                            remaining)</span></span>
+                    <span class="info-value">
+                        <span id="class-max-capacity"></span> spots
+                        <span class="available-spots" id="class-available-capacity"></span>
+                    </span>
                 </div>
 
                 <div class="class-description">
                     <h3>Class Details</h3>
-
                     <div>
                         <strong>Purpose:</strong>
-                        <p>@Model.description.RootElement.GetProperty("purpose").GetString()</p>
+                        <p id="class-purpose"></p>
                     </div>
-
                     <div>
                         <strong>Benefits:</strong>
-                        <p>@Model.description.RootElement.GetProperty("benefits").GetString()</p>
+                        <p id="class-benefits"></p>
                     </div>
-
-
                 </div>
-
-
             </div>
 
             <!-- Right column - Image and booking -->
             <div class="booking-column">
                 <!-- Mini image slider -->
                 <div class="mini-slider">
-                    <img src="~/ClassAssets/@Url.Content(Model.assets.RootElement.GetProperty("picture 1").GetString())"
-                        alt="Yoga Class" class="slide-image" id="slider-image">
+                    <img src="" alt="Class Image" class="slide-image" id="slider-image">
                     <div class="slider-nav">
                         <button class="nav-btn" id="prev-btn"><i class="fas fa-chevron-left"></i></button>
                         <button class="nav-btn" id="next-btn"><i class="fas fa-chevron-right"></i></button>
@@ -125,216 +109,232 @@
 
                 <!-- Booking section -->
                 <div class="booking-section">
-                    <div class="total-price">Total Price: $@Model.fee</div>
+                    <div class="total-price">Total Price: $<span id="class-fee"></span></div>
                     <div class="buttons">
                         <button class="book-btn" id="book-now-btn">Book Now</button>
                         <button class="cancel-btn" id="cancel-btn">Cancel</button>
                     </div>
                 </div>
-
             </div>
         </div>
     </div>
-    </div>
 
     <!-- JavaScript -->
-    <script src="https://js.stripe.com/v3/"></script>
-
-
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
+        let classId = @ViewBag.ClassId;
 
-           
-
-            var amount = @(Model.fee) * 100;
-
-            // Simple image slider
-            const images = [
-                "../ClassAssets/@Url.Content(Model.assets.RootElement.GetProperty("picture 2").GetString())",
-                "../ClassAssets/@Url.Content(Model.assets.RootElement.GetProperty("picture 3").GetString())",
-                "../ClassAssets/@Url.Content(Model.assets.RootElement.GetProperty("picture 4").GetString())",
-                "../ClassAssets/@Url.Content(Model.assets.RootElement.GetProperty("picture 5").GetString())",
-                "../ClassAssets/@Url.Content(Model.assets.RootElement.GetProperty("picture 1").GetString())",
-
-            ];
-
-            const imageElement = document.getElementById('slider-image');
-            const prevBtn = document.getElementById('prev-btn');
-            const nextBtn = document.getElementById('next-btn');
-            let currentImageIndex = 0;
-
-            // Show image by index
-            function showImage(index) {
-                imageElement.src = images[index];
-            }
-
-            // Next button click
-            nextBtn.addEventListener('click', function () {
-                currentImageIndex = (currentImageIndex + 1) % images.length;
-                showImage(currentImageIndex);
-            });
-
-            // Previous button click
-            prevBtn.addEventListener('click', function () {
-                currentImageIndex = (currentImageIndex - 1 + images.length) % images.length;
-                showImage(currentImageIndex);
-            });
-
-            // Auto-rotate images every 4 seconds
-            setInterval(function () {
-                currentImageIndex = (currentImageIndex + 1) % images.length;
-                showImage(currentImageIndex);
-            }, 4000);
-
-            function getUserIdFromToken() {
-                const token = localStorage.getItem("authToken");
-                if (!token) {
-                    console.warn("No auth token found in localStorage.");
-                    return null;
-                }
-                const decoded = parseJwt(token);
-                if (decoded) {
-                    console.log("this is line 144 decoded:" + JSON.parse(decoded.UserObject).userId);
-
-                    return JSON.parse(decoded.UserObject).userId;
-                }
-                console.warn("Invalid or malformed token.");
+        console.log("Class ID:", classId);
+        function parseJwt(token) {
+            try {
+                const base64Url = token.split(".")[1];
+                const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+                return JSON.parse(atob(base64));
+            } catch (error) {
+                console.error("Invalid token:", error);
                 return null;
             }
+        }
 
-            function parseJwt(token) {
-                try {
-                    const base64Url = token.split(".")[1];
-                    const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
-                    return JSON.parse(atob(base64));
-                } catch (error) {
-                    console.error("Invalid token:", error);
-                    return null;
-                }
+        function getUserIdFromToken() {
+            const token = localStorage.getItem("authToken");
+            if (!token) {
+                console.warn("No auth token found in localStorage.");
+                return null;
+            }
+            const decoded = parseJwt(token);
+            if (decoded) {
+                return JSON.parse(decoded.UserObject).userId; // Updated to return instructorId from decoded token
+            }
+            console.warn("Invalid or malformed token.");
+            return null;
+        }
+
+        let userId = getUserIdFromToken();
+        console.log("User ID:", userId);
+
+        document.addEventListener('DOMContentLoaded', function () {
+            if (classId === null) {
+                console.error('Class ID is null. Cannot fetch class data.');
+                Swal.fire({
+                    title: 'Error',
+                    text: 'Class ID is missing. Please try again.',
+                    icon: 'error',
+                    confirmButtonText: 'OK'
+                });
+                return;
             }
 
+            const apiUrl = `http://localhost:8080/api/Class/GetOneClass?id=${classId}`;
 
-            @* var userid = 10; *@
-            var userid = getUserIdFromToken();
-            console.log(userid);
-            var classId = @Model.classId;
+            // Fetch class data from API
+            $.ajax({
+                url: apiUrl,
+                type: 'GET',
+                success: function (response) {
+                    if (response.sucess && response.data) {
+                        const data = response.data;
 
-            $('#book-now-btn').on('click', function (e) {
-                e.preventDefault();
+                        // Populate the page with class data
+                        $('#class-type').text(data.type || 'N/A');
+                        $('#class-name').text(data.className || 'N/A');
+                        $('#class-duration').text(`${data.duration || 0} mins`);
+                        $('#class-city').text(data.city || 'N/A');
+                        $('#class-start-date').text(new Date(data.startDate).toLocaleDateString() || 'N/A');
 
-                var available_spots = @Model.availableCapacity;
+                        $('#class-instructor').text(data.instructorName || 'N/A');
+                        $('#class-date').text(`${new Date(data.startDate).toLocaleDateString()} to ${new Date(data.endDate).toLocaleDateString()}` || 'N/A');
+                        $('#class-time').text(`${data.startTime || 'N/A'} - ${data.endTime || 'N/A'}`);
+                        $('#class-duration-detail').text(`${data.duration || 0} mins`);
+                        $('#class-location').text(data.address || 'N/A');
+                        $('#class-status').text(data.status || 'N/A');
 
-                if (@Model.availableCapacity > 0) {
-                    var stripe = Stripe('pk_test_51R9873B6NxmJUHpLwRmbtVWKFWIAFHzLx27IWuda1MiaD1WtS6G9uimHfT4bepFIzXCYNQ0BpcYEo1FWSH651Zjp00H0cXnR7g');
+                        const equipment = data.requiredEquipments || 'None';
+                        $('#class-equipment').html(equipment);
 
-                    $.ajax({
-                        url: 'http://localhost:8080/api/Class/IsClassAlreadyBooked',
-                        type: 'POST',
-                        contentType: 'application/json',
-                        data: JSON.stringify({
-                            userId: userid,
-                            classId: classId
-                        }),
-                        success: function (result) {
-                            if (result.success) {
+                        $('#class-max-capacity').text(data.maxCapacity || 0);
+                        $('#class-available-capacity').text(`(${data.availableCapacity || 0} remaining)`);
+
+                        $('#class-purpose').text(data.description?.purpose || 'N/A');
+                        $('#class-benefits').text(data.description?.benefits || 'N/A');
+
+                        $('#class-fee').text(data.fee?.toFixed(2) || '0.00');
+
+                        // Handle booking logic
+                        $('#book-now-btn').on('click', function (e) {
+                            e.preventDefault();
+
+                            if (data.availableCapacity > 0) {
+                                const stripe = Stripe('pk_test_51R9873B6NxmJUHpLwRmbtVWKFWIAFHzLx27IWuda1MiaD1WtS6G9uimHfT4bepFIzXCYNQ0BpcYEo1FWSH651Zjp00H0cXnR7g');
+
+                                // Check if the class is already booked
                                 $.ajax({
-                                    url: 'http://localhost:8080/Checkout/create-checkout-session',
+                                    url: 'http://localhost:8080/api/Class/IsClassAlreadyBooked',
                                     type: 'POST',
                                     contentType: 'application/json',
                                     data: JSON.stringify({
-                                        ClassName: "jack",
-                                        ClassDescription: "demo",
-                                        amount: amount,
-                                        currency: "INR",
+                                        userId: userId,
                                         classId: classId
                                     }),
-                                    success: function (session) {
-                                        if (!session.sessionId) {
-                                            Swal.fire({
-                                                title: "Payment Error",
-                                                text: "Failed to initiate payment. Please try again later.",
-                                                icon: "error",
-                                                confirmButtonText: "OK"
-                                            });
-                                            return;
-                                        }
+                                    success: function (result) {
+                                        if (result.success) {
+                                            // Proceed to payment
+                                            $.ajax({
+                                                url: 'http://localhost:8080/Checkout/create-checkout-session',
+                                                type: 'POST',
+                                                contentType: 'application/json',
+                                                data: JSON.stringify({
+                                                    ClassName: data.className,
+                                                    ClassDescription: data.description?.purpose || 'N/A',
+                                                    amount: data.fee * 100, // Stripe expects the amount in cents
+                                                    currency: "INR",
+                                                    classId: classId
+                                                }),
+                                                success: function (session) {
+                                                    if (!session.sessionId) {
+                                                        Swal.fire({
+                                                            title: "Payment Error",
+                                                            text: "Failed to initiate payment. Please try again later.",
+                                                            icon: "error",
+                                                            confirmButtonText: "OK"
+                                                        });
+                                                        return;
+                                                    }
 
-                                        localStorage.setItem("sessionId", session.sessionId);
+                                                    localStorage.setItem("sessionId", session.sessionId);
 
-                                        stripe.redirectToCheckout({ sessionId: session.sessionId })
-                                            .then(function (result) {
-                                                if (result.error) {
+                                                    stripe.redirectToCheckout({ sessionId: session.sessionId })
+                                                        .then(function (result) {
+                                                            if (result.error) {
+                                                                Swal.fire({
+                                                                    title: "Payment Error",
+                                                                    text: result.error.message,
+                                                                    icon: "error",
+                                                                    confirmButtonText: "OK"
+                                                                });
+                                                            } else {
+                                                                console.log("Payment Successful, proceeding with booking...");
+                                                            }
+                                                        });
+                                                },
+                                                error: function (xhr, status, error) {
                                                     Swal.fire({
                                                         title: "Payment Error",
-                                                        text: result.error.message,
+                                                        text: "Unable to process payment. Please try again later.",
                                                         icon: "error",
                                                         confirmButtonText: "OK"
                                                     });
-                                                } else {
-                                                    console.log("Payment Successful, proceeding with booking...");
+                                                    console.error('Error:', error);
                                                 }
                                             });
+
+                                        } else {
+                                            Swal.fire({
+                                                title: "Booking Failed",
+                                                text: result.message,
+                                                icon: "error",
+                                                confirmButtonText: "OK"
+                                            });
+                                        }
                                     },
                                     error: function (xhr, status, error) {
+                                        console.error("Error checking class booking:", error);
                                         Swal.fire({
-                                            title: "Payment Error",
-                                            text: "Unable to process payment. Please try again later.",
+                                            title: "Booking Check Error",
+                                            text: "An error occurred while checking class availability.",
                                             icon: "error",
                                             confirmButtonText: "OK"
                                         });
-                                        console.error('Error:', error);
                                     }
                                 });
 
                             } else {
                                 Swal.fire({
-                                    title: "Booking Failed",
-                                    text: result.message,
-                                    icon: "error",
+                                    title: "Booking Unavailable",
+                                    text: "All slots are currently full. Please try again later or choose a different class.",
+                                    icon: "info",
                                     confirmButtonText: "OK"
                                 });
                             }
-                        },
-                        error: function (xhr, status, error) {
-                            console.error("Error checking class booking:", error);
-                            Swal.fire({
-                                title: "Booking Check Error",
-                                text: "An error occurred while checking class availability.",
-                                icon: "error",
-                                confirmButtonText: "OK"
-                            });
-                        }
-                    });
-
-                } else {
+                        });
+                    } else {
+                        console.error('Error: Invalid response or data is missing.');
+                        Swal.fire({
+                            title: 'Error',
+                            text: 'Failed to load class details. Please try again later.',
+                            icon: 'error',
+                            confirmButtonText: 'OK'
+                        });
+                    }
+                },
+                error: function (error) {
+                    console.error('Error fetching class data:', error);
                     Swal.fire({
-                        title: "Booking Unavailable",
-                        text: "All slots are currently full. Please try again later or choose a different class.",
-                        icon: "info",
-                        confirmButtonText: "OK"
+                        title: 'Error',
+                        text: 'Failed to load class details. Please try again later.',
+                        icon: 'error',
+                        confirmButtonText: 'OK'
                     });
                 }
             });
 
-
-
-
-
             // Handle Cancel button click
             $('#cancel-btn').on('click', function () {
-                window.location.href = "/User/Dashboard"
+                Swal.fire({
+                    title: 'Are you sure?',
+                    text: 'You will lose any unsaved changes if you leave this page.',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Yes, go back',
+                    cancelButtonText: 'Cancel'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.href = "/User/Dashboard";
+                    }
+                });
             });
-
-
-
         });
-
-
-
-
-
-
-
     </script>
 </body>
 
