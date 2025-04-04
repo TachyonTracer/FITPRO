@@ -328,7 +328,7 @@ h1 {
 
 .role-option.selected {
     background-color: var(--primary-color);
-    color: var(--background);
+    color: #ffffff;
 }
 
 .role-image {

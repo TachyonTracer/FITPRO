@@ -1061,7 +1061,7 @@ $(document).ready(function () {
                 title: "Registration Successful ",
                 text: response.message,
               }).then(() => {
-                window.location.href = "./Auth/Login";
+                window.location.href = `http://localhost:8081/Auth/Login`;
               });
             } else {
               Swal.fire({

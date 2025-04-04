@@ -12,12 +12,6 @@ namespace MVC
 {
     public class UserController : Controller
     {
-        private readonly IClassInterface _Class;
-        public UserController(IClassInterface Class)
-        {
-            _Class = Class;
-        }
-
         // GET: UserController
         public ActionResult Index()
         {
@@ -29,25 +23,11 @@ namespace MVC
         }
 
         [HttpGet]
-        public async Task<IActionResult> BookClass(string id)
+        [Route("user/bookclass/{classId}")]
+        public IActionResult BookClass(int classId)
         {
-            try
-            {   
-                Class ClassDetails = await _Class.GetOne(id);
-                if (ClassDetails != null)
-                {
-
-                    return View(ClassDetails);
-                }
-
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex);
-            }
-
+            ViewBag.ClassId = classId;
             return View();
-
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

@@ -16,7 +16,6 @@ body {
     padding: 20px;
 }
 
-/* SweetAlert2 Styles (Updated from first CSS) */
 .swal2-popup {
     background: var(--glass-color) !important;
     backdrop-filter: blur(15px) !important;
@@ -24,84 +23,78 @@ body {
     border-radius: 15px !important;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3) !important;
     color: var(--color) !important;
-}
-
-.swal2-title {
+  }
+  
+  .swal2-title {
     color: var(--color) !important;
     font-family: "Poppins", sans-serif !important;
     letter-spacing: 1px !important;
-}
-
-.swal2-content {
+  }
+  
+  .swal2-content {
     color: rgba(255, 255, 255, 0.8) !important;
     font-family: "Poppins", sans-serif !important;
-}
-
-.swal2-confirm {
-    background-color: var(--success-color) !important;
+  }
+  
+  /* Confirm Button */
+  .swal2-confirm {
+    background-color: var(--primary-color) !important;
     color: var(--color) !important;
     border: none !important;
     border-radius: 8px !important;
     font-family: "Poppins", sans-serif !important;
     transition: all 0.3s ease !important;
-}
-
-.swal2-confirm:hover {
-    background-color: #218838 !important;
+  }
+  
+  .swal2-confirm:hover {
+    background-color: #28a745 !important;
     transform: scale(1.03) !important;
-}
-
-.swal2-cancel {
+  }
+  
+  /* Cancel Button */
+  .swal2-cancel {
     background-color: rgba(255, 255, 255, 0.1) !important;
     color: var(--color) !important;
     border: 1px solid rgba(255, 255, 255, 0.2) !important;
     border-radius: 8px !important;
     font-family: "Poppins", sans-serif !important;
     transition: all 0.3s ease !important;
-}
-
-.swal2-cancel:hover {
+  }
+  
+  .swal2-cancel:hover {
     background-color: rgba(255, 255, 255, 0.2) !important;
     transform: scale(1.03) !important;
-}
-
-.swal2-icon.swal2-warning {
+  }
+  
+  /* Warning Icon */
+  .swal2-icon.swal2-warning {
     color: var(--primary-color) !important;
     border-color: var(--primary-color) !important;
-}
-
-.swal2-icon.swal2-success {
-    border-color: var(--success-color) !important;
-    background: none !important;
-}
-
-.swal2-icon.swal2-success .swal2-success-ring {
-    border-color: var(--success-color) !important;
-    background: none !important;
-    display: block !important;
-}
-
-.swal2-icon.swal2-success .swal2-success-circular-line-left,
-.swal2-icon.swal2-success .swal2-success-circular-line-right,
-.swal2-icon.swal2-success .swal2-success-fix {
+  }
+  
+  /* Success Icon */
+  .swal2-icon.swal2-success {
+    border-color: #28a745 !important;
+    /* Green border */
+    color: #28a745 !important;
+    /* Green checkmark */
+  }
+  
+  .swal2-icon.swal2-success .swal2-success-ring {
+    border-color: #28a745 !important;
+    /* Outer circle */
+  }
+  
+  .swal2-icon.swal2-success [class^="swal2-success-line"] {
+    background-color: #28a745 !important;
+    /* Check lines */
+  }
+  
+  .swal2-icon.swal2-success .swal2-success-circular-line-left,
+  .swal2-icon.swal2-success .swal2-success-circular-line-right,
+  .swal2-icon.swal2-success .swal2-success-fix {
     display: none !important;
-}
-
-.swal2-icon.swal2-success .swal2-success-ring::before,
-.swal2-icon.swal2-success .swal2-success-ring::after {
-    display: none !important;
-    background: transparent !important;
-}
-
-.swal2-icon.swal2-success::before,
-.swal2-icon.swal2-success::after {
-    display: none !important;
-    background: transparent !important;
-}
-
-.swal2-icon.swal2-success [class^='swal2-success-line'] {
-    background-color: var(--success-color) !important;
-}
+  }
 
 .card {
     background: #1e1e1e;
