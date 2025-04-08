@@ -475,10 +475,15 @@ h1 {
 .k-upload-button:hover {
   background-color: rgba(255, 77, 77, 0.8) !important;
 }
+.from-orange-500 {
+    --tw-gradient-from: #f97316 var(--tw-gradient-from-position);
+    --tw-gradient-to: rgb(249 115 22 / 0) var(--tw-gradient-to-position);
+    --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to);
+}
 
 .k-form-error,
 .email-error {
-  color: #ff3333 !important;
+  color:  #f97316 !important;
   /* Bright red for visibility */
   font-size: 0.9rem;
   margin-top: 5px;
@@ -486,7 +491,7 @@ h1 {
 }
 
 .k-form-field .k-form-error {
-  color: #ff3333 !important;
+  color: #f97316!important;
 }
 
 /* Role Selection Styles */
