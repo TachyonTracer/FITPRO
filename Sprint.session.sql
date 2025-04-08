@@ -34,7 +34,8 @@ CREATE TABLE t_Instructor (
     c_status VARCHAR(30) DEFAULT 'Unverified',
     c_idproof VARCHAR(100),
     c_activationtoken VARCHAR(150),
-    c_activatedon TIMESTAMP WITHOUT TIME ZONE
+    c_activatedon TIMESTAMP WITHOUT TIME ZONE,
+    
 );
 
 

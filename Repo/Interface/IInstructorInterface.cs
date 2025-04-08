@@ -21,7 +21,7 @@ public interface IInstructorInterface
 
     #region  User Stroy : Update Instructor (Admin Dashboard)
     Task<bool> ApproveInstructor(string instructorId);
-    Task<bool> DisapproveInstructor(string instructorId);
+    Task<bool> DisapproveInstructor(string instructorId, string reason);
     Task<bool> SuspendInstructor(string instructorId);
     #endregion
 

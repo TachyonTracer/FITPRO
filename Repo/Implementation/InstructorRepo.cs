@@ -280,7 +280,7 @@ public class InstructorRepo : IInstructorInterface
         #endregion
 
         #region Disaaprove Instructor
-        public async Task<bool> DisapproveInstructor(string instructorId)
+        public async Task<bool> DisapproveInstructor(string instructorId,string reason)
         {
             bool isSuccess = false;
             try
@@ -290,9 +290,10 @@ public class InstructorRepo : IInstructorInterface
                     await _conn.OpenAsync();
                 }
 
-                using (var cmd = new NpgsqlCommand("UPDATE t_instructor SET c_status = 'Disapproved' WHERE c_instructorid = @InstructorId", _conn))
+                using (var cmd = new NpgsqlCommand("UPDATE t_instructor SET c_status = 'Disapproved',c_reason = @c_reason WHERE c_instructorid = @InstructorId", _conn))
                 {
                     cmd.Parameters.AddWithValue("@InstructorId", Convert.ToInt32(instructorId));
+                    cmd.Parameters.AddWithValue("@c_reason", reason);
 
                     // Execute the command and check affected rows
                     int rowsAffected = await cmd.ExecuteNonQueryAsync();

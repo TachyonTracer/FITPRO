@@ -288,7 +288,7 @@ namespace API
 
         #region Disapprove Instructor
         [HttpPost("InstructorDisapprove/{id}")]
-        public async Task<IActionResult> DisapproveInstructor(string id)
+        public async Task<IActionResult> DisapproveInstructor(string id,[FromBody] Instructor request)
         {
             var instructor = await _instructorRepo.GetOneInstructor(id);
             if (instructor == null)
@@ -296,7 +296,7 @@ namespace API
                 return NotFound(new {success = false, message = "Instructor not found." });
             }
 
-            var result = await _instructorRepo.DisapproveInstructor(id);
+            var result = await _instructorRepo.DisapproveInstructor(id,request.reason);
             if (result)
             {
                 return Ok(new {success = true, message = "Instructor disapproved, Disapprove mail send successfully!." });

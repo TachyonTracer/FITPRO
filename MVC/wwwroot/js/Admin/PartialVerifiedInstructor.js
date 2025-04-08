@@ -155,6 +155,54 @@ function approveInstructor() {
 }
 
 // Disapprove Instructor with Swal.fire
+// function disapproveInstructor() {
+//     if (!currentVerifiedInstructorId) {
+//         Swal.fire("Error", "Please select an instructor first.", "error");
+//         return;
+//     }
+
+//     Swal.fire({
+//         title: "Are you sure?",
+//         text: "Do you want to disapprove this instructor?",
+//         icon: "warning",
+//         showCancelButton: true,
+//         confirmButtonText: "Yes, Disapprove",
+//         cancelButtonText: "Cancel"
+//     }).then((result) => {
+//         if (result.isConfirmed) {
+//             $.ajax({
+//                 url: `${uri}/api/Instructor/InstructorDisapprove/${currentVerifiedInstructorId}`,
+//                 type: "POST",
+//                 success: function (response) {
+//                     Swal.fire({
+//                         title: "Success",
+//                         text: "Instructor disapproved, Disapprove mail send successfull!",
+//                         icon: "success",
+//                         confirmButtonText: "OK"
+//                     }).then(() => {
+//                         currentVerifiedInstructorId = null;
+                        
+//                         $("#verified-details").addClass('d-none');
+//                         $("#verified-default-message").removeClass('d-none');
+//                         // Reload both lists
+//                         loadVerifiedInstructorList();
+//                         loadInstructorList();
+//                     });
+//                 },
+//                 error: function () {
+//                     Swal.fire({
+//                         title: "Error",
+//                         text: "Failed to disapprove instructor.",
+//                         icon: "error",
+//                         confirmButtonText: "OK"
+//                     });
+//                 }
+//             });
+//         }
+//     });
+// }
+
+
 function disapproveInstructor() {
     if (!currentVerifiedInstructorId) {
         Swal.fire("Error", "Please select an instructor first.", "error");
@@ -162,29 +210,43 @@ function disapproveInstructor() {
     }
 
     Swal.fire({
-        title: "Are you sure?",
-        text: "Do you want to disapprove this instructor?",
-        icon: "warning",
+        title: "Reason for Disapproval",
+        input: "textarea",
+        inputLabel: "Please provide a reason :",
+        inputPlaceholder: "Enter reason here...",
+        inputAttributes: {
+            "aria-label": "Type your reason here"
+        },
         showCancelButton: true,
-        confirmButtonText: "Yes, Disapprove",
-        cancelButtonText: "Cancel"
+        confirmButtonText: "Submit",
+        cancelButtonText: "Cancel",
+        preConfirm: (reason) => {
+            if (!reason || reason.trim() === "") {
+                Swal.showValidationMessage("You must provide a reason.");
+                return false;
+            }
+            return reason.trim();
+        }
     }).then((result) => {
         if (result.isConfirmed) {
+            const disapprovalReason = result.value;
+
             $.ajax({
                 url: `${uri}/api/Instructor/InstructorDisapprove/${currentVerifiedInstructorId}`,
                 type: "POST",
+                contentType: "application/json",
+                data: JSON.stringify({ reason: disapprovalReason }), // send reason in body
                 success: function (response) {
                     Swal.fire({
                         title: "Success",
-                        text: "Instructor disapproved, Disapprove mail send successfull!",
+                        text: "Instructor disapproved. Disapproval email sent successfully!",
                         icon: "success",
                         confirmButtonText: "OK"
                     }).then(() => {
                         currentVerifiedInstructorId = null;
-                        
+
                         $("#verified-details").addClass('d-none');
                         $("#verified-default-message").removeClass('d-none');
-                        // Reload both lists
                         loadVerifiedInstructorList();
                         loadInstructorList();
                     });
@@ -201,7 +263,6 @@ function disapproveInstructor() {
         }
     });
 }
-
 
 function viewPDF(pdfUrl, title) {
     $('#verified-document-title').text(title);
