@@ -17,6 +17,7 @@ CREATE TABLE t_User (
     c_activationtoken VARCHAR(150),
     c_activatedon TIMESTAMP WITHOUT TIME ZONE
     c_balance DECIMAL(10,2) DEFAULT 0.00,
+    c_reason VARCHAR(500)
 );
 
 CREATE TABLE t_Instructor (
@@ -35,7 +36,7 @@ CREATE TABLE t_Instructor (
     c_status VARCHAR(30) DEFAULT 'Unverified',
     c_idproof VARCHAR(100),
     c_activationtoken VARCHAR(150),
-    c_activatedon TIMESTAMP WITHOUT TIME ZONE
+    c_activatedon TIMESTAMP WITHOUT TIME ZONE,
     c_reason VARCHAR(500)
 );
 

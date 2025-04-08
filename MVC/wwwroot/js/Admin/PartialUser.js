@@ -68,6 +68,52 @@ function selectUser(userId) {
     });
 }
 
+// function suspendUser() {
+//     if (!currentUserId) {
+//         Swal.fire("Error", "Please select an User first.", "error");
+//         return;
+//     }
+
+//     Swal.fire({
+//         title: "Are you sure?",
+//         text: "Do you want to suspend this User?",
+//         icon: "warning",
+//         showCancelButton: true,
+//         confirmButtonText: "Yes, Suspend",
+//         cancelButtonText: "Cancel"
+//     }).then((result) => {
+//         if (result.isConfirmed) {
+//             $.ajax({
+//                 url: `${uri}/api/User/UserSuspend/${currentUserId}`,
+//                 type: "POST",
+//                 success: function (response) {
+//                     Swal.fire({
+//                         title: "Success",
+//                         text: "User Suspended successfully!",
+//                         icon: "success",
+//                         confirmButtonText: "OK"
+//                     }).then(() => {
+//                         currentUserId = null;
+//                         $("#details").addClass('d-none');
+//                         $("#default-message").removeClass('d-none');
+//                         loadUserList();      
+//                     });
+//                 },
+//                 error: function () {
+//                     Swal.fire({
+//                         title: "Error",
+//                         text: "Failed to suspend User.",
+//                         icon: "error",
+//                         confirmButtonText: "OK"
+//                     });
+//                 }
+//             });
+//         }
+//     });
+// }
+
+
+
 function suspendUser() {
     if (!currentUserId) {
         Swal.fire("Error", "Please select an User first.", "error");
@@ -75,21 +121,40 @@ function suspendUser() {
     }
 
     Swal.fire({
-        title: "Are you sure?",
-        text: "Do you want to suspend this User?",
-        icon: "warning",
+        title: "Reason for Disapproval",
+        input: "textarea",
+        inputLabel: "Please provide a reason :",
+        inputPlaceholder: "Enter reason here...",
+        inputAttributes: {
+            "aria-label": "Type your reason here"
+        },
         showCancelButton: true,
-        confirmButtonText: "Yes, Suspend",
-        cancelButtonText: "Cancel"
+        confirmButtonText: "Submit",
+        cancelButtonText: "Cancel",
+        preConfirm: (reason) => {
+            if (!reason || reason.trim() === "") {
+                Swal.showValidationMessage("You must provide a reason.");
+                return false;
+            }
+            return reason.trim();
+        }
     }).then((result) => {
         if (result.isConfirmed) {
+            const reason = result.value;
+
+            const formData = new FormData();
+            formData.append("reason", reason);
+
             $.ajax({
                 url: `${uri}/api/User/UserSuspend/${currentUserId}`,
                 type: "POST",
+                data: formData,
+                processData: false,
+                contentType: false,
                 success: function (response) {
                     Swal.fire({
                         title: "Success",
-                        text: "User Suspended successfully!",
+                        text:  response.message,
                         icon: "success",
                         confirmButtonText: "OK"
                     }).then(() => {
@@ -99,10 +164,10 @@ function suspendUser() {
                         loadUserList();      
                     });
                 },
-                error: function () {
+                error: function (xhr) {
                     Swal.fire({
                         title: "Error",
-                        text: "Failed to suspend User.",
+                        text: xhr.responseJSON?.message || "Failed to suspend User.",
                         icon: "error",
                         confirmButtonText: "OK"
                     });
@@ -111,7 +176,6 @@ function suspendUser() {
         }
     });
 }
-
 
 
 // Load user list on page load

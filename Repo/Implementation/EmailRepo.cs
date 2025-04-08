@@ -179,8 +179,8 @@ namespace Repo
         }
         #endregion
 
-        #region Disapprove instructor email 
-        public async Task SendDisapproveInstructorEmail(string email, string username)
+       #region Disapprove instructor email 
+        public async Task SendDisapproveInstructorEmail(string email, string username,string reason)
         {
             try
             {
@@ -190,6 +190,7 @@ namespace Repo
 
                 // Replace placeholders with actual values
                 templateContent = templateContent.Replace("#[UserName]#", username);
+                templateContent = templateContent.Replace("#[Reason]#", reason);
 
                 using (MailMessage message = new MailMessage(new MailAddress(Username), new MailAddress(email)))
                 {
@@ -214,6 +215,83 @@ namespace Repo
             }
         }
         #endregion
+
+         #region Disapprove instructor email 
+        public async Task SendSuspendInstructorEmail(string email, string username,string reason)
+        {
+            try
+            {
+                // Load email template
+                string templatePath = Path.Combine(Directory.GetCurrentDirectory(), "Templates", "SuspendInstructor_Email.html");
+                string templateContent = await File.ReadAllTextAsync(templatePath);
+
+                // Replace placeholders with actual values
+                templateContent = templateContent.Replace("#[UserName]#", username);
+                templateContent = templateContent.Replace("#[Reason]#", reason);
+
+                using (MailMessage message = new MailMessage(new MailAddress(Username), new MailAddress(email)))
+                {
+                    message.Subject = "Account Suspended Notification";
+                    message.Body = templateContent;
+                    message.IsBodyHtml = true;
+
+                    using (SmtpClient smtp = new SmtpClient())
+                    {
+                        smtp.Host = smtpServer;
+                        smtp.Port = Port;
+                        smtp.EnableSsl = true;
+                        smtp.Credentials = new NetworkCredential(Username, Password);
+
+                        await smtp.SendMailAsync(message);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Failed to send instructor suspend email: " + ex.Message);
+            }
+        }
+        #endregion
+
+         #region Disapprove instructor email 
+        public async Task SendSuspendUserEmail(string email, string username,string reason)
+        {
+            try
+            {
+                // Load email template
+                string templatePath = Path.Combine(Directory.GetCurrentDirectory(), "Templates", "SuspendUser_Email.html");
+                string templateContent = await File.ReadAllTextAsync(templatePath);
+
+                // Replace placeholders with actual values
+                templateContent = templateContent.Replace("#[UserName]#", username);
+                templateContent = templateContent.Replace("#[Reason]#", reason);
+
+                using (MailMessage message = new MailMessage(new MailAddress(Username), new MailAddress(email)))
+                {
+                    message.Subject = "Account Disapproval Notification";
+                    message.Body = templateContent;
+                    message.IsBodyHtml = true;
+
+                    using (SmtpClient smtp = new SmtpClient())
+                    {
+                        smtp.Host = smtpServer;
+                        smtp.Port = Port;
+                        smtp.EnableSsl = true;
+                        smtp.Credentials = new NetworkCredential(Username, Password);
+
+                        await smtp.SendMailAsync(message);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Failed to send instructor disapproval email: " + ex.Message);
+            }
+        }
+        #endregion
+
+
+
 
     }
 }

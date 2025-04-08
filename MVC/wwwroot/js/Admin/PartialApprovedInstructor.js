@@ -114,17 +114,36 @@ function suspendInstructor() {
     }
 
     Swal.fire({
-        title: "Are you sure?",
-        text: "Do you want to suspend this instructor?",
-        icon: "warning",
+        title: "Reason for Disapproval",
+        input: "textarea",
+        inputLabel: "Please provide a reason :",
+        inputPlaceholder: "Enter reason here...",
+        inputAttributes: {
+            "aria-label": "Type your reason here"
+        },
         showCancelButton: true,
-        confirmButtonText: "Yes, Suspend",
-        cancelButtonText: "Cancel"
+        confirmButtonText: "Submit",
+        cancelButtonText: "Cancel",
+        preConfirm: (reason) => {
+            if (!reason || reason.trim() === "") {
+                Swal.showValidationMessage("You must provide a reason.");
+                return false;
+            }
+            return reason.trim();
+        }
     }).then((result) => {
         if (result.isConfirmed) {
+            const reason = result.value;
+
+            const formData = new FormData();
+            formData.append("reason", reason);
+
             $.ajax({
                 url: `${uri}/api/Instructor/InstructorSuspend/${currentInstructorId}`,
                 type: "POST",
+                data: formData,
+                processData: false,
+                contentType: false,
                 success: function (response) {
                     Swal.fire({
                         title: "Success",
@@ -151,6 +170,7 @@ function suspendInstructor() {
         }
     });
 }
+
 
 
 // View PDF in Modal

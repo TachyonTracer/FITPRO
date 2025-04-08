@@ -83,16 +83,50 @@ namespace API
         #region Instructor disapproval email 
         [HttpPost]
         [Route("SendDisapproveInstructorEmail")]
-        public async Task<IActionResult> SendDisapproveInstructorEmail([FromForm] string username, [FromForm] string email)
+        public async Task<IActionResult> SendDisapproveInstructorEmail([FromForm] string username, [FromForm] string email , [FromForm] string reason)
         {
             try
             {
-                await _emailRepo.SendDisapproveInstructorEmail(email,username);
+                await _emailRepo.SendDisapproveInstructorEmail(email,username,reason);
                 return Ok(new { success = true, message = "Instrucotr disapproval Email Sent Successfully!" });
             }
             catch (Exception ex)
             {
                 return StatusCode(500, new { success = false, message = "Failed to send instrucotr disapproval email: " + ex.Message });
+            }
+        }
+        #endregion
+
+          #region Instructor suspend email 
+        [HttpPost]
+        [Route("SendSuspendInstructorEmail")]
+        public async Task<IActionResult> SendSuspendInstructorEmail([FromForm] string username, [FromForm] string email , [FromForm] string reason)
+        {
+            try
+            {
+                await _emailRepo.SendSuspendInstructorEmail(email,username,reason);
+                return Ok(new { success = true, message = "Instrucotr Suspend Email Sent Successfully!" });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { success = false, message = "Failed to send instrucotr suspend email: " + ex.Message });
+            }
+        }
+        #endregion
+
+        #region User Suspend email 
+        [HttpPost]
+        [Route("SendSuspendUserEmail")]
+        public async Task<IActionResult> SendSuspendUserEmail([FromForm] string username, [FromForm] string email , [FromForm] string reason)
+        {
+            try
+            {
+                await _emailRepo.SendSuspendUserEmail(email,username,reason);
+                return Ok(new { success = true, message = "User Suspend Email Sent Successfully!" });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { success = false, message = "Failed to send user suspend email: " + ex.Message });
             }
         }
         #endregion
