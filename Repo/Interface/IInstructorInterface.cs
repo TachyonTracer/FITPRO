@@ -23,6 +23,7 @@ public interface IInstructorInterface
     Task<bool> ApproveInstructor(string instructorId);
      Task<bool> DisapproveInstructor(string instructorId, string reason);
     Task<bool> SuspendInstructor(string instructorId,string reason);
+    Task<bool> ActivateInstructor(string instructorId);
     #endregion
 
 	#region User Story: Instructor Dashboard View

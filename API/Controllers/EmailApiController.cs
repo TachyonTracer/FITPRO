@@ -131,6 +131,40 @@ namespace API
         }
         #endregion
 
+        #region Instructor Activate email 
+        [HttpPost]
+        [Route("SendActivateInstructorEmail")]
+        public async Task<IActionResult> SendActivateInstructorEmail([FromForm] string username, [FromForm] string email)
+        {
+            try
+            {
+                await _emailRepo.SendApproveInstructorEmail(email,username);
+                return Ok(new { success = true, message = "Instrucotr activate Email Sent Successfully!" });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { success = false, message = "Failed to send instrucotr activate  email: " + ex.Message });
+            }
+        }
+        #endregion
+
+        #region User Activate email 
+        [HttpPost]
+        [Route("SendActivateUserEmail")]
+        public async Task<IActionResult> SendActivateUserEmail([FromForm] string username, [FromForm] string email)
+        {
+            try
+            {
+                await _emailRepo.SendApproveInstructorEmail(email,username);
+                return Ok(new { success = true, message = "User activate Email Sent Successfully!" });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { success = false, message = "Failed to send user activate  email: " + ex.Message });
+            }
+        }
+        #endregion
+
 
     }
 }

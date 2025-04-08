@@ -426,4 +426,59 @@ public class UserRepo : IUserInterface
 
 	#endregion
 
+	#region Activate User
+    public async Task<bool> ActivateUser (string userid)
+    {
+         bool isSuccess = false;
+        try
+        {
+            if (_conn.State != ConnectionState.Open)
+            {
+                await _conn.OpenAsync();
+            }
+
+            using (var cmd = new NpgsqlCommand("UPDATE t_user SET c_status ='true' WHERE c_userid = @c_userid", _conn))
+            {
+                cmd.Parameters.AddWithValue("@c_userid", Convert.ToInt32(userid));
+
+                // Execute the command and check affected rows
+                int rowsAffected = await cmd.ExecuteNonQueryAsync();
+                isSuccess = rowsAffected > 0;
+
+                using (var readcmd = new NpgsqlCommand(@"SELECT 
+                                            c_userid,
+                                            c_username,
+                                            c_email
+                                            FROM t_user 
+											WHERE c_userid = @c_userid", _conn))
+                                           
+				{
+					readcmd.Parameters.AddWithValue("@c_userid", Convert.ToInt32(userid));
+
+					var reader = await readcmd.ExecuteReaderAsync();
+					if (reader.Read())
+					{
+						var instructorName = Convert.ToString(reader["c_username"]);
+						var email = Convert.ToString(reader["c_email"]);
+						
+						await _email.SendActivateUserEmail(email, instructorName);
+					}
+				}
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error while approving instructor: {ex.Message}");
+        }
+        finally
+        {
+            if (_conn.State != ConnectionState.Closed)
+            {
+                await _conn.CloseAsync();
+            }
+        }
+        return isSuccess;
+    }
+    #endregion
+
 }

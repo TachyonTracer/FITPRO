@@ -15,6 +15,7 @@ public interface IUserInterface
 
 	#region User Story: List Users Desgin
 	 Task<bool> SuspendUser(string userId,string reason);
+	 Task<bool> ActivateUser(string userId);
 	#endregion
 
 	public Task<bool> UpdateUserProfileAsync(User user);

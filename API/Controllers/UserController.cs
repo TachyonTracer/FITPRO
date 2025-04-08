@@ -152,6 +152,25 @@ namespace API
 			return BadRequest(new { message = "Failed to Suspennd User." });
 		}
 		#endregion
+
+		#region Activate User
+        [HttpPost("UserActivate/{id}")]
+        public async Task<IActionResult> ActivateInstructor(string id)
+        {
+            var instructor = await _userRepo.GetAllUsersById(int.Parse(id));
+            if (instructor == null)
+            {
+                return NotFound(new {success = false, message = "User not found." });
+            }
+
+            var result = await _userRepo.ActivateUser(id);
+            if (result)
+            {
+                return Ok(new {success = true, message = "User Activated,Mail send successfully!." });
+            }
+            return BadRequest(new { message = "Failed to Activate User." });
+        }
+        #endregion
 		#endregion
 
 

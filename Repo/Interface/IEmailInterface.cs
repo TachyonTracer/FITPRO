@@ -14,6 +14,8 @@ namespace Repo
         Task SendDisapproveInstructorEmail(string email, string username, string reason);
         Task SendSuspendInstructorEmail(string email, string username, string reason);
         Task SendSuspendUserEmail(string email, string username, string reason);
+        Task SendActivateUserEmail(string email, string username);
+        Task SendActivateInstructorEmail(string email, string username);
 
     }
 }

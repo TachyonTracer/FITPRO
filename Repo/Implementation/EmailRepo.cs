@@ -106,7 +106,7 @@ namespace Repo
 
 
         #region send activation link
-            
+
         public async Task SendActivationLink(string email, string username, string activationUrl)
         {
             try
@@ -179,8 +179,8 @@ namespace Repo
         }
         #endregion
 
-       #region Disapprove instructor email 
-        public async Task SendDisapproveInstructorEmail(string email, string username,string reason)
+        #region Disapprove instructor email 
+        public async Task SendDisapproveInstructorEmail(string email, string username, string reason)
         {
             try
             {
@@ -216,8 +216,8 @@ namespace Repo
         }
         #endregion
 
-         #region Disapprove instructor email 
-        public async Task SendSuspendInstructorEmail(string email, string username,string reason)
+        #region Suspend instructor email 
+        public async Task SendSuspendInstructorEmail(string email, string username, string reason)
         {
             try
             {
@@ -253,8 +253,8 @@ namespace Repo
         }
         #endregion
 
-         #region Disapprove instructor email 
-        public async Task SendSuspendUserEmail(string email, string username,string reason)
+        #region Suspend User email 
+        public async Task SendSuspendUserEmail(string email, string username, string reason)
         {
             try
             {
@@ -286,6 +286,77 @@ namespace Repo
             catch (Exception ex)
             {
                 Console.WriteLine("Failed to send instructor disapproval email: " + ex.Message);
+            }
+        }
+        #endregion
+
+        #region Activate instructor email 
+        public async Task SendActivateInstructorEmail(string email, string username)
+        {
+            try
+            {
+                // Load email template
+                string templatePath = Path.Combine(Directory.GetCurrentDirectory(), "Templates", "ActivateInstructor_Email.html");
+                string templateContent = await File.ReadAllTextAsync(templatePath);
+
+                // Replace placeholders with actual values
+                templateContent = templateContent.Replace("#[UserName]#", username);
+
+                using (MailMessage message = new MailMessage(new MailAddress(Username), new MailAddress(email)))
+                {
+                    message.Subject = "Account Activate Notification";
+                    message.Body = templateContent;
+                    message.IsBodyHtml = true;
+
+                    using (SmtpClient smtp = new SmtpClient())
+                    {
+                        smtp.Host = smtpServer;
+                        smtp.Port = Port;
+                        smtp.EnableSsl = true;
+                        smtp.Credentials = new NetworkCredential(Username, Password);
+
+                        await smtp.SendMailAsync(message);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Failed to send instructor Activate email: " + ex.Message);
+            }
+        }
+        #endregion
+         #region Activate User email 
+        public async Task SendActivateUserEmail(string email, string username)
+        {
+            try
+            {
+                // Load email template
+                string templatePath = Path.Combine(Directory.GetCurrentDirectory(), "Templates", "ActivateUser_Email.html");
+                string templateContent = await File.ReadAllTextAsync(templatePath);
+
+                // Replace placeholders with actual values
+                templateContent = templateContent.Replace("#[UserName]#", username);
+
+                using (MailMessage message = new MailMessage(new MailAddress(Username), new MailAddress(email)))
+                {
+                    message.Subject = "Account Activate Notification";
+                    message.Body = templateContent;
+                    message.IsBodyHtml = true;
+
+                    using (SmtpClient smtp = new SmtpClient())
+                    {
+                        smtp.Host = smtpServer;
+                        smtp.Port = Port;
+                        smtp.EnableSsl = true;
+                        smtp.Credentials = new NetworkCredential(Username, Password);
+
+                        await smtp.SendMailAsync(message);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Failed to send User Activate email: " + ex.Message);
             }
         }
         #endregion

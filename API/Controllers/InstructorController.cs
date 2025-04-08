@@ -323,6 +323,25 @@ namespace API
             return BadRequest(new { message = "Failed to Suspennd instructor." });
         }
         #endregion
+        #region Activate Instructor
+        [HttpPost("InstructorActivate/{id}")]
+        public async Task<IActionResult> ActivateInstructor(string id)
+        {
+            var instructor = await _instructorRepo.GetOneInstructor(id);
+            if (instructor == null)
+            {
+                return NotFound(new {success = false, message = "Instructor not found." });
+            }
+
+            var result = await _instructorRepo.ActivateInstructor(id);
+            if (result)
+            {
+                return Ok(new {success = true, message = "Instructor Activated,Mail send successfully!." });
+            }
+            return BadRequest(new { message = "Failed to Activate instructor." });
+        }
+        #endregion
+
         #endregion
     }
 
