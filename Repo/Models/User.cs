@@ -53,7 +53,7 @@ public class User
     [Required(ErrorMessage = "Creation date is required")]
     public DateTime createdAt { get; set; } = DateTime.UtcNow;
 
-    public bool status { get; set; } 
+    public bool status { get; set; } = false;
 
     [StringLength(100, ErrorMessage = "Activation token must not exceed 100 characters")]
     public string activationToken { get; set; }
@@ -61,5 +61,7 @@ public class User
     [DataType(DataType.DateTime)]
     public DateTime? activatedOn { get; set; }
     public IFormFile? profileImageFile { get; set; }
+
+    public decimal? balance { get; set; } = 0.0m;
 
 }

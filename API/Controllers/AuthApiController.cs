@@ -18,11 +18,13 @@ namespace API
     public class AuthApiController : ControllerBase
     {
         private readonly IConfiguration _myConfig;
+        private readonly RabbitMQService _rabbitMQService;
         private readonly IAuthInterface _authRepo;
 
-        public AuthApiController(IConfiguration myConfig, IAuthInterface authRepo)
+        public AuthApiController(IConfiguration myConfig, IAuthInterface authRepo, RabbitMQService rabbitMQService)
         {
             _myConfig = myConfig;
+            _rabbitMQService = rabbitMQService;
             _authRepo = authRepo;
         }
         #region  Login 
@@ -42,8 +44,23 @@ namespace API
                 }
 
                 object user;
+                string role;
+                if (userCredentials.email == "admin@gmail.com")
+                {
+                    var adminObj = await _authRepo.LoginAdmin(userCredentials); // Fetch admin from DB
+                    if (adminObj == null)
+                    {
+                        return Unauthorized(new { success = false, message = "Invalid admin credentials." });
+                    }
+                    else
+                    {
+                        user = adminObj;
+                        role = "admin";
+                    }
+                }
+                else
 
-                if (userCredentials.role.ToLower() == "user")
+                if (userCredentials.role.ToLower() == "user" && userCredentials.email != "admin@gmail.com")
                 {
                     var userObj = await _authRepo.LoginUser(userCredentials);
                     if (userObj == null)
@@ -55,6 +72,7 @@ namespace API
                         return Unauthorized(new { success = false, message = "Please check your mail for account activation." });
                     }
                     user = userObj;
+                    role = "user";
                 }
                 else if (userCredentials.role.ToLower() == "instructor")
                 {
@@ -79,20 +97,15 @@ namespace API
                         return Unauthorized(new { success = false, message = "Your account has been rejected." });
                     }
 
+                    if (instructorObj.status == "Suspended")
+                    {
+                        return Unauthorized(new { success = false, message = "Your account has been suspended." });
+                    }
+
                     user = instructorObj;
+                    role = "instructor";
                 }
-                else if (userCredentials.role.ToLower() == "user")
-                {
-                    var adminObj = await _authRepo.LoginAdmin(userCredentials); // Fetch admin from DB
-                    if (adminObj == null)
-                    {
-                        return Unauthorized(new { success = false, message = "Invalid admin credentials." });
-                    }
-                    else
-                    {
-                        user = adminObj;
-                    }
-                }
+
                 else
                 {
                     return BadRequest(new { success = false, message = "Invalid role specified." });
@@ -108,14 +121,16 @@ namespace API
 
                 var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_myConfig["Jwt:Key"]));
                 var signIn = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-                var token = new JwtSecurityToken(
+                var authToken = new JwtSecurityToken(
                     _myConfig["Jwt:Issuer"],
                     _myConfig["Jwt:Audience"],
                     claims,
                     expires: DateTime.UtcNow.AddDays(1),
                     signingCredentials: signIn
                 );
-                return Ok(new { success = true, message = "Login Successful", token = new JwtSecurityTokenHandler().WriteToken(token) });
+
+
+                return Ok(new { success = true, message = "Login Successful", authToken = new JwtSecurityTokenHandler().WriteToken(authToken), userRole = role });
             }
             catch (Exception ex)
             {
@@ -252,7 +267,7 @@ namespace API
 
                 if (result)
                 {
-                    return new JsonResult(new { success = true, message = "User registered successfully" });
+                    return new JsonResult(new { success = true, message = "User registered successfully \n Please check your email for the activation link." });
                 }
                 else
                 {
@@ -375,7 +390,7 @@ namespace API
 
                     if (result)
                     {
-                        return new JsonResult(new { success = true, message = "Instructor registered successfully" });
+                        return new JsonResult(new { success = true, message = "Instructor registered successfully \n Please check your email for the activation link." });
                     }
                     else
                     {
@@ -444,29 +459,40 @@ namespace API
         [HttpGet("activateinstructor")]
         public async Task<IActionResult> ActivateInstructor([FromQuery] string token)
         {
-            int result = await _authRepo.ActivateInstructor(token);
+            var result = await _authRepo.ActivateInstructor(token);
 
-            if (result == 1)
+            int statusCode = result.Keys.First();
+            string instructorName = result.ContainsKey(1) ? result[1] : string.Empty;
+
+            if (statusCode == 1)
             {
+                // Sending Instructor Notification to Admin (12)
+                _rabbitMQService.PublishNotification("12", "admin", 
+                    $"New Instructor Registered::{instructorName} needs Approval to be an Instructor::{DateTimeOffset.UtcNow.ToUnixTimeSeconds()}");
+
                 return Redirect("http://localhost:8081/auth/login?message=Activation%20Successful");
             }
-            else if (result == -2)
+            else if (statusCode == -1)
+            {
+                return Redirect("http://localhost:8081/auth/login?message=No%20token%20provided");
+            }
+            else if (statusCode == -2)
             {
                 return Redirect("http://localhost:8081/auth/login?message=Invalid%20Activation%20Token");
             }
-            else if (result == -3)
+            else if (statusCode == -3)
             {
                 return Redirect("http://localhost:8081/auth/login?message=Already%20Activated");
             }
-            else if (result == -4)
+            else if (statusCode == -4)
             {
                 return Redirect("http://localhost:8081/auth/login?message=Invalid%20Status");
             }
-            else if (result == -5)
+            else if (statusCode == -5)
             {
                 return Redirect("http://localhost:8081/auth/login?message=Instructor%20Already%20Verified");
             }
-            else if (result == -6)
+            else if (statusCode == -6)
             {
                 return Redirect("http://localhost:8081/auth/login?message=Internal%20Error%20Try%20Again%20Later");
             }

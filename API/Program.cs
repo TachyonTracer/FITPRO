@@ -5,11 +5,14 @@ using Microsoft.Net.Http.Headers;
 using Microsoft.OpenApi.Models;
 using Npgsql;
 using Repo;
+using Stripe;
 
 var builder = WebApplication.CreateBuilder(args);
 
+
 // Add services to the container.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddControllers();
 builder.Services.AddSignalR();
@@ -49,11 +52,19 @@ builder.Services.AddSwaggerGen(c =>
     );
 });
 
-builder.Services.AddSingleton<IAuthInterface, AuthRepo>();
-builder.Services.AddSingleton<IEmailInterface, EmailRepo>();
+builder.Services.AddScoped<IAdminInterface, AdminRepo>();
+builder.Services.AddScoped<IEmailInterface, EmailRepo>();
 builder.Services.AddScoped<IAuthInterface, AuthRepo>();
+builder.Services.AddScoped<IInstructorInterface, InstructorRepo>();
+builder.Services.AddScoped<IClassInterface, ClassRepo>();
+builder.Services.AddScoped<IUserInterface, UserRepo>();
 
-builder.Services.AddSingleton<NpgsqlConnection>((provider) =>
+// StripeConfiguration.ApiKey = builder.Configuration["Stripe:SecretKey"];
+// Configure Stripe settings
+builder.Services.Configure<StripeSettings>(builder.Configuration.GetSection("Stripe"));
+StripeConfiguration.ApiKey = builder.Configuration["Stripe:SecretKey"];
+
+builder.Services.AddScoped<NpgsqlConnection>((provider) =>
 {
     var connectionString = provider.GetRequiredService<IConfiguration>().GetConnectionString("pgconn");
     return new NpgsqlConnection(connectionString);
@@ -93,6 +104,18 @@ builder.Services.AddSession(options =>
     options.Cookie.IsEssential = true;
 });
 
+
+// *** Notifications: Builder Configurations Starts *** //
+
+// Load Redis connection string
+string redisConnectionString = builder.Configuration.GetConnectionString("Redis") ?? "localhost:6379";
+// Register RedisService with connection string
+builder.Services.AddScoped<RedisService>(provider => new RedisService(redisConnectionString));
+builder.Services.AddSignalR(); // Register SignalR before RabbitMQService
+builder.Services.AddScoped<RabbitMQService>(); // Register RabbitMQService after SignalR
+
+// *** Notifications: Builder Configurations Ends *** //
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -131,6 +154,23 @@ app.MapGet("/weatherforecast", () =>
 })
 .WithName("GetWeatherForecast")
 .WithOpenApi();
+
+
+// *** Notifications: App Configurations Starts *** //
+
+// Map SignalR Hub
+app.MapHub<NotificationHub>("/notificationHub");
+// var rabbitMQService = app.Services.GetRequiredService<RabbitMQService>(); // Start RabbitMQ Listener **after** app is built
+// rabbitMQService.StartListening();
+
+using (var scope = app.Services.CreateScope())
+{
+    var rabbitMQService = scope.ServiceProvider.GetRequiredService<RabbitMQService>();
+    rabbitMQService.StartListening();
+}
+
+// *** Notifications: App Configurations Ends *** //
+
 app.Run();
 
 record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)

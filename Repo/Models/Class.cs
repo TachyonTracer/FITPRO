@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.Http;
 namespace Repo;
 public class Class
 {
+    
+
     [Required(ErrorMessage = "Class ID is required")]
     public int classId { get; set; }
 
@@ -15,8 +17,8 @@ public class Class
     [Required(ErrorMessage = "Instructor ID is required")]
     public int instructorId { get; set; }
 
-    [Required(ErrorMessage = "Description is required")]
-    public JsonDocument description { get; set; }
+    // [Required(ErrorMessage = "Description is required")]
+    public JsonDocument? description { get; set; }
 
     [Required(ErrorMessage = "Type is required")]
     [StringLength(50, ErrorMessage = "Type must not exceed 50 characters")]
@@ -60,7 +62,7 @@ public class Class
     [StringLength(200, ErrorMessage = "Address must not exceed 200 characters")]
     public string address { get; set; }
 
-    public JsonDocument assets { get; set; }
+    public JsonDocument? assets { get; set; }
 
     [Required(ErrorMessage = "Fee is required")]
     [Range(0, 100000, ErrorMessage = "Fee must be between 0 and 100000")]
@@ -68,4 +70,8 @@ public class Class
     public int availableCapacity { get; set; }
 
     public IFormFile[]? assetFiles { get; set; }
+
+    public string? instructorName { get; set; }
+    
+    
 }

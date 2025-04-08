@@ -22,6 +22,21 @@ public class HomeController : Controller
     {
         return View();
     }
+    // public IActionResult Checkout()
+    // {
+    //     return View();
+    // }
+
+   
+   [HttpGet]
+    public IActionResult Success( int id )
+    {
+        return View(id);
+    }
+
+
+
+
 
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
     public IActionResult Error()

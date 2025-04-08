@@ -39,7 +39,7 @@ namespace Repo
 
             using (MailMessage message = new MailMessage(new MailAddress(Username), new MailAddress(email)))
             {
-                message.Subject = "Your AssetTrack OTP for Password Reset";
+                message.Subject = "Your FitPro OTP for Password Reset";
                 message.Body = templateContent;
                 message.IsBodyHtml = true;
 
@@ -77,7 +77,7 @@ namespace Repo
             templateContent = templateContent.Replace("#[UserName]#", username);
             using (MailMessage message = new MailMessage(new MailAddress(Username), new MailAddress(email)))
             {
-                message.Subject = "Successfully Reset Your AssetTrack Account Password";
+                message.Subject = "Successfully Reset Your FitPro Account Password";
                 message.Body = templateContent;
                 message.IsBodyHtml = true;
 

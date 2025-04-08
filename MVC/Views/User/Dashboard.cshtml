@@ -1,0 +1,284 @@
+    <!-- Main Content -->
+    <main class="main-content bg-light p-4">
+        <!-- Top Greeting Bar -->
+        <div class="greeting-bar bg-white shadow-sm p-3 mb-4 rounded">
+            <h5 class="mb-0" id="greeting">Good Morning, Welcome Back 🎉</h5>
+        </div>
+
+        <!-- User Profile Section -->
+        <div class="user-profile-header bg-white shadow-sm p-3 mb-4 rounded">
+            <div class="d-flex align-items-center">
+                <div class="user-avatar me-3">
+                    <img src="" alt="Profile Picture" id="dashboardUserImage" class="rounded-circle" style="width: 80px; height: 80px; object-fit: cover;">
+                </div>
+                <div class="user-info">
+                    <h6 class="mb-1" id="dashboardUserNameFull"></h6>
+                    <p class="small text-muted mb-0" id="userLocation"><i class="fas fa-map-marker-alt me-1"></i> Loading...</p>
+                    <div class="user-metrics mt-2">
+                        <span class="badge bg-primary me-1" id="userWeight">Weight: -</span>
+                        <span class="badge bg-info me-1" id="userHeightMetric">Height: -</span>
+                        <span class="badge bg-success" id="userAge">Age: -</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Metric Cards Grid -->
+        <div class="metric-cards row row-cols-1 row-cols-md-2 row-cols-lg-4 g-3 mb-4">
+            <div class="col">
+                <div class="card shadow-sm">
+                    <div class="card-body text-center">
+                        <div class="circular-progress" data-value="75" data-color="#007bff">
+                            <span class="progress-value">75%</span>
+                        </div>
+                        <h6 class="mt-3 mb-0">Steps Taken</h6>
+                        <p class="mb-0">5,678 / 10,000</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="card shadow-sm">
+                    <div class="card-body text-center">
+                        <div class="circular-progress" data-value="60" data-color="#28a745">
+                            <span class="progress-value">60%</span>
+                        </div>
+                        <h6 class="mt-3 mb-0">Water Intake</h6>
+                        <p class="mb-0">1.8L / 3L</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="card shadow-sm">
+                    <div class="card-body text-center">
+                        <div class="circular-progress" data-value="40" data-color="#ffc107">
+                            <span class="progress-value">40%</span>
+                        </div>
+                        <h6 class="mt-3 mb-0">Calories Burned</h6>
+                        <p class="mb-0">450 / 1200 kcal</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="card shadow-sm">
+                    <div class="card-body text-center">
+                        <div class="circular-progress" data-value="90" data-color="#dc3545">
+                            <span class="progress-value">90 bpm</span>
+                        </div>
+                        <h6 class="mt-3 mb-0">Heart Rate</h6>
+                        <p class="mb-0">Average</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Weekly Activity Graph -->
+        <div class="weekly-activity bg-white shadow-sm p-3 mb-4 rounded">
+            <h6 class="mb-3"><i class="fas fa-chart-bar me-2"></i> Weekly Activity</h6>
+            <canvas id="weeklyActivityChart" height="100"></canvas>
+        </div>
+
+        <!-- Progress Pie Chart -->
+        <div class="progress-pie-charts row row-cols-1 row-cols-md-2 row-cols-lg-4 g-3 mb-4">
+            <div class="col">
+                <div class="card shadow-sm">
+                    <div class="card-body text-center">
+                        <div class="pie-chart" data-value="80" data-color="#6610f2" data-label="Stretching"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="card shadow-sm">
+                    <div class="card-body text-center">
+                        <div class="pie-chart" data-value="65" data-color="#17a2b8" data-label="Cardio"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="card shadow-sm">
+                    <div class="card-body text-center">
+                        <div class="pie-chart" data-value="70" data-color="#28a745" data-label="Strength"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="card shadow-sm">
+                    <div class="card-body text-center">
+                        <div class="pie-chart" data-value="95" data-color="#fd7e14" data-label="Other"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recommended Trainers -->
+        <div class="recommended-trainers bg-white shadow-sm p-3 mb-4 rounded">
+            <h6 class="mb-3"><i class="fas fa-users me-2"></i> Recommended Trainers</h6>
+            <div class="row row-cols-1 row-cols-md-3 g-3">
+                <div class="col">
+                    <div class="card">
+                        <img src="https://via.placeholder.com/150" class="card-img-top" alt="Trainer 1">
+                        <div class="card-body text-center">
+                            <h5 class="card-title">John Doe</h5>
+                            <p class="card-subtitle mb-2 text-muted small">Yoga Specialist</p>
+                            <div class="rating">
+                                <i class="fas fa-star text-warning"></i><i class="fas fa-star text-warning"></i><i class="fas fa-star text-warning"></i><i class="fas fa-star text-warning"></i><i class="far fa-star text-warning"></i>
+                            </div>
+                            <a href="#" class="btn btn-sm btn-primary mt-2">View Profile</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="card">
+                        <img src="https://via.placeholder.com/150" class="card-img-top" alt="Trainer 2">
+                        <div class="card-body text-center">
+                            <h5 class="card-title">Jane Smith</h5>
+                            <p class="card-subtitle mb-2 text-muted small">Strength & Conditioning</p>
+                            <div class="rating">
+                                <i class="fas fa-star text-warning"></i><i class="fas fa-star text-warning"></i><i class="fas fa-star text-warning"></i><i class="fas fa-star text-warning"></i><i class="fas fa-star text-warning"></i>
+                            </div>
+                            <a href="#" class="btn btn-sm btn-primary mt-2">View Profile</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="card">
+                        <img src="https://via.placeholder.com/150" class="card-img-top" alt="Trainer 3">
+                        <div class="card-body text-center">
+                            <h5 class="card-title">Peter Jones</h5>
+                            <p class="card-subtitle mb-2 text-muted small">Cardio & Endurance</p>
+                            <div class="rating">
+                                <i class="fas fa-star text-warning"></i><i class="fas fa-star text-warning"></i><i class="fas fa-star text-warning"></i><i class="fas fa-star-half-alt text-warning"></i><i class="far fa-star text-warning"></i>
+                            </div>
+                            <a href="#" class="btn btn-sm btn-primary mt-2">View Profile</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Featured Diet Menu -->
+        <div class="featured-diet bg-white shadow-sm p-3 mb-4 rounded">
+            <h6 class="mb-3"><i class="fas fa-utensils me-2"></i> Featured Diet Menu</h6>
+            <div class="row row-cols-1 row-cols-md-2 g-3">
+                <div class="col">
+                    <div class="card">
+                        <div class="card-body">
+                            <h6 class="card-title">Breakfast 8:00 AM</h6>
+                            <p class="card-text">Oatmeal with berries and nuts</p>
+                            <p class="card-text small text-muted">Macros: C: 40g, P: 10g, F: 15g</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="card">
+                        <div class="card-body">
+                            <h6 class="card-title">Lunch 12:30 PM</h6>
+                            <p class="card-text">Grilled chicken salad with mixed greens</p>
+                            <p class="card-text small text-muted">Macros: C: 20g, P: 30g, F: 18g</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="card">
+                        <div class="card-body">
+                            <h6 class="card-title">Snack 3:00 PM</h6>
+                            <p class="card-text">Greek yogurt with a piece of fruit</p>
+                            <p class="card-text small text-muted">Macros: C: 15g, P: 15g, F: 5g</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="card">
+                        <div class="card-body">
+                            <h6 class="card-title">Dinner 7:00 PM</h6>
+                            <p class="card-text">Baked salmon with roasted vegetables</p>
+                            <p class="card-text small text-muted">Macros: C: 25g, P: 35g, F: 25g</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- User Goals & Monthly Progress -->
+        <div class="user-goals bg-white shadow-sm p-3 mb-4 rounded">
+            <h6 class="mb-3"><i class="fas fa-bullseye me-2"></i> Your Goals & Monthly Progress</h6>
+            <div class="row row-cols-1 row-cols-md-3 g-3">
+                <div class="col">
+                    <div class="text-center">
+                        <div class="circular-progress-goal" data-value="90" data-color="#00c853" data-size="80">
+                            <span class="progress-value-goal">90%</span>
+                        </div>
+                        <h6 class="mt-2 mb-0">Running</h6>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="text-center">
+                        <div class="circular-progress-goal" data-value="75" data-color="#3f51b5" data-size="80">
+                            <span class="progress-value-goal">75%</span>
+                        </div>
+                        <h6 class="mt-2 mb-0">Sleeping</h6>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="text-center">
+                        <div class="circular-progress-goal" data-value="60" data-color="#e91e63" data-size="80">
+                            <span class="progress-value-goal">60%</span>
+                        </div>
+                        <h6 class="mt-2 mb-0">Weight Loss</h6>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Scheduled Sessions -->
+        <div class="scheduled-sessions bg-white shadow-sm p-3 mb-4 rounded">
+            <h6 class="mb-3"><i class="fas fa-calendar-check me-2"></i> Scheduled Sessions</h6>
+            <div class="row row-cols-1 row-cols-md-2 g-3">
+                <div class="col">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Yoga Class</h5>
+                            <p class="card-text"><i class="far fa-calendar-alt me-1"></i> Tomorrow, 10:00 AM</p>
+                            <p class="card-text"><i class="fas fa-map-marker-alt me-1"></i> Studio A</p>
+                            <a href="#" class="btn btn-sm btn-outline-primary">View Details</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Swimming Session</h5>
+                            <p class="card-text"><i class="far fa-calendar-alt me-1"></i> Wednesday, 6:00 PM</p>
+                            <p class="card-text"><i class="fas fa-map-marker-alt me-1"></i> Pool Area</p>
+                            <a href="#" class="btn btn-sm btn-outline-primary">View Details</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="text-center mt-3">
+                <a href="#">View All Scheduled Sessions</a>
+            </div>
+        </div>
+    </main>
+</div>
+
+<!-- Kendo Drawer for Update Profile -->
+<div id="profileDrawer"></div>
+
+<!-- Logout Confirmation Dialog -->
+<div id="logoutDialog"></div>
+
+<!-- Bootstrap Bundle with Popper -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<!-- jQuery -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<!-- Chart.js (Optional) -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<!-- ProgressBar.js (Optional - for circular progress) -->
+<!-- <script src="path/to/progressbar.min.js"></script> -->
+<!-- Kendo UI Core and Widgets (Optional) -->
+<script src="https://kendo.cdn.telerik.com/2023.1.117/js/kendo.all.min.js"></script>
+<!-- SweetAlert2 JS -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<!-- Custom JavaScript -->
+<script src="@Url.Content("~/js/User/Index.js")" asp-append-version="true"></script>
+<script src="@Url.Content("~/js/User/Dashboard.js")" asp-append-version="true"></script> <!-- New Dashboard JS -->

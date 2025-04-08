@@ -1,0 +1,25 @@
+@{
+    ViewData["Title"] = "Home Page";
+}
+
+<h2>reCAPTCHA Integration</h2>
+
+<form asp-action="SubmitForm" method="post">
+    <div class="form-group">
+        <label>Name:</label>
+        <input type="text" name="Name" class="form-control" required />
+    </div>
+
+    <div class="form-group">
+        <label>Email:</label>
+        <input type="email" name="Email" class="form-control" required />
+    </div>
+
+    <!-- Google reCAPTCHA -->
+    <div class="g-recaptcha" data-sitekey="YOUR_SITE_KEY"></div>
+
+    <button type="submit" class="btn btn-primary">Submit</button>
+</form>
+
+<!-- Load Google reCAPTCHA -->
+<script src="https://www.google.com/recaptcha/api.js" async defer></script>

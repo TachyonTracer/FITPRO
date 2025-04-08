@@ -43,7 +43,6 @@ public class Instructor
     [StringLength(100, ErrorMessage = "Specialization must not exceed 100 characters")]
     public string specialization { get; set; }
 
-    
     public JsonDocument? certificates { get; set; }
 
     public string? profileImage { get; set; }
@@ -74,5 +73,7 @@ public class Instructor
 
     [Display(Name = "Profile Image")]
     public IFormFile? profileImageFile { get; set; }
+
+    public string? reason { get; set; }
 }
 
