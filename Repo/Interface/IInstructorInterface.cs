@@ -31,4 +31,10 @@ public interface IInstructorInterface
 	Task<int> UserCountByInstructor(string instructorId);
 	Task<List<Class>> UpcomingClassDetailsByInstructor(string instructorId);
 	#endregion
+
+    #region BlogPost    
+    Task<int?> SaveBlogDraft(BlogPost blogpost);
+    Task<bool> UpdateBlogDraft(BlogPost blogpost);
+    Task<bool> PublishBlog(BlogPost blogpost);
+    #endregion
 }

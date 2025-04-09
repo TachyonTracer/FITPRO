@@ -329,72 +329,136 @@ namespace API
         [HttpPost]
         [Route("SaveDraft")]
 
-        public async Task<IActionResult> SaveDraft(BlogPost blogSpot)
+        public async Task<IActionResult> SaveDraft(BlogPost blogpost)
         {
-            return Ok();
+            if (blogpost.c_blog_author_id >0) {
+                try {
+
+                    var fileName = "";
+                    if (blogpost.ThumbnailFile != null && blogpost.ThumbnailFile.Length > 0)
+                    {
+                        Directory.CreateDirectory("../MVC/wwwroot/BlogImages/Thumbnails");
+
+                        fileName = Guid.NewGuid() + System.IO.Path.GetExtension(blogpost.ThumbnailFile.FileName);
+
+                        var filePath = System.IO.Path.Combine("../MVC/wwwroot/BlogImages/Thumbnails", fileName);
+                        blogpost.c_thumbnail = filePath;
+
+                        using (var stream = new FileStream(filePath, FileMode.Create))
+                        {
+                            blogpost.ThumbnailFile.CopyTo(stream);
+                        }
+                    } else {
+                        blogpost.c_thumbnail = "http://localhost:8081/BlogImages/Thumbnails/default.png";
+                    }
+
+                    if (blogpost.c_blog_id > 0) {
+                        var result = Convert.ToBoolean(_instructorRepo.UpdateBlogDraft(blogpost));
+                        if (result) {
+                            return Ok(new {
+                                success=true,
+                                message="Successfully Update the blog as draft.",
+                                blog_id=blogpost.c_blog_id
+                            });
+                        } else {
+                            return StatusCode(500, new { success = false, message = "An unexpected error occurred while updating your blog." });
+                        }
+                    } else {
+                        blogpost.c_source_url = $"http://localhost:8081/blog/{Convert.ToString(Guid.NewGuid())}";
+                        var result = Convert.ToInt32(_instructorRepo.SaveBlogDraft(blogpost));
+                        if (result > 0 ) {
+                            return Ok(new {
+                                success=true,
+                                message="Successfully Saved the blog as draft.",
+                                blog_id=result
+                            });
+                        } else {
+                            return StatusCode(500, new { success = false, message = "An unexpected error occurred while saving your blog as draft." });
+                        }
+                    }
+                } 
+                catch (Exception e) {
+                    Console.WriteLine(e);
+                    return StatusCode(500, new { success = false, message = "An unexpected error occurred." });
+                }
+            } else {
+                return BadRequest(new {success=false, message="Invalid Blog Data"});    
+            }
+        }
+
+        [HttpPost]
+        [Route("PublishBlog")]
+        public async Task<IActionResult> PublishBlog(BlogPost blogpost)
+        {
+            if (blogpost.c_blog_author_id >0) {
+                try {
+                    var fileName = "";
+                    if (blogpost.ThumbnailFile != null && blogpost.ThumbnailFile.Length > 0)
+                    {
+                        Directory.CreateDirectory("../MVC/wwwroot/BlogImages/Thumbnails");
+
+                        fileName = Guid.NewGuid() + System.IO.Path.GetExtension(blogpost.ThumbnailFile.FileName);
+
+                        var filePath = System.IO.Path.Combine("../MVC/wwwroot/BlogImages/Thumbnails", fileName);
+                        blogpost.c_thumbnail = filePath;
+
+                        using (var stream = new FileStream(filePath, FileMode.Create))
+                        {
+                            blogpost.ThumbnailFile.CopyTo(stream);
+                        }
+                    } else {
+                        blogpost.c_thumbnail = "http://localhost:8081/BlogImages/Thumbnails/default.png";
+                    }
+
+                    if (blogpost.c_blog_id > 0) {
+                        var result = Convert.ToBoolean(_instructorRepo.PublishBlog(blogpost));
+                        if (result) {
+                            return Ok(new {
+                                success=true,
+                                message="Successfully Published the blog.",
+                                blog_url=blogpost.c_source_url,
+                                return_url="instructor"
+                            });
+                        } else {
+                            return StatusCode(500, new { success = false, message = "An unexpected error occurred while publishing your blog." });
+                        }
+                    } else {
+                        return StatusCode(500, new { success = false, message = "An unexpected error occurred while saving your blog as draft." });
+                    }
+                } 
+                catch (Exception e) {
+                    Console.WriteLine(e);
+                    return StatusCode(500, new { success = false, message = "An unexpected error occurred." });
+                }
+            } else {
+                return BadRequest(new {success=false, message="Invalid Blog Data"});    
+            }
         }
 
 
         [HttpPost]
         [Route("SaveImage")]
 
-        public async Task<IActionResult> SaveImage(Images image)
+        public async Task<IActionResult> SaveImage(vm_blog_image image)
         {
             var fileName = "";
             if (image.BlogImageFile != null && image.BlogImageFile.Length > 0)
             {
-                Directory.CreateDirectory("../MVC/wwwroot/BlogImages");
+                Directory.CreateDirectory("../MVC/wwwroot/BlogImages/TempImages");
 
                 fileName = Guid.NewGuid() + System.IO.Path.GetExtension(image.BlogImageFile.FileName);
 
-                var filePath = System.IO.Path.Combine("../MVC/wwwroot/BlogImages", fileName);
-                image.ThumbnailPath = filePath;
+                var filePath = System.IO.Path.Combine("../MVC/wwwroot/BlogImages/TempImages", fileName);
+                image.blog_image_path = filePath;
 
                 using (var stream = new FileStream(filePath, FileMode.Create))
                 {
                     image.BlogImageFile.CopyTo(stream);
                 }
             }
-            return Ok(new { success = "True", Path = $"http://localhost:8080/BlogImages/{fileName}" });
+            return Ok(new { success = "True", Path = $"http://localhost:8081/BlogImages/TempImages/{fileName}" });
         }
         #endregion
     }
 
-}
-
-public class Images
-{
-    public string? ThumbnailPath { get; set; }
-
-    // For file upload (not mapped to database)
-    // [System.ComponentModel.DataAnnotations.Display(Name = "Thumbnail")]
-    public IFormFile? BlogImageFile { get; set; }
-
-
-}
-public class BlogPost
-{
-    public int? Id { get; set; }
-
-    // [System.ComponentModel.DataAnnotations.Required(ErrorMessage = "Title is required")]
-    // [System.ComponentModel.DataAnnotations.StringLength(200, ErrorMessage = "Title cannot be longer than 200 characters")]
-    public string? Title { get; set; }
-
-    // [System.ComponentModel.DataAnnotations.Required(ErrorMessage = "Description is required")]
-    public string? Description { get; set; }
-
-    public string? Labels { get; set; }
-
-    public string? ThumbnailPath { get; set; }
-
-    // For file upload (not mapped to database)
-    // [System.ComponentModel.DataAnnotations.Display(Name = "Thumbnail")]
-    public IFormFile? ThumbnailFile { get; set; }
-
-
-    public bool? IsCompleted { get; set; }
-
-    public DateTime? CreatedAt { get; set; } = DateTime.Now;
-
-    public DateTime? UpdatedAt { get; set; }
 }

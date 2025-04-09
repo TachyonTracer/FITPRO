@@ -749,4 +749,136 @@ public class InstructorRepo : IInstructorInterface
     #endregion
 	
 
+    #region Blog
+        
+        #region SaveBlogDraft
+        public async Task<int?> SaveBlogDraft(BlogPost blogpost)
+        {
+            string query = @"INSERT INTO t_blogpost 
+                                (c_blog_author_id, c_tags, c_title, c_desc, 
+                                c_content, c_thumbnail, c_created_at, c_published_at,
+                                c_is_published, c_source_url) 
+                            VALUES 
+                                (@c_blog_author_id, @c_tags, @c_title, @c_desc,
+                                @c_content, @c_thumbnail, @c_created_at, @c_published_at,
+                                @c_is_published, @c_source_url)
+                            RETURNING c_blog_id;";
+
+            try
+            {
+                if (_conn.State == System.Data.ConnectionState.Open)
+                    await _conn.CloseAsync();
+
+                await _conn.OpenAsync();
+
+                using (var command = new NpgsqlCommand(query, _conn))
+                {
+                    command.Parameters.AddWithValue("@c_blog_author_id", blogpost.c_blog_author_id);
+                    command.Parameters.AddWithValue("@c_tags", blogpost.c_tags ?? (object)DBNull.Value);
+                    command.Parameters.AddWithValue("@c_title", blogpost.c_title);
+                    command.Parameters.AddWithValue("@c_desc", blogpost.c_desc ?? (object)DBNull.Value);
+                    command.Parameters.AddWithValue("@c_content", blogpost.c_content ?? (object)DBNull.Value);
+                    command.Parameters.AddWithValue("@c_thumbnail", blogpost.c_thumbnail ?? (object)DBNull.Value);
+                    command.Parameters.AddWithValue("@c_created_at", blogpost.c_created_at ?? DateTimeOffset.UtcNow.ToUnixTimeSeconds());
+                    command.Parameters.AddWithValue("@c_published_at", 0000000001);
+                    command.Parameters.AddWithValue("@c_source_url", blogpost.c_source_url ?? (object)DBNull.Value);
+
+                    object result = await command.ExecuteScalarAsync();
+                    return result != null ? Convert.ToInt32(result) : (int?)null;
+                }
+            }
+            finally
+            {
+                if (_conn.State == System.Data.ConnectionState.Open)
+                    await _conn.CloseAsync();
+            }
+        }
+        #endregion
+
+
+        #region UpdateBlogDraft
+        public async Task<bool> UpdateBlogDraft(BlogPost blogpost)
+        {
+            string query = @"UPDATE t_blogpost SET
+                                c_tags = @c_tags,
+                                c_title = @c_title,
+                                c_desc = @c_desc,
+                                c_content = @c_content,
+                                c_thumbnail = @c_thumbnail,
+                            WHERE c_blog_id = @c_blog_id";
+
+            try
+            {
+                if (_conn.State == System.Data.ConnectionState.Open)
+                    await _conn.CloseAsync();
+
+                await _conn.OpenAsync();
+
+                using (var command = new NpgsqlCommand(query, _conn))
+                {
+                    command.Parameters.AddWithValue("@c_blog_id", blogpost.c_blog_id);
+                    command.Parameters.AddWithValue("@c_tags", blogpost.c_tags ?? (object)DBNull.Value);
+                    command.Parameters.AddWithValue("@c_title", blogpost.c_title);
+                    command.Parameters.AddWithValue("@c_desc", blogpost.c_desc ?? (object)DBNull.Value);
+                    command.Parameters.AddWithValue("@c_content", blogpost.c_content ?? (object)DBNull.Value);
+                    command.Parameters.AddWithValue("@c_thumbnail", blogpost.c_thumbnail ?? (object)DBNull.Value);
+
+                    int rowsAffected = await command.ExecuteNonQueryAsync();
+                    return rowsAffected > 0;
+                }
+            }
+            finally
+            {
+                if (_conn.State == System.Data.ConnectionState.Open)
+                    await _conn.CloseAsync();
+            }
+        }
+        #endregion
+
+        #region PublishBlog
+        public async Task<bool> PublishBlog(BlogPost blogpost)
+        {
+            string query = @"UPDATE t_blogpost SET
+                                c_tags = @c_tags,
+                                c_title = @c_title,
+                                c_desc = @c_desc,
+                                c_content = @c_content,
+                                c_thumbnail = @c_thumbnail,
+                                c_is_published = @c_is_published,
+                            WHERE c_blog_id = @c_blog_id";
+
+            try
+            {
+                if (_conn.State == System.Data.ConnectionState.Open)
+                    await _conn.CloseAsync();
+
+                await _conn.OpenAsync();
+
+                using (var command = new NpgsqlCommand(query, _conn))
+                {
+                    command.Parameters.AddWithValue("@c_blog_id", blogpost.c_blog_id);
+                    command.Parameters.AddWithValue("@c_tags", blogpost.c_tags ?? (object)DBNull.Value);
+                    command.Parameters.AddWithValue("@c_title", blogpost.c_title);
+                    command.Parameters.AddWithValue("@c_desc", blogpost.c_desc ?? (object)DBNull.Value);
+                    command.Parameters.AddWithValue("@c_content", blogpost.c_content ?? (object)DBNull.Value);
+                    command.Parameters.AddWithValue("@c_thumbnail", blogpost.c_thumbnail ?? (object)DBNull.Value);
+                    command.Parameters.AddWithValue("@c_published_at", DateTimeOffset.UtcNow.ToUnixTimeSeconds());
+                    command.Parameters.AddWithValue("@c_is_published", true);
+                    command.Parameters.AddWithValue("@c_source_url", blogpost.c_source_url ?? (object)DBNull.Value);
+
+                    int rowsAffected = await command.ExecuteNonQueryAsync();
+                    return rowsAffected > 0;
+                }
+            }
+            finally
+            {
+                if (_conn.State == System.Data.ConnectionState.Open)
+                    await _conn.CloseAsync();
+            }
+        }
+        #endregion
+
+
+    #endregion
+
 }
