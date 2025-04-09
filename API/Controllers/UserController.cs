@@ -246,5 +246,88 @@ namespace API
 			}
 		}
 		#endregion
+
+        #region Add Balance 
+[HttpPost("AddBalance")]
+public async Task<IActionResult> AddBalance(Balance balance)
+{
+    if (!ModelState.IsValid)
+    {
+        return BadRequest(ModelState);
+    }
+
+    var result = await _userRepo.AddBalance(balance);
+    if (result == 1)
+    {
+        return Ok(new
+        {
+            success = true,
+            message = "Balance added successfully."
+        });
+    }
+    else if (result == 0)
+    {
+        return Ok(new
+        {
+            success = false,
+            message = "Failed to add balance."
+        });
+    }
+    else
+    {
+        return StatusCode(500, new
+        {
+            success = false,
+            message = "An unexpected error occurred while adding balance."
+        });
+    }
+}
+#endregion
+
+        #region Debit Balance 
+[HttpPost("DebitBalance")]
+public async Task<IActionResult> DebitBalance(Balance balance)
+{
+    if (!ModelState.IsValid)
+    {
+        return BadRequest(ModelState);
+    }
+
+    var result = await _userRepo.DebitBalance(balance);
+    if (result == 1)
+    {
+        return Ok(new
+        {
+            success = true,
+            message = "Balance debited successfully."
+        });
+    }
+    else if (result == 0)
+    {
+        return Ok(new
+        {
+            success = false,
+            message = "Failed to debit balance."
+        });
+    }
+    else if (result == -1)
+    {
+        return Ok(new
+        {
+            success = false,
+            message = "Insufficient balance or user not found."
+        });
+    }
+    else
+    {
+        return StatusCode(500, new
+        {
+            success = false,
+            message = "An unexpected error occurred while debiting balance."
+        });
+    }
+}
+#endregion
+
 	}
 }

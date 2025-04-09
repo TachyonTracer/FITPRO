@@ -20,4 +20,11 @@ public interface IUserInterface
 	public Task<bool> UpdateUserProfileAsync(User user);
     Task<User> GetUserByIdAsync(int userId);
 
+	#region User Balance
+	
+	Task<int> AddBalance(Balance balance);
+	Task<int> DebitBalance(Balance balance);
+	#endregion
+
+
 }

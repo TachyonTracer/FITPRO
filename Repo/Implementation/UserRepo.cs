@@ -260,45 +260,45 @@ public class UserRepo : IUserInterface
 	#endregion
 
 	#region Suspend User
-	 public async Task<bool> SuspendUser(string userId)
-    {
-        bool isSuccess = false;
-        try
-        {
-            if (_conn.State != ConnectionState.Open)
-            {
-                await _conn.OpenAsync();
-            }
+	public async Task<bool> SuspendUser(string userId)
+	{
+		bool isSuccess = false;
+		try
+		{
+			if (_conn.State != ConnectionState.Open)
+			{
+				await _conn.OpenAsync();
+			}
 
-            using (var cmd = new NpgsqlCommand("UPDATE t_user SET c_status = 'false' WHERE c_userid = @c_userid", _conn))
-            {
-                cmd.Parameters.AddWithValue("@c_userid", Convert.ToInt32(userId));
+			using (var cmd = new NpgsqlCommand("UPDATE t_user SET c_status = 'false' WHERE c_userid = @c_userid", _conn))
+			{
+				cmd.Parameters.AddWithValue("@c_userid", Convert.ToInt32(userId));
 
-               
-                int rowsAffected = await cmd.ExecuteNonQueryAsync();
-                isSuccess = rowsAffected > 0;
-            }
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Error while Suspending User: {ex.Message}");
-        }
-        finally
-        {
-            if (_conn.State != ConnectionState.Closed)
-            {
-                await _conn.CloseAsync();
-            }
-        }
-        return isSuccess;
-    }
+
+				int rowsAffected = await cmd.ExecuteNonQueryAsync();
+				isSuccess = rowsAffected > 0;
+			}
+		}
+		catch (Exception ex)
+		{
+			Console.WriteLine($"Error while Suspending User: {ex.Message}");
+		}
+		finally
+		{
+			if (_conn.State != ConnectionState.Closed)
+			{
+				await _conn.CloseAsync();
+			}
+		}
+		return isSuccess;
+	}
 	#endregion
 
-    #region Update User Profile
-    public async Task<bool> UpdateUserProfileAsync(User user)
-    {
-        System.Console.WriteLine("UpdateUserProfileAsync" + user.userId + " image path is " + user.profileImage);
-        string query = @"UPDATE t_user 
+	#region Update User Profile
+	public async Task<bool> UpdateUserProfileAsync(User user)
+	{
+		System.Console.WriteLine("UpdateUserProfileAsync" + user.userId + " image path is " + user.profileImage);
+		string query = @"UPDATE t_user 
                             SET c_username = @username,                                
                                 c_height = @height,
                                 c_mobile=@mobile,
@@ -308,98 +308,211 @@ public class UserRepo : IUserInterface
                                 c_profileimage = @profileImage
                             WHERE c_userid = @userId";
 
-        try
-        {
-            if (_conn.State == System.Data.ConnectionState.Open)
-                await _conn.CloseAsync();
+		try
+		{
+			if (_conn.State == System.Data.ConnectionState.Open)
+				await _conn.CloseAsync();
 
-            await _conn.OpenAsync();
+			await _conn.OpenAsync();
 
-            using (var command = new NpgsqlCommand(query, _conn))
-            {
-                command.Parameters.AddWithValue("@userId", user.userId);
-                command.Parameters.AddWithValue("@username", user.userName);
-                command.Parameters.AddWithValue("@mobile", user.mobile);
-                command.Parameters.AddWithValue("@height", user.height ?? (object)DBNull.Value);
-                command.Parameters.AddWithValue("@weight", user.weight ?? (object)DBNull.Value);
-                command.Parameters.AddWithValue("@goal", user.goal ?? (object)DBNull.Value);
-                command.Parameters.AddWithValue("@medicalCondition", user.medicalCondition ?? (object)DBNull.Value);
-                command.Parameters.AddWithValue("@profileImage", user.profileImage ?? (object)DBNull.Value);
+			using (var command = new NpgsqlCommand(query, _conn))
+			{
+				command.Parameters.AddWithValue("@userId", user.userId);
+				command.Parameters.AddWithValue("@username", user.userName);
+				command.Parameters.AddWithValue("@mobile", user.mobile);
+				command.Parameters.AddWithValue("@height", user.height ?? (object)DBNull.Value);
+				command.Parameters.AddWithValue("@weight", user.weight ?? (object)DBNull.Value);
+				command.Parameters.AddWithValue("@goal", user.goal ?? (object)DBNull.Value);
+				command.Parameters.AddWithValue("@medicalCondition", user.medicalCondition ?? (object)DBNull.Value);
+				command.Parameters.AddWithValue("@profileImage", user.profileImage ?? (object)DBNull.Value);
 
-                int rowsAffected = await command.ExecuteNonQueryAsync();
-                return rowsAffected > 0;
-            }
-        }
-        finally
-        {
-            if (_conn.State == System.Data.ConnectionState.Open)
-                await _conn.CloseAsync();
-        }
+				int rowsAffected = await command.ExecuteNonQueryAsync();
+				return rowsAffected > 0;
+			}
+		}
+		finally
+		{
+			if (_conn.State == System.Data.ConnectionState.Open)
+				await _conn.CloseAsync();
+		}
 
-    }
-    #endregion
+	}
+	#endregion
 
-    #region GetUserById
-    public async Task<User> GetUserByIdAsync(int userId)
-    {
-        User user = null;
+	#region GetUserById
+	public async Task<User> GetUserByIdAsync(int userId)
+	{
+		User user = null;
 
-        try
-        {
-            if (_conn.State != ConnectionState.Open)
-            {
-                await _conn.OpenAsync();
-            }
+		try
+		{
+			if (_conn.State != ConnectionState.Open)
+			{
+				await _conn.OpenAsync();
+			}
 
-            
-            using (var cmd = new NpgsqlCommand(@"SELECT c_userid, c_username, c_email, c_mobile, c_gender, 
+
+			using (var cmd = new NpgsqlCommand(@"SELECT c_userid, c_username, c_email, c_mobile, c_gender, 
                                              c_dob, c_height, c_weight, c_goal, c_medicalcondition, 
                                              c_profileimage, c_status, c_createdat, c_activatedon 
                                              FROM t_user 
                                              WHERE c_userid = @userId", _conn))
-            {
-                cmd.Parameters.AddWithValue("@userId", userId);
+			{
+				cmd.Parameters.AddWithValue("@userId", userId);
 
-                using (var dr = await cmd.ExecuteReaderAsync())
+				using (var dr = await cmd.ExecuteReaderAsync())
+				{
+					if (dr.Read())
+					{
+						user = new User()
+						{
+							userId = Convert.ToInt32(dr["c_userid"]),
+							userName = Convert.ToString(dr["c_username"]),
+							email = Convert.ToString(dr["c_email"]),
+							mobile = Convert.ToString(dr["c_mobile"]),
+							gender = Convert.ToString(dr["c_gender"]),
+							dob = dr["c_dob"] != DBNull.Value ? Convert.ToDateTime(dr["c_dob"]) : (DateTime?)null,
+							height = dr["c_height"] != DBNull.Value ? Convert.ToInt32(dr["c_height"]) : (int?)null,
+							weight = dr["c_weight"] != DBNull.Value ? Convert.ToDecimal(dr["c_weight"]) : (decimal?)null,
+							goal = Convert.ToString(dr["c_goal"]),
+							medicalCondition = Convert.ToString(dr["c_medicalcondition"]),
+							profileImage = Convert.ToString(dr["c_profileimage"]),
+							status = Convert.ToBoolean(dr["c_status"]),
+							createdAt = Convert.ToDateTime(dr["c_createdat"]),
+							activatedOn = dr["c_activatedon"] != DBNull.Value ? Convert.ToDateTime(dr["c_activatedon"]) : (DateTime?)null
+						};
+					}
+				}
+			}
+		}
+		catch (Exception ex)
+		{
+			Console.WriteLine("Error fetching user: " + ex.Message);
+		}
+		finally
+		{
+			if (_conn.State != ConnectionState.Closed)
+			{
+				await _conn.CloseAsync();
+			}
+		}
+
+		return user;
+	}
+
+	#endregion
+
+	#region  AddBalance 
+	public async Task<int> AddBalance(Balance balance)
+	{
+		try
+		{
+			using (var cm = new NpgsqlCommand(@"UPDATE t_user SET c_balance = c_balance + @amount WHERE c_userid = @Userid", _conn))
+			{
+				cm.Parameters.AddWithValue("@Userid", balance.UserId);
+				cm.Parameters.AddWithValue("@amount", balance.Amount);
+
+				if (_conn.State == ConnectionState.Closed)
+				{
+					await _conn.OpenAsync();
+				}
+
+				var result = await cm.ExecuteNonQueryAsync();
+				if (
+					result > 0
+				)
+				{
+					return 1;
+				}
+				else
+				{
+					return 0;
+				}
+			}
+
+
+		}
+		catch (Exception ex)
+		{
+			Console.WriteLine(ex);
+			return -1;
+		}
+		finally
+		{
+			if (_conn.State != ConnectionState.Closed)
+			{
+				await _conn.CloseAsync();
+			}
+		}
+	}
+
+	#endregion
+
+	#region DebitBalance 
+
+	public async Task<int> DebitBalance(Balance balance)
+{
+    try
+    {
+        // Ensure the connection is open before using any command
+        if (_conn.State == ConnectionState.Closed)
+        {
+            await _conn.OpenAsync();
+        }
+
+        decimal currentBalance = 0;
+
+        // First command: check user's current balance
+        using (var cm = new NpgsqlCommand(@"SELECT c_balance FROM t_user WHERE c_userid = @Userid", _conn))
+        {
+            cm.Parameters.AddWithValue("@Userid", balance.UserId);
+
+            using (var reader = await cm.ExecuteReaderAsync())
+            {
+                if (await reader.ReadAsync()) // Use ReadAsync() and no need for HasRow
                 {
-                    if (dr.Read())
-                    {
-                        user = new User()
-                        {
-                            userId = Convert.ToInt32(dr["c_userid"]),
-                            userName = Convert.ToString(dr["c_username"]),
-                            email = Convert.ToString(dr["c_email"]),
-                            mobile = Convert.ToString(dr["c_mobile"]),
-                            gender = Convert.ToString(dr["c_gender"]),
-                            dob = dr["c_dob"] != DBNull.Value ? Convert.ToDateTime(dr["c_dob"]) : (DateTime?)null,
-                            height = dr["c_height"] != DBNull.Value ? Convert.ToInt32(dr["c_height"]) : (int?)null,
-                            weight = dr["c_weight"] != DBNull.Value ? Convert.ToDecimal(dr["c_weight"]) : (decimal?)null,
-                            goal = Convert.ToString(dr["c_goal"]),
-                            medicalCondition = Convert.ToString(dr["c_medicalcondition"]),
-                            profileImage = Convert.ToString(dr["c_profileimage"]),
-                            status = Convert.ToBoolean(dr["c_status"]),
-                            createdAt = Convert.ToDateTime(dr["c_createdat"]),
-                            activatedOn = dr["c_activatedon"] != DBNull.Value ? Convert.ToDateTime(dr["c_activatedon"]) : (DateTime?)null
-                        };
-                    }
+                    currentBalance = reader.GetDecimal(0); // or reader.GetFieldValue<decimal>(0);
+                }
+                else
+                {
+                    Console.WriteLine("User not found");
+                    return 0;
                 }
             }
         }
-        catch (Exception ex)
+
+        // Check balance
+        if (currentBalance < balance.Amount)
         {
-            Console.WriteLine("Error fetching user: " + ex.Message);
-        }
-        finally
-        {
-            if (_conn.State != ConnectionState.Closed)
-            {
-                await _conn.CloseAsync();
-            }
+            Console.WriteLine("Insufficient balance");
+            return -1;
         }
 
-        return user;
+        // Second command: perform the debit
+        using (var cmd = new NpgsqlCommand(@"UPDATE t_user SET c_balance = c_balance - @Amount WHERE c_userid = @Userid", _conn))
+        {
+            cmd.Parameters.AddWithValue("@Amount", balance.Amount);
+            cmd.Parameters.AddWithValue("@Userid", balance.UserId);
+
+            var result = await cmd.ExecuteNonQueryAsync();
+            return result > 0 ? 1 : 0;
+        }
     }
+    catch (Exception ex)
+    {
+        Console.WriteLine(ex);
+        return -2;
+    }
+    finally
+    {
+        if (_conn.State != ConnectionState.Closed)
+        {
+            await _conn.CloseAsync();
+        }
+    }
+}
 
-    #endregion
 
+
+	#endregion
 }
