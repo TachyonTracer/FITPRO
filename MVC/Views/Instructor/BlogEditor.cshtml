@@ -1,0 +1,656 @@
+
+<!DOCTYPE html>
+<html>
+
+<head>
+    <base href="https://demos.telerik.com/kendo-ui/editor/all-tools">
+    <style>
+        html {
+            font-size: 14px;
+            font-family: Arial, Helvetica, sans-serif;
+            color: #333;
+        }
+
+        body {
+            background-color: white;
+            color: #333;
+        }
+
+        /* Increase the total width */
+        .container-fluid {
+            width: 95%;
+            max-width: 1800px;
+            margin: 0 auto;
+        }
+
+        .demo-section.wide {
+            width: 100%;
+            padding: 20px 0;
+        }
+
+        /* Blog creation styles */
+        .input-section {
+            margin-bottom: 20px;
+        }
+
+        .page-layout {
+            display: flex;
+            flex-direction: row;
+            gap: 20px;
+        }
+
+        .editor-container {
+            flex: 3;
+            position: relative;
+        }
+
+        .sidebar {
+            flex: 1;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            height: fit-content;
+            color: #333;
+        }
+
+        .button-section {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .form-label {
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .form-control {
+            background-color: white;
+            border: 1px solid #ced4da;
+            color: #333;
+        }
+
+        .form-control:focus {
+            background-color: white;
+            color: #333;
+            border-color: #007bff;
+            box-shadow: 0 0 0 0.25rem rgba(0, 123, 255, 0.25);
+        }
+
+        .form-control::placeholder {
+            color: #6c757d;
+        }
+
+        .tags-container {
+            margin-top: 10px;
+            min-height: 40px;
+            padding: 5px;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            background-color: white;
+        }
+
+        .tag {
+            display: inline-block;
+            background-color: #e4e4e4;
+            color: #333;
+            padding: 2px 8px;
+            border-radius: 12px;
+            margin-right: 5px;
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+
+        .tag .remove-tag {
+            margin-left: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .tag .remove-tag:hover {
+            color: #dc3545;
+        }
+
+        .custom-file-upload {
+            display: block;
+            padding: 10px;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            background-color: white;
+            text-align: center;
+            cursor: pointer;
+            margin-top: 15px;
+        }
+
+        .custom-file-upload:hover {
+            background-color: #f8f9fa;
+        }
+
+        /* Thumbnail styling updates */
+        .thumbnail-preview {
+            width: 100%;
+            height: 150px;
+            margin-top: 10px;
+            border-radius: 4px;
+            border: 1px solid #ced4da;
+            background-color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            cursor: pointer;
+            /* Make it clear it's clickable */
+        }
+
+        .thumbnail-preview img {
+            max-width: 100%;
+            max-height: 150px;
+            object-fit: contain;
+        }
+
+        .thumbnail-placeholder {
+            color: #6c757d;
+            font-size: 36px;
+            /* Larger + sign */
+            font-weight: lighter;
+        }
+
+        /* Drag and drop styles */
+        .drag-over {
+            border: 2px dashed #007bff;
+            background-color: rgba(0, 123, 255, 0.05);
+        }
+
+        .editor-container {
+            flex: 3;
+            position: relative;
+        }
+
+        .drop-zone {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            color: white;
+            font-size: 24px;
+        }
+
+        /* Reset Kendo Editor theme to light */
+        .k-editor {
+            background-color: white;
+            color: #333;
+            border-color: #ced4da;
+        }
+
+        .k-editor-toolbar {
+            background-color: #f8f9fa;
+            border-color: #ced4da;
+        }
+
+        .k-toolbar .k-button,
+        .k-toolbar .k-button-group {
+            background-color: white;
+            color: #333;
+            border-color: #ced4da;
+        }
+
+        .k-toolbar .k-button:hover,
+        .k-toolbar .k-button.k-state-hover {
+            background-color: #e9ecef;
+            color: #333;
+        }
+
+        .k-editor-content {
+            background-color: white;
+            color: #333;
+        }
+
+        .k-content,
+        .k-editable-area,
+        .k-editor iframe {
+            background-color: white;
+        }
+
+        .demo-section {
+            background-color: white;
+            color: #333;
+            padding: 20px;
+        }
+    </style>
+    <title></title>
+    <link href="https://kendo.cdn.telerik.com/themes/10.2.0/default/default-main.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://kendo.cdn.telerik.com/2023.1.117/js/kendo.all.min.js"></script>
+</head>
+
+<body>
+    <div id="example">
+        <div class="container-fluid">
+            <div class="demo-section wide">
+                <!-- Blog Title Input -->
+                <div class="input-section">
+                    <label for="blogTitle" class="form-label">Title:</label>
+                    <input id="blogTitle" type="text" class="form-control" placeholder="Enter your blog title">
+                </div>
+
+                <!-- Page Layout with Editor and Sidebar -->
+                <div class="page-layout">
+                    <!-- Editor Column -->
+                    <div class="editor-container">
+                        <textarea id="editor" rows="10" cols="30" style="width:100%; height:700px" aria-label="editor">
+                        </textarea>
+                        <div class="drop-zone">Drop image here</div>
+                    </div>
+
+                    <!-- Sidebar Column -->
+                    <div class="sidebar">
+                        <!-- Labels Input -->
+                        <div class="input-section">
+                            <label for="blogLabels" class="form-label">Labels:</label>
+                            <div class="input-group">
+                                <input id="blogLabels" type="text" class="form-control"
+                                    placeholder="Type and press Enter to add tag">
+                                <button id="addTagBtn" class="btn btn-outline-secondary">Add</button>
+                            </div>
+                            <div id="tagsContainer" class="tags-container"></div>
+                        </div>
+
+                        <!-- Thumbnail Upload -->
+                        <div class="input-section">
+                            <label class="form-label">Thumbnail:</label>
+                            <input type="file" id="thumbnailUpload" style="display: none;" accept="image/*">
+                            <div class="thumbnail-preview" id="thumbnailPreview"
+                                onclick="document.getElementById('thumbnailUpload').click();">
+                                <span class="thumbnail-placeholder">+</span>
+                            </div>
+                        </div>
+
+                        <!-- Buttons for Save Draft and Save -->
+                        <div class="button-section">
+                            <button id="saveDraftButton" class="btn btn-warning">Save Draft</button>
+                            <button id="saveButton" class="btn btn-success">Publish</button>
+                        </div>
+                    </div>
+                </div>
+
+                <script>
+                    $("#editor").kendoEditor({
+                        tools: [
+                            "undo",
+                            "redo",
+                            "print",
+                            "cleanFormatting",
+                            "copyFormat",
+                            "applyFormat",
+                            { name: "separator1", type: "separator" },
+                            "fontName",
+                            "fontSize",
+                            "bold",
+                            "italic",
+                            "underline",
+                            "strikethrough",
+                            "subscript",
+                            "superscript",
+                            "backColor",
+                            "foreColor",
+                            { name: "separator2", type: "separator" },
+                            "insertOrderedList",
+                            "insertUnorderedList",
+                            "indent",
+                            "outdent",
+                            "justifyLeft",
+                            "justifyCenter",
+                            "justifyRight",
+                            "justifyFull",
+                            "lineHeight",
+                            "formattingMarks",
+                            { name: "separator3", type: "separator" },
+                            "formatting",
+                            { name: "separator4", type: "separator" },
+                            "createLink",
+                            "unlink",
+                            {
+                                name: "imageInsert",
+                                exec: function (e) {
+                                    var editor = $(this).data("kendoEditor");
+
+                                    // Create a file input element
+                                    var fileInput = $('<input type="file" accept="image/*" style="display:none">');
+
+                                    // Append it to the body and trigger click
+                                    $('body').append(fileInput);
+                                    fileInput.click();
+
+                                    // Handle file selection
+                                    fileInput.on('change', function (e) {
+                                        if (this.files && this.files[0]) {
+                                            var imageFile = this.files[0];
+
+                                            // Create FormData and append the file
+                                            var formData = new FormData();
+                                            formData.append("BlogImageFile", imageFile); // "imageFile" is your backend parameter name
+
+                                            // AJAX call to upload the file
+                                            $.ajax({
+                                                url: 'http://localhost:5160/api/OverviewApi/SaveImage',
+                                                type: 'POST',
+                                                data: formData,
+                                                processData: false,
+                                                contentType: false,
+                                                success: function (response) {
+                                                    // Assuming response returns { imageUrl: "/uploads/xyz.jpg" }
+                                                    var imageUrl = response.path;
+
+                                                    // Get the editor's document
+                                                    var editorDocument = editor.document;
+
+                                                    // Create the image element with the returned URL
+                                                    var img = editorDocument.createElement("img");
+                                                    img.src = imageUrl;
+                                                    img.alt = "Uploaded Image";
+
+                                                    // Style the image
+                                                    img.style.maxWidth = "950px";
+                                                    img.style.maxHeight = "750px";
+                                                    img.style.width = "auto";
+                                                    img.style.height = "auto";
+                                                    img.style.objectFit = "contain";
+
+                                                    // Insert the image into the editor
+                                                    editor.paste(img.outerHTML);
+                                                },
+                                                error: function (xhr, status, error) {
+                                                    alert("Image upload failed: " + error);
+                                                }
+                                            });
+                                        }
+
+                                        // Remove file input from DOM after use
+                                        fileInput.remove();
+                                    });
+                                }
+                            },
+                            "imageBrowser",
+                            "insertFile",
+                            "viewHtml",
+                            { name: "separator5", type: "separator" },
+                            "insertUpperRomanList",
+                            "insertLowerRomanList",
+                            "tableWizard",
+                            "createTable",
+                            "addRowAbove",
+                            "addRowBelow",
+                            "addColumnLeft",
+                            "addColumnRight",
+                            "deleteRow",
+                            "deleteColumn",
+                            "mergeCellsHorizontally",
+                            "mergeCellsVertically",
+                            "splitCellHorizontally",
+                            "splitCellVertically",
+                            "tableAlignLeft",
+                            "tableAlignCenter",
+                            "tableAlignRight"
+                        ]
+                    });
+
+                    // Blog save functionality
+                    $(document).ready(function () {
+                        // Setup drag and drop for editor
+                        setupDragAndDrop();
+
+                        // Tags functionality
+                        let tags = [];
+                        let thumbnailData = null;
+
+                        // Function to add a new tag
+                        function addTag(tagText) {
+                            if (tagText.trim() === '') return;
+
+                            // Don't add duplicate tags
+                            if (tags.includes(tagText.trim())) return;
+
+                            tags.push(tagText.trim());
+                            renderTags();
+                            $("#blogLabels").val('');
+                        }
+
+                        // Function to render tags in the container
+                        function renderTags() {
+                            const tagsContainer = $("#tagsContainer");
+                            tagsContainer.empty();
+
+                            tags.forEach(function (tag, index) {
+                                tagsContainer.append(`
+                                    <span class="tag" data-index="${index}">
+                                        ${tag}
+                                        <span class="remove-tag">&times;</span>
+                                    </span>
+                                `);
+                            });
+                        }
+
+                        // Add tag when button is clicked
+                        $("#addTagBtn").click(function () {
+                            const tagText = $("#blogLabels").val().trim();
+
+                            // Handle hashtags format
+                            if (tagText.includes('#')) {
+                                const hashTags = tagText.split(/\s+/)
+                                    .filter(word => word.startsWith('#') && word.length > 1)
+                                    .map(word => word.substring(1));
+
+                                hashTags.forEach(tag => addTag(tag));
+                            }
+                            // Handle comma format
+                            else if (tagText.includes(',')) {
+                                const commaTags = tagText.split(',')
+                                    .map(tag => tag.trim())
+                                    .filter(tag => tag.length > 0);
+
+                                commaTags.forEach(tag => addTag(tag));
+                            }
+                            // Handle single tag
+                            else if (tagText.length > 0) {
+                                addTag(tagText);
+                            }
+                        });
+
+                        // Add tag when Enter key is pressed
+                        $("#blogLabels").keypress(function (e) {
+                            if (e.which === 13) { // Enter key
+                                e.preventDefault();
+                                $("#addTagBtn").click();
+                            }
+                        });
+
+                        // Remove tag when clicking the X
+                        $(document).on("click", ".remove-tag", function () {
+                            const tagIndex = $(this).parent().data("index");
+                            tags.splice(tagIndex, 1);
+                            renderTags();
+                        });
+
+                        // Thumbnail upload handling
+                        $("#thumbnailUpload").change(function () {
+                            const file = this.files[0];
+                            if (file) {
+                                const reader = new FileReader();
+                                reader.onload = function (e) {
+                                    thumbnailData = e.target.result;
+                                    $("#thumbnailPreview").html(`<img src="${thumbnailData}" alt="Thumbnail">`);
+                                };
+                                reader.readAsDataURL(file);
+                            }
+                        });
+
+                        // Setup drag and drop functionality
+                        function setupDragAndDrop() {
+                            // Create a drop zone overlay for visual feedback
+                            const dropZone = $('<div class="drop-zone">Drop image here</div>');
+                            $(".editor-container").append(dropZone);
+
+                            const editor = $("#editor").data("kendoEditor");
+                            const editorElement = $(editor.body);
+
+                            // Handle drag enter
+                            editorElement.on('dragenter', function (e) {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                dropZone.show();
+                            });
+
+                            // Handle drag over
+                            dropZone.on('dragover', function (e) {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                $(this).addClass('drag-over');
+                            });
+
+                            // Handle drag leave
+                            dropZone.on('dragleave', function (e) {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                $(this).removeClass('drag-over');
+                                if (e.target === dropZone[0]) {
+                                    dropZone.hide();
+                                }
+                            });
+
+                            // Handle drop
+                            dropZone.on('drop', function (e) {
+                                e.preventDefault();
+                                e.stopPropagation();
+
+                                $(this).removeClass('drag-over');
+                                dropZone.hide();
+
+                                const dt = e.originalEvent.dataTransfer;
+                                if (dt.files && dt.files.length) {
+                                    const file = dt.files[0];
+                                    if (file.type.startsWith('image/')) {
+                                        // Upload the dropped image
+                                        uploadImageToServer(file, editor);
+                                    }
+                                }
+                            });
+                        }
+
+                        // Function to upload image to server
+                        function uploadImageToServer(imageFile, editor) {
+                            // Create FormData and append the file
+                            var formData = new FormData();
+                            formData.append("BlogImageFile", imageFile);
+
+                            // AJAX call to upload the file
+                            $.ajax({
+                                url: 'http://localhost:8081/api/OverviewApi/SaveImage',
+                                type: 'POST',
+                                data: formData,
+                                processData: false,
+                                contentType: false,
+                                success: function (response) {
+                                    var imageUrl = response.path;
+
+                                    // Create the image element with the returned URL
+                                    var img = editor.document.createElement("img");
+                                    img.src = imageUrl;
+                                    img.alt = "Dropped Image";
+
+                                    // Style the image
+                                    img.style.maxWidth = "950px";
+                                    img.style.width = "auto";
+                                    img.style.height = "auto";
+                                    img.style.objectFit = "contain";
+
+                                    // Insert the image into the editor
+                                    editor.paste(img.outerHTML);
+                                },
+                                error: function (xhr, status, error) {
+                                    alert("Image upload failed: " + error);
+                                }
+                            });
+                        }
+
+                        // Save Draft button click handler
+                        $("#saveDraftButton").click(function () {
+                            saveContent(0, 'http://localhost:8081/api/OverviewApi/SaveDraft');
+                        });
+
+                        // Save button click handler
+                        $("#saveButton").click(function () {
+                            saveContent(1, 'http://localhost:8081/api/OverviewApi/SaveDraft');
+                        });
+
+                        // Function to save content with is_completed status
+                        function saveContent(isCompleted, endpoint) {
+                            const title = $("#blogTitle").val();
+                            const description = $("#editor").data("kendoEditor").value();
+                            const labelsString = tags.join(',');
+
+                            // Create FormData object
+                            const formData = new FormData();
+                            formData.append("title", title);
+                            formData.append("description", description);
+                            formData.append("labels", labelsString);
+                            formData.append("is_completed", isCompleted);
+
+                            // Add thumbnail file if selected
+                            const thumbnailFile = $("#thumbnailUpload")[0].files[0];
+                            if (thumbnailFile) {
+                                formData.append("thumbnailFile", thumbnailFile);
+                            }
+
+                            // Show loading state
+                            const btnId = isCompleted ? "#saveButton" : "#saveDraftButton";
+                            const originalText = $(btnId).text();
+                            $(btnId).prop('disabled', true).text('Saving...');
+
+                            // Send AJAX request
+                            $.ajax({
+                                url: endpoint,
+                                type: 'POST',
+                                data: formData,
+                                processData: false,
+                                contentType: false,
+                                success: function (response) {
+                                    // Restore button state
+                                    $(btnId).prop('disabled', false).text(originalText);
+
+                                    if (response.success) {
+                                        const statusText = isCompleted ? "published" : "saved as draft";
+                                        alert(`Blog ${statusText} successfully!`);
+
+                                        // Optional: Redirect to blog list or clear form
+                                        if (response.redirectUrl) {
+                                            window.location.href = response.redirectUrl;
+                                        }
+                                    } else {
+                                        alert(`Error: ${response.message || 'Unknown error occurred'}`);
+                                    }
+                                },
+                                error: function (xhr, status, error) {
+                                    // Restore button state
+                                    $(btnId).prop('disabled', false).text(originalText);
+
+                                    console.error('Error saving blog:', error);
+                                    alert('Failed to save blog. Please try again later.');
+                                }
+                            });
+                        }
+                    });
+                </script>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

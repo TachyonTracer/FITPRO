@@ -120,10 +120,10 @@ namespace API
         }
         #endregion
 
-        
+
         #region Class Count By Instructor
         [HttpGet("ClassCountByInstructor/{instructorId}")]
-        public async Task<IActionResult>  ClassCountByInstructor(string instructorId)
+        public async Task<IActionResult> ClassCountByInstructor(string instructorId)
         {
             var classCount = await _instructorRepo.ClassCountByInstructor(instructorId);
             if (classCount != -1)
@@ -167,11 +167,11 @@ namespace API
             });
         }
         #endregion
-            
+
 
         #region Upcoming Class Count By Instructor
         [HttpGet("UpcomingClassCountByInstructor/{instructorId}")]
-        public async Task<IActionResult>  UpcomingClassCountByInstructor(string instructorId)
+        public async Task<IActionResult> UpcomingClassCountByInstructor(string instructorId)
         {
             var classCount = await _instructorRepo.UpcomingClassCountByInstructor(instructorId);
             if (classCount != -1)
@@ -194,7 +194,7 @@ namespace API
 
         #region User Count By Instructor
         [HttpGet("UserCountByInstructor/{instructorId}")]
-        public async Task<IActionResult>  UserCountByInstructor(string instructorId)
+        public async Task<IActionResult> UserCountByInstructor(string instructorId)
         {
             var classCount = await _instructorRepo.UserCountByInstructor(instructorId);
             if (classCount != -1)
@@ -266,7 +266,7 @@ namespace API
 
 
         #region User Stroy : Update Instructor(Admin Dashboard)
-        
+
         #region Approve Instructor
         [HttpPost("InstructorApprove/{id}")]
         public async Task<IActionResult> ApproveInstructor(string id)
@@ -274,13 +274,13 @@ namespace API
             var instructor = await _instructorRepo.GetOneInstructor(id);
             if (instructor == null)
             {
-                return NotFound(new {success = false, message = "Instructor not found." });
+                return NotFound(new { success = false, message = "Instructor not found." });
             }
 
             var result = await _instructorRepo.ApproveInstructor(id);
             if (result)
             {
-                return Ok(new {success = true, message = "Instructor approved, Approval mail send successfully!." });
+                return Ok(new { success = true, message = "Instructor approved, Approval mail send successfully!." });
             }
             return BadRequest(new { message = "Failed to approve instructor." });
         }
@@ -293,13 +293,13 @@ namespace API
             var instructor = await _instructorRepo.GetOneInstructor(id);
             if (instructor == null)
             {
-                return NotFound(new {success = false, message = "Instructor not found." });
+                return NotFound(new { success = false, message = "Instructor not found." });
             }
 
             var result = await _instructorRepo.DisapproveInstructor(id);
             if (result)
             {
-                return Ok(new {success = true, message = "Instructor disapproved, Disapprove mail send successfully!." });
+                return Ok(new { success = true, message = "Instructor disapproved, Disapprove mail send successfully!." });
             }
             return BadRequest(new { message = "Failed to disapprove instructor." });
         }
@@ -312,18 +312,89 @@ namespace API
             var instructor = await _instructorRepo.GetOneInstructor(id);
             if (instructor == null)
             {
-                return NotFound(new {success = false, message = "Instructor not found." });
+                return NotFound(new { success = false, message = "Instructor not found." });
             }
 
             var result = await _instructorRepo.SuspendInstructor(id);
             if (result)
             {
-                return Ok(new {success = true, message = "Instructor Suspended successfully!" });
+                return Ok(new { success = true, message = "Instructor Suspended successfully!" });
             }
             return BadRequest(new { message = "Failed to Suspennd instructor." });
         }
         #endregion
         #endregion
+
+        #region Blog 
+        [HttpPost]
+        [Route("SaveDraft")]
+
+        public async Task<IActionResult> SaveDraft(BlogPost blogSpot)
+        {
+            return Ok();
+        }
+
+
+        [HttpPost]
+        [Route("SaveImage")]
+
+        public async Task<IActionResult> SaveImage(Images image)
+        {
+            var fileName = "";
+            if (image.BlogImageFile != null && image.BlogImageFile.Length > 0)
+            {
+                Directory.CreateDirectory("../MVC/wwwroot/BlogImages");
+
+                fileName = Guid.NewGuid() + System.IO.Path.GetExtension(image.BlogImageFile.FileName);
+
+                var filePath = System.IO.Path.Combine("../MVC/wwwroot/BlogImages", fileName);
+                image.ThumbnailPath = filePath;
+
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    image.BlogImageFile.CopyTo(stream);
+                }
+            }
+            return Ok(new { success = "True", Path = $"http://localhost:8080/BlogImages/{fileName}" });
+        }
+        #endregion
     }
 
+}
+
+public class Images
+{
+    public string? ThumbnailPath { get; set; }
+
+    // For file upload (not mapped to database)
+    // [System.ComponentModel.DataAnnotations.Display(Name = "Thumbnail")]
+    public IFormFile? BlogImageFile { get; set; }
+
+
+}
+public class BlogPost
+{
+    public int? Id { get; set; }
+
+    // [System.ComponentModel.DataAnnotations.Required(ErrorMessage = "Title is required")]
+    // [System.ComponentModel.DataAnnotations.StringLength(200, ErrorMessage = "Title cannot be longer than 200 characters")]
+    public string? Title { get; set; }
+
+    // [System.ComponentModel.DataAnnotations.Required(ErrorMessage = "Description is required")]
+    public string? Description { get; set; }
+
+    public string? Labels { get; set; }
+
+    public string? ThumbnailPath { get; set; }
+
+    // For file upload (not mapped to database)
+    // [System.ComponentModel.DataAnnotations.Display(Name = "Thumbnail")]
+    public IFormFile? ThumbnailFile { get; set; }
+
+
+    public bool? IsCompleted { get; set; }
+
+    public DateTime? CreatedAt { get; set; } = DateTime.Now;
+
+    public DateTime? UpdatedAt { get; set; }
 }
