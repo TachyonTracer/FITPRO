@@ -248,7 +248,7 @@ h2 {
 }
 
 .btn-primary:hover {
-  background-color: #ff3333;
+  background-color: var(--primary-color);
   border-color: #ff3333;
   transform: translateY(-2px);
   box-shadow: 0 4px 8px rgba(255, 77, 77, 0.3);
