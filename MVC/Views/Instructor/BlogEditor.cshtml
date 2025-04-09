@@ -1,9 +1,8 @@
-
 <!DOCTYPE html>
 <html>
 
 <head>
-    <base href="https://demos.telerik.com/kendo-ui/editor/all-tools">
+
     <style>
         html {
             font-size: 14px;
@@ -194,7 +193,7 @@
             border-color: #ced4da;
         }
 
-        .k-toolbar .k-button,
+        @* .k-toolbar .k-button,
         .k-toolbar .k-button-group {
             background-color: white;
             color: #333;
@@ -205,6 +204,32 @@
         .k-toolbar .k-button.k-state-hover {
             background-color: #e9ecef;
             color: #333;
+        } *@
+
+        /* Custom styles to display icons properly */
+        .k-editor .k-tool-text {
+            display: none;
+        }
+
+        .k-editor .k-tool-icon.k-icon {
+            display: inline-block;
+        }
+
+        /* Set specific icon for imageInsert */
+        .k-editor .k-tool[title="Insert Image"] .k-tool-icon:before,
+        .k-editor .k-tool[data-tool="imageInsert"] .k-tool-icon:before {
+            content: "\e13a";
+            /* Kendo UI icon code for image */
+            font-family: "WebComponentsIcons";
+        }
+
+        .k-tool-icon.k-image-insert::before {
+            content: "\f03e";
+   
+            font-family: "Font Awesome 5 Free";
+            font-weight: 900;
+ 
+            font-size: 16px;
         }
 
         .k-editor-content {
@@ -216,6 +241,7 @@
         .k-editable-area,
         .k-editor iframe {
             background-color: white;
+            height: 70vh;
         }
 
         .demo-section {
@@ -228,10 +254,38 @@
     <link href="https://kendo.cdn.telerik.com/themes/10.2.0/default/default-main.css" rel="stylesheet" />
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
-    <script src="https://kendo.cdn.telerik.com/2023.1.117/js/kendo.all.min.js"></script>
+    <script src="https://kendo.cdn.telerik.com/2023.2.829/js/kendo.all.min.js"></script>
+
+    <style>
+        /* Additional styles for the header */
+        .blog-editor-header {
+            background-color: #f8f9fa;
+            padding: 15px 0;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #e5e5e5;
+        }
+
+        .blog-editor-header h1 {
+            font-size: 24px;
+            margin: 0;
+        }
+
+        .blog-editor-header .breadcrumb {
+            background: transparent;
+            margin-bottom: 0;
+            padding: 0;
+        }
+
+        .blog-header-actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+    </style>
 </head>
 
 <body>
+
     <div id="example">
         <div class="container-fluid">
             <div class="demo-section wide">
@@ -245,7 +299,7 @@
                 <div class="page-layout">
                     <!-- Editor Column -->
                     <div class="editor-container">
-                        <textarea id="editor" rows="10" cols="30" style="width:100%; height:700px" aria-label="editor">
+                        <textarea id="editor" aria-label="editor">
                         </textarea>
                         <div class="drop-zone">Drop image here</div>
                     </div>
@@ -290,7 +344,7 @@
                             "cleanFormatting",
                             "copyFormat",
                             "applyFormat",
-                            { name: "separator1", type: "separator" },
+
                             "fontName",
                             "fontSize",
                             "bold",
@@ -301,7 +355,7 @@
                             "superscript",
                             "backColor",
                             "foreColor",
-                            { name: "separator2", type: "separator" },
+
                             "insertOrderedList",
                             "insertUnorderedList",
                             "indent",
@@ -312,13 +366,17 @@
                             "justifyFull",
                             "lineHeight",
                             "formattingMarks",
-                            { name: "separator3", type: "separator" },
+
                             "formatting",
-                            { name: "separator4", type: "separator" },
+
                             "createLink",
                             "unlink",
                             {
                                 name: "imageInsert",
+                                tooltip: "Insert Image",
+                                className: "k-tool-icon k-image-insert",
+                                icon: "image",
+
                                 exec: function (e) {
                                     var editor = $(this).data("kendoEditor");
 
@@ -377,11 +435,12 @@
                                         fileInput.remove();
                                     });
                                 }
+
                             },
                             "imageBrowser",
                             "insertFile",
                             "viewHtml",
-                            { name: "separator5", type: "separator" },
+
                             "insertUpperRomanList",
                             "insertLowerRomanList",
                             "tableWizard",
@@ -410,6 +469,150 @@
                         // Tags functionality
                         let tags = [];
                         let thumbnailData = null;
+                        let editMode = false;
+                        let currentBlogId = null;
+
+                        // Check if we're in edit mode by looking for blog ID in URL
+                        const urlParams = new URLSearchParams(window.location.search);
+                        if (urlParams.has('id')) {
+                            const blogId = urlParams.get('id');
+                            currentBlogId = blogId;
+                            editMode = true;
+                            loadBlogData(blogId);
+                        }
+
+                        // Function to load blog data for editing
+                        function loadBlogData(blogId) {
+                            // First try to load from API
+                            const token = localStorage.getItem('jwt_token');
+
+                            $.ajax({
+                                url: `http://localhost:8080/api/blogs/${blogId}`,
+                                type: 'GET',
+                                headers: {
+                                    'Authorization': token ? `Bearer ${token}` : '',
+                                    'Content-Type': 'application/json'
+                                },
+                                success: function (blog) {
+                                    populateEditorWithBlogData(blog);
+                                },
+                                error: function (xhr, status, error) {
+                                    console.error('Error fetching blog data:', error);
+
+                                    // If API fails, try to find blog in sample data
+                                    loadSampleBlogData(blogId);
+                                },
+                                timeout: 5000
+                            });
+                        }
+
+                        // Load blog data from sample data if API fails
+                        function loadSampleBlogData(blogId) {
+                            // Sample blog data matching the data structure in BlogList.cshtml
+                            const sampleBlogs = [
+                                {
+                                    id: 1,
+                                    title: "10 Essential Stretches for After Your Workout",
+                                    description: "Discover the most effective stretches to help your muscles recover and prevent injury after intense training sessions.",
+                                    content: "<h2>10 Essential Stretches for After Your Workout</h2><p>Stretching after your workout is crucial for muscle recovery and flexibility. Here are the top 10 stretches you should incorporate:</p><ul><li>Hamstring stretch</li><li>Quad stretch</li><li>Child's pose</li><li>Triceps stretch</li><li>Cat-cow stretch</li><li>Butterfly stretch</li><li>Shoulder stretch</li><li>Hip flexor stretch</li><li>Calf stretch</li><li>Spine twist</li></ul><p>Perform each stretch for 20-30 seconds for optimal benefits.</p>",
+                                    thumbnailUrl: "https://images.unsplash.com/photo-1599447421416-3414500d18a5?ixlib=rb-4.0.3",
+                                    views: 1245,
+                                    likes: 89,
+                                    comments: 23,
+                                    is_completed: 1,
+                                    createdAt: "2023-06-15T14:22:00Z",
+                                    labels: "stretching,recovery,flexibility,post-workout"
+                                },
+                                {
+                                    id: 2,
+                                    title: "Nutrition Tips for Muscle Building",
+                                    description: "Learn how to fuel your body correctly to maximize muscle growth and recovery with these evidence-based nutrition strategies.",
+                                    content: "<h2>Nutrition Tips for Muscle Building</h2><p>Building muscle requires more than just lifting weights - proper nutrition is essential.</p><h3>Key Principles:</h3><ol><li>Maintain a caloric surplus</li><li>Consume adequate protein (1.6-2.2g per kg of bodyweight)</li><li>Time your carbohydrates around workouts</li><li>Don't neglect healthy fats</li><li>Stay hydrated</li></ol>",
+                                    thumbnailUrl: "https://images.unsplash.com/photo-1490645935967-10de6ba17061?ixlib=rb-4.0.3",
+                                    views: 2150,
+                                    likes: 167,
+                                    comments: 42,
+                                    is_completed: 1,
+                                    createdAt: "2023-05-20T09:15:00Z",
+                                    labels: "nutrition,muscle,protein,diet"
+                                },
+                                {
+                                    id: 3,
+                                    title: "The Ultimate HIIT Workout Guide",
+                                    description: "High-Intensity Interval Training explained: benefits, sample workouts, and how to incorporate it into your fitness routine.",
+                                    content: "<h2>The Ultimate HIIT Workout Guide</h2><p>High-Intensity Interval Training (HIIT) has revolutionized the fitness world with its efficient, results-driven approach.</p><h3>Sample 20-Minute HIIT Workout:</h3><ol><li>30 seconds burpees, 30 seconds rest</li><li>30 seconds mountain climbers, 30 seconds rest</li><li>30 seconds jump squats, 30 seconds rest</li><li>30 seconds high knees, 30 seconds rest</li></ol><p>Repeat this circuit 5 times.</p>",
+                                    thumbnailUrl: "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?ixlib=rb-4.0.3",
+                                    views: 3542,
+                                    likes: 245,
+                                    comments: 58,
+                                    is_completed: 1,
+                                    createdAt: "2023-07-03T16:40:00Z",
+                                    labels: "HIIT,cardio,workout,fitness"
+                                },
+                                {
+                                    id: 4,
+                                    title: "Mindfulness and Fitness: The Perfect Combination",
+                                    description: "How incorporating mindfulness practices into your fitness routine can enhance performance and overall wellbeing.",
+                                    content: "<h2>Mindfulness and Fitness: Draft</h2><p>This article is still being written...</p>",
+                                    thumbnailUrl: "https://images.unsplash.com/photo-1593810450967-f9c42742e3b5?ixlib=rb-4.0.3",
+                                    views: 987,
+                                    likes: 76,
+                                    comments: 19,
+                                    is_completed: 0,
+                                    createdAt: "2023-07-10T11:30:00Z",
+                                    labels: "mindfulness,mental health,workout,meditation"
+                                }
+                            ];
+
+                            // Find the blog in sample data
+                            const blog = sampleBlogs.find(blog => blog.id == blogId);
+
+                            if (blog) {
+                                populateEditorWithBlogData(blog);
+                            } else {
+                                console.error('Blog not found');
+                                alert('Could not find the blog you want to edit. Starting with a new blog.');
+                            }
+                        }
+
+                        // Populate the editor with blog data
+                        function populateEditorWithBlogData(blog) {
+                            // Set the title
+                            $("#blogTitle").val(blog.title);
+
+                            // Set the content in the Kendo editor
+                            const editor = $("#editor").data("kendoEditor");
+                            editor.value(blog.content);
+
+                            // Set the tags/labels if available
+                            if (blog.labels) {
+                                if (typeof blog.labels === 'string') {
+                                    // Split the comma-separated string
+                                    tags = blog.labels.split(',').map(tag => tag.trim());
+                                } else if (Array.isArray(blog.labels)) {
+                                    tags = [...blog.labels];
+                                }
+                                renderTags();
+                            }
+
+                            // Set the thumbnail preview if available
+                            if (blog.thumbnailUrl) {
+                                thumbnailData = blog.thumbnailUrl; // Store URL for reference
+                                $("#thumbnailPreview").html(`<img src="${blog.thumbnailUrl}" alt="Thumbnail">`);
+                            }
+
+                            // Update button text based on completion status
+                            if (blog.is_completed === 0) {
+                                $("#saveButton").text("Publish Blog");
+                                $("#saveDraftButton").text("Update Draft");
+                            } else {
+                                $("#saveButton").text("Update & Publish");
+                                $("#saveDraftButton").text("Save as Draft");
+                            }
+
+                            // Update page title to show we're editing
+                            document.title = `Editing: ${blog.title} | FitPro`;
+                        }
 
                         // Function to add a new tag
                         function addTag(tagText) {
@@ -593,20 +796,32 @@
                         // Function to save content with is_completed status
                         function saveContent(isCompleted, endpoint) {
                             const title = $("#blogTitle").val();
-                            const description = $("#editor").data("kendoEditor").value();
+                            const description = $("#editor").data("kendoEditor").value()
+                                .replace(/<[^>]*>/g, '') // Strip HTML tags for description
+                                .substring(0, 200);  // Limit to 200 chars for description
+                            const content = $("#editor").data("kendoEditor").value();
                             const labelsString = tags.join(',');
 
                             // Create FormData object
                             const formData = new FormData();
                             formData.append("title", title);
                             formData.append("description", description);
+                            formData.append("content", content);
                             formData.append("labels", labelsString);
                             formData.append("is_completed", isCompleted);
+
+                            // If we're editing an existing blog, include the ID
+                            if (editMode && currentBlogId) {
+                                formData.append("id", currentBlogId);
+                            }
 
                             // Add thumbnail file if selected
                             const thumbnailFile = $("#thumbnailUpload")[0].files[0];
                             if (thumbnailFile) {
                                 formData.append("thumbnailFile", thumbnailFile);
+                            } else if (thumbnailData && thumbnailData.startsWith('http')) {
+                                // If we have a URL for the thumbnail and no new file was selected
+                                formData.append("thumbnailUrl", thumbnailData);
                             }
 
                             // Show loading state
@@ -632,6 +847,8 @@
                                         // Optional: Redirect to blog list or clear form
                                         if (response.redirectUrl) {
                                             window.location.href = response.redirectUrl;
+                                        } else {
+                                            window.location.href = "/instructor/BlogList"; // Redirect to blog list
                                         }
                                     } else {
                                         alert(`Error: ${response.message || 'Unknown error occurred'}`);
