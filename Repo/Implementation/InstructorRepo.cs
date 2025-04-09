@@ -779,7 +779,7 @@ public class InstructorRepo : IInstructorInterface
                     command.Parameters.AddWithValue("@c_desc", blogpost.c_desc ?? (object)DBNull.Value);
                     command.Parameters.AddWithValue("@c_content", blogpost.c_content ?? (object)DBNull.Value);
                     command.Parameters.AddWithValue("@c_thumbnail", blogpost.c_thumbnail ?? (object)DBNull.Value);
-                    command.Parameters.AddWithValue("@c_created_at", blogpost.c_created_at ?? DateTimeOffset.UtcNow.ToUnixTimeSeconds());
+                    command.Parameters.AddWithValue("@c_created_at", DateTimeOffset.UtcNow.ToUnixTimeSeconds());
                     command.Parameters.AddWithValue("@c_published_at", 0000000001);
                     command.Parameters.AddWithValue("@c_source_url", blogpost.c_source_url ?? (object)DBNull.Value);
 

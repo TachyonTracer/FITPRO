@@ -342,14 +342,21 @@ namespace API
                         fileName = Guid.NewGuid() + System.IO.Path.GetExtension(blogpost.ThumbnailFile.FileName);
 
                         var filePath = System.IO.Path.Combine("../MVC/wwwroot/BlogImages/Thumbnails", fileName);
-                        blogpost.c_thumbnail = filePath;
+                        blogpost.c_thumbnail = fileName;
 
                         using (var stream = new FileStream(filePath, FileMode.Create))
                         {
                             blogpost.ThumbnailFile.CopyTo(stream);
                         }
                     } else {
-                        blogpost.c_thumbnail = "http://localhost:8081/BlogImages/Thumbnails/default.png";
+                        blogpost.c_thumbnail = "default.png";
+                    }
+
+                    // Convert c_content to Base64
+                    if (!string.IsNullOrEmpty(blogpost.c_content))
+                    {
+                        var contentBytes = System.Text.Encoding.UTF8.GetBytes(blogpost.c_content);
+                        blogpost.c_content = Convert.ToBase64String(contentBytes);
                     }
 
                     if (blogpost.c_blog_id > 0) {
@@ -456,7 +463,7 @@ namespace API
                     image.BlogImageFile.CopyTo(stream);
                 }
             }
-            return Ok(new { success = "True", Path = $"http://localhost:8081/BlogImages/TempImages/{fileName}" });
+            return Ok(new { success = true, Path = $"http://localhost:8081/BlogImages/TempImages/{fileName}" });
         }
         #endregion
     }

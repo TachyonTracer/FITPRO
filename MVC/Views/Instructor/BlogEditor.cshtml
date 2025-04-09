@@ -336,6 +336,34 @@
                 </div>
 
                 <script>
+
+                    @* Utility Functions *@
+                    function parseJwt(token) {
+                        try {
+                            const base64Url = token.split(".")[1];
+                            const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+                            return JSON.parse(atob(base64));
+                        } catch (error) {
+                            console.error("Invalid token:", error);
+                            return null;
+                        }
+                    }
+                    function getUserIdFromToken() {
+                        const token = localStorage.getItem("authToken");
+                        if (!token) {
+                            console.warn("No auth token found in localStorage.");
+                            return null;
+                        }
+                        const decoded = parseJwt(token);
+                        if (decoded) {
+                            console.log("decoded:" + JSON.parse(decoded.UserObject).instructorName);
+                            return JSON.parse(decoded.UserObject).instructorId; // Updated to return instructorId from decoded token
+                        }
+                        console.warn("Invalid or malformed token.");
+                        return null;
+                    }
+
+
                     $("#editor").kendoEditor({
                         tools: [
                             "undo",
@@ -378,7 +406,7 @@
                                 icon: "image",
 
                                 exec: function (e) {
-                                    var editor = $(this).data("kendoEditor");
+                                    const editor_ = $("#editor").data("kendoEditor");
 
                                     // Create a file input element
                                     var fileInput = $('<input type="file" accept="image/*" style="display:none">');
@@ -390,6 +418,7 @@
                                     // Handle file selection
                                     fileInput.on('change', function (e) {
                                         if (this.files && this.files[0]) {
+
                                             var imageFile = this.files[0];
 
                                             // Create FormData and append the file
@@ -398,20 +427,18 @@
 
                                             // AJAX call to upload the file
                                             $.ajax({
-                                                url: 'http://localhost:5160/api/OverviewApi/SaveImage',
+                                                url: 'http://localhost:8080/api/Instructor/SaveImage',
                                                 type: 'POST',
                                                 data: formData,
                                                 processData: false,
                                                 contentType: false,
                                                 success: function (response) {
+
                                                     // Assuming response returns { imageUrl: "/uploads/xyz.jpg" }
                                                     var imageUrl = response.path;
 
-                                                    // Get the editor's document
-                                                    var editorDocument = editor.document;
-
                                                     // Create the image element with the returned URL
-                                                    var img = editorDocument.createElement("img");
+                                                    var img = editor_.document.createElement("img");
                                                     img.src = imageUrl;
                                                     img.alt = "Uploaded Image";
 
@@ -423,7 +450,7 @@
                                                     img.style.objectFit = "contain";
 
                                                     // Insert the image into the editor
-                                                    editor.paste(img.outerHTML);
+                                                    editor_.paste(img.outerHTML);
                                                 },
                                                 error: function (xhr, status, error) {
                                                     alert("Image upload failed: " + error);
@@ -755,7 +782,7 @@
 
                             // AJAX call to upload the file
                             $.ajax({
-                                url: 'http://localhost:8081/api/OverviewApi/SaveImage',
+                                url: 'http://localhost:8080/api/instructor/SaveImage',
                                 type: 'POST',
                                 data: formData,
                                 processData: false,
@@ -785,43 +812,55 @@
 
                         // Save Draft button click handler
                         $("#saveDraftButton").click(function () {
-                            saveContent(0, 'http://localhost:8081/api/OverviewApi/SaveDraft');
+                            saveContent(0, 'http://localhost:8080/api/instructor/SaveDraft');
                         });
 
                         // Save button click handler
                         $("#saveButton").click(function () {
-                            saveContent(1, 'http://localhost:8081/api/OverviewApi/SaveDraft');
+                            saveContent(1, 'http://localhost:8080/api/instructor/SaveDraft');
                         });
 
                         // Function to save content with is_completed status
                         function saveContent(isCompleted, endpoint) {
-                            const title = $("#blogTitle").val();
-                            const description = $("#editor").data("kendoEditor").value()
+                            const c_title = $("#blogTitle").val();
+                            const c_desc = $("#editor").data("kendoEditor").value()
                                 .replace(/<[^>]*>/g, '') // Strip HTML tags for description
                                 .substring(0, 200);  // Limit to 200 chars for description
-                            const content = $("#editor").data("kendoEditor").value();
-                            const labelsString = tags.join(',');
+                            const c_content = $("#editor").data("kendoEditor").value();
+                            const c_tags = tags.join(',');
 
                             // Create FormData object
                             const formData = new FormData();
-                            formData.append("title", title);
-                            formData.append("description", description);
-                            formData.append("content", content);
-                            formData.append("labels", labelsString);
-                            formData.append("is_completed", isCompleted);
+
+                            formData.append("c_blog_author_id", getUserIdFromToken().toString());
+                            formData.append("c_tags", c_tags);
+                            formData.append("c_title", c_title);
+                            formData.append("c_desc", c_desc);
+                            formData.append("c_content", c_content);
+                            formData.append("c_created_at", 0000000001);
+                            formData.append("c_published_at", 0000000001);
+                            formData.append("c_is_published", false);
+                            formData.append("c_views", -1);
+                            formData.append("c_likes", -1);
+                            formData.append("c_comments", -1);
+                            formData.append("c_source_url", "http://localhost:8081/blog/default_blog_page");
+                            @* formData.append("is_completed", isCompleted); *@
 
                             // If we're editing an existing blog, include the ID
                             if (editMode && currentBlogId) {
-                                formData.append("id", currentBlogId);
+                                formData.append("c_blog_id", currentBlogId);
+                            } else {
+                                formData.append("c_blog_id", -1);
                             }
 
                             // Add thumbnail file if selected
                             const thumbnailFile = $("#thumbnailUpload")[0].files[0];
                             if (thumbnailFile) {
-                                formData.append("thumbnailFile", thumbnailFile);
+                                formData.append("ThumbnailFile", thumbnailFile);
+                                formData.append("c_thumbnail", "http://localhost:8081/BlogImages/Thumbnails/default.png");
                             } else if (thumbnailData && thumbnailData.startsWith('http')) {
                                 // If we have a URL for the thumbnail and no new file was selected
-                                formData.append("thumbnailUrl", thumbnailData);
+                                formData.append("c_thumbnail", thumbnailData);
                             }
 
                             // Show loading state
