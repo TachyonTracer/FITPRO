@@ -11,84 +11,16 @@
 </head>
 <style>
     body {
-        font-family: "Poppins", sans-serif;
-        background-color: #0d0d0d;
-        color: #facc15;
-        margin: 0;
-        padding: 0;
-    }
-
-    body {
         background: url("gym1.jpg") no-repeat center center fixed;
         background-size: cover;
         background-color: #0d0d0d;
         font-family: "Poppins", sans-serif;
-        color: #facc15;
         margin: 0;
         padding: 0;
-    }
-
-    /* Navigation Bar */
-    .navbar {
+        min-height: 100vh;
+        /* Ensure body takes at least full viewport height */
         display: flex;
-        align-items: center;
-        justify-content: space-between;
-        background: rgba(0, 0, 0, 0.6);
-        padding: 7px 30px;
-        position: sticky;
-        top: 0;
-        width: 100%;
-        z-index: 1000;
-        backdrop-filter: blur(10px);
-        border-bottom: 1px solid #333;
-    }
-
-    .logo img {
-        height: 40px;
-        width: auto;
-        object-fit: contain;
-        filter: brightness(1.2);
-        margin-top: 7px;
-    }
-
-    .nav-links {
-        flex: 2;
-        display: flex;
-        justify-content: center;
-        gap: 62px;
-        list-style: none;
-        margin-right: 100px;
-    }
-
-    .nav-links li a {
-        text-decoration: none;
-        color: #eaeaea;
-        font-weight: 500;
-        transition: color 0.3s ease;
-    }
-
-    .nav-links li a:hover {
-        color: #facc15;
-    }
-
-    /* Header Section */
-    header {
-        background: #111;
-        text-align: center;
-        padding: 10px 20px 20px;
-    }
-
-    header h1 {
-        font-size: 42px;
-        margin-bottom: 10px;
-        margin-top: 10px;
-    }
-
-    header p {
-        font-size: 16px;
-        color: #facc15;
-        opacity: 0.85;
-        margin-top: 10px;
+        flex-direction: column;
     }
 
     /* Class Cards Grid */
@@ -152,58 +84,11 @@
         transform: scale(1.05);
     }
 
-    * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-        font-family: "Segoe UI", sans-serif;
-    }
-
-    .profile-wrapper {
-        position: relative;
-        display: inline-block;
-    }
-
-    .profile-img {
-        width: 40px;
-        height: 40px;
-        border-radius: 80px;
-        object-fit: cover;
-        border: 2px solid #facc15;
-        cursor: pointer;
-    }
-
-    .profile-dropdown {
-        display: none;
-        position: absolute;
-        top: 50px;
-        right: 0;
-        background-color: #111;
-        border: 1px solid #333;
-        border-radius: 8px;
-        box-shadow: 0 4px 8px rgba(255, 255, 0, 0.1);
-        min-width: 160px;
-        z-index: 999;
-    }
-
-    .profile-dropdown a {
-        display: block;
-        padding: 10px 15px;
-        color: #facc15;
-        text-decoration: none;
-        transition: background 0.3s;
-    }
-
-    .profile-dropdown a:hover {
-        background-color: #222;
-        color: #fff;
-    }
-
     /* Filter Section */
     .filter-section {
         background: rgba(26, 26, 26, 0.8);
         padding: 20px 40px;
-        border-radius: 10px;
+        border-radius: 20px;
         margin: 20px 40px;
         display: flex;
         justify-content: space-between;
@@ -263,9 +148,43 @@
         background: #333;
     }
 
+    /* Create blog button */
+    .create-blog-btn {
+        background-color: #2563eb;
+        /* Blue color */
+        color: white;
+        padding: 10px 18px;
+        border: none;
+        border-radius: 6px;
+        font-size: 14px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .create-blog-btn:hover {
+        background-color: #1d4ed8;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+    }
+
+    /* Filter actions wrapper to group search and create button */
+    .filter-actions {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
     /* Blog List Styling */
     .blog-list {
         padding: 20px 40px;
+        flex-grow: 1;
+        /* Allow the blog list to grow and fill available space */
+        overflow: visible;
+        /* Prevent scrollbar on the container itself */
     }
 
     .blog-card {
@@ -276,11 +195,10 @@
         overflow: hidden;
         margin-bottom: 20px;
         transition: transform 0.3s ease, box-shadow 0.3s ease;
-    }
-
-    .blog-card:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 5px 15px rgba(255, 255, 0, 0.1);
+        width: 100%;
+        /* Ensure each card takes full width of container */
+        max-width: 100%;
+        /* Prevent cards from exceeding container width */
     }
 
     .blog-thumbnail {
@@ -295,6 +213,10 @@
         display: flex;
         flex-direction: column;
         justify-content: space-between;
+        overflow: hidden;
+        /* Prevent content overflow */
+        width: calc(100% - 200px);
+        /* Account for thumbnail width */
     }
 
     .blog-title {
@@ -316,6 +238,9 @@
     .blog-stats {
         display: flex;
         gap: 15px;
+        flex-wrap: wrap;
+        /* Allow stats to wrap on smaller screens */
+        align-items: center;
     }
 
     .stat {
@@ -386,7 +311,49 @@
 
         to {
             transform: rotate(360deg);
-            
+
+        }
+    }
+
+    @@media
+    (max-width: 768px) {
+
+        /* Responsive adjustments */
+        .blog-card {
+            flex-direction: column;
+        }
+
+        .blog-thumbnail {
+            width: 100%;
+            height: 180px;
+        }
+
+        .blog-details {
+            width: 100%;
+        }
+
+        .filter-section {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .filter-actions {
+            flex-direction: column;
+            width: 100%;
+        }
+
+        .search-box {
+            width: 100%;
+        }
+
+        .create-blog-btn {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .sort-options {
+            justify-content: center;
+            margin-top: 10px;
         }
     }
 </style>
@@ -397,9 +364,14 @@
 
     <!-- Filter Section -->
     <section class="filter-section">
-        <div class="search-box">
-            <input type="text" id="search-input" placeholder="Search blogs...">
-            <button id="search-btn"><i class="fas fa-search"></i></button>
+        <div class="filter-actions">
+            <div class="search-box">
+                <input type="text" id="search-input" placeholder="Search blogs...">
+                <button id="search-btn"><i class="fas fa-search"></i></button>
+            </div>
+            <button id="createBlogBtn" class="create-blog-btn">
+                <i class="fas fa-plus-circle"></i> Create New Blog
+            </button>
         </div>
         <div class="sort-options">
             <span>Sort by:</span>
@@ -433,30 +405,36 @@
                 id: 1,
                 title: "10 Essential Stretches for After Your Workout",
                 description: "Discover the most effective stretches to help your muscles recover and prevent injury after intense training sessions.",
+                content: "<h2>10 Essential Stretches for After Your Workout</h2><p>Stretching after your workout is crucial for muscle recovery and flexibility. Here are the top 10 stretches you should incorporate:</p><ul><li>Hamstring stretch</li><li>Quad stretch</li><li>Child's pose</li><li>Triceps stretch</li><li>Cat-cow stretch</li><li>Butterfly stretch</li><li>Shoulder stretch</li><li>Hip flexor stretch</li><li>Calf stretch</li><li>Spine twist</li></ul><p>Perform each stretch for 20-30 seconds for optimal benefits.</p>",
                 thumbnailUrl: "https://images.unsplash.com/photo-1599447421416-3414500d18a5?ixlib=rb-4.0.3",
                 views: 1245,
                 likes: 89,
                 comments: 23,
+                is_completed: 1,
                 createdAt: "2023-06-15T14:22:00Z"
             },
             {
                 id: 2,
                 title: "Nutrition Tips for Muscle Building",
                 description: "Learn how to fuel your body correctly to maximize muscle growth and recovery with these evidence-based nutrition strategies.",
+                content: "<h2>Nutrition Tips for Muscle Building</h2><p>Building muscle requires more than just lifting weights - proper nutrition is essential.</p><h3>Key Principles:</h3><ol><li>Maintain a caloric surplus</li><li>Consume adequate protein (1.6-2.2g per kg of bodyweight)</li><li>Time your carbohydrates around workouts</li><li>Don't neglect healthy fats</li><li>Stay hydrated</li></ol>",
                 thumbnailUrl: "https://images.unsplash.com/photo-1490645935967-10de6ba17061?ixlib=rb-4.0.3",
                 views: 2150,
                 likes: 167,
                 comments: 42,
+                is_completed: 1,
                 createdAt: "2023-05-20T09:15:00Z"
             },
             {
                 id: 3,
                 title: "The Ultimate HIIT Workout Guide",
                 description: "High-Intensity Interval Training explained: benefits, sample workouts, and how to incorporate it into your fitness routine.",
+                content: "<h2>The Ultimate HIIT Workout Guide</h2><p>High-Intensity Interval Training (HIIT) has revolutionized the fitness world with its efficient, results-driven approach.</p><h3>Sample 20-Minute HIIT Workout:</h3><ol><li>30 seconds burpees, 30 seconds rest</li><li>30 seconds mountain climbers, 30 seconds rest</li><li>30 seconds jump squats, 30 seconds rest</li><li>30 seconds high knees, 30 seconds rest</li></ol><p>Repeat this circuit 5 times.</p>",
                 thumbnailUrl: "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?ixlib=rb-4.0.3",
                 views: 3542,
                 likes: 245,
                 comments: 58,
+                is_completed: 1,
                 createdAt: "2023-07-03T16:40:00Z"
             },
             {
@@ -467,6 +445,7 @@
                 views: 987,
                 likes: 76,
                 comments: 19,
+                is_completed: 0,
                 createdAt: "2023-07-10T11:30:00Z"
             }
         ];
@@ -526,6 +505,11 @@
 
             filteredBlogs.forEach(blog => {
                 const blogCard = $('<div>').addClass('blog-card');
+
+                // Determine button text based on is_completed status
+                const buttonText = blog.is_completed ? "Edit" : "Continue Editing";
+                const buttonIcon = blog.is_completed ? "fa-edit" : "fa-pen";
+
                 blogCard.html(`
                     <img src="${blog.thumbnailUrl || '/images/default-blog.jpg'}" alt="${blog.title}" class="blog-thumbnail">
                     <div class="blog-details">
@@ -538,8 +522,9 @@
                             <span class="stat"><i class="fas fa-heart"></i> ${blog.likes || 0}</span>
                             <span class="stat"><i class="fas fa-comment"></i> ${blog.comments || 0}</span>
                             <span class="stat"><i class="fas fa-calendar"></i> ${formatDate(blog.createdAt)}</span>
+                            ${!blog.is_completed ? '<span class="stat" style="color:#ff9800"><i class="fas fa-exclamation-circle"></i> Draft</span>' : ''}
                             <div class="blog-actions">
-                                <button class="edit-btn" onclick="editBlog(${blog.id})"><i class="fas fa-edit"></i> Edit</button>
+                                <button class="edit-btn" onclick="editBlog(${blog.id})"><i class="fas ${buttonIcon}"></i> ${buttonText}</button>
                                 <button class="delete-btn" onclick="deleteBlog(${blog.id})"><i class="fas fa-trash"></i></button>
                             </div>
                         </div>
@@ -610,9 +595,14 @@
             sortBlogs($(this).data('sort'));
         });
 
+        // Create New Blog button click handler
+        $(document).on('click', '#createBlogBtn', function () {
+            window.location.href = "/instructor/BlogEditor";
+        });
+
         // Edit and Delete functions
         function editBlog(blogId) {
-            window.location.href = `/instructor/blogs/edit/${blogId}`;
+            window.location.href = `/instructor/BlogEditor?id=${blogId}`;
         }
 
         function deleteBlog(blogId) {
