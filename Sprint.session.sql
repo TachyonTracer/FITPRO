@@ -80,3 +80,51 @@ CREATE TABLE t_reset_password (
     c_created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     c_isused BOOLEAN DEFAULT FALSE
 );
+
+
+
+-- BlogPost Table Queries
+
+-- 1. Blogpost Table
+CREATE TABLE t_blogpost (
+    c_blog_id SERIAL PRIMARY KEY,
+    c_blog_author_id INT NOT NULL,
+    c_tags TEXT,
+    c_title TEXT NOT NULL,
+    c_desc TEXT,
+    c_content TEXT, -- base64 encoded
+    c_thumbnail TEXT,
+    c_created_at BIGINT NOT NULL,
+    c_published_at BIGINT,
+    c_is_published BOOLEAN DEFAULT FALSE,
+    c_views INT DEFAULT 0,
+    c_likes INT DEFAULT 0,
+    c_comments INT DEFAULT 0,
+    c_source_url TEXT
+);
+
+-- 2. Blog Likes Table
+CREATE TABLE t_blog_likes (
+    c_like_id SERIAL PRIMARY KEY,
+    c_blog_id INT NOT NULL REFERENCES t_blogpost(c_blog_id) ON DELETE CASCADE,
+    c_user_id INT NOT NULL,
+    c_liked_at BIGINT NOT NULL
+);
+
+-- 3. Blog Bookmark Table
+CREATE TABLE t_blog_bookmark (
+    c_bookmark_id SERIAL PRIMARY KEY,
+    c_blog_id INT NOT NULL REFERENCES t_blogpost(c_blog_id) ON DELETE CASCADE,
+    c_user_id INT NOT NULL,
+    c_bookmarked_at BIGINT NOT NULL
+);
+
+-- 4. Blog Comment Table
+CREATE TABLE t_blog_comment (
+    c_comment_id SERIAL PRIMARY KEY,
+    c_blog_id INT NOT NULL REFERENCES t_blogpost(c_blog_id) ON DELETE CASCADE,
+    c_user_id INT NOT NULL,
+    c_commented_at BIGINT NOT NULL,
+    c_comment_content TEXT NOT NULL,
+    c_parent_comment_id
+);
