@@ -128,3 +128,33 @@ CREATE TABLE t_blog_comment (
     c_comment_content TEXT NOT NULL,
     c_parent_comment_id INT
 );
+
+
+CREATE TABLE t_feedback_instructor (
+    c_feedbackid SERIAL PRIMARY KEY,
+    c_userid INT,
+    c_instructorid INT,
+    c_feedback TEXT,
+    c_rating INT,
+    c_createdat TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+
+CREATE TABLE t_feedback_class (
+    c_feedbackid SERIAL PRIMARY KEY,
+    c_userid INT,
+    c_classid INT,
+    c_feedback TEXT,
+    c_rating INT,
+    c_createdat TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+
+INSERT INTO t_feedback_instructor (c_userid, c_instructorid, c_feedback, c_rating, c_createdat) VALUES
+(34, 5, 'Instructor Raj explained every step clearly. Bahut achha laga!', 5, '2025-04-09 10:15:00'),
+(41, 2, 'Neha ma’am was very professional and helpful.', 4, '2025-04-09 11:00:00');
+
+
+INSERT INTO t_feedback_class (c_userid, c_classid, c_feedback, c_rating, c_createdat) VALUES
+(34, 45, 'Yoga class tha shaandar! Energy full day ke liye mil gayi.', 5, '2025-04-09 09:45:00'),
+(41, 46, 'Zumba class was good but thoda loud music tha.', 3, '2025-04-09 10:30:00');
