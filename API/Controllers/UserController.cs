@@ -246,5 +246,27 @@ namespace API
 			}
 		}
 		#endregion
+
+		#region GetUeserBalaceById
+		[HttpGet("GetUserBalanceById/{userId}")]
+		public async Task<IActionResult> GetUserBalanceById(string userId)
+		{
+			var balance = await _userRepo.GetUserBalanceById(int.Parse(userId));
+			if (balance != null)
+			{
+				return Ok(new
+				{
+					success = true,
+					message = "User Balance fetched successfully.",
+					data = balance
+				});
+			}
+			return Ok(new
+			{
+				success = false,
+				message = "Error occured while fetching user balance."
+			});
+		}
+		#endregion
 	}
 }

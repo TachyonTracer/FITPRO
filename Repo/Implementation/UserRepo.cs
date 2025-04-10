@@ -402,4 +402,48 @@ public class UserRepo : IUserInterface
 
     #endregion
 
+	#region GetUserBlalance
+	public async Task<User> GetUserBalanceById(int userId)
+	{
+		User user = null;
+
+		try
+		{
+			if (_conn.State != ConnectionState.Open)
+			{
+				await _conn.OpenAsync();
+			}
+
+			using (var cmd = new NpgsqlCommand(@"SELECT c_userid, c_balance FROM t_user WHERE c_userid = @userId", _conn))
+			{
+				cmd.Parameters.AddWithValue("@userId", userId);
+
+				using (var dr = await cmd.ExecuteReaderAsync())
+				{
+					if (dr.Read())
+					{
+						user = new User()
+						{
+							userId = Convert.ToInt32(dr["c_userid"]),
+							balance = Convert.ToDecimal(dr["c_balance"])
+						};
+					}
+				}
+			}
+		}
+		catch (Exception ex)
+		{
+			Console.WriteLine("Error while fetching user balance: " + ex.Message);
+		}
+		finally
+		{
+			if (_conn.State != ConnectionState.Closed)
+			{
+				await _conn.CloseAsync();
+			}
+		}
+		return user;
+	}
+	#endregion
+
 }
