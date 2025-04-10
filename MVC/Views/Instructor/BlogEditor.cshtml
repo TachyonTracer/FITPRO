@@ -225,10 +225,10 @@
 
         .k-tool-icon.k-image-insert::before {
             content: "\f03e";
-   
+
             font-family: "Font Awesome 5 Free";
             font-weight: 900;
- 
+
             font-size: 16px;
         }
 
@@ -306,6 +306,17 @@
 
                     <!-- Sidebar Column -->
                     <div class="sidebar">
+                        <!-- Description Input for Blog Listing -->
+                        <div class="input-section">
+                            <label for="blogDescription" class="form-label">Description: <span class="text-muted">(max
+                                    200 characters)</span></label>
+                            <textarea id="blogDescription" class="form-control" rows="3"
+                                placeholder="Brief description for blog listings" maxlength="200"></textarea>
+                            <div class="text-muted mt-1 small text-end">
+                                <span id="descCharCounter">0</span>/200 characters
+                            </div>
+                        </div>
+
                         <!-- Labels Input -->
                         <div class="input-section">
                             <label for="blogLabels" class="form-label">Labels:</label>
@@ -338,16 +349,16 @@
                 <script>
 
                     @* Utility Functions *@
-                    function parseJwt(token) {
-                        try {
-                            const base64Url = token.split(".")[1];
-                            const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
-                            return JSON.parse(atob(base64));
-                        } catch (error) {
-                            console.error("Invalid token:", error);
-                            return null;
+                        function parseJwt(token) {
+                            try {
+                                const base64Url = token.split(".")[1];
+                                const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+                                return JSON.parse(atob(base64));
+                            } catch (error) {
+                                console.error("Invalid token:", error);
+                                return null;
+                            }
                         }
-                    }
                     function getUserIdFromToken() {
                         const token = localStorage.getItem("authToken");
                         if (!token) {
@@ -490,6 +501,12 @@
 
                     // Blog save functionality
                     $(document).ready(function () {
+                        // Character counter for description
+                        $("#blogDescription").on("input", function () {
+                            const charCount = $(this).val().length;
+                            $("#descCharCounter").text(charCount);
+                        });
+
                         // Setup drag and drop for editor
                         setupDragAndDrop();
 
@@ -835,7 +852,7 @@
                             formData.append("c_blog_author_id", getUserIdFromToken().toString());
                             formData.append("c_tags", c_tags);
                             formData.append("c_title", c_title);
-                            formData.append("c_desc", c_desc);
+                            formData.append("c_desc", $("#blogDescription").val().substring(0, 200)); // Add the description input value
                             formData.append("c_content", c_content);
                             formData.append("c_created_at", 0000000001);
                             formData.append("c_published_at", 0000000001);

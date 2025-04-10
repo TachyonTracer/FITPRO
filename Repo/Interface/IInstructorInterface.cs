@@ -33,7 +33,7 @@ public interface IInstructorInterface
 	#endregion
 
     #region BlogPost    
-    Task<int?> SaveBlogDraft(BlogPost blogpost);
+    Task<int> SaveBlogDraft(BlogPost blogpost);
     Task<bool> UpdateBlogDraft(BlogPost blogpost);
     Task<bool> PublishBlog(BlogPost blogpost);
     #endregion

@@ -372,7 +372,8 @@ namespace API
                         }
                     } else {
                         blogpost.c_source_url = $"http://localhost:8081/blog/{Convert.ToString(Guid.NewGuid())}";
-                        var result = Convert.ToInt32(_instructorRepo.SaveBlogDraft(blogpost));
+                        // var result = Convert.ToInt32(_instructorRepo.SaveBlogDraft(blogpost));
+                        var result = await _instructorRepo.SaveBlogDraft(blogpost);
                         if (result > 0 ) {
                             return Ok(new {
                                 success=true,
