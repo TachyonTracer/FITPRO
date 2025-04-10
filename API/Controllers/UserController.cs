@@ -136,22 +136,41 @@ namespace API
 		#region User stroy:List User Design
 		#region Suspend User
 		[HttpPost("UserSuspend/{id}")]
-		public async Task<IActionResult> SuspendInstructor(string id)
+		public async Task<IActionResult> SuspendInstructor(string id,[FromForm]string reason)
 		{
 			var instructor = await _userRepo.GetAllUsersById(int.Parse(id));
 			if (instructor == null)
 			{
-				return NotFound(new { success = false, message = "Instructor not found." });
+				return NotFound(new { success = false, message = "User not found." });
 			}
 
-			var result = await _userRepo.SuspendUser(id);
+			var result = await _userRepo.SuspendUser(id,reason);
 			if (result)
 			{
-				return Ok(new { success = true, message = "User Suspended successfully!" });
+				return Ok(new { success = true, message = "User Suspended.Suspend Mail send successfully!" });
 			}
 			return BadRequest(new { message = "Failed to Suspennd User." });
 		}
 		#endregion
+
+		#region Activate User
+        [HttpPost("UserActivate/{id}")]
+        public async Task<IActionResult> ActivateInstructor(string id)
+        {
+            var instructor = await _userRepo.GetAllUsersById(int.Parse(id));
+            if (instructor == null)
+            {
+                return NotFound(new {success = false, message = "User not found." });
+            }
+
+            var result = await _userRepo.ActivateUser(id);
+            if (result)
+            {
+                return Ok(new {success = true, message = "User Activated,Mail send successfully!" });
+            }
+            return BadRequest(new { message = "Failed to Activate User." });
+        }
+        #endregion
 		#endregion
 
 

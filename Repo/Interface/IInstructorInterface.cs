@@ -21,8 +21,9 @@ public interface IInstructorInterface
 
     #region  User Stroy : Update Instructor (Admin Dashboard)
     Task<bool> ApproveInstructor(string instructorId);
-    Task<bool> DisapproveInstructor(string instructorId);
-    Task<bool> SuspendInstructor(string instructorId);
+     Task<bool> DisapproveInstructor(string instructorId, string reason);
+    Task<bool> SuspendInstructor(string instructorId,string reason);
+    Task<bool> ActivateInstructor(string instructorId);
     #endregion
 
 	#region User Story: Instructor Dashboard View
@@ -32,4 +33,10 @@ public interface IInstructorInterface
 	Task<List<Class>> UpcomingClassDetailsByInstructor(string instructorId);
     Task<List<KeyValuePair<string, int>>> GetTypewiseClassCount(string instructorId);
 	#endregion
+
+    #region BlogPost    
+    Task<int> SaveBlogDraft(BlogPost blogpost);
+    Task<bool> UpdateBlogDraft(BlogPost blogpost);
+    Task<bool> PublishBlog(BlogPost blogpost);
+    #endregion
 }
