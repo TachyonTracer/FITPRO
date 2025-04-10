@@ -3,6 +3,7 @@
   --color: #ffffff;
   --primary-color: #ff4d4d;
   --glass-color: rgba(255, 255, 255, 0.1);
+  --error-color: #fd969a;
 }
 
 * {
@@ -74,7 +75,6 @@
   text-align: center;
 }
 
-
 /* Responsive adjustments */
 @media (max-width: 768px) {
   .role-selection-bottom {
@@ -91,23 +91,14 @@
     gap: 10px;
   }
 
-  /* .role-option {
-    width: 70px;
-    padding: 8px;
+  .role-options {
+    gap: 1rem;
   }
 
   .role-image {
-    width: 30px;
-    height: 30px;
-  } */
-  .role-options {
-    gap: 1rem;
-}
-
-.role-image {
     width: 70px;
     height: 70px;
-}
+  }
 }
 
 /* Custom placeholder styles */
@@ -117,41 +108,6 @@
 .k-dropdown-wrap .k-input::placeholder,
 .k-picker-wrap .k-input::placeholder {
   color: rgba(255, 255, 255, 0.6);
-  /* Default placeholder color */
-  transition: all 0.3s ease;
-}
-
-/* Interactive effects when focused */
-.k-textbox input:focus::placeholder,
-.k-textarea textarea:focus::placeholder,
-.k-input input:focus::placeholder,
-.k-dropdown-wrap .k-input:focus::placeholder,
-.k-picker-wrap .k-input:focus::placeholder {
-  color: var(--primary-color);
-  /* Change to your primary color when focused */
-  transform: translateY(-5px);
-  font-size: 0.8em;
-}
-
-/* Animation for empty fields */
-.k-textbox input:not(:focus):placeholder-shown,
-.k-textarea textarea:not(:focus):placeholder-shown,
-.k-input input:not(:focus):placeholder-shown {
-  animation: pulsePlaceholder 2s infinite;
-}
-
-@keyframes pulsePlaceholder {
-  0% {
-    opacity: 0.6;
-  }
-
-  50% {
-    opacity: 0.3;
-  }
-
-  100% {
-    opacity: 0.6;
-  }
 }
 
 html {
@@ -296,7 +252,6 @@ h1 {
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
   border-radius: 15px;
   backdrop-filter: blur(15px);
-  background: var(--glass-color);
   z-index: 99;
   padding: 2rem;
   animation: fadeIn 1s ease-out;
@@ -476,22 +431,21 @@ h1 {
   background-color: rgba(255, 77, 77, 0.8) !important;
 }
 .from-orange-500 {
-    --tw-gradient-from: #f97316 var(--tw-gradient-from-position);
-    --tw-gradient-to: rgb(249 115 22 / 0) var(--tw-gradient-to-position);
-    --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to);
+  --tw-gradient-from: var(--error-color) var(--tw-gradient-from-position);
+  --tw-gradient-to: rgb(249 115 22 / 0) var(--tw-gradient-to-position);
+  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to);
 }
 
 .k-form-error,
 .email-error {
-  color:  #f97316 !important;
-  /* Bright red for visibility */
+  color: var(--error-color) !important;
   font-size: 0.9rem;
   margin-top: 5px;
   display: block;
 }
 
 .k-form-field .k-form-error {
-  color: #f97316!important;
+  color: var(--error-color) !important;
 }
 
 /* Role Selection Styles */
@@ -565,7 +519,9 @@ h1 {
 }
 
 /* Wizard Buttons */
-.wizard-buttons {
+
+.wizard-buttons
+{
   display: flex;
   justify-content: space-between;
   margin-top: 20px;
@@ -583,24 +539,69 @@ h1 {
   flex: 1;
 }
 
-.wizard-buttons .previous,
-.wizard-buttons .reset {
+
+/* CSS For reset button */
+.k-wizard .k-wizard-buttons{
+  margin: 0;
+  display: block;
+}
+
+.k-wizard-buttons-left{
+  visibility: hidden;
+  width: 0px;
+}
+
+/* CSS Container for next button in first and last page */
+.k-wizard-buttons-right{
+  width: 100%;
+  display: flex;  /* Use flexbox */
+  justify-content: flex-end;  /* Align the child elements to the right */
+}
+
+/* Next button in first and last page*/
+.k-wizard-buttons-right .k-button-solid-primary{
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+  letter-spacing: 1px;
+  transition: all 0.3s ease;
+  width: 50%;
+}
+
+/* Previous button in first and last page*/
+.k-wizard-buttons-right .k-button-solid-base{
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+  letter-spacing: 1px;
+  transition: all 0.3s ease;
+  width: 50%;
   background-color: rgba(255, 255, 255, 0.1);
   color: var(--color);
   border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
-.wizard-buttons .next {
+.wizard-buttons .previous {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: var(--color);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.wizard-buttons .next,
+.k-wizard-buttons-right .k-button-solid-primary {
   background-color: var(--primary-color);
   color: white;
 }
 
-.wizard-buttons .previous:hover,
-.wizard-buttons .reset:hover {
+.wizard-buttons .previous:hover {
   background-color: rgba(255, 255, 255, 0.2);
 }
 
-.wizard-buttons .next:hover {
+.wizard-buttons .next:hover,
+.k-wizard-buttons-right .k-button-solid-primary:hover {
   background-color: rgba(255, 77, 77, 0.8);
   box-shadow: 0 0 12px rgba(255, 77, 77, 0.3);
 }
@@ -829,6 +830,15 @@ h1 {
     height: 6rem;
   }
 }
+.k-button-solid-base {
+  border-color: rgba(0, 0, 0, 0.08);
+  color: #424242;
+  background-color: #f5f5f5;
+  background-image: linear-gradient(rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.02));
+  padding: 8px;
+  padding-left: 30px;
+  padding-right: 30px;
+}
 
 @media (max-width: 480px) {
   .registration-container {
@@ -872,12 +882,12 @@ h1 {
     font-size: 0.8rem;
   }
 
-  .wizard-buttons {
+  .wizard-buttons{
     flex-direction: column;
     gap: 10px;
   }
 
-  .wizard-buttons button {
+  .wizard-buttons button{
     width: 100%;
   }
 
@@ -951,36 +961,36 @@ h1 {
 /* Responsive adjustments */
 @media (max-width: 768px) {
   .role-selection-bottom {
-      bottom: 1rem;
-      right: 1rem;
-      gap: 1.5rem;
+    bottom: 1rem;
+    right: 1rem;
+    gap: 1.5rem;
   }
 
   .role-selection-bottom .role-image {
-      width: 120px;
-      height: 120px;
+    width: 120px;
+    height: 120px;
   }
 
   .role-selection-bottom .role-name {
-      font-size: 1rem;
+    font-size: 1rem;
   }
 }
 
 @media (max-width: 480px) {
   .role-selection-bottom {
-      bottom: 0.5rem;
-      right: 0.5rem;
-      gap: 1rem;
-      flex-direction: column;
-      align-items: flex-end;
+    bottom: 0.5rem;
+    right: 0.5rem;
+    gap: 1rem;
+    flex-direction: column;
+    align-items: flex-end;
   }
 
   .role-selection-bottom .role-image {
-      width: 100px;
-      height: 100px;
+    width: 100px;
+    height: 100px;
   }
 
   .role-selection-bottom .role-name {
-      font-size: 0.9rem;
+    font-size: 0.9rem;
   }
 }
