@@ -68,7 +68,7 @@ CREATE TABLE t_Bookings (
     c_userid INT REFERENCES t_User(c_userID) ON DELETE CASCADE,
     c_classid INT REFERENCES t_Class(c_classid) ON DELETE CASCADE,
     c_createdat TIMESTAMP WITHOUT TIME ZONE,
-    c_paymentstatus VARCHAR(20)
+    c_waitlist INT DEFAULT 0,
 );
 
 CREATE TABLE t_reset_password (
