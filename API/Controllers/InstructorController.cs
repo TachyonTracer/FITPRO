@@ -120,10 +120,10 @@ namespace API
         }
         #endregion
 
-        
+
         #region Class Count By Instructor
         [HttpGet("ClassCountByInstructor/{instructorId}")]
-        public async Task<IActionResult>  ClassCountByInstructor(string instructorId)
+        public async Task<IActionResult> ClassCountByInstructor(string instructorId)
         {
             var classCount = await _instructorRepo.ClassCountByInstructor(instructorId);
             if (classCount != -1)
@@ -167,11 +167,11 @@ namespace API
             });
         }
         #endregion
-            
+
 
         #region Upcoming Class Count By Instructor
         [HttpGet("UpcomingClassCountByInstructor/{instructorId}")]
-        public async Task<IActionResult>  UpcomingClassCountByInstructor(string instructorId)
+        public async Task<IActionResult> UpcomingClassCountByInstructor(string instructorId)
         {
             var classCount = await _instructorRepo.UpcomingClassCountByInstructor(instructorId);
             if (classCount != -1)
@@ -194,7 +194,7 @@ namespace API
 
         #region User Count By Instructor
         [HttpGet("UserCountByInstructor/{instructorId}")]
-        public async Task<IActionResult>  UserCountByInstructor(string instructorId)
+        public async Task<IActionResult> UserCountByInstructor(string instructorId)
         {
             var classCount = await _instructorRepo.UserCountByInstructor(instructorId);
             if (classCount != -1)
@@ -266,7 +266,7 @@ namespace API
 
 
         #region User Stroy : Update Instructor(Admin Dashboard)
-        
+
         #region Approve Instructor
         [HttpPost("InstructorApprove/{id}")]
         public async Task<IActionResult> ApproveInstructor(string id)
@@ -274,13 +274,13 @@ namespace API
             var instructor = await _instructorRepo.GetOneInstructor(id);
             if (instructor == null)
             {
-                return NotFound(new {success = false, message = "Instructor not found." });
+                return NotFound(new { success = false, message = "Instructor not found." });
             }
 
             var result = await _instructorRepo.ApproveInstructor(id);
             if (result)
             {
-                return Ok(new {success = true, message = "Instructor approved, Approval mail send successfully!." });
+                return Ok(new { success = true, message = "Instructor approved, Approval mail send successfully!." });
             }
             return BadRequest(new { message = "Failed to approve instructor." });
         }
@@ -293,7 +293,7 @@ namespace API
             var instructor = await _instructorRepo.GetOneInstructor(id);
             if (instructor == null)
             {
-                return NotFound(new {success = false, message = "Instructor not found." });
+                return NotFound(new { success = false, message = "Instructor not found." });
             }
 
             var result = await _instructorRepo.DisapproveInstructor(id,reason);
@@ -312,7 +312,7 @@ namespace API
             var instructor = await _instructorRepo.GetOneInstructor(id);
             if (instructor == null)
             {
-                return NotFound(new {success = false, message = "Instructor not found." });
+                return NotFound(new { success = false, message = "Instructor not found." });
             }
 
             var result = await _instructorRepo.SuspendInstructor(id,reason);
@@ -343,6 +343,149 @@ namespace API
         }
         #endregion
 
+        #endregion
+
+        #region Blog 
+        [HttpPost]
+        [Route("SaveDraft")]
+
+        public async Task<IActionResult> SaveDraft(BlogPost blogpost)
+        {
+            if (blogpost.c_blog_author_id >0) {
+                try {
+
+                    var fileName = "";
+                    if (blogpost.ThumbnailFile != null && blogpost.ThumbnailFile.Length > 0)
+                    {
+                        Directory.CreateDirectory("../MVC/wwwroot/BlogImages/Thumbnails");
+
+                        fileName = Guid.NewGuid() + System.IO.Path.GetExtension(blogpost.ThumbnailFile.FileName);
+
+                        var filePath = System.IO.Path.Combine("../MVC/wwwroot/BlogImages/Thumbnails", fileName);
+                        blogpost.c_thumbnail = fileName;
+
+                        using (var stream = new FileStream(filePath, FileMode.Create))
+                        {
+                            blogpost.ThumbnailFile.CopyTo(stream);
+                        }
+                    } else {
+                        blogpost.c_thumbnail = "default.png";
+                    }
+
+                    // Convert c_content to Base64
+                    if (!string.IsNullOrEmpty(blogpost.c_content))
+                    {
+                        var contentBytes = System.Text.Encoding.UTF8.GetBytes(blogpost.c_content);
+                        blogpost.c_content = Convert.ToBase64String(contentBytes);
+                    }
+
+                    if (blogpost.c_blog_id > 0) {
+                        var result = Convert.ToBoolean(_instructorRepo.UpdateBlogDraft(blogpost));
+                        if (result) {
+                            return Ok(new {
+                                success=true,
+                                message="Successfully Update the blog as draft.",
+                                blog_id=blogpost.c_blog_id
+                            });
+                        } else {
+                            return StatusCode(500, new { success = false, message = "An unexpected error occurred while updating your blog." });
+                        }
+                    } else {
+                        blogpost.c_source_url = $"http://localhost:8081/blog/{Convert.ToString(Guid.NewGuid())}";
+                        // var result = Convert.ToInt32(_instructorRepo.SaveBlogDraft(blogpost));
+                        var result = await _instructorRepo.SaveBlogDraft(blogpost);
+                        if (result > 0 ) {
+                            return Ok(new {
+                                success=true,
+                                message="Successfully Saved the blog as draft.",
+                                blog_id=result
+                            });
+                        } else {
+                            return StatusCode(500, new { success = false, message = "An unexpected error occurred while saving your blog as draft." });
+                        }
+                    }
+                } 
+                catch (Exception e) {
+                    Console.WriteLine(e);
+                    return StatusCode(500, new { success = false, message = "An unexpected error occurred." });
+                }
+            } else {
+                return BadRequest(new {success=false, message="Invalid Blog Data"});    
+            }
+        }
+
+        [HttpPost]
+        [Route("PublishBlog")]
+        public async Task<IActionResult> PublishBlog(BlogPost blogpost)
+        {
+            if (blogpost.c_blog_author_id >0) {
+                try {
+                    var fileName = "";
+                    if (blogpost.ThumbnailFile != null && blogpost.ThumbnailFile.Length > 0)
+                    {
+                        Directory.CreateDirectory("../MVC/wwwroot/BlogImages/Thumbnails");
+
+                        fileName = Guid.NewGuid() + System.IO.Path.GetExtension(blogpost.ThumbnailFile.FileName);
+
+                        var filePath = System.IO.Path.Combine("../MVC/wwwroot/BlogImages/Thumbnails", fileName);
+                        blogpost.c_thumbnail = filePath;
+
+                        using (var stream = new FileStream(filePath, FileMode.Create))
+                        {
+                            blogpost.ThumbnailFile.CopyTo(stream);
+                        }
+                    } else {
+                        blogpost.c_thumbnail = "http://localhost:8081/BlogImages/Thumbnails/default.png";
+                    }
+
+                    if (blogpost.c_blog_id > 0) {
+                        var result = Convert.ToBoolean(_instructorRepo.PublishBlog(blogpost));
+                        if (result) {
+                            return Ok(new {
+                                success=true,
+                                message="Successfully Published the blog.",
+                                blog_url=blogpost.c_source_url,
+                                return_url="instructor"
+                            });
+                        } else {
+                            return StatusCode(500, new { success = false, message = "An unexpected error occurred while publishing your blog." });
+                        }
+                    } else {
+                        return StatusCode(500, new { success = false, message = "An unexpected error occurred while saving your blog as draft." });
+                    }
+                } 
+                catch (Exception e) {
+                    Console.WriteLine(e);
+                    return StatusCode(500, new { success = false, message = "An unexpected error occurred." });
+                }
+            } else {
+                return BadRequest(new {success=false, message="Invalid Blog Data"});    
+            }
+        }
+
+
+        [HttpPost]
+        [Route("SaveImage")]
+
+        public async Task<IActionResult> SaveImage(vm_blog_image image)
+        {
+            var fileName = "";
+            if (image.BlogImageFile != null && image.BlogImageFile.Length > 0)
+            {
+                Directory.CreateDirectory("../MVC/wwwroot/BlogImages/TempImages");
+
+                fileName = Guid.NewGuid() + System.IO.Path.GetExtension(image.BlogImageFile.FileName);
+
+                var filePath = System.IO.Path.Combine("../MVC/wwwroot/BlogImages/TempImages", fileName);
+                image.blog_image_path = filePath;
+
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    image.BlogImageFile.CopyTo(stream);
+                }
+            }
+            return Ok(new { success = true, Path = $"http://localhost:8081/BlogImages/TempImages/{fileName}" });
+        }
         #endregion
     }
 
