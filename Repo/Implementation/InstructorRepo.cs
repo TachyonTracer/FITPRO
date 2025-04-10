@@ -746,6 +746,56 @@ public class InstructorRepo : IInstructorInterface
             return instructorList;
         }
         #endregion
+    
+    
+        #region GetTypewiseClassCount
+        public async Task<List<KeyValuePair<string, int>>> GetTypewiseClassCount(string instructorId)
+        {
+            var query = @"
+                SELECT c_type, COUNT(*) AS class_count
+                FROM t_class 
+                WHERE c_instructorid = @instructorId
+                GROUP BY c_type;";
+
+            if (_conn.State != ConnectionState.Open)
+            {
+                await _conn.OpenAsync();
+            }
+
+            try
+            {
+                using (var cmd = new NpgsqlCommand(query, _conn))
+                {
+                    cmd.Parameters.AddWithValue("@instructorId", Convert.ToInt32(instructorId));
+
+                    var reader = await cmd.ExecuteReaderAsync();
+                    var result = new List<KeyValuePair<string, int>>();
+
+                    while (await reader.ReadAsync())
+                    {
+                        var classType = Convert.ToString(reader["c_type"]);
+                        var classCount = Convert.ToInt32(reader["class_count"]);
+                        
+                        result.Add(new KeyValuePair<string, int>(classType, classCount));
+                    }
+
+                    return result;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Exception: {ex.Message}");
+                return new List<KeyValuePair<string, int>>(); // Return empty list on error
+            }
+            finally
+            {
+                if (_conn.State != ConnectionState.Closed)
+                {
+                    await _conn.CloseAsync();
+                }
+            }
+        }
+        #endregion
     #endregion
 	
 

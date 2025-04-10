@@ -324,6 +324,24 @@ namespace API
         }
         #endregion
         #endregion
+
+        #region Get Typewise Class Count
+		[HttpGet("typewise-class-count/{instructorId}")]
+		public async Task<IActionResult> GetTypewiseClassCount(string instructorId)
+		{
+			try
+			{
+				// Fetch user activity data for the last 7 days
+				var typewiseClassCount = await _instructorRepo.GetTypewiseClassCount(instructorId);
+
+				return Ok(new { success = true, message = "Typewise Class Count data retrieved successfully", data = typewiseClassCount });
+			}
+			catch (Exception ex)
+			{
+				return StatusCode(500, new { success = false, message = "An error occurred", error = ex.Message });
+			}
+		}
+		#endregion
     }
 
 }
