@@ -14,7 +14,8 @@ public interface IUserInterface
 	#endregion
 
 	#region User Story: List Users Desgin
-	 Task<bool> SuspendUser(string userId);
+	 Task<bool> SuspendUser(string userId,string reason);
+	 Task<bool> ActivateUser(string userId);
 	#endregion
 
     #region User Story: Wallet TopUp

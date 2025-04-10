@@ -38,11 +38,12 @@
                 <img src="~/logo/fitProLogo.png" alt="">
             </a>
         </div>
-        <div class="header_content_Wraper">     
+        <div class="header_content_Wraper">
             @* *** Notification Part Starts *** *@
 
             <!-- Notification Bell Icon -->
-            <div class="position-relative d-inline-block notification-bell" style="margin-right: 22px; margin-top: 0px;">
+            <div class="position-relative d-inline-block notification-bell"
+                style="margin-right: 22px; margin-top: 0px;">
                 <button class="btn btn-outline-light position-relative" onclick="openNotifications()">
                     <i class="fas fa-bell"></i>
                     <span id="notificationCount"
@@ -90,6 +91,7 @@
             <li>Schedule Classes</li>
             <li>Manage Classes</li>
             <li>Feedback</li>
+            <li>Your Blogs</li>
         </ul>
         <div>
             <div class="content-area">
@@ -232,12 +234,26 @@
                 </div>
             </div>
         </div>
+
         <div>
             <!--Feedback-->
             <div class="content-area">
                 <div class="container">
                     <h2>Feedback</h2>
                     <p>This would be the feedback section.</p>
+                </div>
+            </div>
+        </div>
+
+        <div>
+            <!--Feedback-->
+            <div class="content-area">
+                <div class="container">
+                    @* <h2>Feedback</h2>
+                    <p>This would be the feedback section.</p> *@
+                    @* html *@
+                    @Html.Partial("~/Views/Instructor/BlogList.cshtml")
+
                 </div>
             </div>
         </div>

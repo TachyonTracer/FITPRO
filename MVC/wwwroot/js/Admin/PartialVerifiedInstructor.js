@@ -154,7 +154,8 @@ function approveInstructor() {
     });
 }
 
-// Disapprove Instructor with Swal.fire
+
+
 function disapproveInstructor() {
     if (!currentVerifiedInstructorId) {
         Swal.fire("Error", "Please select an instructor first.", "error");
@@ -162,37 +163,54 @@ function disapproveInstructor() {
     }
 
     Swal.fire({
-        title: "Are you sure?",
-        text: "Do you want to disapprove this instructor?",
-        icon: "warning",
+        title: "Reason for Disapproval",
+        input: "textarea",
+        inputLabel: "Please provide a reason :",
+        inputPlaceholder: "Enter reason here...",
+        inputAttributes: {
+            "aria-label": "Type your reason here"
+        },
         showCancelButton: true,
-        confirmButtonText: "Yes, Disapprove",
-        cancelButtonText: "Cancel"
+        confirmButtonText: "Submit",
+        cancelButtonText: "Cancel",
+        preConfirm: (reason) => {
+            if (!reason || reason.trim() === "") {
+                Swal.showValidationMessage("You must provide a reason.");
+                return false;
+            }
+            return reason.trim();
+        }
     }).then((result) => {
         if (result.isConfirmed) {
+            const reason = result.value;
+
+            const formData = new FormData();
+            formData.append("reason", reason);
+
             $.ajax({
                 url: `${uri}/api/Instructor/InstructorDisapprove/${currentVerifiedInstructorId}`,
                 type: "POST",
+                data: formData,
+                processData: false,
+                contentType: false,
                 success: function (response) {
                     Swal.fire({
                         title: "Success",
-                        text: "Instructor disapproved, Disapprove mail send successfull!",
+                        text: response.message,
                         icon: "success",
                         confirmButtonText: "OK"
                     }).then(() => {
                         currentVerifiedInstructorId = null;
-                        
                         $("#verified-details").addClass('d-none');
                         $("#verified-default-message").removeClass('d-none');
-                        // Reload both lists
                         loadVerifiedInstructorList();
                         loadInstructorList();
                     });
                 },
-                error: function () {
+                error: function (xhr) {
                     Swal.fire({
                         title: "Error",
-                        text: "Failed to disapprove instructor.",
+                        text: xhr.responseJSON?.message || "Failed to disapprove instructor.",
                         icon: "error",
                         confirmButtonText: "OK"
                     });
@@ -201,6 +219,7 @@ function disapproveInstructor() {
         }
     });
 }
+
 
 
 function viewPDF(pdfUrl, title) {

@@ -10,7 +10,7 @@ public interface IClassInterface
 
     Task<int> ScheduleClass( Class classData);
 
-    // Task<Response> UpdateClass(Class updatedClass);
+   
     #endregion
     Task<List<Class>> GetBookedClassesByUserId(string userId);
     Task<(bool success, string message)> CancelBooking(int userId, int classId);
@@ -20,4 +20,6 @@ public interface IClassInterface
 
     Task<bool> ActivateClass(int classId);
     Task<int> UpdateClass(Class updatedClass);
+
+    
 }
