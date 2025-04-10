@@ -349,7 +349,9 @@ namespace API
                             blogpost.ThumbnailFile.CopyTo(stream);
                         }
                     } else {
-                        blogpost.c_thumbnail = "default.png";
+                        if (blogpost.c_blog_id <0) {
+                            blogpost.c_thumbnail = "default.png";
+                        }
                     }
 
                     // Convert c_content to Base64
@@ -360,18 +362,18 @@ namespace API
                     }
 
                     if (blogpost.c_blog_id > 0) {
-                        var result = Convert.ToBoolean(_instructorRepo.UpdateBlogDraft(blogpost));
+                        var result = await _instructorRepo.UpdateBlogDraft(blogpost);
                         if (result) {
                             return Ok(new {
                                 success=true,
-                                message="Successfully Update the blog as draft.",
+                                message="Successfully Updated the blog as draft.",
                                 blog_id=blogpost.c_blog_id
                             });
                         } else {
                             return StatusCode(500, new { success = false, message = "An unexpected error occurred while updating your blog." });
                         }
                     } else {
-                        blogpost.c_source_url = $"http://localhost:8081/blog/{Convert.ToString(Guid.NewGuid())}";
+                        blogpost.c_source_url = $"blog-post-{Convert.ToString(Guid.NewGuid())}";
                         // var result = Convert.ToInt32(_instructorRepo.SaveBlogDraft(blogpost));
                         var result = await _instructorRepo.SaveBlogDraft(blogpost);
                         if (result > 0 ) {
@@ -386,7 +388,7 @@ namespace API
                     }
                 } 
                 catch (Exception e) {
-                    Console.WriteLine(e);
+                    Console.WriteLine(e.Message);
                     return StatusCode(500, new { success = false, message = "An unexpected error occurred." });
                 }
             } else {
@@ -466,6 +468,73 @@ namespace API
             }
             return Ok(new { success = true, Path = $"http://localhost:8081/BlogImages/TempImages/{fileName}" });
         }
+
+
+        [HttpPost]
+        [Route("GetInstructorBlogsById")]
+
+        public async Task<IActionResult> GetInstructorBlogsById(string instructor_id)
+        {
+            if(instructor_id != null) {
+                try {
+                    var blog_list = await _instructorRepo.GetBlogsByInstructorId(Convert.ToInt32(instructor_id));
+
+                    if (blog_list.Count == 0)
+                    {
+                        return BadRequest(new { success = false, message = "No blogs found.", data = blog_list });
+                    }
+                    return Ok(new
+                    {
+                        success = true,
+                        message = "Fetched All blogs.",
+                        data = new
+                        {
+                            count = blog_list.Count,
+                            entries = blog_list
+                        }
+                    });
+
+                } catch {
+                    return StatusCode(500, new { success=false, message="Something went wrong fetching your blogs, please try again later."});
+                }
+            } else {
+                return BadRequest(new {success=false, message="Instructor Id is required"});
+            }
+        }
+
+
+        [HttpPost]
+        [Route("GetBlogById")]
+
+        public async Task<IActionResult> GetBlogById(string blog_id)
+        {
+            if(blog_id != null) {
+                try {
+                    var blog = await _instructorRepo.GetBlogById(Convert.ToInt32(blog_id));
+
+                    if (blog == null)
+                    {
+                        return BadRequest(new { success = false, message = "No blog found for the given id.", data = blog });
+                    }
+                    return Ok(new
+                    {
+                        success = true,
+                        message = "Fetched blog.",
+                        data = new
+                        {
+                            count = 1,
+                            entries = blog
+                        }
+                    });
+
+                } catch {
+                    return StatusCode(500, new { success=false, message="Something went wrong fetching your blog, please try again later."});
+                }
+            } else {
+                return BadRequest(new {success=false, message="Blog Id is required"});
+            }
+        }
+
         #endregion
     }
 

@@ -450,26 +450,64 @@
             }
         ];
 
+        @* Utility Functions *@
+        function parseJwt(token) {
+            try {
+                const base64Url = token.split(".")[1];
+                const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+                return JSON.parse(atob(base64));
+            } catch (error) {
+                console.error("Invalid token:", error);
+                return null;
+            }
+        }
+        function getUserIdFromToken() {
+            const token = localStorage.getItem("authToken");
+            if (!token) {
+                console.warn("No auth token found in localStorage.");
+                return null;
+            }
+            const decoded = parseJwt(token);
+            if (decoded) {
+                console.log("decoded:" + JSON.parse(decoded.UserObject).instructorName);
+                return JSON.parse(decoded.UserObject).instructorId; // Updated to return instructorId from decoded token
+            }
+            console.warn("Invalid or malformed token.");
+            return null;
+        }
+
         // Fetch blogs on page load
         $(document).ready(function () {
-            const token = localStorage.getItem('jwt_token');
+            const token = localStorage.getItem('authToken');
 
             // Try to fetch actual data first
             $.ajax({
-                url: 'http://localhost:8080/api/blogs/getAllByInstructor',
-                type: 'GET',
+                url: `http://localhost:8080/api/Instructor/GetInstructorBlogsById?instructor_id=${getUserIdFromToken().toString()}`,
+                type: 'POST',
                 headers: {
                     'Authorization': token ? `Bearer ${token}` : '',
                     'Content-Type': 'application/json'
                 },
                 success: function (data) {
-                    if (data && data.length > 0) {
-                        allBlogs = data;
+                    if (data && data.success && data.data && data.data.entries.length > 0) {
+                        allBlogs = data.data.entries.map(entry => ({
+                            id: entry.c_blog_id,
+                            authorId: entry.c_blog_author_id,
+                            title: entry.c_title,
+                            description: entry.c_desc,
+                            content: entry.c_content,
+                            thumbnailUrl: 'http://localhost:8081/blogImages/Thumbnails/' + entry.c_thumbnail || 'http://localhost:8081/blogImages/Thumbnails/default.png',
+                            tags: entry.c_tags ? entry.c_tags.split(",") : [],
+                            views: entry.c_views || 0,
+                            likes: entry.c_likes || 0,
+                            comments: entry.c_comments || 0,
+                            is_completed: entry.c_is_completed || 0,
+                            createdAt: entry.c_created_at
+                        }));
                         filteredBlogs = [...allBlogs];
                         sortBlogs(currentSort);
                         renderBlogs();
                     } else {
-                        // If empty response, use sample data
                         useSampleData();
                     }
                 },
@@ -507,7 +545,7 @@
                 const blogCard = $('<div>').addClass('blog-card');
 
                 // Determine button text based on is_completed status
-                const buttonText = blog.is_completed ? "Edit" : "Continue Editing";
+                const buttonText = blog.is_completed ? "Edit" : "Edit";
                 const buttonIcon = blog.is_completed ? "fa-edit" : "fa-pen";
 
                 blogCard.html(`
