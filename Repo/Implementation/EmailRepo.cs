@@ -65,7 +65,6 @@ namespace Repo
         }
         #endregion
 
-
         #region send success reset password email
 
         //For Succesfully ResetPassword Mail
@@ -103,7 +102,6 @@ namespace Repo
             }
         }
         #endregion
-
 
         #region send activation link
 
@@ -304,7 +302,7 @@ namespace Repo
 
                 using (MailMessage message = new MailMessage(new MailAddress(Username), new MailAddress(email)))
                 {
-                    message.Subject = "Account Activate Notification";
+                    message.Subject = "Account Activation Notification";
                     message.Body = templateContent;
                     message.IsBodyHtml = true;
 
@@ -325,7 +323,8 @@ namespace Repo
             }
         }
         #endregion
-         #region Activate User email 
+
+        #region Activate User email 
         public async Task SendActivateUserEmail(string email, string username)
         {
             try
@@ -339,7 +338,7 @@ namespace Repo
 
                 using (MailMessage message = new MailMessage(new MailAddress(Username), new MailAddress(email)))
                 {
-                    message.Subject = "Account Activate Notification";
+                    message.Subject = "Account Activation Notification";
                     message.Body = templateContent;
                     message.IsBodyHtml = true;
 
@@ -359,6 +358,45 @@ namespace Repo
                 Console.WriteLine("Failed to send User Activate email: " + ex.Message);
             }
         }
+        #endregion
+
+        #region Booking confirmation email
+        public async Task SendBookingConfirmationEmail(string email, string username, string bookingDetails)
+        {
+            try
+            {
+                // Load email template
+                string templatePath = Path.Combine(Directory.GetCurrentDirectory(), "Templates", "BookingConfirmation_Email.html");
+                string templateContent = await File.ReadAllTextAsync(templatePath);
+
+                // Replace placeholders with actual values
+                templateContent = templateContent.Replace("#[UserName]#", username);
+                templateContent = templateContent.Replace("#[BookingDetails]#", bookingDetails);
+
+                using (MailMessage message = new MailMessage(new MailAddress(Username), new MailAddress(email)))
+                {
+                    message.Subject = "Booking Confirmation";
+                    message.Body = templateContent;
+                    message.IsBodyHtml = true;
+
+                    using (SmtpClient smtp = new SmtpClient())
+                    {
+                        smtp.Host = smtpServer;
+                        smtp.Port = Port;
+                        smtp.EnableSsl = true;
+                        smtp.Credentials = new NetworkCredential(Username, Password);
+
+                        await smtp.SendMailAsync(message);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Failed to send booking confirmation email: " + ex.Message);
+            }
+        }
+
+
         #endregion
 
 

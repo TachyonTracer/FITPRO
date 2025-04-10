@@ -147,7 +147,7 @@ namespace API
 			var result = await _userRepo.SuspendUser(id,reason);
 			if (result)
 			{
-				return Ok(new { success = true, message = "User Suspended.Suspend mail send successfully!." });
+				return Ok(new { success = true, message = "User Suspended.Suspend Mail send successfully!" });
 			}
 			return BadRequest(new { message = "Failed to Suspennd User." });
 		}
@@ -166,7 +166,7 @@ namespace API
             var result = await _userRepo.ActivateUser(id);
             if (result)
             {
-                return Ok(new {success = true, message = "User Activated,Mail send successfully!." });
+                return Ok(new {success = true, message = "User Activated,Mail send successfully!" });
             }
             return BadRequest(new { message = "Failed to Activate User." });
         }

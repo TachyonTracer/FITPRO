@@ -16,6 +16,7 @@ namespace Repo
         Task SendSuspendUserEmail(string email, string username, string reason);
         Task SendActivateUserEmail(string email, string username);
         Task SendActivateInstructorEmail(string email, string username);
+        Task SendBookingConfirmationEmail(string email, string username, string bookingDetails);
 
     }
 }

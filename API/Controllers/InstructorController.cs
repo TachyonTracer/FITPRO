@@ -299,7 +299,7 @@ namespace API
             var result = await _instructorRepo.DisapproveInstructor(id,reason);
             if (result)
             {
-                return Ok(new {success = true, message = "Instructor disapproved, Disapprove mail send successfully!." });
+                return Ok(new {success = true, message = "Instructor disapproved, Disapprove mail send successfully!" });
             }
             return BadRequest(new { message = "Failed to disapprove instructor." });
         }
@@ -318,11 +318,12 @@ namespace API
             var result = await _instructorRepo.SuspendInstructor(id,reason);
             if (result)
             {
-                return Ok(new {success = true, message = "Instructor Suspended successfully!" });
+                return Ok(new {success = true, message = "Instructor Suspended,Mail send successfully!" });
             }
             return BadRequest(new { message = "Failed to Suspennd instructor." });
         }
         #endregion
+        
         #region Activate Instructor
         [HttpPost("InstructorActivate/{id}")]
         public async Task<IActionResult> ActivateInstructor(string id)
@@ -336,7 +337,7 @@ namespace API
             var result = await _instructorRepo.ActivateInstructor(id);
             if (result)
             {
-                return Ok(new {success = true, message = "Instructor Activated,Mail send successfully!." });
+                return Ok(new {success = true, message = "Instructor Activated,Mail send successfully!" });
             }
             return BadRequest(new { message = "Failed to Activate instructor." });
         }
