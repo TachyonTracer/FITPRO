@@ -58,6 +58,8 @@ builder.Services.AddScoped<IAuthInterface, AuthRepo>();
 builder.Services.AddScoped<IInstructorInterface, InstructorRepo>();
 builder.Services.AddScoped<IClassInterface, ClassRepo>();
 builder.Services.AddScoped<IUserInterface, UserRepo>();
+builder.Services.AddScoped<IFeedbackInterface, FeedbackRepository>();
+
 
 // StripeConfiguration.ApiKey = builder.Configuration["Stripe:SecretKey"];
 // Configure Stripe settings

@@ -19,9 +19,9 @@ namespace MVC
         {
             return View();
         }
-    
+
         #endregion
-        
+
         #region Approved/Verified Instructor List Design
         public ActionResult ApprovedInstructor()
         {
@@ -33,6 +33,12 @@ namespace MVC
             return View();
         }
         #endregion
+        #region Blog
+        public IActionResult BlogEditor()
+        {
+            return View();
+        }
 
+        #endregion
     }
 }

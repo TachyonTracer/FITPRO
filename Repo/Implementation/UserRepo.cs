@@ -5,10 +5,12 @@ namespace Repo;
 public class UserRepo : IUserInterface
 {
 	private readonly NpgsqlConnection _conn;
+	private readonly IEmailInterface _email;
 
-	public UserRepo(NpgsqlConnection conn)
+	public UserRepo(NpgsqlConnection conn, IEmailInterface email)
 	{
 		_conn = conn;
+		_email = email;
 	}
 
 	#region Get All Users
@@ -260,7 +262,7 @@ public class UserRepo : IUserInterface
 	#endregion
 
 	#region Suspend User
-	public async Task<bool> SuspendUser(string userId)
+	public async Task<bool> SuspendUser(string userId, string reason)
 	{
 		bool isSuccess = false;
 		try
@@ -270,13 +272,35 @@ public class UserRepo : IUserInterface
 				await _conn.OpenAsync();
 			}
 
-			using (var cmd = new NpgsqlCommand("UPDATE t_user SET c_status = 'false' WHERE c_userid = @c_userid", _conn))
+			using (var cmd = new NpgsqlCommand("UPDATE t_user SET c_status ='false',c_reason = @c_reason WHERE c_userid = @c_userid", _conn))
 			{
 				cmd.Parameters.AddWithValue("@c_userid", Convert.ToInt32(userId));
+				cmd.Parameters.AddWithValue("@c_reason", reason);
 
 
 				int rowsAffected = await cmd.ExecuteNonQueryAsync();
 				isSuccess = rowsAffected > 0;
+				using (var readcmd = new NpgsqlCommand(@"SELECT 
+                                            c_userid,
+                                            c_username,
+                                            c_email,
+                                            c_reason
+                                            FROM t_user 
+											WHERE c_userid = @c_userid", _conn))
+                                           
+				{
+					readcmd.Parameters.AddWithValue("@c_userid", Convert.ToInt32(userId));
+
+					var reader = await readcmd.ExecuteReaderAsync();
+					if (reader.Read())
+					{
+						var instructorName = Convert.ToString(reader["c_username"]);
+						var email = Convert.ToString(reader["c_email"]);
+						var reasons = Convert.ToString(reader["c_reason"]);
+
+						await _email.SendSuspendUserEmail(email, instructorName, reasons);
+					}
+				}
 			}
 		}
 		catch (Exception ex)
@@ -402,117 +426,59 @@ public class UserRepo : IUserInterface
 
 	#endregion
 
-	#region  AddBalance 
-	public async Task<int> AddBalance(Balance balance)
-	{
-		try
-		{
-			using (var cm = new NpgsqlCommand(@"UPDATE t_user SET c_balance = c_balance + @amount WHERE c_userid = @Userid", _conn))
-			{
-				cm.Parameters.AddWithValue("@Userid", balance.UserId);
-				cm.Parameters.AddWithValue("@amount", balance.Amount);
-
-				if (_conn.State == ConnectionState.Closed)
-				{
-					await _conn.OpenAsync();
-				}
-
-				var result = await cm.ExecuteNonQueryAsync();
-				if (
-					result > 0
-				)
-				{
-					return 1;
-				}
-				else
-				{
-					return 0;
-				}
-			}
-
-
-		}
-		catch (Exception ex)
-		{
-			Console.WriteLine(ex);
-			return -1;
-		}
-		finally
-		{
-			if (_conn.State != ConnectionState.Closed)
-			{
-				await _conn.CloseAsync();
-			}
-		}
-	}
-
-	#endregion
-
-	#region DebitBalance 
-
-	public async Task<int> DebitBalance(Balance balance)
-{
-    try
+	#region Activate User
+    public async Task<bool> ActivateUser (string userid)
     {
-        // Ensure the connection is open before using any command
-        if (_conn.State == ConnectionState.Closed)
+         bool isSuccess = false;
+        try
         {
-            await _conn.OpenAsync();
-        }
-
-        decimal currentBalance = 0;
-
-        // First command: check user's current balance
-        using (var cm = new NpgsqlCommand(@"SELECT c_balance FROM t_user WHERE c_userid = @Userid", _conn))
-        {
-            cm.Parameters.AddWithValue("@Userid", balance.UserId);
-
-            using (var reader = await cm.ExecuteReaderAsync())
+            if (_conn.State != ConnectionState.Open)
             {
-                if (await reader.ReadAsync()) // Use ReadAsync() and no need for HasRow
-                {
-                    currentBalance = reader.GetDecimal(0); // or reader.GetFieldValue<decimal>(0);
-                }
-                else
-                {
-                    Console.WriteLine("User not found");
-                    return 0;
-                }
+                await _conn.OpenAsync();
+            }
+
+            using (var cmd = new NpgsqlCommand("UPDATE t_user SET c_status ='true' WHERE c_userid = @c_userid", _conn))
+            {
+                cmd.Parameters.AddWithValue("@c_userid", Convert.ToInt32(userid));
+
+                // Execute the command and check affected rows
+                int rowsAffected = await cmd.ExecuteNonQueryAsync();
+                isSuccess = rowsAffected > 0;
+
+                using (var readcmd = new NpgsqlCommand(@"SELECT 
+                                            c_userid,
+                                            c_username,
+                                            c_email
+                                            FROM t_user 
+											WHERE c_userid = @c_userid", _conn))
+                                           
+				{
+					readcmd.Parameters.AddWithValue("@c_userid", Convert.ToInt32(userid));
+
+					var reader = await readcmd.ExecuteReaderAsync();
+					if (reader.Read())
+					{
+						var instructorName = Convert.ToString(reader["c_username"]);
+						var email = Convert.ToString(reader["c_email"]);
+						
+						await _email.SendActivateUserEmail(email, instructorName);
+					}
+				}
             }
         }
-
-        // Check balance
-        if (currentBalance < balance.Amount)
+        catch (Exception ex)
         {
-            Console.WriteLine("Insufficient balance");
-            return -1;
+            Console.WriteLine($"Error while approving instructor: {ex.Message}");
         }
-
-        // Second command: perform the debit
-        using (var cmd = new NpgsqlCommand(@"UPDATE t_user SET c_balance = c_balance - @Amount WHERE c_userid = @Userid", _conn))
+        finally
         {
-            cmd.Parameters.AddWithValue("@Amount", balance.Amount);
-            cmd.Parameters.AddWithValue("@Userid", balance.UserId);
-
-            var result = await cmd.ExecuteNonQueryAsync();
-            return result > 0 ? 1 : 0;
+            if (_conn.State != ConnectionState.Closed)
+            {
+                await _conn.CloseAsync();
+            }
         }
+        return isSuccess;
     }
-    catch (Exception ex)
-    {
-        Console.WriteLine(ex);
-        return -2;
-    }
-    finally
-    {
-        if (_conn.State != ConnectionState.Closed)
-        {
-            await _conn.CloseAsync();
-        }
-    }
-}
+    #endregion
 
-
-
-	#endregion
 }

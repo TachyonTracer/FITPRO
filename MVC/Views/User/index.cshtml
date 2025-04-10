@@ -258,9 +258,6 @@ header p {
         const response = await fetch('http://localhost:8080/api/Class/GetAllClasses');
         const result = await response.json();
         
-        // Debug log to see the API response structure
-        console.log('API Response:', result);
-        
         loading.style.display = 'none';
         
         if (!result.data || !Array.isArray(result.data)) {
@@ -268,16 +265,24 @@ header p {
         }
         
         result.data.forEach(classItem => {
-          // Debug log to see individual class item
-          console.log('Class Item:', classItem);
-          
+          // Function to extract description text
+          const getDescription = (desc) => {
+            if (!desc) return 'No description available';
+            if (typeof desc === 'string') return desc;
+            if (typeof desc === 'object') {
+              // Handle nested description object
+              return desc.description || desc.text || Object.values(desc)[0] || 'No description available';
+            }
+            return 'No description available';
+          };
+
           const card = `
             <div class="class-card">
               <img src="${classItem.imageUrl || '/img/fitness.jpg'}" alt="${classItem.className}" />
               <div class="card-content">
                 <h2>${classItem.className}</h2>
+                <p>${getDescription(classItem.description)}</p>
                 <p><strong>Instructor:</strong> ${classItem.instructorName || 'Not assigned'}</p>
-                @* <p>${classItem.description ? classItem.description : 'No description available'}</p>         *@
                 <p><strong>Duration:</strong> ${classItem.duration || 'N/A'} Hours</p>
                 <p><strong>Capacity:</strong> ${classItem.maxCapacity || classItem.capacity || 'N/A'} spots</p>
                 <button onclick="bookClass(${classItem.classId})">Book Now</button>
