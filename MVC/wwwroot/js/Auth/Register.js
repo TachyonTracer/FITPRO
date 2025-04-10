@@ -38,32 +38,6 @@ const themes = [
   },
 ];
 
-const setTheme = (theme) => {
-  const root = document.querySelector(":root");
-  const illustration = document.querySelector(".illustration");
-
-  root.style.setProperty("--background", theme.background);
-  root.style.setProperty("--color", theme.color);
-  root.style.setProperty("--primary-color", theme.primaryColor);
-  root.style.setProperty("--glass-color", theme.glassColor);
-
-  if (theme.color !== "#FFFFFF") {
-    illustration.style.background = "rgba(255, 255, 255, 0.3)";
-    illustration.style.borderRadius = "15px";
-    illustration.style.padding = "8px";
-  } else {
-    illustration.style.background = "none";
-    illustration.style.padding = "0";
-  }
-
-  const gymIcons = document.querySelectorAll(".gym-icon");
-  gymIcons.forEach((icon) => {
-    icon.style.backgroundImage = icon.style.backgroundImage.replace(
-      /stroke="[^"]*"/,
-      `stroke="${theme.color}"`
-    );
-  });
-};
 
 const displayThemeButtons = () => {
   const btnContainer = document.querySelector(".theme-btn-container");
@@ -179,6 +153,7 @@ $(document).ready(function () {
             format: "n0",
             min: 100,
             max: 300,
+            placeholder: "Enter height in cm"
           },
           validation: {
             required: true,
@@ -195,6 +170,7 @@ $(document).ready(function () {
             format: "n2",
             min: 30,
             max: 500,
+            placeholder: "Enter weight in kg"
           },
           validation: {
             required: true,
@@ -216,7 +192,7 @@ $(document).ready(function () {
               "Flexibility Improvement",
               "Sports Specific",
             ],
-            placeholder: "Select your goals...",
+            placeholder: "Select your goals",
           },
           validation: {
             required: true,
@@ -238,7 +214,7 @@ $(document).ready(function () {
               "Back Pain",
               "None",
             ],
-            placeholder: "Select any conditions...",
+            placeholder: "Select any conditions",
           },
           validation: {
             required: true,
@@ -276,12 +252,13 @@ $(document).ready(function () {
               "Dance",
               "Nutrition",
             ],
-            placeholder: "Select your specializations...",
+            placeholder: "Select your specializations"
           },
           validation: {
             required: true,
             maxLength: 100,
             messages: { required: "Please select at least one specialization" },
+            
           },
         },
         {
@@ -291,6 +268,7 @@ $(document).ready(function () {
             required: true,
             maxLength: 100,
             messages: { required: "Professional Association is required" },
+            placeholder: "Enter your association",
           },
         },
         {
@@ -707,57 +685,8 @@ $(document).ready(function () {
                 acceptTerms: formDataStore.personalInfo.acceptTerms || false,
               },
               items: this.form.items,
-              buttonsTemplate: "",
+              buttonsTemplate: ""
             });
-
-            var buttonContainer = $('<div class="wizard-buttons">').appendTo(form);
-            $('<button type="button" class="reset">Reset</button>')
-              .appendTo(buttonContainer)
-              .on("click", function () {
-                console.log("click");
-                var step1Form = wizard.steps()[0].element.find("form").data("kendoForm");
-                if (step1Form) {
-                  step1Form.clear();
-                  console.log("clear"); // Clear the Kendo form fields
-                  // Manually reset the terms checkbox
-                  step1Form.element.find("[name='acceptTerms']").data("kendoCheckBox").value(false);
-                  formDataStore.personalInfo.acceptTerms = false;
-                } else {
-                  console.log("form not found");
-                }
-                formDataStore.personalInfo = { acceptTerms: false };
-                emailValid = false;
-              });
-            $('<button type="button" class="next">Next</button>')
-              .appendTo(buttonContainer)
-              .on("click", function () {
-                var step1Form = wizard.steps()[0].element.find("form").data("kendoForm");
-                if (step1Form && step1Form.validate()) {
-                  if (!formDataStore.personalInfo.acceptTerms) {
-                    Swal.fire({
-                      icon: "error",
-                      title: "Terms Not Accepted",
-                      text: "You must accept the terms and conditions to proceed",
-                    });
-                    return;
-                  }
-                  if (!emailValid) {
-                    form
-                      .find("[name='email']")
-                      .closest(".k-form-field")
-                      .find(".email-error")
-                      .remove();
-                    form
-                      .find("[name='email']")
-                      .closest(".k-form-field")
-                      .append(
-                        '<span class="email-error">Please fix the email validation error</span>'
-                      );
-                    return;
-                  }
-                  wizard.select(1);
-                }
-              });
 
             return form;
           },
@@ -917,7 +846,7 @@ $(document).ready(function () {
                 field: "acceptTerms",
                 label: " ",
                 editor: function (container, options) {
-                  var input = $('<input type="checkbox" name="acceptTerms" required />')
+                  var input = $('<input type="checkbox" name="acceptTerms" required/>')
                     .appendTo(container)
                     .kendoCheckBox({
                       label: "I agree to the Terms and Conditions",
@@ -952,7 +881,7 @@ $(document).ready(function () {
               .on("click", function () {
                 wizard.select(1);
               });
-            $('<button type="button" id ="abcd"class="next">Submit</button>')
+            $('<button type="button" id="abcd" class="next">Submit</button>')
               .appendTo(buttonContainer)
               .on("click", function () {
                 var step3Form = wizard.steps()[2].element.find("form").data("kendoForm");
@@ -967,11 +896,6 @@ $(document).ready(function () {
       ],
       done: function (e) {
         e.preventDefault();
-
-        if (!emailValid) {
-          alert("Please fix the email validation error before proceeding.");
-          return;
-        }
 
         var formData = new FormData();
         formData.append("userName", formDataStore.personalInfo.fullName || "");
@@ -1016,16 +940,11 @@ $(document).ready(function () {
                 formDataStore.detailsInfo.certificates[i].rawFile
               );
             }
-          } else {
-            alert("Professional Certificates are required for instructors.");
-            return;
-          }
+          } 
+
           if (formDataStore.detailsInfo.idProof && formDataStore.detailsInfo.idProof.length > 0) {
             formData.append("idProofFile", formDataStore.detailsInfo.idProof[0].rawFile);
-          } else {
-            alert("ID Proof is required for instructors.");
-            return;
-          }
+          } 
         }
 
         if (
@@ -1036,10 +955,7 @@ $(document).ready(function () {
             "profileImageFile",
             formDataStore.profileImageInfo.profileImage[0].rawFile
           );
-        } else {
-          alert("Profile image is required.");
-          return;
-        }
+        } 
 
         console.log(...formData.entries());
 
