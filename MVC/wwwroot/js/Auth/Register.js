@@ -272,7 +272,7 @@ $(document).ready(function () {
               "Zumba",
               "Boxing",
               "Cycling",
-              "Crossfit",
+              "CrossFit",
               "Pilates",
               "Kickboxing",
               "Strength Training"
