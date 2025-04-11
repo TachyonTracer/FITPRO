@@ -390,12 +390,11 @@
             <img src="~/img/logo.png" alt="FitPro Logo" />
         </div>
         <ul class="nav-links">
-            <li><a href="Home.html">Home</a></li>
+            <li><a href="#" onclick="home()">Home</a></li>
             <li><a href="#classes">Classes</a></li>
-            <li><a href="#">Instructors</a></li>
+            <li><a href="#" onclick="myclasses()">My Classes</a></li>
             <li><a href="#">Contact</a></li>
         </ul>
-
         <!-- Wrap everything inside .profile-wrapper -->
         <div class="profile-wrapper">
             <img src="~/img/fitlogo.png" alt="Profile" class="profile-img" />
@@ -500,6 +499,41 @@
         </div>
     </footer>
     <script>
+        let uri = "http://localhost:8080";
+        // Function to format date and time
+        var userId;
+
+        userId = getUserIdFromToken();
+        function getUserIdFromToken() {
+            const token = localStorage.getItem("authToken");
+            if (!token) {
+                console.warn("No auth token found in localStorage.");
+                return null;
+            }
+            const decoded = parseJwt(token);
+            if (decoded) {
+                console.log("using parsing " + decoded + " " + decoded.UserObject);
+                console.log("using parsing " + JSON.parse(decoded.UserObject).userId);
+                console.log("using parsing printing its type " + typeof (JSON.parse(decoded.UserObject).userId));
+                let userId = JSON.parse(decoded.UserObject).userId;
+                console.log("user id is +" + userId);
+
+                return JSON.parse(decoded.UserObject).userId;
+            }
+            console.warn("Invalid or malformed token.");
+            return null;
+        }
+
+        function parseJwt(token) {
+            try {
+                const base64Url = token.split('.')[1];
+                const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+                return JSON.parse(atob(base64));
+            } catch (error) {
+                console.error("Invalid token:", error);
+                return null;
+            }
+        }
         const waitlistData = {
             "SpinRide": 10,
             "Power Yoga": 0
@@ -578,6 +612,16 @@
                 });
             });
         });
+
+        function myclasses() {
+            // Redirect to the class details page with the class ID
+            window.location.href = `/User/MyClasses?id=${userId}`;
+        }
+
+        function home() {
+            // Redirect to the class details page with the class ID
+            window.location.href = `/User/index`;
+        }
 
         // Auto-attach openFeedback to all feedback buttons
         document.querySelectorAll(".cancel-btn").forEach(btn => {
