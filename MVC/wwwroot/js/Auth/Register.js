@@ -268,13 +268,14 @@ $(document).ready(function () {
           editorOptions: {
             dataSource: [
               "Yoga",
+              "Gym",
+              "Zumba",
+              "Boxing",
+              "Cycling",
+              "Crossfit",
               "Pilates",
-              "Weight Training",
-              "Cardio",
-              "CrossFit",
-              "Martial Arts",
-              "Dance",
-              "Nutrition",
+              "Kickboxing",
+              "Strength Training"
             ],
             placeholder: "Select your specializations...",
           },
