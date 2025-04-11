@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Class Schedule Calendar with Attendance</title>
+
+    <!-- Include jQuery -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
+    <!-- Include FullCalendar CSS and JS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.10.2/fullcalendar.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.10.2/fullcalendar.min.js"></script>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+
+        #calendar {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .fc-event {
+            cursor: pointer;
+            border-radius: 3px;
+            padding: 2px 5px;
+        }
+
+        .yoga-class {
+            background-color: #4CAF50;
+            border-color: #4CAF50;
+        }
+
+        .pilates-class {
+            background-color: #2196F3;
+            border-color: #2196F3;
+        }
+
+        .dance-class {
+            background-color: #E91E63;
+            border-color: #E91E63;
+        }
+
+        .cardio-class {
+            background-color: #FF9800;
+            border-color: #FF9800;
+        }
+
+        .boxing-class {
+            background-color: #9C27B0;
+            border-color: #9C27B0;
+        }
+
+        .zumba-class {
+            background-color: #FF5722;
+            border-color: #FF5722;
+        }
+    </style>
+</head>
+
+<body>
+    <h2 style="text-align: center;">Class Schedule Calendar</h2>
+
+    <div id="calendar"></div>
+
+    <script>
+        $(document).ready(function () {
+            // Initialize FullCalendar
+            $('#calendar').fullCalendar({
+                header: {
+                    left: 'prev,next today',
+                    center: 'title',
+                    right: 'month,agendaWeek,agendaDay'
+                },
+                defaultView: 'agendaWeek',
+                navLinks: true,
+                editable: false,
+                eventLimit: true,
+                events: function (start, end, timezone, callback) {
+                    // AJAX call to fetch data from the API
+                    $.ajax({
+                        url: `http://localhost:8080/api/Class/GetClassesByInstructorId?id=1`,
+                        type: 'GET',
+                        dataType: 'json',
+                        success: function (response) {
+                            if (response.sucess) {
+                                var events = generateRecurringEvents(response.data);
+                                console.log(response.data);
+                                callback(events);
+                            } else {
+                                console.error('Failed to fetch classes:', response.message);
+                                callback([]);
+                            }
+                        },
+                        error: function (xhr, status, error) {
+                            console.error('Error fetching data:', error);
+                            callback([]);
+                        }
+                    });
+                },
+                eventClick: function (event) {
+                    alert('Class: ' + event.title + '\nInstructor: ' + event.instructor + '\nDescription: ' + event.description);
+                }
+            });
+
+            // Function to generate recurring events from API data
+            function generateRecurringEvents(classData) {
+                var events = [];
+
+                $.each(classData, function (i, classItem) {
+                    var startDate = moment(classItem.startDate);
+                    var endDate = moment(classItem.endDate);
+                    var startTime = classItem.startTime;
+                    var endTime = classItem.endTime;
+
+                    // Determine className based on type
+                    var className = '';
+                    switch (classItem.type.toLowerCase()) {
+                        case 'yoga':
+                            className = 'yoga-class';
+                            break;
+                        case 'pilates':
+                            className = 'pilates-class';
+                            break;
+                        case 'zumba':
+                            className = 'zumba-class';
+                            break;
+                        case 'boxing':
+                            className = 'boxing-class';
+                            break;
+                        case 'cardio':
+                        case 'gym':
+                            className = 'cardio-class';
+                            break;
+                        default:
+                            className = 'dance-class'; // Default fallback
+                    }
+
+                    // Generate events for each day between startDate and endDate
+                    for (var date = moment(startDate); date.isSameOrBefore(endDate); date.add(1, 'days')) {
+                        var eventStart = moment(date.format('YYYY-MM-DD') + ' ' + startTime);
+                        var eventEnd = moment(date.format('YYYY-MM-DD') + ' ' + endTime);
+
+                        events.push({
+                            id: classItem.classId + '-' + date.format('YYYYMMDD'),
+                            title: classItem.className,
+                            start: eventStart,
+                            end: eventEnd,
+                            className: className,
+                            instructor: classItem.instructorName || 'Unknown Instructor',
+                            description: classItem.description.purpose + ' - ' + classItem.description.benefits,
+                            allDay: false
+                        });
+                    }
+                });
+
+                return events;
+            }
+        });
+    </script>
+</body>
+
+</html>

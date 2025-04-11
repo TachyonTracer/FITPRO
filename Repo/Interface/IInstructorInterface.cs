@@ -31,6 +31,7 @@ public interface IInstructorInterface
 	Task<int> UpcomingClassCountByInstructor(string instructorId);
 	Task<int> UserCountByInstructor(string instructorId);
 	Task<List<Class>> UpcomingClassDetailsByInstructor(string instructorId);
+    Task<List<KeyValuePair<string, int>>> GetTypewiseClassCount(string instructorId);
 	#endregion
 
     #region BlogPost    
