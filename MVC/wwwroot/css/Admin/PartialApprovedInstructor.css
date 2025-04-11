@@ -145,24 +145,6 @@
 }
 
 
-
-/* #approved-pdf-preview-modal .modal-dialog {
-    max-width: 90%;
-    height: 90vh;
-}
-
-#approved-pdf-preview-modal .modal-content {
-    height: 100%;
-    background: var(--glass-color);
-    backdrop-filter: blur(15px);
-    border: 1px solid hsla(0, 0%, 65%, 0.2);
-    color: var(--color);
-    border-radius: 15px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-    overflow: hidden;
-    z-index: 5000; 
-} */
-
 /* Buttons (Updated from first CSS) */
 .btn-success {
     background-color: var(--success-color);

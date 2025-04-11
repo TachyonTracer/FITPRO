@@ -364,23 +364,43 @@ public async Task<IActionResult> UpdateClass([FromForm] Class request)
         [HttpDelete("CancelBooking/{userId}/{classId}")]
         public async Task<IActionResult> CancelBooking(int userId, int classId)
         {
-            if (userId <= 0 || classId <= 0)
+            try 
             {
-                return BadRequest(new
+                if (userId <= 0 || classId <= 0)
                 {
-                    success = false,
-                    message = "All IDs must be positive integers"
+                    return BadRequest(new
+                    {
+                        success = false,
+                        message = "User ID and Class ID must be positive integers"
+                    });
+                }
+
+                var (success, message) = await _classRepo.CancelBooking(userId, classId);
+
+                if (!success)
+                {
+                    return BadRequest(new
+                    {
+                        success = false,
+                        message = message
+                    });
+                }
+
+                return Ok(new
+                {
+                    success = true,
+                    message = message
                 });
             }
-
-            var (success, message) = await _classRepo.CancelBooking(userId, classId);
-
-            if (!success)
+            catch (Exception ex)
             {
-                return Ok(new { success = false, message });
+                return StatusCode(500, new
+                {
+                    success = false,
+                    message = "An error occurred while canceling the booking",
+                    error = ex.Message
+                });
             }
-
-            return Ok(new { success, message });
         }
         #endregion
 
