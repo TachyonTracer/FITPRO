@@ -38,5 +38,8 @@ public interface IInstructorInterface
     Task<int> SaveBlogDraft(BlogPost blogpost);
     Task<bool> UpdateBlogDraft(BlogPost blogpost);
     Task<bool> PublishBlog(BlogPost blogpost);
+    Task<List<BlogPost>> GetBlogsByInstructorId(int instructor_id);
+    Task<BlogPost> GetBlogById(int blog_id);
+
     #endregion
 }

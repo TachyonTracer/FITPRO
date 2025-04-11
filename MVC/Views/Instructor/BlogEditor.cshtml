@@ -349,16 +349,16 @@
                 <script>
 
                     @* Utility Functions *@
-                        function parseJwt(token) {
-                            try {
-                                const base64Url = token.split(".")[1];
-                                const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
-                                return JSON.parse(atob(base64));
-                            } catch (error) {
-                                console.error("Invalid token:", error);
-                                return null;
-                            }
+                    function parseJwt(token) {
+                        try {
+                            const base64Url = token.split(".")[1];
+                            const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+                            return JSON.parse(atob(base64));
+                        } catch (error) {
+                            console.error("Invalid token:", error);
+                            return null;
                         }
+                    }
                     function getUserIdFromToken() {
                         const token = localStorage.getItem("authToken");
                         if (!token) {
@@ -528,21 +528,61 @@
                         // Function to load blog data for editing
                         function loadBlogData(blogId) {
                             // First try to load from API
-                            const token = localStorage.getItem('jwt_token');
+                            const token = localStorage.getItem('authToken');
 
                             $.ajax({
-                                url: `http://localhost:8080/api/blogs/${blogId}`,
-                                type: 'GET',
+                                url: `http://localhost:8080/api/Instructor/GetBlogById?blog_id=${blogId}`,
+                                type: 'POST',
                                 headers: {
                                     'Authorization': token ? `Bearer ${token}` : '',
                                     'Content-Type': 'application/json'
                                 },
-                                success: function (blog) {
-                                    populateEditorWithBlogData(blog);
+                                success: function (response) {
+                                    // Check if response is successful and contains data
+                                    if (response.success && response.data && response.data.entries) {
+                                        const blog = response.data.entries;
+                                        
+                                        // Decode base64 content if it's encoded
+                                        if (blog.c_content && typeof blog.c_content === 'string') {
+                                            try {
+                                                // Check if it's base64 encoded
+                                                if (/^[A-Za-z0-9+/=]+$/.test(blog.c_content)) {
+                                                    blog.content = atob(blog.c_content);
+                                                } else {
+                                                    blog.content = blog.c_content;
+                                                }
+                                            } catch (e) {
+                                                console.error('Error decoding content:', e);
+                                                blog.content = blog.c_content;
+                                            }
+                                        }
+                                        
+                                        // Map API response fields to expected format
+                                        const mappedBlog = {
+                                            id: blog.c_blog_id,
+                                            title: blog.c_title,
+                                            description: blog.c_desc,
+                                            content: blog.content || blog.c_content,
+                                            thumbnailUrl: blog.c_thumbnail ? 
+                                                        (blog.c_thumbnail.startsWith('http') ? 
+                                                            blog.c_thumbnail : 
+                                                            `http://localhost:8081/BlogImages/Thumbnails/${blog.c_thumbnail}`) : '',
+                                            views: blog.c_views,
+                                            likes: blog.c_likes,
+                                            comments: blog.c_comments,
+                                            is_completed: blog.c_is_published ? 1 : 0,
+                                            createdAt: blog.c_created_at,
+                                            labels: blog.c_tags
+                                        };
+                                        
+                                        populateEditorWithBlogData(mappedBlog);
+                                    } else {
+                                        console.error('Invalid response format:', response);
+                                        alert('Could not load blog data. Starting with a new blog.');
+                                    }
                                 },
                                 error: function (xhr, status, error) {
                                     console.error('Error fetching blog data:', error);
-
                                     // If API fails, try to find blog in sample data
                                     loadSampleBlogData(blogId);
                                 },
@@ -627,6 +667,11 @@
                             // Set the content in the Kendo editor
                             const editor = $("#editor").data("kendoEditor");
                             editor.value(blog.content);
+
+                            // Set the description
+                            $("#blogDescription").val(blog.description);
+                            // Update the character counter for the description
+                            $("#descCharCounter").text(blog.description ? blog.description.length : 0);
 
                             // Set the tags/labels if available
                             if (blog.labels) {
@@ -893,19 +938,22 @@
                                 processData: false,
                                 contentType: false,
                                 success: function (response) {
-                                    // Restore button state
+                                    // Restore button state (if needed for non-success cases)
                                     $(btnId).prop('disabled', false).text(originalText);
 
                                     if (response.success) {
                                         const statusText = isCompleted ? "published" : "saved as draft";
                                         alert(`Blog ${statusText} successfully!`);
 
-                                        // Optional: Redirect to blog list or clear form
-                                        if (response.redirectUrl) {
-                                            window.location.href = response.redirectUrl;
-                                        } else {
-                                            window.location.href = "/instructor/BlogList"; // Redirect to blog list
-                                        }
+                                        // Disable the save button and prevent redirection
+                                        $(btnId).prop('disabled', true).text('Saved');
+
+                                        // If you still want to optionally redirect under certain conditions,
+                                        // you can do it based on another flag or user action
+                                        // Example:
+                                        // if (shouldRedirect) {
+                                        //     window.location.href = response.redirectUrl || "/instructor/BlogList";
+                                        // }
                                     } else {
                                         alert(`Error: ${response.message || 'Unknown error occurred'}`);
                                     }
