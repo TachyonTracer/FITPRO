@@ -18,7 +18,11 @@ public interface IUserInterface
 	 Task<bool> ActivateUser(string userId);
 	#endregion
 
-	public Task<bool> UpdateUserProfileAsync(User user);
+    #region User Story: Wallet TopUp
+    Task<User> GetUserBalanceById(int userId);
+    #endregion
+
+	Task<bool> UpdateUserProfileAsync(User user);
     Task<User> GetUserByIdAsync(int userId);
 
 }
