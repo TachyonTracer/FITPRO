@@ -1,0 +1,982 @@
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Add Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Inter', 'Georgia', sans-serif;
+            background-color: #121212;
+            color: #ffffff;
+        }
+
+        .blog-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .blog-title {
+            font-size: 42px;
+            font-weight: 800;
+            margin-bottom: 15px;
+            color: #ffffff;
+        }
+
+        .blog-subtitle {
+            font-size: 24px;
+            font-weight: 400;
+            color: #cccccc;
+            margin-bottom: 30px;
+        }
+
+        .author-section {
+            display: flex;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #333;
+        }
+
+        .author-image {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            overflow: hidden;
+            margin-right: 15px;
+        }
+
+        .author-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .author-info {
+            flex-grow: 1;
+        }
+
+        .author-name {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .publication-info {
+            display: flex;
+            font-size: 14px;
+            color: #aaaaaa;
+        }
+
+        .publication-info span {
+            margin-right: 10px;
+        }
+
+        .follow-btn {
+            background-color: #FFD700;
+            /* Yellow */
+            color: #000000;
+            padding: 5px 15px;
+            border: none;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .follow-btn:hover {
+            background-color: #E6C200;
+        }
+
+        .blog-content {
+            line-height: 1.8;
+            font-size: 18px;
+            margin-bottom: 40px;
+        }
+
+        .blog-content p {
+            margin-bottom: 25px;
+        }
+
+        .reaction-section {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 50px;
+            padding-top: 20px;
+            border-top: 1px solid #333;
+        }
+
+        .reactions-left {
+            display: flex;
+            align-items: center;
+        }
+
+        .reaction-btn {
+            background: none;
+            border: none;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            margin-right: 20px;
+            cursor: pointer;
+        }
+
+        .reaction-btn i {
+            margin-right: 5px;
+            color: #FFD700;
+            /* Yellow */
+            font-size: 20px;
+            /* Increased icon size */
+        }
+
+        .highlight {
+            color: #FFD700;
+            /* Yellow for highlights */
+        }
+
+        /* Comment section styles */
+        .comments-section {
+            margin-top: 50px;
+            border-top: 1px solid #333;
+            padding-top: 30px;
+        }
+
+        .comments-header {
+            font-size: 24px;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        .comment-form {
+            margin-bottom: 30px;
+        }
+
+        .comment-input {
+            width: 100%;
+            background-color: #1e1e1e;
+            border: 1px solid #333;
+            border-radius: 5px;
+            padding: 15px;
+            color: #ffffff;
+            font-size: 16px;
+            resize: vertical;
+            min-height: 80px;
+            margin-bottom: 15px;
+        }
+
+        .comment-submit {
+            background-color: #FFD700;
+            color: #000000;
+            padding: 8px 20px;
+            border: none;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .comment-submit:hover {
+            background-color: #E6C200;
+        }
+
+        .comments-list {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .comment {
+            background-color: #1e1e1e;
+            border-radius: 10px;
+            padding: 15px;
+        }
+
+        .comment-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .commenter-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 10px;
+            overflow: hidden;
+        }
+
+        .commenter-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .commenter-name {
+            font-weight: 600;
+            margin-right: 10px;
+        }
+
+        .comment-date {
+            color: #aaaaaa;
+            font-size: 12px;
+        }
+
+        .comment-body {
+            margin-bottom: 10px;
+            line-height: 1.5;
+        }
+
+        .comment-actions {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+            /* Add space below actions */
+        }
+
+        .comment-action {
+            color: #aaaaaa;
+            font-size: 14px;
+            cursor: pointer;
+            background: none;
+            border: none;
+            display: flex;
+            align-items: center;
+        }
+
+        .comment-action i {
+            margin-right: 5px;
+            font-size: 16px;
+        }
+
+        .comment-action:hover {
+            color: #FFD700;
+        }
+
+        .nested-comments {
+            margin-left: 50px;
+            margin-top: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .reply-form {
+            margin: 10px 0 15px 0;
+            /* Better vertical spacing */
+            display: none;
+            border-radius: 8px;
+            overflow: hidden;
+            /* Ensure rounded corners work with child elements */
+        }
+
+        .reply-form.active {
+            display: block;
+        }
+
+        .reply-form .comment-input {
+            border-radius: 8px;
+            resize: none;
+            /* Prevent manual resizing */
+            min-height: 60px;
+            /* Shorter height for replies */
+            margin-bottom: 10px;
+            width: 100%;
+            box-sizing: border-box;
+            /* Ensure padding doesn't break width */
+            padding: 10px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+            /* Subtle shadow */
+        }
+
+        .reply-form .comment-submit {
+            display: inline-block;
+            float: right;
+            /* Position on the right */
+            margin-bottom: 5px;
+            /* Space below button */
+        }
+
+        /* Clear float after the button */
+        .reply-form:after {
+            content: "";
+            display: table;
+            clear: both;
+        }
+
+        @@media (max-width: 768px) {
+            .blog-title {
+                font-size: 32px;
+            }
+
+            .blog-subtitle {
+                font-size: 20px;
+            }
+
+            .author-section {
+                flex-wrap: wrap;
+            }
+
+            .nested-comments {
+                margin-left: 20px;
+            }
+        }
+
+        /* Bookmark button styles */
+        .bookmark-btn {
+            background: none;
+            border: none;
+            color: #FFD700;
+            font-size: 24px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: absolute;
+            top: 40px;
+            right: 20px;
+        }
+
+        .bookmark-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .bookmark-btn.active {
+            color: #FFD700;
+        }
+
+        .bookmark-btn:not(.active) {
+            color: #555;
+        }
+
+        /* Blog stats section */
+        .blog-stats {
+            display: flex;
+            gap: 15px;
+            color: #aaaaaa;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+
+        .blog-stats-item {
+            display: flex;
+            align-items: center;
+        }
+
+        .blog-stats-item i {
+            margin-right: 5px;
+            font-size: 16px;
+        }
+
+        /* Fixed addNewReply function bug */
+        .error-message {
+            background-color: #ffdddd;
+            color: #ff0000;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Blog Content -->
+    <div class="blog-container" id="blog-container">
+        <!-- Content will be loaded dynamically -->
+        <div id="loading-indicator" style="text-align: center; padding: 50px;">
+            <i class="fa-solid fa-spinner fa-spin fa-2xl"></i>
+            <p>Loading blog content...</p>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Define commentsData globally within this scope
+            let commentsData = [];
+
+            // Load blog data via AJAX
+            loadBlogData();
+
+            // Function to fetch blog data
+            function loadBlogData() {
+                // You would replace this URL with your actual endpoint
+                const blogId = new URLSearchParams(window.location.search).get('id') || '1';
+                const url = `/api/blog/${blogId}`;
+
+                $.ajax({
+                    url: url,
+                    method: 'GET',
+                    dataType: 'json',
+                    success: function (data) {
+                        renderBlogPost(data);
+                    },
+                    error: function (xhr, status, error) {
+                        console.error('Error fetching blog data:', error);
+                        // Load sample data as fallback
+                        renderBlogPost(getSampleBlogData());
+                    }
+                });
+            }
+
+            // Sample blog data for fallback
+            function getSampleBlogData() {
+                return {
+                    c_title: "The Art of Fitness: Finding Your Perfect Workout Routine",
+                    c_desc: "Discover how personalized fitness can transform your health journey",
+                    c_authorname: "Alex Johnson",
+                    c_profilePicture: "https://media.istockphoto.com/id/1300845620/vector/user-icon-flat-isolated-on-white-background-user-symbol-vector-illustration.jpg?s=612x612&w=0&k=20&c=yBeyba0hUkh14_jgv1OKqIH0CCSWU_4ckRkAoy2p73o=",
+                    c_authorspecification: "Fitness Coach & Nutritionist",
+                    c_published_at: 1686841200, // June 15, 2023 in Unix epoch time
+                    c_content: `<p>
+                        The journey to fitness is deeply personal. What works for one person might not work for another.
+                        This is why understanding your body's unique needs is the first step toward achieving your fitness goals.
+                        </p>
+
+                        <p>
+                        In this comprehensive guide, we'll explore how to design a workout routine that aligns with your specific
+                        goals, lifestyle, and preferences. Whether you're a beginner just starting out or an experienced fitness enthusiast
+                        looking to break through a plateau, this post will provide valuable insights to help you optimize your
+                        fitness journey.
+                        </p>
+                        <h1>Hello world</h1>
+                        <img src='http://localhost:8081/BlogImages/TempImages/1a841813-7ba5-4e25-839c-2e4470cd8d39.jpg' alt='' srcset=''
+                        width='1000'>
+
+
+                        <p class="highlight">
+                        "The best workout plan is the one you can stick to consistently. Sustainability trumps intensity every time."
+                        </p>
+
+                        <p>
+                        We'll cover different training methodologies, recovery strategies, nutrition basics, and how to track progress
+                        effectively. By the end of this article, you'll have actionable steps to create or refine your workout routine
+                        for maximum effectiveness.
+                        </p>
+
+                        <p>
+                        Remember that fitness is not just about physical transformation—it's about improving your overall quality of life,
+                        boosting your confidence, and enhancing your mental well-being. A well-designed fitness routine addresses all these
+                        aspects holistically.
+                        </p>
+
+                        <p>
+                        Ready to transform your approach to fitness? Let's dive in and discover the workout routine that will help you
+                        thrive both in and out of the gym.
+                        </p>`,
+                    c_likes: 128,
+                    c_comments: 24,
+                    c_views: 1563,
+                    isBookmarked: false
+                };
+            }
+
+            // Function to render blog post with provided data
+            function renderBlogPost(blogData) {
+                // Format the date from Unix epoch time
+                const publishDate = new Date(blogData.c_published_at * 1000);
+                const formattedDate = publishDate.toLocaleDateString('en-US', {
+                    month: 'long',
+                    day: 'numeric',
+                    year: 'numeric'
+                });
+
+                // Estimated read time calculation (rough estimate based on word count)
+                const wordCount = blogData.c_content.split(' ').length;
+                const readMinutes = Math.max(1, Math.round(wordCount / 200)); // Assuming average reading speed of 200 words per minute
+
+                // Create HTML for blog content
+                const blogHtml = `
+                    <!-- Bookmark button -->
+                    <button class="bookmark-btn" id="bookmark-button">
+                        <i class="fa-${blogData.isBookmarked ? 'solid' : 'regular'} fa-bookmark"></i>
+                    </button>
+
+                    <h1 class="blog-title">${blogData.c_title}</h1>
+                    <h2 class="blog-subtitle">${blogData.c_desc}</h2>
+
+                    <div class="author-section">
+                        <div class="author-image">
+                            <img src="${blogData.c_profilePicture}" alt="Author profile"
+                                onerror="this.src='https://via.placeholder.com/60'">
+                        </div>
+                        <div class="author-info">
+                            <div class="author-name">${blogData.c_authorname}</div>
+                            <div class="publication-info">
+                                <span>${blogData.c_authorspecification}</span>
+                                <span>•</span>
+                                <span>${readMinutes} min read</span>
+                                <span>•</span>
+                                <span>${formattedDate}</span>
+                            </div>
+                        </div>
+                        <button class="follow-btn">Follow</button>
+                    </div>
+
+                    <!-- Blog stats section -->
+                    <div class="blog-stats">
+                        <div class="blog-stats-item">
+                            <i class="fa-solid fa-eye"></i> ${blogData.c_views} views
+                        </div>
+                        <div class="blog-stats-item">
+                            <i class="fa-solid fa-hands-clapping"></i> ${blogData.c_likes} likes
+                        </div>
+                        <div class="blog-stats-item">
+                            <i class="fa-solid fa-comment"></i> ${blogData.c_comments} comments
+                        </div>
+                    </div>
+
+                    <div class="blog-content">
+                        ${blogData.c_content}
+                    </div>
+
+                    <!-- Error message display -->
+                    <div class="error-message" id="error-message"></div>
+
+                    <!-- Comments Section -->
+                    <div class="comments-section">
+                        <h3 class="comments-header">Comments (${blogData.c_comments})</h3>
+
+                        <!-- Comment Form -->
+                        <div class="comment-form">
+                            <textarea class="comment-input" placeholder="Add a comment..."></textarea>
+                            <button class="comment-submit">Comment</button>
+                        </div>
+
+                        <!-- Comments List -->
+                        <div class="comments-list">
+                            <!-- Comments will be dynamically loaded -->
+                        </div>
+                    </div>
+                `;
+
+                // Replace loading indicator with blog content
+                document.getElementById('blog-container').innerHTML = blogHtml;
+
+                // Set commentsData to be accessible from outside this function
+                commentsData = [
+                    {
+                        id: "1",
+                        parent_id: null, // null means top-level comment
+                        author: "Sarah Johnson",
+                        avatar: "https://media.istockphoto.com/id/1300845620/vector/user-icon-flat-isolated-on-white-background-user-symbol-vector-illustration.jpg?s=612x612&w=0&k=20&c=yBeyba0hUkh14_jgv1OKqIH0CCSWU_4ckRkAoy2p73o=",
+                        date: "2 days ago",
+                        text: "This is exactly what I needed to read today! I've been struggling with consistency in my workout routine, and this perspective on sustainability over intensity is so important.",
+                        likes: 15
+                    },
+                    {
+                        id: "2",
+                        parent_id: null,
+                        author: "Michael Chen",
+                        avatar: "https://media.istockphoto.com/id/1300845620/vector/user-icon-flat-isolated-on-white-background-user-symbol-vector-illustration.jpg?s=612x612&w=0&k=20&c=yBeyba0hUkh14_jgv1OKqIH0CCSWU_4ckRkAoy2p73o=",
+                        date: "3 days ago",
+                        text: "I'd love to see more specific examples of how to create sustainable workout routines for different fitness levels. Could you elaborate on that in a future post?",
+                        likes: 8
+                    },
+                    {
+                        id: "3",
+                        parent_id: "1", // reply to comment with id "1"
+                        author: "Alex Johnson",
+                        avatar: "https://media.istockphoto.com/id/1300845620/vector/user-icon-flat-isolated-on-white-background-user-symbol-vector-illustration.jpg?s=612x612&w=0&k=20&c=yBeyba0hUkh14_jgv1OKqIH0CCSWU_4ckRkAoy2p73o=",
+                        date: "1 day ago",
+                        text: "Glad you found it helpful, Sarah! What specific part of your routine do you find hardest to maintain?",
+                        likes: 6
+                    },
+                    {
+                        id: "4",
+                        parent_id: "3", // reply to comment with id "3"
+                        author: "Sarah Johnson",
+                        avatar: "https://media.istockphoto.com/id/1300845620/vector/user-icon-flat-isolated-on-white-background-user-symbol-vector-illustration.jpg?s=612x612&w=0&k=20&c=yBeyba0hUkh14_jgv1OKqIH0CCSWU_4ckRkAoy2p73o=",
+                        date: "1 day ago",
+                        text: "Definitely consistency with cardio. I tend to focus more on strength training because I enjoy it more, but I know I need both for balanced fitness.",
+                        likes: 4
+                    },
+                    {
+                        id: "5",
+                        parent_id: "4", // nested reply to comment with id "4"
+                        author: "Alex Johnson",
+                        avatar: "https://media.istockphoto.com/id/1300845620/vector/user-icon-flat-isolated-on-white-background-user-symbol-vector-illustration.jpg?s=612x612&w=0&k=20&c=yBeyba0hUkh14_jgv1OKqIH0CCSWU_4ckRkAoy2p73o=",
+                        date: "23 hours ago",
+                        text: "That's common! Try integrating short cardio sessions (15-20 min) after your strength training rather than separate workouts. You're already at the gym, so leverage that momentum.",
+                        likes: 3
+                    },
+                    {
+                        id: "6",
+                        parent_id: null, // nested reply to comment with id "4"
+                        author: "Alex Johnson",
+                        avatar: "https://media.istockphoto.com/id/1300845620/vector/user-icon-flat-isolated-on-white-background-user-symbol-vector-illustration.jpg?s=612x612&w=0&k=20&c=yBeyba0hUkh14_jgv1OKqIH0CCSWU_4ckRkAoy2p73o=",
+                        date: "23 hours ago",
+                        text: "That's common! Try integrating short cardio sessions (15-20 min) after your strength training rather than separate workouts. You're already at the gym, so leverage that momentum.",
+                        likes: 3
+                    }
+                ];
+
+                // Load comments
+                loadComments(commentsData);
+
+                // Bookmark functionality
+                const bookmarkButton = document.getElementById('bookmark-button');
+                let isBookmarked = blogData.isBookmarked;
+
+                // Set initial bookmark state
+                updateBookmarkIcon();
+
+                bookmarkButton.addEventListener('click', function () {
+                    isBookmarked = !isBookmarked;
+                    updateBookmarkIcon();
+                    // In a real app, you'd save this state to the server
+                    console.log('Bookmark state:', isBookmarked);
+                });
+
+                function updateBookmarkIcon() {
+                    if (isBookmarked) {
+                        bookmarkButton.classList.add('active');
+                        bookmarkButton.innerHTML = '<i class="fa-solid fa-bookmark"></i>';
+                    } else {
+                        bookmarkButton.classList.remove('active');
+                        bookmarkButton.innerHTML = '<i class="fa-regular fa-bookmark"></i>';
+                    }
+                }
+
+                // Comment submission
+                const mainCommentForm = document.querySelector('.comment-form .comment-submit');
+                mainCommentForm.addEventListener('click', function () {
+                    const commentInput = this.previousElementSibling;
+                    const commentText = commentInput.value.trim();
+
+                    if (commentText) {
+                        addNewComment(commentText);
+                        commentInput.value = '';
+                    }
+                });
+            }
+
+            // Functions to handle comments
+            function loadComments(comments) {
+                const commentsList = document.querySelector('.comments-list');
+                commentsList.innerHTML = ''; // Clear existing comments
+
+                // First, render all top-level comments (parent_id is null)
+                const topLevelComments = comments.filter(comment => comment.parent_id === null);
+
+                topLevelComments.forEach(comment => {
+                    const commentElement = createCommentElement(comment);
+
+                    // Find and add all replies for this comment
+                    const repliesContainer = commentElement.querySelector(`.nested-comments`);
+                    appendReplies(repliesContainer, comment.id, comments);
+
+                    commentsList.appendChild(commentElement);
+                });
+
+                // Attach event listeners after loading comments
+                attachCommentEventListeners();
+            }
+
+            // Recursive function to append replies
+            function appendReplies(container, parentId, allComments) {
+                // Find direct replies to this parent
+                const replies = allComments.filter(comment => comment.parent_id === parentId);
+
+                replies.forEach(reply => {
+                    const replyElement = createCommentElement(reply);
+
+                    // Recursively find and append nested replies
+                    const nestedContainer = replyElement.querySelector('.nested-comments');
+                    appendReplies(nestedContainer, reply.id, allComments);
+
+                    container.appendChild(replyElement);
+                });
+            }
+
+            function createCommentElement(comment) {
+                const commentElement = document.createElement('div');
+                commentElement.className = 'comment';
+                commentElement.id = `comment-${comment.id}`;
+
+                commentElement.innerHTML = `
+                    <div class="comment-header">
+                        <div class="commenter-avatar">
+                            <img src="${comment.avatar}" alt="${comment.author}">
+                        </div>
+                        <div class="commenter-name">${comment.author}</div>
+                        <div class="comment-date">${comment.date}</div>
+                    </div>
+                    <div class="comment-body">
+                        ${comment.text}
+                    </div>
+                    <div class="comment-actions">
+                        <!-- Removed like button as requested -->
+                        <button class="comment-action reply-action" data-comment-id="${comment.id}"><i class="fa-solid fa-reply"></i>&nbsp&nbspReply</button>
+                    </div>
+                    <div class="reply-form" id="reply-form-${comment.id}">
+                        <textarea class="comment-input" placeholder="Write your reply..."></textarea>
+                        <button class="comment-submit" data-parent-id="${comment.id}">Reply</button>
+                    </div>
+                    <div class="nested-comments" id="nested-comments-${comment.id}"></div>
+                `;
+
+                return commentElement;
+            }
+
+            // Function to add a new comment
+            function addNewComment(text) {
+                try {
+                    const commentsList = document.querySelector('.comments-list');
+
+                    // Get max comment ID and increment by 1
+                    let maxId = 6; // Start from ID 7
+                    commentsData.forEach(comment => {
+                        const commentId = parseInt(comment.id);
+                        if (!isNaN(commentId) && commentId > maxId) {
+                            maxId = commentId;
+                        }
+                    });
+                    const newCommentId = (maxId + 1).toString();
+
+                    // Create formatted date and time
+                    const now = new Date();
+                    const formattedDateTime = formatDateTime(now);
+
+                    const newComment = {
+                        id: newCommentId,
+                        parent_id: null, // top level comment has null parent_id
+                        author: "You",
+                        avatar: "https://media.istockphoto.com/id/1300845620/vector/user-icon-flat-isolated-on-white-background-user-symbol-vector-illustration.jpg?s=612x612&w=0&k=20&c=yBeyba0hUkh14_jgv1OKqIH0CCSWU_4ckRkAoy2p73o=",
+                        date: formattedDateTime,
+                        text: text,
+                        likes: 0
+                    };
+
+                    // Add to our data array
+                    commentsData.push(newComment);
+
+                    const commentElement = createCommentElement(newComment);
+
+                    // Insert at the top of the list
+                    commentsList.insertBefore(commentElement, commentsList.firstChild);
+
+                    // Update comment counters
+                    updateCommentsCounter(1);
+
+                    // Attach event listeners
+                    attachCommentEventListeners();
+
+                    console.log(`Added new comment with ID: ${newCommentId}, parent_id: null`);
+
+                } catch (error) {
+                    showError("Error adding comment: " + error.message);
+                }
+            }
+
+            // Function to add a new reply
+            function addNewReply(text, parentId) {
+                try {
+                    // Find the parent comment's nested-comments container
+                    const nestedCommentsContainer = document.getElementById(`nested-comments-${parentId}`);
+
+                    // Check if the container exists
+                    if (!nestedCommentsContainer) {
+                        throw new Error(`Cannot find nested comments container for parent: ${parentId}`);
+                    }
+
+                    // Get max comment ID and increment by 1
+                    let maxId = 6; // Start from ID 7
+                    commentsData.forEach(comment => {
+                        const commentId = parseInt(comment.id);
+                        if (!isNaN(commentId) && commentId > maxId) {
+                            maxId = commentId;
+                        }
+                    });
+                    const newReplyId = (maxId + 1).toString();
+
+                    // Create formatted date and time
+                    const now = new Date();
+                    const formattedDateTime = formatDateTime(now);
+
+                    const newReply = {
+                        id: newReplyId,
+                        parent_id: parentId, // Set the parent_id to the comment being replied to
+                        author: "You",
+                        avatar: "https://media.istockphoto.com/id/1300845620/vector/user-icon-flat-isolated-on-white-background-user-symbol-vector-illustration.jpg?s=612x612&w=0&k=20&c=yBeyba0hUkh14_jgv1OKqIH0CCSWU_4ckRkAoy2p73o=",
+                        date: formattedDateTime,
+                        text: text,
+                        likes: 0
+                    };
+
+                    // Add to our data array
+                    commentsData.push(newReply);
+
+                    const replyElement = createCommentElement(newReply);
+
+                    // Add to the nested comments - insert at the beginning to show newest reply first
+                    if (nestedCommentsContainer.firstChild) {
+                        nestedCommentsContainer.insertBefore(replyElement, nestedCommentsContainer.firstChild);
+                    } else {
+                        nestedCommentsContainer.appendChild(replyElement);
+                    }
+
+                    // Update comment counters
+                    updateCommentsCounter(1);
+
+                    // Attach event listeners
+                    attachCommentEventListeners();
+
+                    console.log(`Added new reply with ID: ${newReplyId}, parent_id: ${parentId}`);
+
+                } catch (error) {
+                    showError("Error adding reply: " + error.message);
+                }
+            }
+
+            // Helper function to format date and time
+            function formatDateTime(date) {
+                const day = date.getDate();
+                const month = date.toLocaleString('default', { month: 'short' });
+                const year = date.getFullYear();
+                const hours = date.getHours();
+                const minutes = date.getMinutes().toString().padStart(2, '0');
+
+                // Format: "May 15, 2023 at 14:30"
+                return `${month} ${day}, ${year} at ${hours}:${minutes}`;
+            }
+
+            function attachCommentEventListeners() {
+                // Remove all existing event listeners first by cloning and replacing elements
+                // This prevents duplicate event listeners
+
+                // Remove the like button handlers since we removed the like buttons
+
+                // Reply buttons 
+                document.querySelectorAll('.reply-action').forEach(button => {
+                    const newButton = button.cloneNode(true);
+                    button.parentNode.replaceChild(newButton, button);
+
+                    newButton.addEventListener('click', function () {
+                        const commentId = this.getAttribute('data-comment-id');
+                        const replyForm = document.getElementById(`reply-form-${commentId}`);
+
+                        // Check if this form is already active
+                        const isCurrentlyActive = replyForm.classList.contains('active');
+
+                        // Close all reply forms first
+                        document.querySelectorAll('.reply-form.active').forEach(form => {
+                            form.classList.remove('active');
+                        });
+
+                        // Only open if it wasn't already active (this creates true toggle behavior)
+                        if (!isCurrentlyActive && replyForm) {
+                            replyForm.classList.add('active');
+                            // Auto-focus the textarea for immediate typing
+                            replyForm.querySelector('textarea').focus();
+                        }
+                    });
+                });
+
+                // Submit reply buttons
+                document.querySelectorAll('.reply-form .comment-submit').forEach(button => {
+                    const newButton = button.cloneNode(true);
+                    button.parentNode.replaceChild(newButton, button);
+
+                    newButton.addEventListener('click', function () {
+                        const replyInput = this.previousElementSibling;
+                        const replyText = replyInput.value.trim();
+                        const parentId = this.getAttribute('data-parent-id');
+
+                        if (replyText) {
+                            addNewReply(replyText, parentId);
+                            replyInput.value = '';
+                            // Close the reply form after submission
+                            const replyForm = document.getElementById(`reply-form-${parentId}`);
+                            if (replyForm) {
+                                replyForm.classList.remove('active');
+                            }
+                        }
+                    });
+                });
+            }
+
+            // Function to show error messages
+            function showError(message) {
+                const errorElement = document.getElementById('error-message');
+                errorElement.textContent = message;
+                errorElement.style.display = 'block';
+
+                setTimeout(() => {
+                    errorElement.style.display = 'none';
+                }, 5000);
+
+                console.error(message);
+            }
+
+            // Function to update comments counter
+            function updateCommentsCounter(increment) {
+                try {
+                    // Update header counter
+                    const commentsHeader = document.querySelector('.comments-header');
+                    const currentCount = parseInt(commentsHeader.textContent.match(/\d+/)[0]);
+                    const newCount = currentCount + increment;
+                    commentsHeader.textContent = `Comments (${newCount})`;
+
+                    // Update reactions counter
+                    const commentButton = document.getElementById('comment-button');
+                    if (commentButton) {
+                        const currentButtonCount = parseInt(commentButton.textContent.trim().split(' ')[1]);
+                        const newButtonCount = currentButtonCount + increment;
+                        commentButton.innerHTML = `<i class="fa-solid fa-comment"></i> ${newButtonCount}`;
+                    }
+                } catch (error) {
+                    console.error("Error updating comment counters:", error);
+                }
+            }
+
+            // Listen for clicks on the like button
+            const likeButton = document.getElementById('like-button');
+            if (likeButton) {
+                likeButton.addEventListener('click', function () {
+                    const currentLikes = parseInt(this.textContent.trim().split(' ')[1]);
+                    const newCount = currentLikes + 1;
+                    this.innerHTML = `<i class="fa-solid fa-hands-clapping"></i> ${newCount}`;
+                });
+            }
+
+            // Smooth scroll to comments when comment button is clicked
+            const commentButton = document.getElementById('comment-button');
+            if (commentButton) {
+                commentButton.addEventListener('click', function () {
+                    document.querySelector('.comments-section').scrollIntoView({
+                        behavior: 'smooth'
+                    });
+                });
+            }
+
+            // Fallback for icons if Font Awesome fails to load
+            setTimeout(function () {
+                const icons = document.querySelectorAll('.reaction-btn i');
+                icons.forEach(icon => {
+                    if (getComputedStyle(icon).width === '0px') {
+                        // Fallback to text if icons don't load
+                        if (icon.className.includes('hands-clapping')) {
+                            icon.textContent = '👏';
+                        } else if (icon.className.includes('comment')) {
+                            icon.textContent = '💬';
+                        } else if (icon.className.includes('share')) {
+                            icon.textContent = '↗️';
+                        }
+                    }
+                });
+            }, 1000);
+        });
+    </script>
+</body>
+
+</html>
