@@ -1,13 +1,15 @@
-<!DOCTYPE html>
-<html lang="en">
+@* <!DOCTYPE html> *@
+<html>
 
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Power Yoga Class</title>
-    <link rel="stylesheet" href="style.css" />
+    @* <link rel="stylesheet" href="style.css" /> *@
     <style>
         body {
+            background: url("/img/gym1.jpg") no-repeat center center fixed;
+            background-size: cover;
             margin: 0;
             font-family: 'Segoe UI', sans-serif;
             background-color: #0f0f0f;
@@ -353,6 +355,8 @@
             }
         }
     </style>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
 </head>
 
 <body>
@@ -363,7 +367,7 @@
         <ul class="nav-links">
             <li><a href="#">Home</a></li>
             <li><a href="#classes">Classes</a></li>
-            <li><a href="#">Instructors</a></li>
+            <li><a href="#">My Classes</a></li>
             <li><a href="#">Contact</a></li>
         </ul>
 
@@ -399,9 +403,6 @@
                     Specialization: Power Yoga, Meditation, Flexibility Training
                 </div>
             </div>
-
-            <p><strong>Description:</strong> Improve strength, flexibility, and mindfulness. Suitable for beginners &
-                intermediate level fitness lovers.</p>
 
             <h3>Schedule</h3>
             <p><strong>Dates:</strong> 27 April - 4 May</p>
@@ -572,26 +573,185 @@
             alert("🕓 You've been added to the waiting list!");
         }
 
-        function bookThisClass() {
-            confetti({
-                particleCount: 100,
-                angle: 60,
-                spread: 55,
-                origin: { x: 0 },
-                colors: ['#facc15', '#ffffff']
-            });
+        async function bookThisClass() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const classId = urlParams.get('id');
 
-            // Confetti from right
-            confetti({
-                particleCount: 100,
-                angle: 120,
-                spread: 55,
-                origin: { x: 1 },
-                colors: ['#facc15', '#ffffff']
-            });
+            const userId = 1; // Hardcoded user ID since login is not implemented
+
+            if (!classId) {
+                Swal.fire({
+                    title: 'Error',
+                    text: 'No class ID provided',
+                    icon: 'error'
+                });
+                return;
+            }
+
+            try {
+                const response = await fetch('http://localhost:8080/api/Class/BookClass', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        classId: parseInt(classId),
+                        userId: userId
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    // Show success confetti
+                    confetti({
+                        particleCount: 100,
+                        angle: 60,
+                        spread: 55,
+                        origin: { x: 0 },
+                        colors: ['#facc15', '#ffffff']
+                    });
+
+                    confetti({
+                        particleCount: 100,
+                        angle: 120,
+                        spread: 55,
+                        origin: { x: 1 },
+                        colors: ['#facc15', '#ffffff']
+                    });
+
+                    Swal.fire({
+                        title: 'Success!',
+                        text: 'Class booked successfully!',
+                        icon: 'success',
+                        confirmButtonText: 'OK'
+                    }).then(() => {
+                        window.location.reload();
+                    });
+                } else {
+                    Swal.fire({
+                        title: 'Booking Failed',
+                        text: result.message || 'Failed to book class',
+                        icon: 'error',
+                        confirmButtonText: 'OK'
+                    });
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                Swal.fire({
+                    title: 'Error',
+                    text: 'Failed to book class. Please try again.',
+                    icon: 'error',
+                    confirmButtonText: 'OK'
+                });
+            }
         }
+
+        function getUserIdFromToken() {
+            // Hardcoded user ID for testing without login
+            return 1; // You can change this to any valid user ID in your database
+        }
+
+        // Update the DOMContentLoaded event handler
+        document.addEventListener('DOMContentLoaded', async function () {
+            const urlParams = new URLSearchParams(window.location.search);
+            const classId = urlParams.get('id');
+            console.log(classId);
+
+            if (!classId) {
+                Swal.fire({
+                    title: 'Error',
+                    text: 'No class ID provided',
+                    icon: 'error',
+                    confirmButtonText: 'OK'
+                });
+                return;
+            }
+
+            try {
+                // Fetch class details
+                const classResponse = await fetch(`http://localhost:8080/api/Class/GetOneClass?id=${classId}`);
+                const classData = await classResponse.json();
+
+                if (!classData.sucess) {
+                    throw new Error(classData.message || 'Failed to fetch class data');
+                }
+
+                const classInfo = classData.data;
+
+                // Update class details tab with dynamic data
+                document.querySelector('.class-details h1').textContent = classInfo.className;
+
+                // Update class details in the first table
+                const detailsTab = document.querySelector('#details-tab');
+                const detailsRows = detailsTab.querySelectorAll('.detail-row:not(.header)');
+
+                // Update location, capacity and availability
+                detailsRows[0].children[0].textContent = classInfo.address;
+                detailsRows[0].children[1].textContent = `${classInfo.maxCapacity} Participants`;
+                detailsRows[0].children[2].textContent = `${classInfo.availableCapacity} Spots Left`;
+
+                // Update purpose, benefits and fee
+                if (classInfo.description && typeof classInfo.description === 'object') {
+                    detailsRows[1].children[0].textContent = classInfo.description.purpose || 'No purpose specified';
+                    detailsRows[1].children[1].textContent = classInfo.description.benefits || 'No benefits specified';
+                }
+                detailsRows[1].children[2].textContent = `₹${classInfo.fee}`;
+
+                // Update schedule
+                const scheduleElements = document.querySelectorAll('.class-details p');
+                scheduleElements.forEach(element => {
+                    if (element.textContent.includes('Dates:')) {
+                        element.innerHTML = `<strong>Dates:</strong> ${new Date(classInfo.startDate).toLocaleDateString()} - ${new Date(classInfo.endDate).toLocaleDateString()}`;
+                    } else if (element.textContent.includes('Time:')) {
+                        element.innerHTML = `<strong>Time:</strong> ${classInfo.startTime} - ${classInfo.endTime}`;
+                    } else if (element.textContent.includes('Duration:')) {
+                        element.innerHTML = `<strong>Duration:</strong> ${classInfo.duration} minutes`;
+                    }
+                });
+
+                // Update booking section based on availability
+                const bookSection = document.getElementById('book-section');
+                const waitlistSection = document.getElementById('waitlist-section');
+
+                if (classInfo.availableCapacity > 0) {
+                    bookSection.style.display = 'block';
+                    waitlistSection.style.display = 'none';
+                } else {
+                    bookSection.style.display = 'none';
+                    waitlistSection.style.display = 'block';
+                    document.getElementById('waitlist-count').textContent = classInfo.waitlistCount || 0;
+                    updateWaitlistColor(classInfo.waitlistCount || 0);
+                }
+
+                // Update gallery images if available
+                if (classInfo.assets) {
+                    const gallery = document.querySelector('.class-gallery');
+                    gallery.innerHTML = ''; // Clear existing images
+
+                    Object.entries(classInfo.assets)
+                        .filter(([key]) => key.startsWith('picture') || key === 'banner')
+                        .forEach(([_, value], index) => {
+                            const img = document.createElement('img');
+                            img.src = `/ClassAssets/${value}`;
+                            img.alt = `Class Image ${index + 1}`;
+                            img.className = index === 0 ? 'active' : '';
+                            img.onerror = () => img.src = '/img/fitness.jpg';
+                            gallery.appendChild(img);
+                        });
+                }
+
+            } catch (error) {
+                console.error('Error:', error);
+                Swal.fire({
+                    title: 'Error',
+                    text: 'Failed to load class details',
+                    icon: 'error'
+                });
+            }
+        });
     </script>
-    <script src="script.js"></script>
+    @* <script src="script.js"></script> *@
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
 </body>
