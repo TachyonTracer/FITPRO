@@ -176,8 +176,8 @@ $(document).ready(function () {
         {
           label: "Active Users",
           data: [], // User counts will be populated dynamically
-          borderColor: "#ff4d4d",
-          backgroundColor: "rgba(255, 77, 77, 0.2)",
+          borderColor: "#facc15",
+          backgroundColor: "rgba(207, 214, 144, 0.2)",
           fill: true,
           tension: 0.4,
           pointBackgroundColor: "#ff4d4d",
@@ -243,7 +243,7 @@ $(document).ready(function () {
       datasets: [
         {
           data: [0, 0],
-          backgroundColor: ["#ff4d4d", "#666"],
+          backgroundColor: ["#facc15", "#666"],
           borderColor: "#fff",
           borderWidth: 1,
         },
@@ -308,8 +308,8 @@ $(document).ready(function () {
                 {
                   label: "Class Count",
                   data: counts,
-                  backgroundColor: "rgba(255, 77, 77, 0.5)",
-                  borderColor: "#ff4d4d",
+                  backgroundColor: "rgba(225, 237, 121, 0.2)",
+                  borderColor: "#facc15",
                   borderWidth: 1,
                 },
               ],

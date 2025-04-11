@@ -73,5 +73,7 @@ public class Instructor
 
     [Display(Name = "Profile Image")]
     public IFormFile? profileImageFile { get; set; }
+
+    public string? reason { get; set; }
 }
 

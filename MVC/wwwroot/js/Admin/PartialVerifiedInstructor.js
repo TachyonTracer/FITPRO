@@ -154,53 +154,6 @@ function approveInstructor() {
     });
 }
 
-// Disapprove Instructor with Swal.fire
-// function disapproveInstructor() {
-//     if (!currentVerifiedInstructorId) {
-//         Swal.fire("Error", "Please select an instructor first.", "error");
-//         return;
-//     }
-
-//     Swal.fire({
-//         title: "Are you sure?",
-//         text: "Do you want to disapprove this instructor?",
-//         icon: "warning",
-//         showCancelButton: true,
-//         confirmButtonText: "Yes, Disapprove",
-//         cancelButtonText: "Cancel"
-//     }).then((result) => {
-//         if (result.isConfirmed) {
-//             $.ajax({
-//                 url: `${uri}/api/Instructor/InstructorDisapprove/${currentVerifiedInstructorId}`,
-//                 type: "POST",
-//                 success: function (response) {
-//                     Swal.fire({
-//                         title: "Success",
-//                         text: "Instructor disapproved, Disapprove mail send successfull!",
-//                         icon: "success",
-//                         confirmButtonText: "OK"
-//                     }).then(() => {
-//                         currentVerifiedInstructorId = null;
-                        
-//                         $("#verified-details").addClass('d-none');
-//                         $("#verified-default-message").removeClass('d-none');
-//                         // Reload both lists
-//                         loadVerifiedInstructorList();
-//                         loadInstructorList();
-//                     });
-//                 },
-//                 error: function () {
-//                     Swal.fire({
-//                         title: "Error",
-//                         text: "Failed to disapprove instructor.",
-//                         icon: "error",
-//                         confirmButtonText: "OK"
-//                     });
-//                 }
-//             });
-//         }
-//     });
-// }
 
 
 function disapproveInstructor() {
@@ -229,32 +182,35 @@ function disapproveInstructor() {
         }
     }).then((result) => {
         if (result.isConfirmed) {
-            const disapprovalReason = result.value;
+            const reason = result.value;
+
+            const formData = new FormData();
+            formData.append("reason", reason);
 
             $.ajax({
                 url: `${uri}/api/Instructor/InstructorDisapprove/${currentVerifiedInstructorId}`,
                 type: "POST",
-                contentType: "application/json",
-                data: JSON.stringify({ reason: disapprovalReason }), // send reason in body
+                data: formData,
+                processData: false,
+                contentType: false,
                 success: function (response) {
                     Swal.fire({
                         title: "Success",
-                        text: "Instructor disapproved. Disapproval email sent successfully!",
+                        text: response.message,
                         icon: "success",
                         confirmButtonText: "OK"
                     }).then(() => {
                         currentVerifiedInstructorId = null;
-
                         $("#verified-details").addClass('d-none');
                         $("#verified-default-message").removeClass('d-none');
                         loadVerifiedInstructorList();
                         loadInstructorList();
                     });
                 },
-                error: function () {
+                error: function (xhr) {
                     Swal.fire({
                         title: "Error",
-                        text: "Failed to disapprove instructor.",
+                        text: xhr.responseJSON?.message || "Failed to disapprove instructor.",
                         icon: "error",
                         confirmButtonText: "OK"
                     });
@@ -263,6 +219,8 @@ function disapproveInstructor() {
         }
     });
 }
+
+
 
 function viewPDF(pdfUrl, title) {
     $('#verified-document-title').text(title);

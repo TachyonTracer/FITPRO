@@ -1,8 +1,8 @@
 :root {
-  --background: #1a1a2e;
+  --background:#0d0d0d;
   --color: #ffffff;
-  --primary-color: #ff4d4d;
-  --glass-color: rgba(255, 255, 255, 0.1);
+  --primary-color:#facc15;
+  --glass-color: rgba(26, 26, 46, 0.8);
   --card-bg: rgba(26, 26, 46, 0.8);
   --border-color: rgba(255, 255, 255, 0.1);
   --dropdown-bg: #2a2a3e;
@@ -24,7 +24,14 @@ body {
   position: relative;
   overflow-x: hidden;
 }
-
+ /* body {
+background: url("gym1.jpg") no-repeat center center fixed;
+background-size: cover;
+background-color: #0d0d0d;
+font-family: "Poppins", sans-serif;
+color: #facc15;
+margin: 0;
+padding: 0;} */
 /* Header Styles */
 .header {
   background: rgba(0, 0, 0, 0.3);
@@ -248,7 +255,7 @@ h2 {
 }
 
 .btn-primary:hover {
-  background-color: #ff3333;
+  background-color: var(--primary-color);
   border-color: #ff3333;
   transform: translateY(-2px);
   box-shadow: 0 4px 8px rgba(255, 77, 77, 0.3);
@@ -613,7 +620,7 @@ h2 {
 }
 
 .chart-container h3 {
-  color: var(--primary-color);
+  color: #facc15;
   margin-bottom: 20px;
 }
 
