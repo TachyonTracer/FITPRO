@@ -23,6 +23,10 @@ namespace MVC
         {
             return View();
         }
+         public ActionResult Myclasses()
+        {
+            return View();
+        }
         public ActionResult Dashboard()
         {
             return View();
