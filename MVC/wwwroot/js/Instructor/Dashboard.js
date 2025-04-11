@@ -158,28 +158,68 @@ document.addEventListener("DOMContentLoaded", function () {
     },
   };
 
-  // Initialize charts with common options
-  const classTypeCtx = document
-    .getElementById("classTypeChart")
-    .getContext("2d");
-  new Chart(classTypeCtx, {
-    type: "doughnut",
-    data: {
-      labels: ["Yoga", "HIIT", "Pilates", "Meditation"],
-      datasets: [
-        {
-          data: [30, 25, 20, 25],
-          backgroundColor: ["#ff4d4d", "#4d4dff", "#4dff4d", "#ff9d4d"],
-        },
-      ],
-    },
-    options: {
-      ...chartOptions,
-      maintainAspectRatio: false,
-      height: 400,
-      width: 300,
-    },
-  });
+  // Chart setup
+const classTypeCtx = document.getElementById("classTypeChart").getContext("2d");
+
+// Default Chart (without data)
+const classTypeChart = new Chart(classTypeCtx, {
+  type: "doughnut",
+  data: {
+    labels: [],  // Labels will be populated dynamically
+    datasets: [
+      {
+        data: [],  // Data will be populated dynamically
+        backgroundColor: ["#ff4d4d", "#4d4dff", "#4dff4d", "#ff9d4d"], // You can change the color logic if needed
+      },
+    ],
+  },
+  options: {
+    maintainAspectRatio: false,
+    height: 400,
+    width: 300,
+  },
+});
+
+// Function to fetch data from API and update the chart
+async function updateChartData(instructorId) {
+  try {
+    // Fetch the data from your API
+    const response = await fetch(`${uri}/api/Instructor/typewise-class-count/${instructorId}`);
+
+    // Ensure the response is OK (status code 200)
+    if (!response.ok) {
+      throw new Error('Failed to fetch data');
+    }
+
+    const apiData = await response.json();
+
+    // Check if the API response is successful
+    if (apiData.success) {
+      const classData = apiData.data;
+
+      // Map the response to chart labels and data
+      classTypeChart.data.labels = classData.map(item => item.key);  
+      classTypeChart.data.datasets[0].data = classData.map(item => item.value);
+
+      classTypeChart.data.datasets[0].backgroundColor = classData.map((_, index) => {
+        const colors = ["#ff4d4d", "#4d4dff", "#4dff4d", "#ff9d4d"];
+        return colors[index % colors.length];
+      });
+
+      // After updating the data, call update to render the changes
+      classTypeChart.update();
+    } else {
+      console.error("API returned error:", apiData.message);
+    }
+  } catch (error) {
+    console.error("Error fetching data:", error);
+  }
+}
+
+// Call the update function to fetch data and update the chart
+// const instructorId = 'your-instructor-id';  // Replace this with actual instructor ID
+updateChartData(instructorId);
+
 
   const studentEngagementCtx = document
     .getElementById("studentEngagementChart")

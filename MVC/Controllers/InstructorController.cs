@@ -40,5 +40,13 @@ namespace MVC
         }
 
         #endregion
+
+        #region ClassSchedule
+
+        public IActionResult ClassSchedule(){
+            return View();
+        }
+
+        #endregion
     }
 }
