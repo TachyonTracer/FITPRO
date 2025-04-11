@@ -10,8 +10,8 @@
   <style>
     
 body {
-  background: url("gym1.jpg") no-repeat center center fixed;
-  background-size: cover;
+    background: url("/img/gym1.jpg") no-repeat center center fixed;
+    background-size: cover;
   background-color: #0d0d0d;
   font-family: "Poppins", sans-serif;
   color: #facc15;
@@ -219,7 +219,7 @@ header p {
     <ul class="nav-links">
       <li><a href="#">Home</a></li>
       <li><a href="#classes">Classes</a></li>
-      <li><a href="#">Instructors</a></li>
+      <li><a href="#">My Classes</a></li>
       <li><a href="#">Contact</a></li>
     </ul>
 
@@ -285,7 +285,7 @@ header p {
                 <p><strong>Instructor:</strong> ${classItem.instructorName || 'Not assigned'}</p>
                 <p><strong>Duration:</strong> ${classItem.duration || 'N/A'} Hours</p>
                 <p><strong>Capacity:</strong> ${classItem.maxCapacity || classItem.capacity || 'N/A'} spots</p>
-                <button onclick="bookClass(${classItem.classId})">Book Now</button>
+                <button onclick="viewClassDetails(${classItem.classId})">Book Now</button>
               </div>
             </div>
           `;
@@ -298,31 +298,10 @@ header p {
       }
     }
 
-    // Function to book a class
-    async function bookClass(classId) {
-      try {
-        const response = await fetch(`http://localhost:8080/api/Class/BookClass/${classId}`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          }
-        });
-
-        if (response.ok) {
-          // Show success confetti
-          confetti({
-            particleCount: 100,
-            spread: 70,
-            origin: { y: 0.6 }
-          });
-          alert('Class booked successfully!');
-        } else {
-          alert('Failed to book class. Please try again.');
-        }
-      } catch (error) {
-        console.error('Error booking class:', error);
-        alert('Error booking class. Please try again.');
-      }
+    // Function to view class details
+    function viewClassDetails(classId) {
+        // Redirect to the class details page with the class ID
+        window.location.href = `/User/Classdetails?id=${classId}`;
     }
 
     // Load classes when the page loads
