@@ -459,7 +459,8 @@ public class InstructorRepo : IInstructorInterface
                 cmd.Parameters.AddWithValue("@c_instructorid", Convert.ToInt32(instructorId));
 
                 var count = await cmd.ExecuteScalarAsync();
-                return Convert.ToInt32(count);
+                return count != DBNull.Value ? Convert.ToInt32(count) : 0;
+                // return Convert.ToInt32(count);
             }
         }
         catch (Exception ex)
@@ -756,7 +757,6 @@ public class InstructorRepo : IInstructorInterface
     {
         if (_conn.State == System.Data.ConnectionState.Closed)
         {
-
             await _conn.OpenAsync();
         }
 
@@ -773,7 +773,6 @@ public class InstructorRepo : IInstructorInterface
 
         try
         {
-
 
             using (var command = new NpgsqlCommand(query, _conn))
             {
@@ -802,7 +801,6 @@ public class InstructorRepo : IInstructorInterface
             if (_conn.State == System.Data.ConnectionState.Open)
             {
                 await _conn.CloseAsync();
-
             }
         }
     }
@@ -862,7 +860,8 @@ public class InstructorRepo : IInstructorInterface
                                         c_desc = @c_desc,
                                         c_content = @c_content,
                                         c_thumbnail = @c_thumbnail,
-                                        c_is_published = @c_is_published,
+                                        c_published_at = @c_published_at,
+                                        c_is_published = @c_is_published
                                     WHERE c_blog_id = @c_blog_id";
 
                 try
@@ -882,7 +881,6 @@ public class InstructorRepo : IInstructorInterface
                         command.Parameters.AddWithValue("@c_thumbnail", blogpost.c_thumbnail ?? (object)DBNull.Value);
                         command.Parameters.AddWithValue("@c_published_at", DateTimeOffset.UtcNow.ToUnixTimeSeconds());
                         command.Parameters.AddWithValue("@c_is_published", true);
-                        command.Parameters.AddWithValue("@c_source_url", blogpost.c_source_url ?? (object)DBNull.Value);
 
                         int rowsAffected = await command.ExecuteNonQueryAsync();
                         return rowsAffected > 0;

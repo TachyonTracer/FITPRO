@@ -1,5 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
+using System.IO;
+
 using Repo;
 
 namespace API
@@ -333,21 +335,12 @@ namespace API
         {
             if (blogpost.c_blog_author_id >0) {
                 try {
-
+                    // Set Thumbnail Name
                     var fileName = "";
                     if (blogpost.ThumbnailFile != null && blogpost.ThumbnailFile.Length > 0)
                     {
-                        Directory.CreateDirectory("../MVC/wwwroot/BlogImages/Thumbnails");
-
                         fileName = Guid.NewGuid() + System.IO.Path.GetExtension(blogpost.ThumbnailFile.FileName);
-
-                        var filePath = System.IO.Path.Combine("../MVC/wwwroot/BlogImages/Thumbnails", fileName);
                         blogpost.c_thumbnail = fileName;
-
-                        using (var stream = new FileStream(filePath, FileMode.Create))
-                        {
-                            blogpost.ThumbnailFile.CopyTo(stream);
-                        }
                     } else {
                         if (blogpost.c_blog_id <0) {
                             blogpost.c_thumbnail = "default.png";
@@ -361,14 +354,14 @@ namespace API
                         blogpost.c_content = Convert.ToBase64String(contentBytes);
                     }
 
+                    var returnDict = new Dictionary<string, object>();
+
                     if (blogpost.c_blog_id > 0) {
                         var result = await _instructorRepo.UpdateBlogDraft(blogpost);
                         if (result) {
-                            return Ok(new {
-                                success=true,
-                                message="Successfully Updated the blog as draft.",
-                                blog_id=blogpost.c_blog_id
-                            });
+                            returnDict["success"] = true;
+                            returnDict["message"] = "Successfully updated the blog as draft.";
+                            returnDict["blog_id"] = blogpost.c_blog_id;
                         } else {
                             return StatusCode(500, new { success = false, message = "An unexpected error occurred while updating your blog." });
                         }
@@ -377,15 +370,49 @@ namespace API
                         // var result = Convert.ToInt32(_instructorRepo.SaveBlogDraft(blogpost));
                         var result = await _instructorRepo.SaveBlogDraft(blogpost);
                         if (result > 0 ) {
-                            return Ok(new {
-                                success=true,
-                                message="Successfully Saved the blog as draft.",
-                                blog_id=result
-                            });
+                            blogpost.c_blog_id = result;
+                            returnDict["success"] = true;
+                            returnDict["message"] = "Successfully Saved the blog as draft.";
+                            returnDict["blog_id"] = blogpost.c_blog_id;
                         } else {
                             return StatusCode(500, new { success = false, message = "An unexpected error occurred while saving your blog as draft." });
                         }
                     }
+
+                    // Delete Previous Thumbnail and Store New one 
+                    if (blogpost.ThumbnailFile != null && blogpost.ThumbnailFile.Length > 0 && blogpost.c_blog_id > 0)
+                    {
+                        // DeleteBlogThumbnails(blogpost.c_blog_id.ToString());
+                        var webRootPath = Path.Combine("../MVC", "wwwroot");
+                        var thumbnailDir = Path.Combine(webRootPath, "BlogImages", "Thumbnails", blogpost.c_blog_id.ToString());
+
+                        if (Directory.Exists(thumbnailDir))
+                        {
+                            var files = Directory.GetFiles(thumbnailDir);
+                            foreach (var file in files)
+                            {
+                                try
+                                {
+                                    System.IO.File.Delete(file);
+                                }
+                                catch (Exception ex)
+                                {
+                                    // Handle exceptions (log or throw)
+                                    Console.WriteLine($"Error deleting file {file}: {ex.Message}");
+                                }
+                            }
+                        } 
+                        Directory.CreateDirectory($"../MVC/wwwroot/BlogImages/Thumbnails/{blogpost.c_blog_id}");
+                        
+                        var filePath = System.IO.Path.Combine($"../MVC/wwwroot/BlogImages/Thumbnails/{blogpost.c_blog_id}", fileName);
+                        using (var stream = new FileStream(filePath, FileMode.Create))
+                        {
+                            blogpost.ThumbnailFile.CopyTo(stream);
+                        }
+                    }
+
+                    // Return here
+                    return Ok(returnDict);
                 } 
                 catch (Exception e) {
                     Console.WriteLine(e.Message);
@@ -402,31 +429,81 @@ namespace API
         {
             if (blogpost.c_blog_author_id >0) {
                 try {
+
+                    // Set Thumbnail Name
                     var fileName = "";
                     if (blogpost.ThumbnailFile != null && blogpost.ThumbnailFile.Length > 0)
                     {
-                        Directory.CreateDirectory("../MVC/wwwroot/BlogImages/Thumbnails");
-
                         fileName = Guid.NewGuid() + System.IO.Path.GetExtension(blogpost.ThumbnailFile.FileName);
+                        blogpost.c_thumbnail = fileName;
+                    } else {
+                        if (blogpost.c_blog_id <0) {
+                            blogpost.c_thumbnail = "default.png";
+                        }
+                    }
 
-                        var filePath = System.IO.Path.Combine("../MVC/wwwroot/BlogImages/Thumbnails", fileName);
-                        blogpost.c_thumbnail = filePath;
+                    // Convert c_content to Base64
+                    if (!string.IsNullOrEmpty(blogpost.c_content))
+                    {
+                        var contentBytes = System.Text.Encoding.UTF8.GetBytes(blogpost.c_content);
+                        blogpost.c_content = Convert.ToBase64String(contentBytes);
+                    }
 
+                    // If User directly hits 'Publish'. 
+                    if (blogpost.c_blog_id <= 0) {
+                        
+                        // Create a new source url for new blog.
+                        blogpost.c_source_url = $"blog-post-{Convert.ToString(Guid.NewGuid())}";
+
+                        var result = await _instructorRepo.SaveBlogDraft(blogpost);
+                        if (result > 0 ) {
+                            blogpost.c_blog_id = result;
+                        } else {
+                            return StatusCode(500, new { success = false, message = "An unexpected error occurred while saving your blog." });
+                        }
+                    }
+
+                    // Delete Previous Thumbnail and Store New one 
+                    if (blogpost.ThumbnailFile != null && blogpost.ThumbnailFile.Length > 0 && blogpost.c_blog_id > 0)
+                    {
+                        // DeleteBlogThumbnails(blogpost.c_blog_id.ToString());
+                        var webRootPath = Path.Combine("../MVC", "wwwroot");
+                        var thumbnailDir = Path.Combine(webRootPath, "BlogImages", "Thumbnails", blogpost.c_blog_id.ToString());
+
+                        if (Directory.Exists(thumbnailDir))
+                        {
+                            var files = Directory.GetFiles(thumbnailDir);
+                            foreach (var file in files)
+                            {
+                                try
+                                {
+                                    System.IO.File.Delete(file);
+                                }
+                                catch (Exception ex)
+                                {
+                                    // Handle exceptions (log or throw)
+                                    Console.WriteLine($"Error deleting file {file}: {ex.Message}");
+                                }
+                            }
+                        } 
+                        Directory.CreateDirectory($"../MVC/wwwroot/BlogImages/Thumbnails/{blogpost.c_blog_id}");
+                        
+                        var filePath = System.IO.Path.Combine($"../MVC/wwwroot/BlogImages/Thumbnails/{blogpost.c_blog_id}", fileName);
                         using (var stream = new FileStream(filePath, FileMode.Create))
                         {
                             blogpost.ThumbnailFile.CopyTo(stream);
                         }
-                    } else {
-                        blogpost.c_thumbnail = "http://localhost:8081/BlogImages/Thumbnails/default.png";
                     }
 
+                    // If User hits 'Publish' after draft. 
                     if (blogpost.c_blog_id > 0) {
-                        var result = Convert.ToBoolean(_instructorRepo.PublishBlog(blogpost));
+                        var result = await _instructorRepo.PublishBlog(blogpost);
                         if (result) {
                             return Ok(new {
                                 success=true,
                                 message="Successfully Published the blog.",
-                                blog_url=blogpost.c_source_url,
+                                blog_id=blogpost.c_blog_id,
+                                blog_url=$"{blogpost.c_source_url}",
                                 return_url="instructor"
                             });
                         } else {

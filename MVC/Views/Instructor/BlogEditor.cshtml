@@ -289,6 +289,9 @@
     <div id="example">
         <div class="container-fluid">
             <div class="demo-section wide">
+                <!-- Blog Source Url-->
+                <input id="blog_source_url" type="text" class="form-control" hidden>
+
                 <!-- Blog Title Input -->
                 <div class="input-section">
                     <label for="blogTitle" class="form-label">Title:</label>
@@ -563,16 +566,14 @@
                                             title: blog.c_title,
                                             description: blog.c_desc,
                                             content: blog.content || blog.c_content,
-                                            thumbnailUrl: blog.c_thumbnail ? 
-                                                        (blog.c_thumbnail.startsWith('http') ? 
-                                                            blog.c_thumbnail : 
-                                                            `http://localhost:8081/BlogImages/Thumbnails/${blog.c_thumbnail}`) : '',
+                                            thumbnailUrl: blog.c_thumbnail ? blog.c_thumbnail : 'default.png',
                                             views: blog.c_views,
                                             likes: blog.c_likes,
                                             comments: blog.c_comments,
-                                            is_completed: blog.c_is_published ? 1 : 0,
+                                            is_published: blog.c_is_published ? 1 : 0,
                                             createdAt: blog.c_created_at,
-                                            labels: blog.c_tags
+                                            labels: blog.c_tags,
+                                            source_url: blog.c_source_url
                                         };
                                         
                                         populateEditorWithBlogData(mappedBlog);
@@ -603,7 +604,7 @@
                                     views: 1245,
                                     likes: 89,
                                     comments: 23,
-                                    is_completed: 1,
+                                    is_published: 1,
                                     createdAt: "2023-06-15T14:22:00Z",
                                     labels: "stretching,recovery,flexibility,post-workout"
                                 },
@@ -616,7 +617,7 @@
                                     views: 2150,
                                     likes: 167,
                                     comments: 42,
-                                    is_completed: 1,
+                                    is_published: 1,
                                     createdAt: "2023-05-20T09:15:00Z",
                                     labels: "nutrition,muscle,protein,diet"
                                 },
@@ -629,7 +630,7 @@
                                     views: 3542,
                                     likes: 245,
                                     comments: 58,
-                                    is_completed: 1,
+                                    is_published: 1,
                                     createdAt: "2023-07-03T16:40:00Z",
                                     labels: "HIIT,cardio,workout,fitness"
                                 },
@@ -642,7 +643,7 @@
                                     views: 987,
                                     likes: 76,
                                     comments: 19,
-                                    is_completed: 0,
+                                    is_published: 0,
                                     createdAt: "2023-07-10T11:30:00Z",
                                     labels: "mindfulness,mental health,workout,meditation"
                                 }
@@ -663,6 +664,7 @@
                         function populateEditorWithBlogData(blog) {
                             // Set the title
                             $("#blogTitle").val(blog.title);
+                            $("#blog_source_url").val(blog.source_url);
 
                             // Set the content in the Kendo editor
                             const editor = $("#editor").data("kendoEditor");
@@ -687,16 +689,17 @@
                             // Set the thumbnail preview if available
                             if (blog.thumbnailUrl) {
                                 thumbnailData = blog.thumbnailUrl; // Store URL for reference
-                                $("#thumbnailPreview").html(`<img src="${blog.thumbnailUrl}" alt="Thumbnail">`);
+                                $("#thumbnailPreview").html(`<img src="http://localhost:8081/BlogImages/Thumbnails/${blog.id}/${blog.thumbnailUrl}" alt="Thumbnail">`);
                             }
 
-                            // Update button text based on completion status
-                            if (blog.is_completed === 0) {
+                            // Update button text based on publish status
+                            if (blog.is_published === 0) {
                                 $("#saveButton").text("Publish Blog");
                                 $("#saveDraftButton").text("Update Draft");
                             } else {
                                 $("#saveButton").text("Update & Publish");
-                                $("#saveDraftButton").text("Save as Draft");
+                                @* $("#saveDraftButton").text("Save as Draft"); *@
+                                $("#saveDraftButton").hide(); 
                             }
 
                             // Update page title to show we're editing
@@ -879,12 +882,13 @@
 
                         // Save button click handler
                         $("#saveButton").click(function () {
-                            saveContent(1, 'http://localhost:8080/api/instructor/SaveDraft');
+                            saveContent(1, 'http://localhost:8080/api/instructor/PublishBlog');
                         });
 
-                        // Function to save content with is_completed status
-                        function saveContent(isCompleted, endpoint) {
+                        // Function to save content with is_published status
+                        function saveContent(publish_, endpoint) {
                             const c_title = $("#blogTitle").val();
+                            const c_source_url = $("#blog_source_url").val();
                             const c_desc = $("#editor").data("kendoEditor").value()
                                 .replace(/<[^>]*>/g, '') // Strip HTML tags for description
                                 .substring(0, 200);  // Limit to 200 chars for description
@@ -906,13 +910,16 @@
                             formData.append("c_likes", -1);
                             formData.append("c_comments", -1);
                             formData.append("c_source_url", "http://localhost:8081/blog/default_blog_page");
-                            @* formData.append("is_completed", isCompleted); *@
+                            @* formData.append("is_published", false); *@
 
                             // If we're editing an existing blog, include the ID
                             if (editMode && currentBlogId) {
                                 formData.append("c_blog_id", currentBlogId);
+                                formData.append("c_source_url", c_source_url);
+
                             } else {
                                 formData.append("c_blog_id", -1);
+                                formData.append("c_source_url", "http://localhost:8081/blog/default_blog_page");
                             }
 
                             // Add thumbnail file if selected
@@ -926,9 +933,11 @@
                             }
 
                             // Show loading state
-                            const btnId = isCompleted ? "#saveButton" : "#saveDraftButton";
+                            const btnId = publish_ ? "#saveButton" : "#saveDraftButton";
                             const originalText = $(btnId).text();
-                            $(btnId).prop('disabled', true).text('Saving...');
+                            const savingText = publish_ ? "Publishing..." : "Saving...";
+                            const afterApiText = publish_ ? "Published" : "Saved";
+                            $(btnId).prop('disabled', true).text(savingText);
 
                             // Send AJAX request
                             $.ajax({
@@ -942,18 +951,18 @@
                                     $(btnId).prop('disabled', false).text(originalText);
 
                                     if (response.success) {
-                                        const statusText = isCompleted ? "published" : "saved as draft";
+                                        const statusText = publish_ ? "published" : "Saved as draft";
+                                        if (publish_ === 1) {
+                                            $("#saveDraftButton").hide();
+                                        } else {
+                                            currentBlogId = response.blog_id;
+                                            editMode = true;
+                                        }
+                                        // Disable the save button and prevent redirection
+                                        $(btnId).prop('disabled', true).text(afterApiText);
+
                                         alert(`Blog ${statusText} successfully!`);
 
-                                        // Disable the save button and prevent redirection
-                                        $(btnId).prop('disabled', true).text('Saved');
-
-                                        // If you still want to optionally redirect under certain conditions,
-                                        // you can do it based on another flag or user action
-                                        // Example:
-                                        // if (shouldRedirect) {
-                                        //     window.location.href = response.redirectUrl || "/instructor/BlogList";
-                                        // }
                                     } else {
                                         alert(`Error: ${response.message || 'Unknown error occurred'}`);
                                     }
