@@ -11,7 +11,12 @@ namespace Repo
         Task SendOtpEmail(string username, string email, string otp);
         Task SendActivationLink(string email, string username, string activationUrl);
         Task SendApproveInstructorEmail(string email, string username);
-        Task SendDisapproveInstructorEmail(string email, string username);
+        Task SendDisapproveInstructorEmail(string email, string username, string reason);
+        Task SendSuspendInstructorEmail(string email, string username, string reason);
+        Task SendSuspendUserEmail(string email, string username, string reason);
+        Task SendActivateUserEmail(string email, string username);
+        Task SendActivateInstructorEmail(string email, string username);
+        Task SendBookingConfirmationEmail(string email, string username, string bookingDetails);
 
     }
 }

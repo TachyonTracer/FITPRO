@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Power Yoga Class</title>
+    <link rel="stylesheet" href="style.css" />
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', sans-serif;
+            background-color: #0f0f0f;
+            color: #facc15;
+        }
+
+        .navbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 7px 30px;
+            position: sticky;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid #333;
+        }
+
+        .logo img {
+            height: 40px;
+            width: auto;
+            object-fit: contain;
+            filter: brightness(1.2);
+            margin-top: 7px;
+        }
+
+        .nav-links {
+            flex: 2;
+            display: flex;
+            justify-content: center;
+            gap: 62px;
+            list-style: none;
+            margin-right: 100px;
+        }
+
+        .nav-links li a {
+            text-decoration: none;
+            color: #eaeaea;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .nav-links li a:hover {
+            color: #facc15;
+        }
+
+        .profile-wrapper {
+            position: relative;
+            display: inline-block;
+        }
+
+        .profile-img {
+            width: 40px;
+            height: 40px;
+            border-radius: 80px;
+            object-fit: cover;
+            border: 2px solid #facc15;
+            cursor: pointer;
+        }
+
+        .profile-dropdown {
+            display: none;
+            position: absolute;
+            top: 50px;
+            right: 0;
+            background-color: #111;
+            border: 1px solid #333;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(255, 255, 0, 0.1);
+            min-width: 160px;
+            z-index: 999;
+        }
+
+        .profile-dropdown a {
+            display: block;
+            padding: 10px 15px;
+            color: #facc15;
+            text-decoration: none;
+            transition: background 0.3s;
+        }
+
+        .profile-dropdown a:hover {
+            background-color: #222;
+            color: #fff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Segoe UI", sans-serif;
+        }
+
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+            padding: 40px;
+            justify-content: center;
+            align-items: flex-start;
+            gap: 40px;
+        }
+
+        .class-image {
+            flex: 1;
+            min-width: 350px;
+        }
+
+        .class-image img {
+            width: 100%;
+            border-radius: 12px;
+            border: 3px solid #facc15;
+            object-fit: cover;
+            max-height: 450px;
+        }
+
+        .class-details {
+            flex: 1;
+            min-width: 350px;
+        }
+
+        .class-details h1 {
+            font-size: 32px;
+            margin-bottom: 10px;
+            color: #fff;
+        }
+
+        .instructor-info {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            gap: 15px;
+        }
+
+        .instructor-info img {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            border: 2px solid #facc15;
+            object-fit: cover;
+        }
+
+        .instructor-text {
+            font-size: 14px;
+            color: #ccc;
+        }
+
+        .instructor-text strong {
+            display: block;
+            font-size: 16px;
+            color: #facc15;
+        }
+
+        .class-details p {
+            margin: 10px 0;
+            color: #ccc;
+        }
+
+        .book-now-btn {
+            margin-top: 20px;
+            padding: 12px 40px;
+            background-color: #facc15;
+            color: #0f0f0f;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.3s;
+        }
+
+        .book-now-btn:hover {
+            background-color: #eab308;
+        }
+
+        /* ---------------- Class Details Tabs ---------------- */
+
+        .class-details-container {
+            background-color: #1e1e1e;
+            padding: 20px;
+            border-radius: 12px;
+            color: #ffffff;
+            margin: 30px 40px;
+            box-shadow: 0 0 12px rgba(255, 255, 255, 0.05);
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 30px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #333;
+        }
+
+        .tab {
+            padding: 10px 0;
+            color: #aaa;
+            cursor: pointer;
+            font-weight: 600;
+            position: relative;
+        }
+
+        .tab.active {
+            color: #facc15;
+        }
+
+        .tab.active::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            bottom: -1px;
+            width: 100%;
+            height: 2px;
+            background-color: #facc15;
+        }
+
+        .details-table {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .detail-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            padding: 8px 0;
+            font-size: 14px;
+            border-bottom: 1px solid #2f2f2f;
+        }
+
+        .detail-row.header {
+            font-weight: 700;
+            color: #f0f0f0;
+            border-bottom: 1px solid #444;
+        }
+
+        @@media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+                padding: 20px;
+            }
+
+            .class-details-container {
+                margin: 20px;
+            }
+        }
+
+        header {
+            padding: 20px;
+            text-align: center;
+            font-size: 28px;
+            font-weight: bold;
+            border-bottom: 1px solid #333;
+        }
+
+        .class-gallery {
+            flex: 1;
+            min-width: 350px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 400px;
+            position: relative;
+        }
+
+        .class-gallery img {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 14px;
+            border: 3px solid #facc15;
+            opacity: 0;
+            transition: opacity 1s ease-in-out;
+        }
+
+        .class-gallery img.active {
+            opacity: 1;
+            z-index: 1;
+        }
+
+        .waitlist-box {
+            display: none;
+            background-color: #1f2937;
+            /* dark gray */
+            border: 2px solid #facc15;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(250, 204, 21, 0.1);
+            animation: fadeIn 0.5s ease;
+        }
+
+        .waitlist-title-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .waitlist-badge {
+            font-weight: bold;
+            color: #facc15;
+            background-color: #374151;
+            padding: 3px 10px;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .waitlist-title {
+            color: #f87171;
+            font-size: 18px;
+
+        }
+
+        .waitlist-btn {
+            background-color: transparent;
+            border: 2px solid #facc15;
+            color: #facc15;
+            padding: 10px 30px;
+            font-size: 15px;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 2px;
+        }
+
+        .waitlist-btn:hover {
+            background-color: #facc15;
+            color: #0f0f0f;
+        }
+
+        @@keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="logo">
+            <img src="~/img/logo.png" alt="FitPro Logo" />
+        </div>
+        <ul class="nav-links">
+            <li><a href="#">Home</a></li>
+            <li><a href="#classes">Classes</a></li>
+            <li><a href="#">Instructors</a></li>
+            <li><a href="#">Contact</a></li>
+        </ul>
+
+        <!-- Wrap everything inside .profile-wrapper -->
+        <div class="profile-wrapper">
+            <img src="profile.png" alt="Profile" class="profile-img" />
+            <div class="profile-dropdown">
+                <a href="#" onclick="updateProfile()">Update Profile</a>
+                <a href="#" onclick="logout()">Logout</a>
+            </div>
+        </div>
+
+    </nav>
+    <header>Class Details</header>
+    <!-- Horizontal Layout -->
+    <div class="container">
+        <section class="class-gallery">
+            <img src="fitness.jpg" alt="Class Image 1" class="active" />
+            <img src="yoga.jpg" alt="Class Image 2" />
+            <img src="tire.jpeg" alt="Class Image 3" />
+            <img src="jumbo.jpg" alt="Class Image 4" />
+        </section>
+
+
+        <div class="class-details">
+            <h1>Power Yoga Class</h1>
+
+            <div class="instructor-info">
+                <img src="fitness.jpg" alt="Instructor">
+                <div class="instructor-text">
+                    <strong>Paras</strong>
+                    Email: Paras.sharma@yogafit.com<br>
+                    Specialization: Power Yoga, Meditation, Flexibility Training
+                </div>
+            </div>
+
+            <p><strong>Description:</strong> Improve strength, flexibility, and mindfulness. Suitable for beginners &
+                intermediate level fitness lovers.</p>
+
+            <h3>Schedule</h3>
+            <p><strong>Dates:</strong> 27 April - 4 May</p>
+            <p><strong>Time:</strong> 3:35 PM - 6:38 PM</p>
+            <p><strong>Duration:</strong> 183 minutes</p>
+
+            <div id="book-section">
+                <button class="book-now-btn" onclick="bookThisClass()">Book Now</button>
+            </div>
+
+            <div id="waitlist-section" class="waitlist-box">
+                <div class="waiting-message">
+                    <div class="waitlist-title-bar">
+                        <h3 class="waitlist-title">⚠️ Class Full</h3>
+                        <span class="waitlist-badge">WL: <span id="waitlist-count">50</span></span>
+                    </div>
+                    <p>This class is currently full. You can join the waiting list to be notified if a spot opens up.
+                    </p>
+                </div>
+                <button class="waitlist-btn" onclick="joinWaitlist()">Join Waiting List</button>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Tabs Section Below -->
+    <div class="class-details-container">
+        <div class="tabs">
+            <span class="tab active" onclick="showTab('details')">Class Details</span>
+            <span class="tab" onclick="showTab('equipment')">Equipment</span>
+            <span class="tab" onclick="showTab('map')">Map</span>
+        </div>
+
+        <!-- Class Details -->
+        <div class="details-table" id="details-tab">
+
+            <div class="detail-row header">
+                <div>LOCATION</div>
+                <div>TOTAL CAPACITY</div>
+                <div>AVAILABLE</div>
+            </div>
+            <div class="detail-row">
+                <div>Surat, Katargam Taluka, Gujarat</div>
+                <div>20 Participants</div>
+                <div>0 Spots Left</div>
+            </div>
+
+            <div class="detail-row header">
+                <div>PURPOSE</div>
+                <div>BENEFITS</div>
+                <div>FEE</div>
+            </div>
+            <div class="detail-row">
+                <div>Core-focused Pilates for toning and posture improvement.</div>
+                <div>Indoor cycling sessions for endurance and leg strength.</div>
+                <div>₹1000</div>
+            </div>
+        </div>
+
+        <!-- Equipment Tab -->
+        <div class="details-table" id="equipment-tab" style="display: none;">
+            <div class="detail-row header">
+                <div>EQUIPMENT</div>
+                <div>QUANTITY</div>
+                <div>NOTES</div>
+            </div>
+            <div class="detail-row">
+                <div>Yoga Mat</div>
+                <div>25</div>
+                <div>Bring your own if preferred</div>
+            </div>
+            <div class="detail-row">
+                <div>Dumbbells</div>
+                <div>20 pairs</div>
+                <div>Light to medium weight</div>
+            </div>
+            <div class="detail-row">
+                <div>Resistance Bands</div>
+                <div>30</div>
+                <div>Provided at venue</div>
+            </div>
+        </div>
+
+        <!-- Map Tab -->
+        <div id="map-tab" style="display: none;">
+            <iframe
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3661.5841899212736!2d72.50735647480374!3d23.409926202041448!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x395e832d47ad7fb9%3A0xeab19e4a74c4d89e!2sShivalik%20Western%20Complex!5e0!3m2!1sen!2sin!4v1712578781742!5m2!1sen!2sin"
+                width="100%" height="300" style="border:0; border-radius: 8px; margin-top: 10px;" allowfullscreen=""
+                loading="lazy" referrerpolicy="no-referrer-when-downgrade">
+            </iframe>
+        </div>
+    </div>
+
+    <script>
+        function showTab(tab) {
+            const detailsTab = document.getElementById('details-tab');
+            const equipmentTab = document.getElementById('equipment-tab');
+            const mapTab = document.getElementById('map-tab');
+            const tabs = document.querySelectorAll('.tab');
+
+            tabs.forEach(t => t.classList.remove('active'));
+
+            // Hide all tabs initially
+            detailsTab.style.display = 'none';
+            equipmentTab.style.display = 'none';
+            mapTab.style.display = 'none';
+
+            // Show selected tab
+            if (tab === 'details') {
+                detailsTab.style.display = 'flex';
+                tabs[0].classList.add('active');
+            } else if (tab === 'equipment') {
+                equipmentTab.style.display = 'flex';
+                tabs[1].classList.add('active');
+            } else if (tab === 'map') {
+                mapTab.style.display = 'block';
+                tabs[2].classList.add('active');
+            }
+        }
+
+
+        const images = document.querySelectorAll(".class-gallery img");
+        let index = 0;
+
+        setInterval(() => {
+            images[index].classList.remove("active");
+            index = (index + 1) % images.length;
+            images[index].classList.add("active");
+        }, 3000); // Change image every 3 seconds
+
+        const availableCapacity = 0; // Change this dynamically
+        let waitlistCount = 20; // Start with any number, fetch from backend later if needed
+
+        // Add this function to change waitlist badge color
+        function updateWaitlistColor(count) {
+            const waitlistBadge = document.querySelector('.waitlist-badge');
+
+            if (count <= 10) {
+                waitlistBadge.style.backgroundColor = '#22c55e'; // green
+                waitlistBadge.style.color = '#ffffff';
+            } else if (count <= 20) {
+                waitlistBadge.style.backgroundColor = '#facc15'; // yellow
+                waitlistBadge.style.color = '#0f0f0f';
+            } else {
+                waitlistBadge.style.backgroundColor = '#ef4444'; // red
+                waitlistBadge.style.color = '#ffffff';
+            }
+        }
+
+        // Update the window.onload function
+        window.onload = () => {
+            if (availableCapacity > 0) {
+                document.getElementById('book-section').style.display = 'block';
+                document.getElementById('waitlist-section').style.display = 'none';
+            } else {
+                document.getElementById('book-section').style.display = 'none';
+                document.getElementById('waitlist-section').style.display = 'block';
+                document.getElementById('waitlist-count').textContent = waitlistCount;
+                updateWaitlistColor(waitlistCount);
+            }
+        };
+
+        // Update the joinWaitlist function
+        function joinWaitlist() {
+            waitlistCount++;
+            document.getElementById('waitlist-count').textContent = waitlistCount;
+            updateWaitlistColor(waitlistCount);
+            alert("🕓 You've been added to the waiting list!");
+        }
+
+        function bookThisClass() {
+            confetti({
+                particleCount: 100,
+                angle: 60,
+                spread: 55,
+                origin: { x: 0 },
+                colors: ['#facc15', '#ffffff']
+            });
+
+            // Confetti from right
+            confetti({
+                particleCount: 100,
+                angle: 120,
+                spread: 55,
+                origin: { x: 1 },
+                colors: ['#facc15', '#ffffff']
+            });
+        }
+    </script>
+    <script src="script.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+</body>
+
+</html>
