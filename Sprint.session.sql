@@ -127,7 +127,8 @@ CREATE TABLE t_blog_comment (
     c_user_id INT NOT NULL,
     c_commented_at BIGINT NOT NULL,
     c_comment_content TEXT NOT NULL,
-    c_parent_comment_id INT
+    c_parent_comment_id INT,
+    c_user_role TEXT
 );
 
 
