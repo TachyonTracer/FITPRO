@@ -287,5 +287,50 @@ namespace API
 			});
 		}
 		#endregion
+
+
+		#region Upcoming Class Count By User
+        [HttpGet("UpcomingClassCountByUser/{userId}")]
+        public async Task<IActionResult> UpcomingClassCountByUser(string userId)
+        {
+            var classCount = await _userRepo.UpcomingClassCountByUser(userId);
+            if (classCount != -1)
+            {
+                return Ok(new
+                {
+                    message = "Upcoming Class Count By User fetched successfully",
+                    count = classCount
+                });
+            }
+
+            return BadRequest(new
+            {
+                success = false,
+                message = "Failed to fetch Upcoming Class Count By User"
+            });
+        }
+        #endregion
+		
+		#region Completed Class Count By User
+        [HttpGet("CompletedClassCountByUser/{userId}")]
+        public async Task<IActionResult> CompletedClassCountByUser(string userId)
+        {
+            var classCount = await _userRepo.CompletedClassCountByUser(userId);
+            if (classCount != -1)
+            {
+                return Ok(new
+                {
+                    message = "Completed Class Count By User fetched successfully",
+                    count = classCount
+                });
+            }
+
+            return BadRequest(new
+            {
+                success = false,
+                message = "Failed to fetch Completed Class Count By User"
+            });
+        }
+        #endregion
 	}
 }
