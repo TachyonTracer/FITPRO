@@ -679,6 +679,125 @@ namespace API
             }
         }
 
+
+        [HttpPost]
+        [Route("AddNewComment")]
+        public async Task<IActionResult> AddNewComment(BlogComment comment)
+        {
+            if(comment.blogId != null && comment.userId != null) {
+                try {
+
+                    if (comment.parentCommentId == null || comment.parentCommentId <= 0) {
+                        comment.parentCommentId = -1; // Suggest its the Parent Comment itself
+                    }
+                    var result = await _instructorRepo.AddNewComment(comment);
+
+                    if (result <= 0)
+                    {
+                        return BadRequest(new { success = false, message = "Unable to add comment."});
+                    }
+                    return Ok(new
+                    {
+                        success = true,
+                        message = "Comment Added.",
+                        comment_id = result
+                    });
+
+                } catch {
+                    return StatusCode(500, new { success=false, message="Something went wrong fetching your blog, please try again later."});
+                }
+            } else {
+                return BadRequest(new {success=false, message="Blog Id is required"});
+            }
+        }
+
+        [HttpPost]
+        [Route("fetchBlogComments")]
+        public async Task<IActionResult> fetchBlogComments(string blogId_)
+        {
+            var blogId = Convert.ToInt32(blogId_);
+            if(blogId != null && blogId > 0) {
+                try {
+                    var comments = await _instructorRepo.fetchBlogComments(blogId);
+
+                    if (comments.Count == 0)
+                    {
+                        return BadRequest(new { success = false, message = "No comments found.", data = comments });
+                    }
+                    return Ok(new
+                    {
+                        success = true,
+                        message = "Fetched All comments.",
+                        data = new
+                        {
+                            count = comments.Count,
+                            entries = comments
+                        }
+                    });
+
+                } catch {
+                    return StatusCode(500, new { success=false, message="Something went wrong fetching comments, please try again later."});
+                }
+            } else {
+                return BadRequest(new {success=false, message="Blog Id is required"});
+            }
+        }
+
+
+        [HttpPost]
+        [Route("fetchBlogByUri")]
+        public async Task<IActionResult> fetchBlogByUri(string source_uri)
+        {
+            if(source_uri != null) {
+                try {
+                    var blog = await _instructorRepo.fetchBlogByUri(source_uri);
+
+                    if (blog == null)
+                    {
+                        return BadRequest(new { success = false, message = "No blog found on the given URI."});
+                    }
+                    return Ok(new
+                    {
+                        success = true,
+                        message = "Blog Fetched.",
+                        data = blog
+                    });
+
+                } catch {
+                    return StatusCode(500, new { success=false, message="Something went wrong fetching your blog, please try again later."});
+                }
+            } else {
+                return BadRequest(new {success=false, message="Blog Id is required"});
+            }
+        }
+
+        [HttpPost]
+        [Route("fetchBlogAuthorById")]
+        public async Task<IActionResult> fetchBlogAuthorById(string author_id)
+        {
+            if(author_id != null) {
+                try {
+                    var author_info = await _instructorRepo.fetchBlogAuthorById(Convert.ToInt32(author_id));
+
+                    if (author_info == null)
+                    {
+                        return BadRequest(new { success = false, message = "Unable to fetch author info"});
+                    }
+                    return Ok(new
+                    {
+                        success = true,
+                        message = "Author Info Fetched.",
+                        data = author_info
+                    });
+
+                } catch {
+                    return StatusCode(500, new { success=false, message="Something went wrong fetching author info, please try again later."});
+                }
+            } else {
+                return BadRequest(new {success=false, message="Author Id is required"});
+            }
+        }
+
         #endregion
     }
 

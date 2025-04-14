@@ -400,7 +400,7 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
+        @* document.addEventListener('DOMContentLoaded', function () {
             // Define commentsData globally within this scope
             let commentsData = [];
 
@@ -729,7 +729,7 @@
             }
 
             // Function to add a new comment
-            function addNewComment(text) {
+            @* function addNewComment(text) {
                 try {
                     const commentsList = document.querySelector('.comments-list');
 
@@ -772,6 +772,68 @@
                     attachCommentEventListeners();
 
                     console.log(`Added new comment with ID: ${newCommentId}, parent_id: null`);
+
+                } catch (error) {
+                    showError("Error adding comment: " + error.message);
+                }
+            } 
+
+            function addNewComment(text, parentCommentId = null) {
+                try {
+                    const commentsList = document.querySelector('.comments-list');
+
+                    const now = new Date();
+                    const commentedAt = Math.floor(now.getTime() / 1000); // Unix timestamp
+                    const formattedDateTime = formatDateTime(now);
+
+                    const payload = {
+                        commentId: -1,
+                        blogId: 26,
+                        userId: 11,
+                        commentedAt: commentedAt,
+                        commentContent: text,
+                        parentCommentId: parentCommentId,
+                        userRole: "user",
+                        authorName: "Tirth Chauhan",
+                        authorProfilePicture: "default.png"
+                    };
+
+                    $.ajax({
+                        url: 'http://localhost:8080/api/Instructor/AddNewComment',
+                        type: 'POST',
+                        contentType: 'application/json',
+                        data: JSON.stringify(payload),
+                        success: function (response) {
+                            if (response.success) {
+                                const newCommentId = response.comment_id.toString();
+
+                                const newComment = {
+                                    id: newCommentId,
+                                    parent_id: parentCommentId,
+                                    author: payload.authorName,
+                                    avatar: payload.authorProfilePicture,
+                                    date: formattedDateTime,
+                                    text: text
+                                };
+
+                                commentsData.push(newComment);
+
+                                const commentElement = createCommentElement(newComment);
+
+                                commentsList.insertBefore(commentElement, commentsList.firstChild);
+
+                                updateCommentsCounter(1);
+                                attachCommentEventListeners();
+
+                                console.log(`Added new comment with ID: ${newCommentId}, parent_id: ${parentCommentId}`);
+                            } else {
+                                showError("Failed to add comment: " + response.message);
+                            }
+                        },
+                        error: function (xhr, status, error) {
+                            showError("Error adding comment: " + error);
+                        }
+                    });
 
                 } catch (error) {
                     showError("Error adding comment: " + error.message);
@@ -975,7 +1037,531 @@
                     }
                 });
             }, 1000);
+        }); *@
+
+        document.addEventListener('DOMContentLoaded', function () {
+            // Define commentsData globally within this scope
+            let commentsData = [];
+
+            // Extract the blog post ID from the URL
+            function getBlogPostIdFromUrl() {
+                const urlParts = window.location.pathname.split('/');
+                return urlParts[urlParts.length - 1];
+            }
+
+            // Load blog data via AJAX
+            loadBlogData();
+
+            // Function to fetch blog data
+            function loadBlogData() {
+                const blogPostId = getBlogPostIdFromUrl();
+                const url = `http://localhost:8080/api/Instructor/fetchBlogByUri?source_uri=${blogPostId}`;
+
+                $.ajax({
+                    url: url,
+                    method: 'POST',
+                    dataType: 'json',
+                    success: function (response) {
+                        if (response.success) {
+                            const blogData = response.data;
+                            // After getting blog data, fetch author info
+                            fetchAuthorInfo(blogData);
+                        } else {
+                            console.error('Error fetching blog data:', response.message);
+                            renderBlogPost(getSampleBlogData());
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        console.error('Error fetching blog data:', error);
+                        // Load sample data as fallback
+                        renderBlogPost(getSampleBlogData());
+                    }
+                });
+            }
+
+            // Function to fetch author info
+            function fetchAuthorInfo(blogData) {
+                const authorId = blogData.c_blog_author_id;
+                const url = `http://localhost:8080/api/Instructor/fetchBlogAuthorById?author_id=${authorId}`;
+
+                $.ajax({
+                    url: url,
+                    method: 'POST',
+                    dataType: 'json',
+                    success: function (response) {
+                        if (response.success) {
+                            const authorData = response.data;
+                            // Combine blog and author data
+                            const combinedData = {
+                                ...blogData,
+                                c_authorname: authorData.instructorName,
+                                c_authorspecification: authorData.specialization,
+                                c_profilePicture: authorData.profileImage,
+                                isBookmarked: false // Default value
+                            };
+
+                            // Render blog with combined data
+                            renderBlogPost(combinedData);
+
+                            // After rendering blog, fetch comments
+                            fetchComments(blogData.c_blog_id);
+                        } else {
+                            console.error('Error fetching author data:', response.message);
+                            renderBlogPost(blogData);
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        console.error('Error fetching author data:', error);
+                        renderBlogPost(blogData);
+                    }
+                });
+            }
+
+            // Function to fetch comments
+            function fetchComments(blogId) {
+                const url = `http://localhost:8080/api/Instructor/fetchBlogComments?blogId_=${blogId}`;
+
+                $.ajax({
+                    url: url,
+                    method: 'POST',
+                    dataType: 'json',
+                    success: function (response) {
+                        if (response.success) {
+                            // Process comments to match our expected format
+                            const formattedComments = processComments(response.data.entries);
+                            commentsData = formattedComments;
+                            loadComments(formattedComments);
+                        } else {
+                            console.error('Error fetching comments:', response.message);
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        console.error('Error fetching comments:', error);
+                    }
+                });
+            }
+
+            // Process comments from API format to our format
+            function processComments(apiComments) {
+                return apiComments.map(comment => {
+                    // Format date from Unix timestamp
+                    const commentDate = new Date(comment.commentedAt * 1000);
+                    const formattedDate = formatDateTime(commentDate);
+
+                    return {
+                        id: comment.commentId.toString(),
+                        parent_id: comment.parentCommentId === -1 ? null : comment.parentCommentId.toString(),
+                        author: comment.authorName,
+                        avatar: comment.authorProfilePicture,
+                        date: formattedDate,
+                        text: comment.commentContent,
+                        likes: 0 // Default value as likes aren't in the API response
+                    };
+                });
+            }
+
+            // Format date and time for displaying
+            function formatDateTime(date) {
+                return date.toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+            }
+
+            // Sample blog data for fallback
+            function getSampleBlogData() {
+                return {
+                    c_title: "The Art of Fitness: Finding Your Perfect Workout Routine",
+                    c_desc: "Discover how personalized fitness can transform your health journey",
+                    c_authorname: "Alex Johnson",
+                    c_profilePicture: "https://media.istockphoto.com/id/1300845620/vector/user-icon-flat-isolated-on-white-background-user-symbol-vector-illustration.jpg?s=612x612&w=0&k=20&c=yBeyba0hUkh14_jgv1OKqIH0CCSWU_4ckRkAoy2p73o=",
+                    c_authorspecification: "Fitness Coach & Nutritionist",
+                    c_published_at: 1686841200, // June 15, 2023 in Unix epoch time
+                    c_content: `<p>
+                        The journey to fitness is deeply personal. What works for one person might not work for another.
+                        This is why understanding your body's unique needs is the first step toward achieving your fitness goals.
+                        </p>`,
+                    c_likes: 128,
+                    c_comments: 24,
+                    c_views: 1563,
+                    isBookmarked: false
+                };
+            }
+
+            // Function to render blog post with provided data
+            function renderBlogPost(blogData) {
+                // Decode base64 content if it exists
+                let contentHtml = blogData.c_content;
+                if (contentHtml && contentHtml.indexOf('<') === -1) {
+                    // This might be base64 encoded
+                    try {
+                        contentHtml = atob(contentHtml);
+                    } catch (e) {
+                        console.error('Error decoding content:', e);
+                    }
+                }
+
+                // Format the date from Unix epoch time
+                const publishDate = new Date(blogData.c_published_at * 1000);
+                const formattedDate = publishDate.toLocaleDateString('en-US', {
+                    month: 'long',
+                    day: 'numeric',
+                    year: 'numeric'
+                });
+
+                // Estimated read time calculation (rough estimate based on word count)
+                const wordCount = contentHtml.split(' ').length;
+                const readMinutes = Math.max(1, Math.round(wordCount / 200)); // Assuming average reading speed of 200 words per minute
+
+                // Format profile picture URL
+                let profilePicUrl = blogData.c_profilePicture;
+                if (profilePicUrl && !profilePicUrl.startsWith('http')) {
+                    profilePicUrl = `http://localhost:8081/Instructor_Images/${profilePicUrl}`;
+                }
+
+                // Create HTML for blog content
+                const blogHtml = `
+                    <!-- Bookmark button -->
+                    <button class="bookmark-btn" id="bookmark-button">
+                        <i class="fa-${blogData.isBookmarked ? 'solid' : 'regular'} fa-bookmark"></i>
+                    </button>
+
+                    <h1 class="blog-title">${blogData.c_title}</h1>
+                    <h2 class="blog-subtitle">${blogData.c_desc}</h2>
+
+                    <div class="author-section">
+                        <div class="author-image">
+                            <img src="${profilePicUrl}" alt="Author profile"
+                                onerror="this.src='https://via.placeholder.com/60'">
+                        </div>
+                        <div class="author-info">
+                            <div class="author-name">${blogData.c_authorname}</div>
+                            <div class="publication-info">
+                                <span>${blogData.c_authorspecification || 'Author'}</span>
+                                <span>•</span>
+                                <span>${readMinutes} min read</span>
+                                <span>•</span>
+                                <span>${formattedDate}</span>
+                            </div>
+                        </div>
+                        <button class="follow-btn">Follow</button>
+                    </div>
+
+                    <!-- Blog stats section -->
+                    <div class="blog-stats">
+                        <div class="blog-stats-item">
+                            <i class="fa-solid fa-eye"></i> ${blogData.c_views || 0} views
+                        </div>
+                        <div class="blog-stats-item">
+                            <i class="fa-solid fa-hands-clapping"></i> ${blogData.c_likes || 0} likes
+                        </div>
+                        <div class="blog-stats-item">
+                            <i class="fa-solid fa-comment"></i> ${blogData.c_comments || 0} comments
+                        </div>
+                    </div>
+
+                    <div class="blog-content">
+                        ${contentHtml}
+                    </div>
+
+                    <!-- Error message display -->
+                    <div class="error-message" id="error-message"></div>
+
+                    <!-- Comments Section -->
+                    <div class="comments-section">
+                        <h3 class="comments-header">Comments (${blogData.c_comments || 0})</h3>
+
+                        <!-- Comment Form -->
+                        <div class="comment-form">
+                            <textarea class="comment-input" placeholder="Add a comment..."></textarea>
+                            <button class="comment-submit">Comment</button>
+                        </div>
+
+                        <!-- Comments List -->
+                        <div class="comments-list">
+                            <!-- Comments will be dynamically loaded -->
+                        </div>
+                    </div>
+                `;
+
+                // Replace loading indicator with blog content
+                document.getElementById('blog-container').innerHTML = blogHtml;
+
+                // Bookmark functionality
+                const bookmarkButton = document.getElementById('bookmark-button');
+                let isBookmarked = blogData.isBookmarked;
+
+                // Set initial bookmark state
+                updateBookmarkIcon();
+
+                bookmarkButton.addEventListener('click', function () {
+                    isBookmarked = !isBookmarked;
+                    updateBookmarkIcon();
+                    // In a real app, you'd save this state to the server
+                    console.log('Bookmark state:', isBookmarked);
+                });
+
+                function updateBookmarkIcon() {
+                    if (isBookmarked) {
+                        bookmarkButton.classList.add('active');
+                        bookmarkButton.innerHTML = '<i class="fa-solid fa-bookmark"></i>';
+                    } else {
+                        bookmarkButton.classList.remove('active');
+                        bookmarkButton.innerHTML = '<i class="fa-regular fa-bookmark"></i>';
+                    }
+                }
+
+                // Comment submission
+                const mainCommentForm = document.querySelector('.comment-form .comment-submit');
+                mainCommentForm.addEventListener('click', function () {
+                    const commentInput = this.previousElementSibling;
+                    const commentText = commentInput.value.trim();
+
+                    if (commentText) {
+                        addNewComment(commentText);
+                        commentInput.value = '';
+                    }
+                });
+            }
+
+            // Functions to handle comments
+            function loadComments(comments) {
+                const commentsList = document.querySelector('.comments-list');
+                if (!commentsList) return;
+                
+                commentsList.innerHTML = ''; // Clear existing comments
+
+                // First, render all top-level comments (parent_id is null)
+                const topLevelComments = comments.filter(comment => comment.parent_id === null);
+
+                topLevelComments.forEach(comment => {
+                    const commentElement = createCommentElement(comment);
+
+                    // Find and add all replies for this comment
+                    const repliesContainer = commentElement.querySelector(`.nested-comments`);
+                    appendReplies(repliesContainer, comment.id, comments);
+
+                    commentsList.appendChild(commentElement);
+                });
+
+                // Attach event listeners after loading comments
+                attachCommentEventListeners();
+            }
+
+            // Recursive function to append replies
+            function appendReplies(container, parentId, allComments) {
+                // Find direct replies to this parent
+                const replies = allComments.filter(comment => comment.parent_id === parentId);
+
+                replies.forEach(reply => {
+                    const replyElement = createCommentElement(reply);
+
+                    // Recursively find and append nested replies
+                    const nestedContainer = replyElement.querySelector('.nested-comments');
+                    appendReplies(nestedContainer, reply.id, allComments);
+
+                    container.appendChild(replyElement);
+                });
+            }
+
+            function createCommentElement(comment) {
+                // Format profile picture URL
+                let avatarUrl = comment.avatar;
+                if (avatarUrl && !avatarUrl.startsWith('http')) {
+                    avatarUrl = `http://localhost:8081/User_Images/${avatarUrl}`;
+                }
+                
+                const commentElement = document.createElement('div');
+                commentElement.className = 'comment';
+                commentElement.id = `comment-${comment.id}`;
+
+                commentElement.innerHTML = `
+                    <div class="comment-header">
+                        <div class="commenter-avatar">
+                            <img src="${avatarUrl}" alt="${comment.author}" 
+                                onerror="this.src='https://media.istockphoto.com/id/1300845620/vector/user-icon-flat-isolated-on-white-background-user-symbol-vector-illustration.jpg?s=612x612&w=0&k=20&c=yBeyba0hUkh14_jgv1OKqIH0CCSWU_4ckRkAoy2p73o='">
+                        </div>
+                        <div class="commenter-name">${comment.author}</div>
+                        <div class="comment-date">${comment.date}</div>
+                    </div>
+                    <div class="comment-body">
+                        ${comment.text}
+                    </div>
+                    <div class="comment-actions">
+                        <!-- Removed like button as requested -->
+                        <button class="comment-action reply-action" data-comment-id="${comment.id}"><i class="fa-solid fa-reply"></i>&nbsp&nbspReply</button>
+                    </div>
+                    <div class="reply-form" id="reply-form-${comment.id}">
+                        <textarea class="comment-input" placeholder="Write your reply..."></textarea>
+                        <button class="comment-submit" data-parent-id="${comment.id}">Reply</button>
+                    </div>
+                    <div class="nested-comments" id="nested-comments-${comment.id}"></div>
+                `;
+
+                return commentElement;
+            }
+
+            // Function to add a new comment
+            function addNewComment(text, parentCommentId = null) {
+                try {
+                    const now = new Date();
+                    const commentedAt = Math.floor(now.getTime() / 1000); // Unix timestamp
+                    const formattedDateTime = formatDateTime(now);
+                    
+                    // Get blog ID from current page
+                    const blogPostId = getBlogPostIdFromUrl();
+
+                    const payload = {
+                        commentId: -1,
+                        blogId: 26, // You might need to get this dynamically from your blog data
+                        userId: 11, // This should be the logged-in user's ID
+                        commentedAt: commentedAt,
+                        commentContent: text,
+                        parentCommentId: parentCommentId === null ? -1 : parentCommentId,
+                        userRole: "user",
+                        authorName: "Tirth Chauhan", // This should be the logged-in user's name
+                        authorProfilePicture: "default.png"
+                    };
+
+                    $.ajax({
+                        url: 'http://localhost:8080/api/Instructor/AddNewComment',
+                        type: 'POST',
+                        contentType: 'application/json',
+                        data: JSON.stringify(payload),
+                        success: function (response) {
+                            if (response.success) {
+                                const newCommentId = response.comment_id.toString();
+
+                                const newComment = {
+                                    id: newCommentId,
+                                    parent_id: parentCommentId,
+                                    author: payload.authorName,
+                                    avatar: payload.authorProfilePicture,
+                                    date: formattedDateTime,
+                                    text: text
+                                };
+
+                                commentsData.push(newComment);
+
+                                if (parentCommentId === null) {
+                                    // Add as a top-level comment
+                                    const commentsList = document.querySelector('.comments-list');
+                                    const commentElement = createCommentElement(newComment);
+                                    commentsList.insertBefore(commentElement, commentsList.firstChild);
+                                } else {
+                                    // Add as a reply
+                                    const nestedContainer = document.getElementById(`nested-comments-${parentCommentId}`);
+                                    if (nestedContainer) {
+                                        const replyElement = createCommentElement(newComment);
+                                        if (nestedContainer.firstChild) {
+                                            nestedContainer.insertBefore(replyElement, nestedContainer.firstChild);
+                                        } else {
+                                            nestedContainer.appendChild(replyElement);
+                                        }
+                                    }
+                                }
+
+                                updateCommentsCounter(1);
+                                attachCommentEventListeners();
+
+                                console.log(`Added new comment with ID: ${newCommentId}, parent_id: ${parentCommentId}`);
+                            } else {
+                                showError("Failed to add comment: " + response.message);
+                            }
+                        },
+                        error: function (xhr, status, error) {
+                            showError("Error adding comment: " + error);
+                        }
+                    });
+
+                } catch (error) {
+                    showError("Error adding comment: " + error.message);
+                }
+            }
+
+            function attachCommentEventListeners() {
+                // Reply buttons 
+                document.querySelectorAll('.reply-action').forEach(button => {
+                    const newButton = button.cloneNode(true);
+                    button.parentNode.replaceChild(newButton, button);
+
+                    newButton.addEventListener('click', function () {
+                        const commentId = this.getAttribute('data-comment-id');
+                        const replyForm = document.getElementById(`reply-form-${commentId}`);
+
+                        // Check if this form is already active
+                        const isCurrentlyActive = replyForm.classList.contains('active');
+
+                        // Close all reply forms first
+                        document.querySelectorAll('.reply-form.active').forEach(form => {
+                            form.classList.remove('active');
+                        });
+
+                        // Only open if it wasn't already active (this creates true toggle behavior)
+                        if (!isCurrentlyActive && replyForm) {
+                            replyForm.classList.add('active');
+                            // Auto-focus the textarea for immediate typing
+                            replyForm.querySelector('textarea').focus();
+                        }
+                    });
+                });
+
+                // Submit reply buttons
+                document.querySelectorAll('.reply-form .comment-submit').forEach(button => {
+                    const newButton = button.cloneNode(true);
+                    button.parentNode.replaceChild(newButton, button);
+
+                    newButton.addEventListener('click', function () {
+                        const replyInput = this.previousElementSibling;
+                        const replyText = replyInput.value.trim();
+                        const parentId = this.getAttribute('data-parent-id');
+
+                        if (replyText) {
+                            addNewComment(replyText, parentId);
+                            replyInput.value = '';
+                            // Close the reply form after submitting
+                            document.getElementById(`reply-form-${parentId}`).classList.remove('active');
+                        }
+                    });
+                });
+            }
+
+            // Function to update comments counter
+            function updateCommentsCounter(increment) {
+                const commentsHeader = document.querySelector('.comments-header');
+                if (commentsHeader) {
+                    const currentCount = parseInt(commentsHeader.textContent.match(/\d+/) || 0);
+                    const newCount = currentCount + increment;
+                    commentsHeader.textContent = `Comments (${newCount})`;
+                    
+                    // Also update the comments stats counter
+                    const commentsStats = document.querySelector('.blog-stats-item:has(.fa-comment)');
+                    if (commentsStats) {
+                        commentsStats.innerHTML = `<i class="fa-solid fa-comment"></i> ${newCount} comments`;
+                    }
+                }
+            }
+
+            // Function to show error message
+            function showError(message) {
+                const errorMessageElement = document.getElementById('error-message');
+                if (errorMessageElement) {
+                    errorMessageElement.textContent = message;
+                    errorMessageElement.style.display = 'block';
+                    
+                    // Hide after 5 seconds
+                    setTimeout(() => {
+                        errorMessageElement.style.display = 'none';
+                    }, 5000);
+                } else {
+                    console.error(message);
+                }
+            }
         });
+
     </script>
 </body>
 
