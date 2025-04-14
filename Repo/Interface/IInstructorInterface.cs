@@ -39,5 +39,7 @@ public interface IInstructorInterface
     Task<List<BlogPost>> GetBlogsByInstructorId(int instructor_id);
     Task<BlogPost> GetBlogById(int blog_id);
 
+    Task<int> DeleteBlog(int blogId);
+
     #endregion
 }

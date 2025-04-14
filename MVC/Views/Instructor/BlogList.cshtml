@@ -315,8 +315,7 @@
         }
     }
 
-    @@media
-    (max-width: 768px) {
+    @@media (max-width: 768px) {
 
         /* Responsive adjustments */
         .blog-card {
@@ -451,16 +450,16 @@
         ];
 
         @* Utility Functions *@
-        function parseJwt(token) {
-            try {
-                const base64Url = token.split(".")[1];
-                const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
-                return JSON.parse(atob(base64));
-            } catch (error) {
-                console.error("Invalid token:", error);
-                return null;
+            function parseJwt(token) {
+                try {
+                    const base64Url = token.split(".")[1];
+                    const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+                    return JSON.parse(atob(base64));
+                } catch (error) {
+                    console.error("Invalid token:", error);
+                    return null;
+                }
             }
-        }
         function getUserIdFromToken() {
             const token = localStorage.getItem("authToken");
             if (!token) {
@@ -647,11 +646,30 @@
 
         function deleteBlog(blogId) {
             if (confirm('Are you sure you want to delete this blog post? This action cannot be undone.')) {
-                // For sample data, just remove from arrays
-                allBlogs = allBlogs.filter(blog => blog.id !== blogId);
-                filteredBlogs = filteredBlogs.filter(blog => blog.id !== blogId);
-                renderBlogs();
+                $.ajax({
+                    url: `http://localhost:8080/api/Instructor/delete-blog/${blogId}`,
+                    type: 'DELETE',
+                    headers: {
+                        'Authorization': token ? `Bearer ${token}` : ''
+                    },
+                    success: function (response) {
+                        // Remove from UI arrays
+                        allBlogs = allBlogs.filter(blog => blog.id !== blogId);
+                        filteredBlogs = filteredBlogs.filter(blog => blog.id !== blogId);
+                        renderBlogs();
+                        @* alert(response.message || "Blog deleted successfully."); *@
+                    },
+                    error: function (xhr) {
+                        if (xhr.status === 404) {
+                            alert("Blog not found.");
+                        } else {
+                            const errMsg = xhr.responseJSON && xhr.responseJSON.message ? xhr.responseJSON.message : xhr.statusText;
+                            alert("Error deleting blog: " + errMsg);
+                        }
+                    }
+                });
             }
+        }
         }
     </script>
 </body>

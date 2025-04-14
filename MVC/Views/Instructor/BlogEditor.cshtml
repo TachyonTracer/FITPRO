@@ -927,7 +927,7 @@
                             if (thumbnailFile) {
                                 formData.append("ThumbnailFile", thumbnailFile);
                                 formData.append("c_thumbnail", "http://localhost:8081/BlogImages/Thumbnails/default.png");
-                            } else if (thumbnailData && thumbnailData.startsWith('http')) {
+                            } else if (thumbnailData) {
                                 // If we have a URL for the thumbnail and no new file was selected
                                 formData.append("c_thumbnail", thumbnailData);
                             }

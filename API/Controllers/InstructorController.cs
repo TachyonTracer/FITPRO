@@ -3,6 +3,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.IO;
 
 using Repo;
+using Nest;
 
 namespace API
 {
@@ -333,16 +334,21 @@ namespace API
 
         public async Task<IActionResult> SaveDraft(BlogPost blogpost)
         {
-            if (blogpost.c_blog_author_id >0) {
-                try {
+            if (blogpost.c_blog_author_id > 0)
+            {
+                try
+                {
                     // Set Thumbnail Name
                     var fileName = "";
                     if (blogpost.ThumbnailFile != null && blogpost.ThumbnailFile.Length > 0)
                     {
                         fileName = Guid.NewGuid() + System.IO.Path.GetExtension(blogpost.ThumbnailFile.FileName);
                         blogpost.c_thumbnail = fileName;
-                    } else {
-                        if (blogpost.c_blog_id <0) {
+                    }
+                    else
+                    {
+                        if (blogpost.c_blog_id < 0)
+                        {
                             blogpost.c_thumbnail = "default.png";
                         }
                     }
@@ -356,25 +362,34 @@ namespace API
 
                     var returnDict = new Dictionary<string, object>();
 
-                    if (blogpost.c_blog_id > 0) {
+                    if (blogpost.c_blog_id > 0)
+                    {
                         var result = await _instructorRepo.UpdateBlogDraft(blogpost);
-                        if (result) {
+                        if (result)
+                        {
                             returnDict["success"] = true;
                             returnDict["message"] = "Successfully updated the blog as draft.";
                             returnDict["blog_id"] = blogpost.c_blog_id;
-                        } else {
+                        }
+                        else
+                        {
                             return StatusCode(500, new { success = false, message = "An unexpected error occurred while updating your blog." });
                         }
-                    } else {
+                    }
+                    else
+                    {
                         blogpost.c_source_url = $"blog-post-{Convert.ToString(Guid.NewGuid())}";
                         // var result = Convert.ToInt32(_instructorRepo.SaveBlogDraft(blogpost));
                         var result = await _instructorRepo.SaveBlogDraft(blogpost);
-                        if (result > 0 ) {
+                        if (result > 0)
+                        {
                             blogpost.c_blog_id = result;
                             returnDict["success"] = true;
                             returnDict["message"] = "Successfully Saved the blog as draft.";
                             returnDict["blog_id"] = blogpost.c_blog_id;
-                        } else {
+                        }
+                        else
+                        {
                             return StatusCode(500, new { success = false, message = "An unexpected error occurred while saving your blog as draft." });
                         }
                     }
@@ -401,9 +416,9 @@ namespace API
                                     Console.WriteLine($"Error deleting file {file}: {ex.Message}");
                                 }
                             }
-                        } 
+                        }
                         Directory.CreateDirectory($"../MVC/wwwroot/BlogImages/Thumbnails/{blogpost.c_blog_id}");
-                        
+
                         var filePath = System.IO.Path.Combine($"../MVC/wwwroot/BlogImages/Thumbnails/{blogpost.c_blog_id}", fileName);
                         using (var stream = new FileStream(filePath, FileMode.Create))
                         {
@@ -413,13 +428,16 @@ namespace API
 
                     // Return here
                     return Ok(returnDict);
-                } 
-                catch (Exception e) {
+                }
+                catch (Exception e)
+                {
                     Console.WriteLine(e.Message);
                     return StatusCode(500, new { success = false, message = "An unexpected error occurred." });
                 }
-            } else {
-                return BadRequest(new {success=false, message="Invalid Blog Data"});    
+            }
+            else
+            {
+                return BadRequest(new { success = false, message = "Invalid Blog Data" });
             }
         }
 
@@ -427,8 +445,10 @@ namespace API
         [Route("PublishBlog")]
         public async Task<IActionResult> PublishBlog(BlogPost blogpost)
         {
-            if (blogpost.c_blog_author_id >0) {
-                try {
+            if (blogpost.c_blog_author_id > 0)
+            {
+                try
+                {
 
                     // Set Thumbnail Name
                     var fileName = "";
@@ -436,8 +456,11 @@ namespace API
                     {
                         fileName = Guid.NewGuid() + System.IO.Path.GetExtension(blogpost.ThumbnailFile.FileName);
                         blogpost.c_thumbnail = fileName;
-                    } else {
-                        if (blogpost.c_blog_id <0) {
+                    }
+                    else
+                    {
+                        if (blogpost.c_blog_id < 0)
+                        {
                             blogpost.c_thumbnail = "default.png";
                         }
                     }
@@ -450,15 +473,19 @@ namespace API
                     }
 
                     // If User directly hits 'Publish'. 
-                    if (blogpost.c_blog_id <= 0) {
-                        
+                    if (blogpost.c_blog_id <= 0)
+                    {
+
                         // Create a new source url for new blog.
                         blogpost.c_source_url = $"blog-post-{Convert.ToString(Guid.NewGuid())}";
 
                         var result = await _instructorRepo.SaveBlogDraft(blogpost);
-                        if (result > 0 ) {
+                        if (result > 0)
+                        {
                             blogpost.c_blog_id = result;
-                        } else {
+                        }
+                        else
+                        {
                             return StatusCode(500, new { success = false, message = "An unexpected error occurred while saving your blog." });
                         }
                     }
@@ -485,9 +512,9 @@ namespace API
                                     Console.WriteLine($"Error deleting file {file}: {ex.Message}");
                                 }
                             }
-                        } 
+                        }
                         Directory.CreateDirectory($"../MVC/wwwroot/BlogImages/Thumbnails/{blogpost.c_blog_id}");
-                        
+
                         var filePath = System.IO.Path.Combine($"../MVC/wwwroot/BlogImages/Thumbnails/{blogpost.c_blog_id}", fileName);
                         using (var stream = new FileStream(filePath, FileMode.Create))
                         {
@@ -496,29 +523,39 @@ namespace API
                     }
 
                     // If User hits 'Publish' after draft. 
-                    if (blogpost.c_blog_id > 0) {
+                    if (blogpost.c_blog_id > 0)
+                    {
                         var result = await _instructorRepo.PublishBlog(blogpost);
-                        if (result) {
-                            return Ok(new {
-                                success=true,
-                                message="Successfully Published the blog.",
-                                blog_id=blogpost.c_blog_id,
-                                blog_url=$"{blogpost.c_source_url}",
-                                return_url="instructor"
+                        if (result)
+                        {
+                            return Ok(new
+                            {
+                                success = true,
+                                message = "Successfully Published the blog.",
+                                blog_id = blogpost.c_blog_id,
+                                blog_url = $"{blogpost.c_source_url}",
+                                return_url = "instructor"
                             });
-                        } else {
+                        }
+                        else
+                        {
                             return StatusCode(500, new { success = false, message = "An unexpected error occurred while publishing your blog." });
                         }
-                    } else {
+                    }
+                    else
+                    {
                         return StatusCode(500, new { success = false, message = "An unexpected error occurred while saving your blog as draft." });
                     }
-                } 
-                catch (Exception e) {
+                }
+                catch (Exception e)
+                {
                     Console.WriteLine(e);
                     return StatusCode(500, new { success = false, message = "An unexpected error occurred." });
                 }
-            } else {
-                return BadRequest(new {success=false, message="Invalid Blog Data"});    
+            }
+            else
+            {
+                return BadRequest(new { success = false, message = "Invalid Blog Data" });
             }
         }
 
@@ -552,8 +589,10 @@ namespace API
 
         public async Task<IActionResult> GetInstructorBlogsById(string instructor_id)
         {
-            if(instructor_id != null) {
-                try {
+            if (instructor_id != null)
+            {
+                try
+                {
                     var blog_list = await _instructorRepo.GetBlogsByInstructorId(Convert.ToInt32(instructor_id));
 
                     if (blog_list.Count == 0)
@@ -571,11 +610,15 @@ namespace API
                         }
                     });
 
-                } catch {
-                    return StatusCode(500, new { success=false, message="Something went wrong fetching your blogs, please try again later."});
                 }
-            } else {
-                return BadRequest(new {success=false, message="Instructor Id is required"});
+                catch
+                {
+                    return StatusCode(500, new { success = false, message = "Something went wrong fetching your blogs, please try again later." });
+                }
+            }
+            else
+            {
+                return BadRequest(new { success = false, message = "Instructor Id is required" });
             }
         }
 
@@ -585,8 +628,10 @@ namespace API
 
         public async Task<IActionResult> GetBlogById(string blog_id)
         {
-            if(blog_id != null) {
-                try {
+            if (blog_id != null)
+            {
+                try
+                {
                     var blog = await _instructorRepo.GetBlogById(Convert.ToInt32(blog_id));
 
                     if (blog == null)
@@ -604,11 +649,33 @@ namespace API
                         }
                     });
 
-                } catch {
-                    return StatusCode(500, new { success=false, message="Something went wrong fetching your blog, please try again later."});
                 }
-            } else {
-                return BadRequest(new {success=false, message="Blog Id is required"});
+                catch
+                {
+                    return StatusCode(500, new { success = false, message = "Something went wrong fetching your blog, please try again later." });
+                }
+            }
+            else
+            {
+                return BadRequest(new { success = false, message = "Blog Id is required" });
+            }
+        }
+
+        [HttpDelete("delete-blog/{blog_id}")]
+        public async Task<IActionResult> DeleteBlog(int blog_id)
+        {
+            try
+            {
+                int result = await _instructorRepo.DeleteBlog(blog_id);
+
+                if (result > 0)
+                    return Ok(new { message = "Blog deleted successfully." });
+                else
+                    return NotFound(new { message = "Blog not found or already deleted." });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "An error occurred while deleting the blog.", error = ex.Message });
             }
         }
 

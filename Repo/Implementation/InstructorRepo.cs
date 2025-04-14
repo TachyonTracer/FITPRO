@@ -851,10 +851,10 @@ public class InstructorRepo : IInstructorInterface
     }
     #endregion
 
-        #region PublishBlog
-            public async Task<bool> PublishBlog(BlogPost blogpost)
-            {
-                string query = @"UPDATE t_blogpost SET
+    #region PublishBlog
+    public async Task<bool> PublishBlog(BlogPost blogpost)
+    {
+        string query = @"UPDATE t_blogpost SET
                                         c_tags = @c_tags,
                                         c_title = @c_title,
                                         c_desc = @c_desc,
@@ -864,158 +864,195 @@ public class InstructorRepo : IInstructorInterface
                                         c_is_published = @c_is_published
                                     WHERE c_blog_id = @c_blog_id";
 
-                try
-                {
-                    if (_conn.State == System.Data.ConnectionState.Open)
-                        await _conn.CloseAsync();
+        try
+        {
+            if (_conn.State == System.Data.ConnectionState.Open)
+                await _conn.CloseAsync();
 
-                    await _conn.OpenAsync();
+            await _conn.OpenAsync();
 
-                    using (var command = new NpgsqlCommand(query, _conn))
-                    {
-                        command.Parameters.AddWithValue("@c_blog_id", blogpost.c_blog_id);
-                        command.Parameters.AddWithValue("@c_tags", blogpost.c_tags ?? (object)DBNull.Value);
-                        command.Parameters.AddWithValue("@c_title", blogpost.c_title);
-                        command.Parameters.AddWithValue("@c_desc", blogpost.c_desc ?? (object)DBNull.Value);
-                        command.Parameters.AddWithValue("@c_content", blogpost.c_content ?? (object)DBNull.Value);
-                        command.Parameters.AddWithValue("@c_thumbnail", blogpost.c_thumbnail ?? (object)DBNull.Value);
-                        command.Parameters.AddWithValue("@c_published_at", DateTimeOffset.UtcNow.ToUnixTimeSeconds());
-                        command.Parameters.AddWithValue("@c_is_published", true);
+            using (var command = new NpgsqlCommand(query, _conn))
+            {
+                command.Parameters.AddWithValue("@c_blog_id", blogpost.c_blog_id);
+                command.Parameters.AddWithValue("@c_tags", blogpost.c_tags ?? (object)DBNull.Value);
+                command.Parameters.AddWithValue("@c_title", blogpost.c_title);
+                command.Parameters.AddWithValue("@c_desc", blogpost.c_desc ?? (object)DBNull.Value);
+                command.Parameters.AddWithValue("@c_content", blogpost.c_content ?? (object)DBNull.Value);
+                command.Parameters.AddWithValue("@c_thumbnail", blogpost.c_thumbnail ?? (object)DBNull.Value);
+                command.Parameters.AddWithValue("@c_published_at", DateTimeOffset.UtcNow.ToUnixTimeSeconds());
+                command.Parameters.AddWithValue("@c_is_published", true);
 
-                        int rowsAffected = await command.ExecuteNonQueryAsync();
-                        return rowsAffected > 0;
-                    }
-                }
-                catch (Exception ex)
-                {
-                    System.Console.WriteLine("Error at publish blog-->" + ex.Message);
-                    return false;
-                }
-                finally
-                {
-                    if (_conn.State == System.Data.ConnectionState.Open)
-                        await _conn.CloseAsync();
-                }
+                int rowsAffected = await command.ExecuteNonQueryAsync();
+                return rowsAffected > 0;
             }
-        #endregion
+        }
+        catch (Exception ex)
+        {
+            System.Console.WriteLine("Error at publish blog-->" + ex.Message);
+            return false;
+        }
+        finally
+        {
+            if (_conn.State == System.Data.ConnectionState.Open)
+                await _conn.CloseAsync();
+        }
+    }
+    #endregion
 
-        #region GetBlogsByInstructorId
-            public async Task<List<BlogPost>> GetBlogsByInstructorId(int instructor_id) {
-                
-                var blogList = new List<BlogPost>();
+    #region GetBlogsByInstructorId
+    public async Task<List<BlogPost>> GetBlogsByInstructorId(int instructor_id)
+    {
 
-                try {
+        var blogList = new List<BlogPost>();
 
-                    if (_conn.State == System.Data.ConnectionState.Open)
-                        await _conn.CloseAsync();
+        try
+        {
 
-                    string query = @"SELECT * FROM t_blogpost
+            if (_conn.State == System.Data.ConnectionState.Open)
+                await _conn.CloseAsync();
+
+            string query = @"SELECT * FROM t_blogpost
                                 WHERE c_blog_author_id = @c_blog_author_id";
-                    
-                    using (var cmd = new NpgsqlCommand(query, _conn))
-                    {
-                        cmd.Parameters.AddWithValue("@c_blog_author_id", Convert.ToInt32(instructor_id));
-                        await _conn.OpenAsync();
-                        using (var reader = await cmd.ExecuteReaderAsync())
-                        {
-                            while (await reader.ReadAsync())
-                            {
-                                BlogPost blog = new BlogPost
-                                {
-                                    c_blog_id = reader.GetInt32(reader.GetOrdinal("c_blog_id")),
-                                    c_blog_author_id = reader.GetInt32(reader.GetOrdinal("c_blog_author_id")),
-                                    c_tags = reader.GetString(reader.GetOrdinal("c_tags")),
-                                    c_title = reader.GetString(reader.GetOrdinal("c_title")),
-                                    c_desc = reader.GetString(reader.GetOrdinal("c_desc")),
-                                    c_content = reader.GetString(reader.GetOrdinal("c_content")),
-                                    c_thumbnail = reader.GetString(reader.GetOrdinal("c_thumbnail")),
-                                    c_source_url = reader.GetString(reader.GetOrdinal("c_source_url")),
-                                    c_views = reader.GetInt32(reader.GetOrdinal("c_views")),
-                                    c_likes = reader.GetInt32(reader.GetOrdinal("c_likes")),
-                                    c_comments = reader.GetInt32(reader.GetOrdinal("c_comments")),
-                                    c_created_at = reader.GetInt32(reader.GetOrdinal("c_created_at")),
-                                    c_published_at = reader.GetInt32(reader.GetOrdinal("c_published_at")),
-                                    c_is_published = reader.GetBoolean(reader.GetOrdinal("c_is_published")),
-                                };
-                                blogList.Add(blog);
-                            }
-                        }
-                    }
-                    await _conn.CloseAsync();
-                    return blogList;
-                } 
 
-                catch (Exception ex)
+            using (var cmd = new NpgsqlCommand(query, _conn))
+            {
+                cmd.Parameters.AddWithValue("@c_blog_author_id", Convert.ToInt32(instructor_id));
+                await _conn.OpenAsync();
+                using (var reader = await cmd.ExecuteReaderAsync())
                 {
-                    System.Console.WriteLine("Exception at GetBlogsByInstructor-->" + ex.Message);
-                    return blogList;
-                }
-
-                finally {
-                    if (_conn.State == System.Data.ConnectionState.Open)
-                        await _conn.CloseAsync();
+                    while (await reader.ReadAsync())
+                    {
+                        BlogPost blog = new BlogPost
+                        {
+                            c_blog_id = reader.GetInt32(reader.GetOrdinal("c_blog_id")),
+                            c_blog_author_id = reader.GetInt32(reader.GetOrdinal("c_blog_author_id")),
+                            c_tags = reader.GetString(reader.GetOrdinal("c_tags")),
+                            c_title = reader.GetString(reader.GetOrdinal("c_title")),
+                            c_desc = reader.GetString(reader.GetOrdinal("c_desc")),
+                            c_content = reader.GetString(reader.GetOrdinal("c_content")),
+                            c_thumbnail = reader.GetString(reader.GetOrdinal("c_thumbnail")),
+                            c_source_url = reader.GetString(reader.GetOrdinal("c_source_url")),
+                            c_views = reader.GetInt32(reader.GetOrdinal("c_views")),
+                            c_likes = reader.GetInt32(reader.GetOrdinal("c_likes")),
+                            c_comments = reader.GetInt32(reader.GetOrdinal("c_comments")),
+                            c_created_at = reader.GetInt32(reader.GetOrdinal("c_created_at")),
+                            c_published_at = reader.GetInt32(reader.GetOrdinal("c_published_at")),
+                            c_is_published = reader.GetBoolean(reader.GetOrdinal("c_is_published")),
+                        };
+                        blogList.Add(blog);
+                    }
                 }
             }
-        #endregion
+            await _conn.CloseAsync();
+            return blogList;
+        }
 
-        #region GetBlogById
-            public async Task<BlogPost> GetBlogById(int blog_id) {
-                
-                var blog = new BlogPost();
+        catch (Exception ex)
+        {
+            System.Console.WriteLine("Exception at GetBlogsByInstructor-->" + ex.Message);
+            return blogList;
+        }
 
-                try {
+        finally
+        {
+            if (_conn.State == System.Data.ConnectionState.Open)
+                await _conn.CloseAsync();
+        }
+    }
+    #endregion
 
-                    if (_conn.State == System.Data.ConnectionState.Open)
-                        await _conn.CloseAsync();
+    #region GetBlogById
+    public async Task<BlogPost> GetBlogById(int blog_id)
+    {
 
-                    string query = @"SELECT * FROM t_blogpost
+        var blog = new BlogPost();
+
+        try
+        {
+
+            if (_conn.State == System.Data.ConnectionState.Open)
+                await _conn.CloseAsync();
+
+            string query = @"SELECT * FROM t_blogpost
                                 WHERE c_blog_id = @c_blog_id";
-                    
-                    using (var cmd = new NpgsqlCommand(query, _conn))
-                    {
-                        cmd.Parameters.AddWithValue("@c_blog_id", Convert.ToInt32(blog_id));
-                        await _conn.OpenAsync();
-                        using (var reader = await cmd.ExecuteReaderAsync())
-                        {
-                            while (await reader.ReadAsync())
-                            {
-                                BlogPost blog_ = new BlogPost
-                                {
-                                    c_blog_id = reader.GetInt32(reader.GetOrdinal("c_blog_id")),
-                                    c_blog_author_id = reader.GetInt32(reader.GetOrdinal("c_blog_author_id")),
-                                    c_tags = reader.GetString(reader.GetOrdinal("c_tags")),
-                                    c_title = reader.GetString(reader.GetOrdinal("c_title")),
-                                    c_desc = reader.GetString(reader.GetOrdinal("c_desc")),
-                                    c_content = reader.GetString(reader.GetOrdinal("c_content")),
-                                    c_thumbnail = reader.GetString(reader.GetOrdinal("c_thumbnail")),
-                                    c_source_url = reader.GetString(reader.GetOrdinal("c_source_url")),
-                                    c_views = reader.GetInt32(reader.GetOrdinal("c_views")),
-                                    c_likes = reader.GetInt32(reader.GetOrdinal("c_likes")),
-                                    c_comments = reader.GetInt32(reader.GetOrdinal("c_comments")),
-                                    c_created_at = reader.GetInt32(reader.GetOrdinal("c_created_at")),
-                                    c_published_at = reader.GetInt32(reader.GetOrdinal("c_published_at")),
-                                    c_is_published = reader.GetBoolean(reader.GetOrdinal("c_is_published")),
-                                };
-                                blog = blog_;
-                            }
-                        }
-                    }
-                    await _conn.CloseAsync();
-                    return blog;
-                } 
 
-                catch (Exception ex)
+            using (var cmd = new NpgsqlCommand(query, _conn))
+            {
+                cmd.Parameters.AddWithValue("@c_blog_id", Convert.ToInt32(blog_id));
+                await _conn.OpenAsync();
+                using (var reader = await cmd.ExecuteReaderAsync())
                 {
-                    System.Console.WriteLine("Exception at GetBlogsByInstructor-->" + ex.Message);
-                    return blog;
-                }
-
-                finally {
-                    if (_conn.State == System.Data.ConnectionState.Open)
-                        await _conn.CloseAsync();
+                    while (await reader.ReadAsync())
+                    {
+                        BlogPost blog_ = new BlogPost
+                        {
+                            c_blog_id = reader.GetInt32(reader.GetOrdinal("c_blog_id")),
+                            c_blog_author_id = reader.GetInt32(reader.GetOrdinal("c_blog_author_id")),
+                            c_tags = reader.GetString(reader.GetOrdinal("c_tags")),
+                            c_title = reader.GetString(reader.GetOrdinal("c_title")),
+                            c_desc = reader.GetString(reader.GetOrdinal("c_desc")),
+                            c_content = reader.GetString(reader.GetOrdinal("c_content")),
+                            c_thumbnail = reader.GetString(reader.GetOrdinal("c_thumbnail")),
+                            c_source_url = reader.GetString(reader.GetOrdinal("c_source_url")),
+                            c_views = reader.GetInt32(reader.GetOrdinal("c_views")),
+                            c_likes = reader.GetInt32(reader.GetOrdinal("c_likes")),
+                            c_comments = reader.GetInt32(reader.GetOrdinal("c_comments")),
+                            c_created_at = reader.GetInt32(reader.GetOrdinal("c_created_at")),
+                            c_published_at = reader.GetInt32(reader.GetOrdinal("c_published_at")),
+                            c_is_published = reader.GetBoolean(reader.GetOrdinal("c_is_published")),
+                        };
+                        blog = blog_;
+                    }
                 }
             }
-        #endregion
+            await _conn.CloseAsync();
+            return blog;
+        }
+
+        catch (Exception ex)
+        {
+            System.Console.WriteLine("Exception at GetBlogsByInstructor-->" + ex.Message);
+            return blog;
+        }
+
+        finally
+        {
+            if (_conn.State == System.Data.ConnectionState.Open)
+                await _conn.CloseAsync();
+        }
+    }
+    #endregion
+
+    #region Delete Blog 
+    public async Task<int> DeleteBlog(int blog_id)
+    {
+        try
+        {
+            if (_conn.State == System.Data.ConnectionState.Open)
+                await _conn.CloseAsync();
+
+            string query = @"DELETE FROM t_blogpost WHERE c_blog_id = @c_blog_id";
+
+            using (var cmd = new NpgsqlCommand(query, _conn))
+            {
+                cmd.Parameters.AddWithValue("@c_blog_id", blog_id);
+                await _conn.OpenAsync();
+                int rowsAffected = await cmd.ExecuteNonQueryAsync();
+                return rowsAffected; // Should be 1 if the deletion was successful
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("Exception in DeleteBlog --> " + ex.Message);
+            return 0;
+        }
+        finally
+        {
+            if (_conn.State == System.Data.ConnectionState.Open)
+                await _conn.CloseAsync();
+        }
+    }
+    #endregion
     #endregion
 
 }
