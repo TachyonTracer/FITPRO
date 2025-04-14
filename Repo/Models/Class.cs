@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Http;
 namespace Repo;
 public class Class
 {
-    
+
 
     [Required(ErrorMessage = "Class ID is required")]
     public int classId { get; set; }
@@ -72,6 +72,9 @@ public class Class
     public IFormFile[]? assetFiles { get; set; }
 
     public string? instructorName { get; set; }
-    
-    
+
+    public int? waitList { get; set; }
+
+
+
 }
