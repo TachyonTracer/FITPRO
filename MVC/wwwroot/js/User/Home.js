@@ -463,26 +463,49 @@ $(document).on("submit", "#profileForm", function (e) {
 });
 
 async function fetchUpcomingClassCount(userId) {
-  try 
-  {
+  try {
     const response = await fetch(`${uri}/api/User/UpcomingClassCountByUser/${userId}`);
     const data = await response.json();
 
     if (data.count > -1) {
       const label = data.count === 1 ? "class" : "classes";
-      document.getElementById(
-        "active-classes"
-      ).textContent = `${data.count} active ${label}`;
-    } else {
-      document.getElementById("active-classes").textContent =
-        "Failed to load classes";
+      document.getElementById( "active-classes").textContent = `${data.count} active ${label}`;
+    } 
+    else 
+    {
+      document.getElementById("active-classes").textContent = "Failed to load classes";
       console.warn("API error:", data.message || "Unknown issue");
     }
-  } catch (error) {
+  } 
+  catch (error) 
+  {
     console.error("Fetch error:", error);
-    document.getElementById("active-classes").textContent =
-      "Error loading classes";
+    document.getElementById("active-classes").textContent = "Error loading classes";
+  }
+}
+
+async function fetchCompletedClassCount(userId) {
+  try 
+  {
+    const response = await fetch(`${uri}/api/User/CompletedClassCountByUser/${userId}`);
+    const data = await response.json();
+
+    if (data.count > -1) {
+      const label = data.count === 1 ? "Class" : "Classes";
+      document.getElementById("completed-classes").textContent = `🥇 ${data.count} ${label} Completed`;
+    } 
+    else 
+    {
+      document.getElementById("completed-classes").textContent = "🥇 Failed to load classes";
+      console.warn("API error:", data.message || "Unknown issue");
+    }
+  } 
+  catch (error) 
+  {
+    console.error("Error fetching completed class count:", error);
+    document.getElementById("completed-classes").textContent = "🥇 Error loading classes";
   }
 }
 
 fetchUpcomingClassCount(userId);
+fetchCompletedClassCount(userId);

@@ -25,6 +25,7 @@ public interface IUserInterface
 	Task<bool> UpdateUserProfileAsync(User user);
     Task<User> GetUserByIdAsync(int userId);
 	Task<int> UpcomingClassCountByUser(string userId);
+	Task<int> CompletedClassCountByUser(string userId);
 
 
 }

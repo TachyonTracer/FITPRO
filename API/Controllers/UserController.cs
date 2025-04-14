@@ -310,5 +310,27 @@ namespace API
             });
         }
         #endregion
+		
+		#region Completed Class Count By User
+        [HttpGet("CompletedClassCountByUser/{userId}")]
+        public async Task<IActionResult> CompletedClassCountByUser(string userId)
+        {
+            var classCount = await _userRepo.CompletedClassCountByUser(userId);
+            if (classCount != -1)
+            {
+                return Ok(new
+                {
+                    message = "Completed Class Count By User fetched successfully",
+                    count = classCount
+                });
+            }
+
+            return BadRequest(new
+            {
+                success = false,
+                message = "Failed to fetch Completed Class Count By User"
+            });
+        }
+        #endregion
 	}
 }
