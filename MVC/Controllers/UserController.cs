@@ -28,7 +28,7 @@ namespace MVC
             return View();
         }
 
-         public ActionResult Hommy()
+         public ActionResult Home()
         {
             return View();
         }

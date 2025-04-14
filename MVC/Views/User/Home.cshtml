@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FitPro - User Home</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+    <link href="https://kendo.cdn.telerik.com/themes/6.7.0/default/default-main.css" rel="stylesheet">
+    <script src="https://kendo.cdn.telerik.com/2023.1.117/js/kendo.all.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="@Url.Content("~/css/User/Home.css")" asp-append-version="true">
+    
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="logo">
+            <img src="~/img/logo.png" alt="FitPro Logo" />
+        </div>
+        <ul class="nav-links">
+            <li><a href="#" onclick="home()">Home</a></li>
+            <li><a href="#" onclick="classes()">Classes</a></li>
+            <li><a href="#" onclick="myclasses()">My Classes</a></li>
+            <li><a href="#">Contact</a></li>
+        </ul>
+        <div class="profile-wrapper">
+            <img src="~/img/fitlogo.png" alt="Profile" class="profile-img" />
+            <div class="profile-dropdown">
+                <a href="#" onclick="showProfileDrawer()">Update Profile</a>
+                <a href="#" onclick="showLogoutConfirmation()">Logout</a>
+            </div>
+        </div>
+
+    </nav>
+    <div id="profileDrawer"></div>
+    <div class="reminder-box">
+        🔔 SpinRide starts in 2 hours
+    </div>
+
+    <div class="dashboard">
+        <div class="welcome">
+            <h1>👋 Welcome back, <span id="name"></span></h1>
+            <p>"Stay strong, stay healthy. Keep pushing forward! 💪"</p>
+        </div>
+
+        <div class="cards">
+            <div class="card">
+                <h3>🧘 Enrolled Classes</h3>
+                <p id="active-classes">Loading...</p>
+            </div>
+            <div class="card">
+                <h3>📅 Next Class</h3>
+                <p>SpinRide - 27 Apr 3:35 PM</p>
+            </div>
+            <div class="card">
+                <h3>🏅 Achievements</h3>
+                <p id="completed-classes">🥇 Loading...</p>
+            </div>
+            <div class="card">
+                <h3>⏱️ Workout Time</h3>
+                <p>18 hrs total</p>
+            </div>
+        </div>
+
+        <div class="recommendation">
+            <h3>🔥 Recommended for You</h3>
+            <!-- <div class="recommendation-list">
+                <div class="recommendation-item">
+                    <img src="fitness.jpg" alt="Zumba Burn">
+                    <div class="recommendation-info">
+                        <h4>Zumba Burn</h4>
+                        <p><strong>Instructor:</strong> Anjali</p>
+                        <p><strong>Time:</strong> 6:00 AM</p>
+                        <p><strong>Days:</strong> Mon/Wed/Fri</p>
+                    </div>
+                    
+                </div>
+                <div class="recommendation-item">
+                    <img src="tire.jpeg" alt="Yoga & Flow">
+                    <div class="recommendation-info">
+                        <h4>Yoga & Flow</h4>
+                        <p><strong>Instructor:</strong> Riya</p>
+                        <p><strong>Time:</strong> 7:30 AM</p>
+                        <p><strong>Days:</strong> Tue/Thu</p>
+                    </div>
+                </div>
+                <div class="recommendation-item">
+                    <img src="jumbo.jpg" alt="Core Crush">
+                    <div class="recommendation-info">
+                        <h4>Core Crush</h4>
+                        <p><strong>Instructor:</strong> Aman</p>
+                        <p><strong>Time:</strong> 5:00 PM</p>
+                        <p><strong>Days:</strong> Daily</p>
+                    </div>
+                </div>
+            </div>  -->
+            <div class="coming-soon-text">
+                🚧 This Feature Coming Soon! Stay healthy🚧
+            </div>
+        </div>
+
+        <div class="highlight">
+            <p>💬 Haven't shared your thoughts yet?</p>
+            <a href="feedback.html" class="btn-feedback">Give Feedback</a>
+        </div>
+    </div>
+
+
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-left">
+                <img src="~/img/logo.png" alt="FitPro Logo" class="footer-logo" />
+                <p>Your ultimate fitness companion. 💪</p>
+            </div>
+            <div class="footer-links-grid">
+                <div>
+                    <h4>Explore</h4>
+                    <a href="#">Home</a>
+                    <a href="#classes">Classes</a>
+                    <a href="#">Instructors</a>
+                </div>
+                <div>
+                    <h4>Support</h4>
+                    <a href="#">Help Center</a>
+                    <a href="#">Contact</a>
+                    <a href="#">Feedback</a>
+                </div>
+                <div>
+                    <h4>Legal</h4>
+                    <a href="#">Privacy Policy</a>
+                    <a href="#">Terms of Use</a>
+                </div>
+            </div>
+
+
+
+            <div class="footer-social">
+                <a href="#"><img src="~/img/insta.png" alt="Instagram" /></a>
+                <a href="#"><img src="~/img/facebook.png" alt="Facebook" /></a>
+                <a href="#"><img src="~/img/twitter.png" alt="Twitter" /></a>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            © 2025 FitPro. All rights reserved.
+        </div>
+    </footer>
+
+
+      <script src="@Url.Content("~/js/User/Home.js")" asp-append-version="true"></script>
+</body>
+
+</html>

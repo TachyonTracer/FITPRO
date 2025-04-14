@@ -1,8 +1,14 @@
 :root {
-    --background: #1a1a2e;
+    --background: #1a1a2e; 
     --color: #ffffff;
-    --primary-color: #ff4d4d;
-    --glass-color: rgba(255, 255, 255, 0.1);
+    --primary-color: rgb(242, 195, 67);
+    --glass-color: rgba(255, 255, 255, 0.029);
+    --success: #28a745;
+    --error: rgb(244, 70, 70);
+
+    /* Theme that metches user dashboard */
+    /* --background: #0d0d0d; */
+    /* --glass-color: rgba(255, 255, 255, 0.088); */
 }
 
 * {
@@ -104,7 +110,7 @@ h1 {
 /* Barbell Icon */
 .barbell-icon-1,
 .barbell-icon-2 {
-    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><rect x="1" y="7" width="4" height="10" /><rect x="19" y="7" width="4" height="10" /><rect x="7" y="9" width="4" height="6" /><rect x="13" y="9" width="4" height="6" /><line x1="5" y1="12" x2="19" y2="12" /></svg>');
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke=" " stroke-width="2"><rect x="1" y="7" width="4" height="10" /><rect x="19" y="7" width="4" height="10" /><rect x="7" y="9" width="4" height="6" /><rect x="13" y="9" width="4" height="6" /><line x1="5" y1="12" x2="19" y2="12" /></svg>');
 }
 
 .barbell-icon-1 {
@@ -144,7 +150,7 @@ h1 {
 }
 
 .form-container {
-    border: 3px solid #facc15;
+    border: 3px solid var(--primary-color);
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
     border-radius: 15px;
     backdrop-filter: blur(15px);
@@ -263,12 +269,8 @@ h1 {
 }
 
 .opacity {
-    opacity: 0.7;
-    transition: opacity 0.3s ease;
-}
-
-.opacity:hover {
     opacity: 1;
+    transition: opacity 0.3s ease;
 }
 
 .theme-btn-container {
@@ -365,7 +367,7 @@ h1 {
 
 .swal2-popup {
     background: var(--glass-color) !important;
-    backdrop-filter: blur(15px) !important;
+    backdrop-filter: blur(25px) !important;
     border: 1px solid hsla(0, 0%, 65%, 0.2) !important;
     border-radius: 15px !important;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3) !important;
@@ -379,7 +381,7 @@ h1 {
 }
 
 .swal2-content {
-    color: rgba(255, 255, 255, 0.8) !important;
+    color: var(--color) !important;
     font-family: "Poppins", sans-serif !important;
 }
 
@@ -394,7 +396,7 @@ h1 {
 }
 
 .swal2-confirm:hover {
-    background-color: #ff6666 !important;
+    background-color: var(--primary-color) !important;
     transform: scale(1.03) !important; 
 }
 
@@ -421,19 +423,19 @@ h1 {
 
 /* Success Icon */
 .swal2-icon.swal2-success {
-    border-color: #28a745 !important;
+    border-color: var(--success) !important;
     /* Green border */
-    color: #28a745 !important;
+    color: var(--success)!important;
     /* Green checkmark */
 }
 
 .swal2-icon.swal2-success .swal2-success-ring {
-    border-color: #28a745 !important;
+    border-color: var(--success) !important;
     /* Outer circle */
 }
 
 .swal2-icon.swal2-success [class^='swal2-success-line'] {
-    background-color: #28a745 !important;
+    background-color: var(--success) !important;
     /* Check lines */
 }
 
@@ -441,6 +443,16 @@ h1 {
 .swal2-icon.swal2-success .swal2-success-circular-line-right,
 .swal2-icon.swal2-success .swal2-success-fix  {
     display: none !important;
+}
+
+/*Error icon*/
+.swal2-icon.swal2-error{
+    border-color: var(--error) !important;
+    color: var(--error)!important;
+}
+
+.swal2-error [class^=swal2-x-mark-line] {
+    background-color: var(--error) !important;
 }
 
 /* Animations */
