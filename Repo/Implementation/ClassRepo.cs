@@ -933,5 +933,45 @@ public class ClassRepo : IClassInterface
     }
     #endregion
 
+
+    #region ClasswiseWaitlistCount
+    public async Task<int> ClasswiseWaitlistCount(string classId)
+    {
+        var query = @"
+                    SELECT COUNT(*) AS upcoming_class_count
+                    FROM t_bookings 
+                    WHERE c_classid = @classId
+                    AND c_waitlist > 0;";
+
+        if (_conn.State != ConnectionState.Open)
+        {
+            await _conn.OpenAsync();
+        }
+
+        try
+        {
+            using (var cmd = new NpgsqlCommand(query, _conn))
+            {
+                cmd.Parameters.AddWithValue("@classId", Convert.ToInt32(classId));
+
+                var count = await cmd.ExecuteScalarAsync();
+                return Convert.ToInt32(count);
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("------>Error while Fetching Classwise Waitlist Count: " + ex.Message);
+            return -1;
+        }
+        finally
+        {
+            if (_conn.State != ConnectionState.Closed)
+            {
+                await _conn.CloseAsync();
+            }
+        }
+    }
+    #endregion
+
 }
 

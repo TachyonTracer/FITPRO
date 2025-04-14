@@ -525,4 +525,81 @@ public class UserRepo : IUserInterface
 	}
 	#endregion
 
+	#region Upcoming Class Count By User
+    public async Task<int> UpcomingClassCountByUser(string userId)
+    {
+        try
+        {
+            if (_conn.State != ConnectionState.Open)
+            {
+                await _conn.OpenAsync();
+            }
+
+            using (var cmd = new NpgsqlCommand(@"SELECT COUNT(*)
+                                                FROM t_bookings B
+												JOIN t_class C ON B.c_classid = C.c_classid
+                                                WHERE c_userid = @c_userid
+                                                AND C.c_startdate > @date", _conn))
+            {
+                cmd.Parameters.AddWithValue("@c_userid", Convert.ToInt32(userId));
+                cmd.Parameters.AddWithValue("@date", DateTime.Now);
+
+                var count = await cmd.ExecuteScalarAsync();
+                return Convert.ToInt32(count);
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("------>Error while Fetching Upcoming Class Count by User: " + ex.Message);
+            return -1;
+        }
+        finally
+        {
+            if (_conn.State != ConnectionState.Closed)
+            {
+                await _conn.CloseAsync();
+            }
+        }
+    }
+    #endregion
+
+	#region Completed Class Count By User
+    public async Task<int> CompletedClassCountByUser(string userId)
+    {
+        try
+        {
+            if (_conn.State != ConnectionState.Open)
+            {
+                await _conn.OpenAsync();
+            }
+
+            using (var cmd = new NpgsqlCommand(@"SELECT COUNT(*)
+                                                FROM t_bookings B
+												JOIN t_class C ON B.c_classid = C.c_classid
+                                                WHERE c_userid = @c_userid
+                                                AND C.c_startdate < @date", _conn))
+            {
+                cmd.Parameters.AddWithValue("@c_userid", Convert.ToInt32(userId));
+                cmd.Parameters.AddWithValue("@date", DateTime.Now);
+
+                var count = await cmd.ExecuteScalarAsync();
+                return Convert.ToInt32(count);
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("------>Error while Fetching Completed Class Count by User: " + ex.Message);
+            return -1;
+        }
+        finally
+        {
+            if (_conn.State != ConnectionState.Closed)
+            {
+                await _conn.CloseAsync();
+            }
+        }
+    }
+    #endregion
+
+
 }

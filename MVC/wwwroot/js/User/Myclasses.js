@@ -418,8 +418,8 @@ document.querySelector('.profile-img').addEventListener('click', function () {
         document.querySelector('.profile-dropdown').style.display === 'block' ? 'none' : 'block';
 });
 
-  var drawer = $("#profileDrawer").kendoDrawer({
-template: `
+var drawer = $("#profileDrawer").kendoDrawer({
+    template: `
             <div class="k-drawer-content">
                 <div class="k-drawer-title">Update Profile</div>
                 <form id="profileForm" class="profile-form">
@@ -472,40 +472,40 @@ template: `
                 </form>
             </div>
         `,
-position: "right",
-mode: "push",
-width: "400px",
-minHeight: "100vh",
-swipeToOpen: false,
-autoCollapse: false,
+    position: "right",
+    mode: "push",
+    width: "400px",
+    minHeight: "100vh",
+    swipeToOpen: false,
+    autoCollapse: false,
 }).data("kendoDrawer");
 
 // Initialize Kendo UI Components with Validations
 $("#userName").kendoTextBox({
-placeholder: "Enter your name"
+    placeholder: "Enter your name"
 });
 
 $("#phone").kendoMaskedTextBox({
-mask: "0000000000",
-placeholder: "__________"
+    mask: "0000000000",
+    placeholder: "__________"
 });
 
 $("#height").kendoNumericTextBox({
-min: 100, max: 250, step: 1, format: "# cm"
+    min: 100, max: 250, step: 1, format: "# cm"
 });
 
 $("#weight").kendoNumericTextBox({
-min: 30, max: 200, step: 1, format: "#.00 kg"
+    min: 30, max: 200, step: 1, format: "#.00 kg"
 });
 
 $("#goal").kendoMultiSelect({
-dataSource: ["Weight Loss", "Muscle Gain", "General Fitness", "Endurance Training", "Flexibility Improvement", "Sports Specific", "Weight Management"],
-placeholder: "Select goals..."
+    dataSource: ["Weight Loss", "Muscle Gain", "General Fitness", "Endurance Training", "Flexibility Improvement", "Sports Specific", "Weight Management"],
+    placeholder: "Select goals..."
 });
 
 $("#medicalCondition").kendoMultiSelect({
-dataSource: ["Diabetes", "High Blood Pressure", "Heart Disease", "Asthma", "Arthritis", "Back Pain", "None", "Hypertension"],
-placeholder: "Select medical conditions..."
+    dataSource: ["Diabetes", "High Blood Pressure", "Heart Disease", "Asthma", "Arthritis", "Back Pain", "None", "Hypertension"],
+    placeholder: "Select medical conditions..."
 });
 
 
@@ -513,208 +513,207 @@ placeholder: "Select medical conditions..."
 // Function to Show Profile Drawer and Fetch Data
 window.showProfileDrawer = function () {
 
-if (userId) {
-    console.log("Extracted User ID:", userId);
-}
-
-drawer.show();
-
-$.ajax({
-    url: `${uri}/api/User/GetUserById/${userId}`,
-    type: "GET",
-    success: function (response) {
-        $("#userName").val(response.userName);
-        $("#email").val(response.email);
-        $("#phone").val(response.mobile);
-        $("#height").data("kendoNumericTextBox").value(response.height);
-        $("#weight").data("kendoNumericTextBox").value(response.weight);
-
-        var goalValues = response.goal.split(", ").map(g => g.trim());
-        $("#goal").data("kendoMultiSelect").value(goalValues);
-
-        var medicalValues = response.medicalCondition.split(", ").map(mc => mc.trim());
-        $("#medicalCondition").data("kendoMultiSelect").value(medicalValues);
-
-        if (response.profileImage) {
-            $("#imagePreview").attr("src", `../User_Images/${response.profileImage}`).show();
-        }
-    },
-    error: function (xhr) {
-        alert("Error fetching user details: " + xhr.responseText);
+    if (userId) {
+        console.log("Extracted User ID:", userId);
     }
-});
+
+    drawer.show();
+
+    $.ajax({
+        url: `${uri}/api/User/GetUserById/${userId}`,
+        type: "GET",
+        success: function (response) {
+            $("#userName").val(response.userName);
+            $("#email").val(response.email);
+            $("#phone").val(response.mobile);
+            $("#height").data("kendoNumericTextBox").value(response.height);
+            $("#weight").data("kendoNumericTextBox").value(response.weight);
+
+            var goalValues = response.goal.split(", ").map(g => g.trim());
+            $("#goal").data("kendoMultiSelect").value(goalValues);
+
+            var medicalValues = response.medicalCondition.split(", ").map(mc => mc.trim());
+            $("#medicalCondition").data("kendoMultiSelect").value(medicalValues);
+
+            if (response.profileImage) {
+                $("#imagePreview").attr("src", `../User_Images/${response.profileImage}`).show();
+            }
+        },
+        error: function (xhr) {
+            alert("Error fetching user details: " + xhr.responseText);
+        }
+    });
 };
 
 // Handle Image Preview
 $(document).on("change", "#profileImage", function () {
-var file = this.files[0];
-if (file && file.type.startsWith("image/")) {
-    var reader = new FileReader();
-    reader.onload = function (e) {
-        $("#imagePreview").attr("src", e.target.result).show();
-    };
-    reader.readAsDataURL(file);
-} else {
-    $("#imageError").text("Please select a valid image file.");
-}
+    var file = this.files[0];
+    if (file && file.type.startsWith("image/")) {
+        var reader = new FileReader();
+        reader.onload = function (e) {
+            $("#imagePreview").attr("src", e.target.result).show();
+        };
+        reader.readAsDataURL(file);
+    } else {
+        $("#imageError").text("Please select a valid image file.");
+    }
 });
 
 // Close Drawer on Cancel Button Click
 $(document).on("click", "#cancelProfileBtn", function () {
-drawer.hide();
-$(".profile-dropdown").hide();
+    drawer.hide();
+    $(".profile-dropdown").hide();
 });
 
 // Live validation for userName
 $("#userName").on("input blur", function () {
-let value = $(this).val().trim();
-if (value === "") {
-    $("#nameError").text("Name is required.");
-} else {
-    $("#nameError").text("");
-}
+    let value = $(this).val().trim();
+    if (value === "") {
+        $("#nameError").text("Name is required.");
+    } else {
+        $("#nameError").text("");
+    }
 });
 
 // Live validation for phone
 $("#phone").on("input blur", function () {
-let value = $(this).val().trim();
-let phoneRegex = /^[6-9]\d{9}$/;
+    let value = $(this).val().trim();
+    let phoneRegex = /^[6-9]\d{9}$/;
 
-if (value === "") {
-    $("#phoneError").text("Phone number is required.");
-} else if (!phoneRegex.test(value)) {
-    $("#phoneError").text("Phone number must be 10 digits and start with 6, 7, 8, or 9.");
-} else {
-    $("#phoneError").text("");
-}
+    if (value === "") {
+        $("#phoneError").text("Phone number is required.");
+    } else if (!phoneRegex.test(value)) {
+        $("#phoneError").text("Phone number must be 10 digits and start with 6, 7, 8, or 9.");
+    } else {
+        $("#phoneError").text("");
+    }
 });
 
 // Live validation for height
 $("#height").data("kendoNumericTextBox").bind("change", function () {
-let value = this.value();
-if (value === null || isNaN(value)) {
-    $("#heightError").text("Please enter your height.");
-} else {
-    $("#heightError").text("");
-}
+    let value = this.value();
+    if (value === null || isNaN(value)) {
+        $("#heightError").text("Please enter your height.");
+    } else {
+        $("#heightError").text("");
+    }
 });
 
 // Live validation for weight
 $("#weight").data("kendoNumericTextBox").bind("change", function () {
-let value = this.value();
-if (value === null || isNaN(value)) {
-    $("#weightError").text("Please enter your weight.");
-} else {
-    $("#weightError").text("");
-}
+    let value = this.value();
+    if (value === null || isNaN(value)) {
+        $("#weightError").text("Please enter your weight.");
+    } else {
+        $("#weightError").text("");
+    }
 });
 
 // Live validation for goal
 $("#goal").data("kendoMultiSelect").bind("change", function () {
-let value = this.value();
-if (!value.length) {
-    $("#goalError").text("Select at least one goal.");
-} else {
-    $("#goalError").text("");
-}
+    let value = this.value();
+    if (!value.length) {
+        $("#goalError").text("Select at least one goal.");
+    } else {
+        $("#goalError").text("");
+    }
 });
 
 // Live validation for medical condition
 $("#medicalCondition").data("kendoMultiSelect").bind("change", function () {
-let value = this.value();
-if (!value.length) {
-    $("#medicalError").text("Select at least one medical condition.");
-} else {
-    $("#medicalError").text("");
-}
+    let value = this.value();
+    if (!value.length) {
+        $("#medicalError").text("Select at least one medical condition.");
+    } else {
+        $("#medicalError").text("");
+    }
 });
 
 // Form Submission with Validation
 $(document).on("submit", "#profileForm", function (e) {
-e.preventDefault();
+    e.preventDefault();
 
-$(".validation-message").text("");
+    $(".validation-message").text("");
 
-let valid = true;
-if ($("#userName").val().trim() === "") {
-    $("#nameError").text("Name is required.");
-    valid = false;
-}
-
-let phoneValue = $("#phone").val().trim();
-let phoneRegex = /^[6-9]\d{9}$/;
-if (!phoneRegex.test(phoneValue)) {
-    $("#phoneError").text("Phone number must be 10 digits and start with 6, 7, 8, or 9.");
-    valid = false;
-}
-
-if ($("#height").data("kendoNumericTextBox").value() === null || isNaN($("#height").data("kendoNumericTextBox").value())) {
-    $("#heightError").text("Please enter your height.");
-    valid = false;
-}
-if ($("#weight").data("kendoNumericTextBox").value() === null || isNaN($("#weight").data("kendoNumericTextBox").value())) {
-    $("#weightError").text("Please enter your weight.");
-    valid = false;
-}
-if (!$("#goal").data("kendoMultiSelect").value().length) {
-    $("#goalError").text("Select at least one goal.");
-    valid = false;
-}
-if (!$("#medicalCondition").data("kendoMultiSelect").value().length) {
-    $("#medicalError").text("Select at least one medical condition.");
-    valid = false;
-}
-
-//         @* $("#profileDrawer").hide(); // Hide the drawer
-//   $(".user-profile-container").removeClass("no-hover"); // Enable hover again *@
-
-if (!valid) return;
-
-var formData = new FormData();
-formData.append("userId", userId);
-formData.append("userName", $("#userName").val());
-formData.append("mobile", $("#phone").val());
-formData.append("height", $("#height").data("kendoNumericTextBox").value());
-formData.append("weight", $("#weight").data("kendoNumericTextBox").value());
-formData.append("goal", $("#goal").data("kendoMultiSelect").value().join(", "));
-formData.append("medicalCondition", $("#medicalCondition").data("kendoMultiSelect").value().join(", "));
-formData.append("gender", "Male");
-formData.append("email", "email@email.com");
-formData.append("password", "Password@1234");
-formData.append("confirmPassword", "Password@1234");
-formData.append("profileImage", "default.jpg");
-formData.append("activationToken", "token_449827858");
-
-var imageFile = $("#profileImage")[0]?.files?.[0];
-if (imageFile) {
-    console.log("Image file:", imageFile);
-    formData.append("profileImageFile", imageFile);
-}
-
-$.ajax({
-    url: `${uri}/api/User/UserUpdateProfile`,
-    type: "PUT",
-    processData: false,
-    contentType: false,
-    data: formData,
-    success: function () {
-        Swal.fire(
-            'Success!',
-            'Your profile has been successfully updated.',
-            'success'
-        );
-        drawer.hide();
-        $(".profile-dropdown").hide(); // Hide the dropdown after successful update
-    },
-    error: function (xhr) {
-        Swal.fire(
-            'Error!',
-            'There was an issue updating your profile. Please try again later.',
-            'error'
-        );
-        $(".profile-dropdown").hide();
+    let valid = true;
+    if ($("#userName").val().trim() === "") {
+        $("#nameError").text("Name is required.");
+        valid = false;
     }
-});
 
+    let phoneValue = $("#phone").val().trim();
+    let phoneRegex = /^[6-9]\d{9}$/;
+    if (!phoneRegex.test(phoneValue)) {
+        $("#phoneError").text("Phone number must be 10 digits and start with 6, 7, 8, or 9.");
+        valid = false;
+    }
+
+    if ($("#height").data("kendoNumericTextBox").value() === null || isNaN($("#height").data("kendoNumericTextBox").value())) {
+        $("#heightError").text("Please enter your height.");
+        valid = false;
+    }
+    if ($("#weight").data("kendoNumericTextBox").value() === null || isNaN($("#weight").data("kendoNumericTextBox").value())) {
+        $("#weightError").text("Please enter your weight.");
+        valid = false;
+    }
+    if (!$("#goal").data("kendoMultiSelect").value().length) {
+        $("#goalError").text("Select at least one goal.");
+        valid = false;
+    }
+    if (!$("#medicalCondition").data("kendoMultiSelect").value().length) {
+        $("#medicalError").text("Select at least one medical condition.");
+        valid = false;
+    }
+
+    //         @* $("#profileDrawer").hide(); // Hide the drawer
+    //   $(".user-profile-container").removeClass("no-hover"); // Enable hover again *@
+
+    if (!valid) return;
+
+    var formData = new FormData();
+    formData.append("userId", userId);
+    formData.append("userName", $("#userName").val());
+    formData.append("mobile", $("#phone").val());
+    formData.append("height", $("#height").data("kendoNumericTextBox").value());
+    formData.append("weight", $("#weight").data("kendoNumericTextBox").value());
+    formData.append("goal", $("#goal").data("kendoMultiSelect").value().join(", "));
+    formData.append("medicalCondition", $("#medicalCondition").data("kendoMultiSelect").value().join(", "));
+    formData.append("gender", "Male");
+    formData.append("email", "email@email.com");
+    formData.append("password", "Password@1234");
+    formData.append("confirmPassword", "Password@1234");
+    formData.append("profileImage", "default.jpg");
+    formData.append("activationToken", "token_449827858");
+
+    var imageFile = $("#profileImage")[0]?.files?.[0];
+    if (imageFile) {
+        console.log("Image file:", imageFile);
+        formData.append("profileImageFile", imageFile);
+    }
+
+    $.ajax({
+        url: `${uri}/api/User/UserUpdateProfile`,
+        type: "PUT",
+        processData: false,
+        contentType: false,
+        data: formData,
+        success: function () {
+            Swal.fire(
+                'Success!',
+                'Your profile has been successfully updated.',
+                'success'
+            );
+            drawer.hide();
+            $(".profile-dropdown").hide(); // Hide the dropdown after successful update
+        },
+        error: function (xhr) {
+            Swal.fire(
+                'Error!',
+                'There was an issue updating your profile. Please try again later.',
+                'error'
+            );
+            $(".profile-dropdown").hide();
+        }
+    });
 
 });
