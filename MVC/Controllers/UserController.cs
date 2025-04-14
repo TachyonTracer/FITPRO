@@ -27,6 +27,11 @@ namespace MVC
         {
             return View();
         }
+
+         public ActionResult Home()
+        {
+            return View();
+        }
         public ActionResult Dashboard()
         {
             return View();
