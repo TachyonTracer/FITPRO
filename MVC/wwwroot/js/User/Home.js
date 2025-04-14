@@ -1,115 +1,118 @@
-
 let uri = "http://localhost:8080";
 // Function to format date and time
 var userId;
 
-    function setUserName() {
-        const token = localStorage.getItem("authToken");
-        if (token) {
-            const decoded = parseJwt(token);
-            if (decoded && decoded.UserObject) {
-                const userObj = JSON.parse(decoded.UserObject);
-                const userName = userObj.name || userObj.userName || 'User';
-                document.getElementById('name').innerHTML = `<b>${userName}</b>`;
-            }
-        }
+function setUserName() {
+  const token = localStorage.getItem("authToken");
+  if (token) {
+    const decoded = parseJwt(token);
+    if (decoded && decoded.UserObject) {
+      const userObj = JSON.parse(decoded.UserObject);
+      const userName = userObj.name || userObj.userName || "User";
+      document.getElementById("name").innerHTML = `<b>${userName}</b>`;
     }
+  }
+}
 
 // Call this function when page loads
 window.onload = function () {
-    setUserName();
-    userId = getUserIdFromToken();
-}
+  setUserName();
+  userId = getUserIdFromToken();
+};
 
 userId = getUserIdFromToken();
 function getUserIdFromToken() {
-    const token = localStorage.getItem("authToken");
-    if (!token) {
-        console.warn("No auth token found in localStorage.");
-        return null;
-    }
-    const decoded = parseJwt(token);
-    if (decoded) {
-        console.log("using parsing " + decoded + " " + decoded.UserObject);
-        console.log("using parsing " + JSON.parse(decoded.UserObject).userId);
-        console.log("using parsing printing its type " + typeof (JSON.parse(decoded.UserObject).userId));
-        let userId = JSON.parse(decoded.UserObject).userId;
-        console.log("user id is +" + userId);
-
-        return JSON.parse(decoded.UserObject).userId;
-    }
-    console.warn("Invalid or malformed token.");
+  const token = localStorage.getItem("authToken");
+  if (!token) {
+    console.warn("No auth token found in localStorage.");
     return null;
+  }
+  const decoded = parseJwt(token);
+  if (decoded) {
+    console.log("using parsing " + decoded + " " + decoded.UserObject);
+    console.log("using parsing " + JSON.parse(decoded.UserObject).userId);
+    console.log(
+      "using parsing printing its type " +
+        typeof JSON.parse(decoded.UserObject).userId
+    );
+    let userId = JSON.parse(decoded.UserObject).userId;
+    console.log("user id is +" + userId);
+
+    return JSON.parse(decoded.UserObject).userId;
+  }
+  console.warn("Invalid or malformed token.");
+  return null;
 }
 
 function parseJwt(token) {
-    try {
-        const base64Url = token.split('.')[1];
-        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-        return JSON.parse(atob(base64));
-    } catch (error) {
-        console.error("Invalid token:", error);
-        return null;
-    }
+  try {
+    const base64Url = token.split(".")[1];
+    const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+    return JSON.parse(atob(base64));
+  } catch (error) {
+    console.error("Invalid token:", error);
+    return null;
+  }
 }
 function myclasses() {
-    // Redirect to the class details page with the class ID
-    window.location.href = `/User/MyClasses?id=${userId}`;
+  // Redirect to the class details page with the class ID
+  window.location.href = `/User/MyClasses?id=${userId}`;
 }
 
 function home() {
-    // Redirect to the class details page with the class ID
-    window.location.href = `/User/home`;
+  // Redirect to the class details page with the class ID
+  window.location.href = `/User/home`;
 }
 function classes() {
-    // Redirect to the class details page with the class ID
-    window.location.href = `/User/index`;
+  // Redirect to the class details page with the class ID
+  window.location.href = `/User/index`;
 }
 
 // Profile dropdown toggle
-document.querySelector('.profile-img').addEventListener('click', function () {
-    document.querySelector('.profile-dropdown').style.display =
-        document.querySelector('.profile-dropdown').style.display === 'block' ? 'none' : 'block';
+document.querySelector(".profile-img").addEventListener("click", function () {
+  document.querySelector(".profile-dropdown").style.display =
+    document.querySelector(".profile-dropdown").style.display === "block"
+      ? "none"
+      : "block";
 });
 
-
 function performLogout() {
-    Swal.fire({
-        title: 'Logging Out',
-        text: 'Please wait...',
-        timer: 1000,
-        timerProgressBar: true,
-        didOpen: () => {
-            Swal.showLoading();
-            // Clear the authentication token
-            localStorage.removeItem("authToken");
-        }
-    }).then(() => {
-        // Redirect to login page 
-        window.location.href = "/Auth/Login";
-    });
+  Swal.fire({
+    title: "Logging Out",
+    text: "Please wait...",
+    timer: 1000,
+    timerProgressBar: true,
+    didOpen: () => {
+      Swal.showLoading();
+      // Clear the authentication token
+      localStorage.removeItem("authToken");
+    },
+  }).then(() => {
+    // Redirect to login page
+    window.location.href = "/Auth/Login";
+  });
 }
 
 // Add a showLogoutConfirmation function
 function showLogoutConfirmation() {
-    Swal.fire({
-        title: 'Logout Confirmation',
-        text: 'Are you sure you want to logout?',
-        icon: 'question',
-        showCancelButton: true,
-        confirmButtonColor: '#ff4d4d',
-        cancelButtonColor: '#6c757d',
-        confirmButtonText: 'Yes, Logout',
-        cancelButtonText: 'Cancel'
-    }).then((result) => {
-        if (result.isConfirmed) {
-            performLogout();
-        }
-    });
+  Swal.fire({
+    title: "Logout Confirmation",
+    text: "Are you sure you want to logout?",
+    icon: "question",
+    showCancelButton: true,
+    confirmButtonColor: "#ff4d4d",
+    cancelButtonColor: "#6c757d",
+    confirmButtonText: "Yes, Logout",
+    cancelButtonText: "Cancel",
+  }).then((result) => {
+    if (result.isConfirmed) {
+      performLogout();
+    }
+  });
 }
 
-
-var drawer = $("#profileDrawer").kendoDrawer({
+var drawer = $("#profileDrawer")
+  .kendoDrawer({
     template: `
             <div class="k-drawer-content">
                 <div class="k-drawer-title">Update Profile</div>
@@ -169,243 +172,317 @@ var drawer = $("#profileDrawer").kendoDrawer({
     minHeight: "100vh",
     swipeToOpen: false,
     autoCollapse: false,
-}).data("kendoDrawer");
+  })
+  .data("kendoDrawer");
 
 // Initialize Kendo UI Components with Validations
 $("#userName").kendoTextBox({
-    placeholder: "Enter your name"
+  placeholder: "Enter your name",
 });
 
 $("#phone").kendoMaskedTextBox({
-    mask: "0000000000",
-    placeholder: "__________"
+  mask: "0000000000",
+  placeholder: "__________",
 });
 
 $("#height").kendoNumericTextBox({
-    min: 100, max: 250, step: 1, format: "# cm"
+  min: 100,
+  max: 250,
+  step: 1,
+  format: "# cm",
 });
 
 $("#weight").kendoNumericTextBox({
-    min: 30, max: 200, step: 1, format: "#.00 kg"
+  min: 30,
+  max: 200,
+  step: 1,
+  format: "#.00 kg",
 });
 
 $("#goal").kendoMultiSelect({
-    dataSource: ["Weight Loss", "Muscle Gain", "General Fitness", "Endurance Training", "Flexibility Improvement", "Sports Specific", "Weight Management"],
-    placeholder: "Select goals..."
+  dataSource: [
+    "Weight Loss",
+    "Muscle Gain",
+    "General Fitness",
+    "Endurance Training",
+    "Flexibility Improvement",
+    "Sports Specific",
+    "Weight Management",
+  ],
+  placeholder: "Select goals...",
 });
 
 $("#medicalCondition").kendoMultiSelect({
-    dataSource: ["Diabetes", "High Blood Pressure", "Heart Disease", "Asthma", "Arthritis", "Back Pain", "None", "Hypertension"],
-    placeholder: "Select medical conditions..."
+  dataSource: [
+    "Diabetes",
+    "High Blood Pressure",
+    "Heart Disease",
+    "Asthma",
+    "Arthritis",
+    "Back Pain",
+    "None",
+    "Hypertension",
+  ],
+  placeholder: "Select medical conditions...",
 });
-
-
 
 // Function to Show Profile Drawer and Fetch Data
 window.showProfileDrawer = function () {
+  if (userId) {
+    console.log("Extracted User ID:", userId);
+  }
 
-    if (userId) {
-        console.log("Extracted User ID:", userId);
-    }
+  drawer.show();
 
-    drawer.show();
+  $.ajax({
+    url: `${uri}/api/User/GetUserById/${userId}`,
+    type: "GET",
+    success: function (response) {
+      $("#userName").val(response.userName);
+      $("#email").val(response.email);
+      $("#phone").val(response.mobile);
+      $("#height").data("kendoNumericTextBox").value(response.height);
+      $("#weight").data("kendoNumericTextBox").value(response.weight);
 
-    $.ajax({
-        url: `${uri}/api/User/GetUserById/${userId}`,
-        type: "GET",
-        success: function (response) {
-            $("#userName").val(response.userName);
-            $("#email").val(response.email);
-            $("#phone").val(response.mobile);
-            $("#height").data("kendoNumericTextBox").value(response.height);
-            $("#weight").data("kendoNumericTextBox").value(response.weight);
+      var goalValues = response.goal.split(", ").map((g) => g.trim());
+      $("#goal").data("kendoMultiSelect").value(goalValues);
 
-            var goalValues = response.goal.split(", ").map(g => g.trim());
-            $("#goal").data("kendoMultiSelect").value(goalValues);
+      var medicalValues = response.medicalCondition
+        .split(", ")
+        .map((mc) => mc.trim());
+      $("#medicalCondition").data("kendoMultiSelect").value(medicalValues);
 
-            var medicalValues = response.medicalCondition.split(", ").map(mc => mc.trim());
-            $("#medicalCondition").data("kendoMultiSelect").value(medicalValues);
-
-            if (response.profileImage) {
-                $("#imagePreview").attr("src", `../User_Images/${response.profileImage}`).show();
-            }
-        },
-        error: function (xhr) {
-            alert("Error fetching user details: " + xhr.responseText);
-        }
-    });
+      if (response.profileImage) {
+        $("#imagePreview")
+          .attr("src", `../User_Images/${response.profileImage}`)
+          .show();
+      }
+    },
+    error: function (xhr) {
+      alert("Error fetching user details: " + xhr.responseText);
+    },
+  });
 };
 
 // Handle Image Preview
 $(document).on("change", "#profileImage", function () {
-    var file = this.files[0];
-    if (file && file.type.startsWith("image/")) {
-        var reader = new FileReader();
-        reader.onload = function (e) {
-            $("#imagePreview").attr("src", e.target.result).show();
-        };
-        reader.readAsDataURL(file);
-    } else {
-        $("#imageError").text("Please select a valid image file.");
-    }
+  var file = this.files[0];
+  if (file && file.type.startsWith("image/")) {
+    var reader = new FileReader();
+    reader.onload = function (e) {
+      $("#imagePreview").attr("src", e.target.result).show();
+    };
+    reader.readAsDataURL(file);
+  } else {
+    $("#imageError").text("Please select a valid image file.");
+  }
 });
 
 // Close Drawer on Cancel Button Click
 $(document).on("click", "#cancelProfileBtn", function () {
-    drawer.hide();
-    $(".profile-dropdown").hide();
+  drawer.hide();
+  $(".profile-dropdown").hide();
 });
 
 // Live validation for userName
 $("#userName").on("input blur", function () {
-    let value = $(this).val().trim();
-    if (value === "") {
-        $("#nameError").text("Name is required.");
-    } else {
-        $("#nameError").text("");
-    }
+  let value = $(this).val().trim();
+  if (value === "") {
+    $("#nameError").text("Name is required.");
+  } else {
+    $("#nameError").text("");
+  }
 });
 
 // Live validation for phone
 $("#phone").on("input blur", function () {
-    let value = $(this).val().trim();
-    let phoneRegex = /^[6-9]\d{9}$/;
+  let value = $(this).val().trim();
+  let phoneRegex = /^[6-9]\d{9}$/;
 
-    if (value === "") {
-        $("#phoneError").text("Phone number is required.");
-    } else if (!phoneRegex.test(value)) {
-        $("#phoneError").text("Phone number must be 10 digits and start with 6, 7, 8, or 9.");
-    } else {
-        $("#phoneError").text("");
-    }
+  if (value === "") {
+    $("#phoneError").text("Phone number is required.");
+  } else if (!phoneRegex.test(value)) {
+    $("#phoneError").text(
+      "Phone number must be 10 digits and start with 6, 7, 8, or 9."
+    );
+  } else {
+    $("#phoneError").text("");
+  }
 });
 
 // Live validation for height
-$("#height").data("kendoNumericTextBox").bind("change", function () {
+$("#height")
+  .data("kendoNumericTextBox")
+  .bind("change", function () {
     let value = this.value();
     if (value === null || isNaN(value)) {
-        $("#heightError").text("Please enter your height.");
+      $("#heightError").text("Please enter your height.");
     } else {
-        $("#heightError").text("");
+      $("#heightError").text("");
     }
-});
+  });
 
 // Live validation for weight
-$("#weight").data("kendoNumericTextBox").bind("change", function () {
+$("#weight")
+  .data("kendoNumericTextBox")
+  .bind("change", function () {
     let value = this.value();
     if (value === null || isNaN(value)) {
-        $("#weightError").text("Please enter your weight.");
+      $("#weightError").text("Please enter your weight.");
     } else {
-        $("#weightError").text("");
+      $("#weightError").text("");
     }
-});
+  });
 
 // Live validation for goal
-$("#goal").data("kendoMultiSelect").bind("change", function () {
+$("#goal")
+  .data("kendoMultiSelect")
+  .bind("change", function () {
     let value = this.value();
     if (!value.length) {
-        $("#goalError").text("Select at least one goal.");
+      $("#goalError").text("Select at least one goal.");
     } else {
-        $("#goalError").text("");
+      $("#goalError").text("");
     }
-});
+  });
 
 // Live validation for medical condition
-$("#medicalCondition").data("kendoMultiSelect").bind("change", function () {
+$("#medicalCondition")
+  .data("kendoMultiSelect")
+  .bind("change", function () {
     let value = this.value();
     if (!value.length) {
-        $("#medicalError").text("Select at least one medical condition.");
+      $("#medicalError").text("Select at least one medical condition.");
     } else {
-        $("#medicalError").text("");
+      $("#medicalError").text("");
     }
-});
+  });
 
 // Form Submission with Validation
 $(document).on("submit", "#profileForm", function (e) {
-    e.preventDefault();
+  e.preventDefault();
 
-    $(".validation-message").text("");
+  $(".validation-message").text("");
 
-    let valid = true;
-    if ($("#userName").val().trim() === "") {
-        $("#nameError").text("Name is required.");
-        valid = false;
-    }
+  let valid = true;
+  if ($("#userName").val().trim() === "") {
+    $("#nameError").text("Name is required.");
+    valid = false;
+  }
 
-    let phoneValue = $("#phone").val().trim();
-    let phoneRegex = /^[6-9]\d{9}$/;
-    if (!phoneRegex.test(phoneValue)) {
-        $("#phoneError").text("Phone number must be 10 digits and start with 6, 7, 8, or 9.");
-        valid = false;
-    }
+  let phoneValue = $("#phone").val().trim();
+  let phoneRegex = /^[6-9]\d{9}$/;
+  if (!phoneRegex.test(phoneValue)) {
+    $("#phoneError").text(
+      "Phone number must be 10 digits and start with 6, 7, 8, or 9."
+    );
+    valid = false;
+  }
 
-    if ($("#height").data("kendoNumericTextBox").value() === null || isNaN($("#height").data("kendoNumericTextBox").value())) {
-        $("#heightError").text("Please enter your height.");
-        valid = false;
-    }
-    if ($("#weight").data("kendoNumericTextBox").value() === null || isNaN($("#weight").data("kendoNumericTextBox").value())) {
-        $("#weightError").text("Please enter your weight.");
-        valid = false;
-    }
-    if (!$("#goal").data("kendoMultiSelect").value().length) {
-        $("#goalError").text("Select at least one goal.");
-        valid = false;
-    }
-    if (!$("#medicalCondition").data("kendoMultiSelect").value().length) {
-        $("#medicalError").text("Select at least one medical condition.");
-        valid = false;
-    }
+  if (
+    $("#height").data("kendoNumericTextBox").value() === null ||
+    isNaN($("#height").data("kendoNumericTextBox").value())
+  ) {
+    $("#heightError").text("Please enter your height.");
+    valid = false;
+  }
+  if (
+    $("#weight").data("kendoNumericTextBox").value() === null ||
+    isNaN($("#weight").data("kendoNumericTextBox").value())
+  ) {
+    $("#weightError").text("Please enter your weight.");
+    valid = false;
+  }
+  if (!$("#goal").data("kendoMultiSelect").value().length) {
+    $("#goalError").text("Select at least one goal.");
+    valid = false;
+  }
+  if (!$("#medicalCondition").data("kendoMultiSelect").value().length) {
+    $("#medicalError").text("Select at least one medical condition.");
+    valid = false;
+  }
 
-    //         @* $("#profileDrawer").hide(); // Hide the drawer
-//   $(".user-profile-container").removeClass("no-hover"); // Enable hover again *@
+  //         @* $("#profileDrawer").hide(); // Hide the drawer
+  //   $(".user-profile-container").removeClass("no-hover"); // Enable hover again *@
 
-if (!valid) return;
+  if (!valid) return;
 
-    var formData = new FormData();
-    formData.append("userId", userId);
-    formData.append("userName", $("#userName").val());
-    formData.append("mobile", $("#phone").val());
-    formData.append("height", $("#height").data("kendoNumericTextBox").value());
-    formData.append("weight", $("#weight").data("kendoNumericTextBox").value());
-    formData.append("goal", $("#goal").data("kendoMultiSelect").value().join(", "));
-    formData.append("medicalCondition", $("#medicalCondition").data("kendoMultiSelect").value().join(", "));
-    formData.append("gender", "Male");
-    formData.append("email", "email@email.com");
-    formData.append("password", "Password@1234");
-    formData.append("confirmPassword", "Password@1234");
-    formData.append("profileImage", "default.jpg");
-    formData.append("activationToken", "token_449827858");
+  var formData = new FormData();
+  formData.append("userId", userId);
+  formData.append("userName", $("#userName").val());
+  formData.append("mobile", $("#phone").val());
+  formData.append("height", $("#height").data("kendoNumericTextBox").value());
+  formData.append("weight", $("#weight").data("kendoNumericTextBox").value());
+  formData.append(
+    "goal",
+    $("#goal").data("kendoMultiSelect").value().join(", ")
+  );
 
-    var imageFile = $("#profileImage")[0]?.files?.[0];
-    if (imageFile) {
-        console.log("Image file:", imageFile);
-        formData.append("profileImageFile", imageFile);
-    }
+  formData.append(
+    "medicalCondition",
+    $("#medicalCondition").data("kendoMultiSelect").value().join(", ")
+  );
 
-    $.ajax({
-        url: `${uri}/api/User/UserUpdateProfile`,
-        type: "PUT",
-        processData: false,
-        contentType: false,
-        data: formData,
-        success: function () {
-            Swal.fire(
-                'Success!',
-                'Your profile has been successfully updated.',
-                'success'
-            );
-            drawer.hide();
-            $(".profile-dropdown").hide();
-        },
-        error: function (xhr) {
-            Swal.fire(
-                'Error!',
-                'There was an issue updating your profile. Please try again later.',
-                'error'
-            );
-            $(".profile-dropdown").hide();
-        }
-    });
+  formData.append("gender", "Male");
+  formData.append("email", "email@email.com");
+  formData.append("password", "Password@1234");
+  formData.append("confirmPassword", "Password@1234");
+  formData.append("profileImage", "default.jpg");
+  formData.append("activationToken", "token_449827858");
 
+  var imageFile = $("#profileImage")[0]?.files?.[0];
+  if (imageFile) {
+    console.log("Image file:", imageFile);
+    formData.append("profileImageFile", imageFile);
+  }
 
+  $.ajax({
+    url: `${uri}/api/User/UserUpdateProfile`,
+    type: "PUT",
+    processData: false,
+    contentType: false,
+    data: formData,
+    success: function () {
+      Swal.fire(
+        "Success!",
+        "Your profile has been successfully updated.",
+        "success"
+      );
+      drawer.hide();
+      $(".profile-dropdown").hide();
+    },
+    error: function (xhr) {
+      Swal.fire(
+        "Error!",
+        "There was an issue updating your profile. Please try again later.",
+        "error"
+      );
+      $(".profile-dropdown").hide();
+    },
+  });
 });
+
+async function fetchUpcomingClassCount(userId) {
+  try 
+  {
+    const response = await fetch(`${uri}/api/User/UpcomingClassCountByUser/${userId}`);
+    const data = await response.json();
+
+    if (data.count > -1) {
+      const label = data.count === 1 ? "class" : "classes";
+      document.getElementById(
+        "active-classes"
+      ).textContent = `${data.count} active ${label}`;
+    } else {
+      document.getElementById("active-classes").textContent =
+        "Failed to load classes";
+      console.warn("API error:", data.message || "Unknown issue");
+    }
+  } catch (error) {
+    console.error("Fetch error:", error);
+    document.getElementById("active-classes").textContent =
+      "Error loading classes";
+  }
+}
+
+fetchUpcomingClassCount(userId);
