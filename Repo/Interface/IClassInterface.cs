@@ -20,6 +20,7 @@ public interface IClassInterface
 
     Task<bool> ActivateClass(int classId);
     Task<int> UpdateClass(Class updatedClass);
+    Task<int> ClasswiseWaitlistCount(string classId);
 
     
 }
