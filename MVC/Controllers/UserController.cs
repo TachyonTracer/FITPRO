@@ -55,5 +55,11 @@ namespace MVC
         {
             return View();
         }
+
+         public IActionResult test()
+        {
+            return View();
+        }
+
     }
 }
