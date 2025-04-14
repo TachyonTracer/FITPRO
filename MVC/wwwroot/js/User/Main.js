@@ -610,3 +610,5 @@ async function fetchUpcomingClassCount(userId) {
   fetchUpcomingClassCount(userId);
   fetchCompletedClassCount(userId);
   
+
+  
