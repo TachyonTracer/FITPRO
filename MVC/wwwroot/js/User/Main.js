@@ -1,10 +1,25 @@
-$("document").ready(function () {
-    const userId = getUserIdFromToken();
-    loadBookedClasses(userId);
-})
+
 let uri = "http://localhost:8080";
 // Function to format date and time
 var userId;
+
+    function setUserName() {
+        const token = localStorage.getItem("authToken");
+        if (token) {
+            const decoded = parseJwt(token);
+            if (decoded && decoded.UserObject) {
+                const userObj = JSON.parse(decoded.UserObject);
+                const userName = userObj.name || userObj.userName || 'User';
+                document.getElementById('name').innerHTML = `<b>${userName}</b>`;
+            }
+        }
+    }
+
+// Call this function when page loads
+window.onload = function () {
+    setUserName();
+    userId = getUserIdFromToken();
+}
 
 userId = getUserIdFromToken();
 function getUserIdFromToken() {
@@ -79,17 +94,19 @@ document.querySelectorAll(".class-card").forEach(card => {
 
 let selectedRating = 0;
 
-function openFeedback() {
-    document.getElementById("feedbackModal").style.display = "flex";
+function openFeedback(classId, className, instructorName) {
+    // Store class details for feedback submission
+    document.getElementById('feedbackModal').dataset.classId = classId;
+    document.getElementById('feedbackModal').dataset.className = className;
+    document.getElementById('feedbackModal').dataset.instructorName = instructorName;
+    document.getElementById('feedbackModal').style.display = 'flex';
 }
+document.querySelector('.profile-img').addEventListener('click', function () {
+    document.querySelector('.profile-dropdown').style.display =
+        document.querySelector('.profile-dropdown').style.display === 'block' ? 'none' : 'block';
+});
 
 function closeFeedback() {
-    const modal = document.getElementById('feedbackModal');
-    modal.style.display = 'none';
-    document.getElementById('feedbackText').value = '';
-    document.querySelectorAll('#starRating span').forEach(star => {
-        star.classList.remove('active');
-    });
     document.getElementById("feedbackModal").style.display = "none";
     resetFeedback();
 }
@@ -101,76 +118,15 @@ function resetFeedback() {
 }
 
 function submitFeedback() {
-    const modal = document.getElementById('feedbackModal');
-    const userId = getUserIdFromToken();
-    const userName = getUserNameFromToken();
-    const classId = modal.dataset.classId;
-    const className = modal.dataset.className;
-    const instructorName = modal.dataset.instructorName;
-    const feedback = document.getElementById('feedbackText').value;
-    const rating = document.querySelectorAll('#starRating span.active').length;
-
-    // Validation
-    if (!feedback || rating === 0) {
-        Swal.fire({
-            icon: 'warning',
-            title: 'Incomplete Feedback',
-            text: 'Please provide both feedback text and rating'
-        });
+    const feedback = document.getElementById("feedbackText").value;
+    if (selectedRating === 0) {
+        alert("Please select a rating.");
         return;
     }
 
-    // Prepare feedback data
-    const feedbackData = {
-        userId: parseInt(userId),
-        classId: parseInt(classId),
-        feedback: feedback,
-        rating: rating,
-        userName: userName,
-        className: className,
-        instructorName: instructorName
-    };
-
-    // Send feedback to backend
-    $.ajax({
-        url: 'http://localhost:8080/api/Feedback/class',
-        method: 'POST',
-        contentType: 'application/json',
-        data: JSON.stringify(feedbackData),
-        success: function (response) {
-            Swal.fire({
-                icon: 'success',
-                title: 'Success',
-                text: 'Feedback submitted successfully!'
-            });
-            closeFeedback();
-            loadBookedClasses(userId); // Refresh the class list
-
-        },
-        error: function (xhr, status, error) {
-            console.error('Error submitting feedback:', error);
-            Swal.fire({
-                icon: 'error',
-                title: 'Error',
-                text: 'Failed to submit feedback. Please try again.'
-            });
-        }
-    });
-}
-
-function getUserNameFromToken() {
-    const token = localStorage.getItem('authToken');
-    if (!token) return null;
-
-    try {
-        const base64Url = token.split('.')[1];
-        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-        const payload = JSON.parse(atob(base64));
-        return JSON.parse(payload.UserObject).userName;
-    } catch (error) {
-        console.error('Error parsing token:', error);
-        return null;
-    }
+    // Simulate submit
+    alert(`⭐ Rating: ${selectedRating}\n💬 Feedback: ${feedback}`);
+    closeFeedback();
 }
 
 // Star Selection Logic
@@ -182,6 +138,60 @@ document.querySelectorAll("#starRating span").forEach(star => {
         });
     });
 });
+// Update the loadClasses function
+async function loadClasses() {
+    const classGrid = document.getElementById('classes');
+    const loading = document.getElementById('loading');
+  
+    try {
+      const response = await fetch('http://localhost:8080/api/Class/GetAllClasses');
+      const result = await response.json();
+  
+      loading.style.display = 'none';
+  
+      if (!result.data || !Array.isArray(result.data)) {
+        throw new Error('Invalid data format received from API');
+      }
+  
+      result.data.forEach(classItem => {
+        // Function to extract description text
+        const getDescription = (desc) => {
+          if (!desc) return 'No description available';
+          if (typeof desc === 'string') return desc;
+          if (typeof desc === 'object') {
+            // Handle nested description object
+            return desc.description || desc.text || Object.values(desc)[0] || 'No description available';
+          }
+          return 'No description available';
+        };
+  
+        const card = `
+          <div class="class-card">
+            <img src="/ClassAssets/${classItem.assets.banner || '/img/fitness.jpg'}" alt="${classItem.className}" />
+            <div class="card-content">
+              <h2>${classItem.className}</h2>
+              <p>${getDescription(classItem.description)}</p>
+              <p><strong>Instructor:</strong> ${classItem.instructorName || 'Not assigned'}</p>
+              <p><strong>Duration:</strong> ${classItem.duration || 'N/A'} Hours</p>
+              <p><strong>Capacity:</strong> ${classItem.maxCapacity || classItem.capacity || 'N/A'} spots</p>
+              <button onclick="viewClassDetails(${classItem.classId})">Book Now</button>
+            </div>
+          </div>
+        `;
+        classGrid.insertAdjacentHTML('beforeend', card);
+      });
+    } catch (error) {
+      loading.innerHTML = 'Error loading classes. Please try again later.';
+      loading.classList.add('error-message');
+      console.error('Error:', error);
+    }
+  }
+  
+  // Function to view class details
+  function viewClassDetails(classId) {
+    // Redirect to the class details page with the class ID
+    window.location.href = `/User/Classdetails?id=${classId}`;
+  }
 
 function myclasses() {
     // Redirect to the class details page with the class ID
@@ -196,6 +206,13 @@ function classes() {
     // Redirect to the class details page with the class ID
     window.location.href = `/User/index`;
 }
+
+// Profile dropdown toggle
+document.querySelector('.profile-img').addEventListener('click', function () {
+    document.querySelector('.profile-dropdown').style.display =
+        document.querySelector('.profile-dropdown').style.display === 'block' ? 'none' : 'block';
+});
+
 
 function performLogout() {
     Swal.fire({
@@ -232,7 +249,13 @@ function showLogoutConfirmation() {
     });
 }
 
+document.addEventListener('DOMContentLoaded', loadClasses);
 
+// Profile dropdown toggle
+document.querySelector('.profile-img').addEventListener('click', function () {
+  document.querySelector('.profile-dropdown').style.display =
+    document.querySelector('.profile-dropdown').style.display === 'block' ? 'none' : 'block';
+});
 
 // Auto-attach openFeedback to all feedback buttons
 document.querySelectorAll(".cancel-btn").forEach(btn => {
@@ -241,179 +264,10 @@ document.querySelectorAll(".cancel-btn").forEach(btn => {
     }
 });
 
-
-function getUserIdFromToken() {
-    const token = localStorage.getItem('authToken');
-    if (!token) return null;
-
-    try {
-        const base64Url = token.split('.')[1];
-        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-        const payload = JSON.parse(atob(base64));
-        return JSON.parse(payload.UserObject).userId;
-    } catch (error) {
-        console.error('Error parsing token:', error);
-        return null;
-    }
-}
-
-function loadBookedClasses(userId) {
-    if (!userId) {
-        Swal.fire({
-            icon: 'error',
-            title: 'Authentication Required',
-            text: 'Please login to view your booked classes'
-        });
-        return;
-    }
-
-    $.ajax({
-        url: `http://localhost:8080/api/Class/GetBookedClassesByUser/${userId}`,
-        method: 'GET',
-        success: function (response) {
-            if (response.success && response.data) {
-                displayClasses(response.data);
-            } else {
-                console.error('Failed to load classes:', response.message);
-            }
-        },
-        error: function (xhr, status, error) {
-            console.error('Error loading classes:', error);
-            Swal.fire({
-                icon: 'error',
-                title: 'Error',
-                text: 'Failed to load your booked classes'
-            });
-        }
-    });
-}
-
-function getClassStatus(startDate, endDate) {
-    const now = new Date();
-    const start = new Date(startDate);
-    const end = new Date(endDate);
-
-    if (now < start) {
-        return 'upcoming';
-    } else if (now > end) {
-        return 'completed';
-    } else {
-        return 'live';
-    }
-}
-
-// Update the displayClasses function to use the new status logic
-function displayClasses(classes) {
-    const classGrid = document.querySelector('.class-grid');
-    classGrid.innerHTML = '';
-
-    classes.forEach(classItem => {
-        const startDate = new Date(classItem.startDate);
-        const endDate = new Date(classItem.endDate);
-        const status = getClassStatus(startDate, endDate);
-
-
-        // Add different styling for live status
-        const statusStyle = status === 'live' ?
-            'background-color: #FF6363 ; color: #000000;' :
-            (status === 'completed' ? 'background-color:rgb(114, 215, 67) ; color: #0f0f0f;' : '');
-
-        const classCard = `
-            <div class="class-card" data-status="${status}" data-class-id="${classItem.classId}">
-                <img src="/ClassAssets/${classItem.assets.banner}" alt="${classItem.className}" class="class-img" />
-                <div class="class-info">
-                    <h3>${classItem.className}</h3>
-                    <p><strong>Instructor:</strong> ${classItem.instructorName}</p>
-                    <p><strong>Schedule:</strong> ${formatDate(startDate)} - ${formatDate(endDate)} | ${classItem.startTime.substring(0, 5)} - ${classItem.endTime.substring(0, 5)}</p>
-                    <span class="status-tag" style="${statusStyle}">${status.charAt(0).toUpperCase() + status.slice(1)}</span>
-                    ${classItem.waitList != 0 && status != 'completed' && status != 'live' ?
-                `<div class="waitlist-box">WL: ${classItem.waitList}</div>` : ''}
-                </div>
-                ${status === 'completed' ?
-                `<button class="cancel-btn" style="background-color: #facc15; color: #0f0f0f; border: none;" 
-                    onclick="openFeedback('${classItem.classId}', '${classItem.className}', '${classItem.instructorName}')">
-                    Give Feedback
-                </button>` :
-
-
-
-                `<button class="cancel-btn" onclick="cancelBooking('${classItem.classId}', '${classItem.className}')">
-                        Cancel Booking
-                    </button>`
-            }
-            </div>
-        `;
-        classGrid.innerHTML += classCard;
-    });
-}
-
-function isClassCompleted(endDate) {
-    return new Date(endDate) < new Date();
-}
-
-function formatDate(date) {
-    return date.toLocaleDateString('en-GB', {
-        day: '2-digit',
-        month: 'short'
-    });
-}
-
-function cancelBooking(classId, className) {
-    const userId = getUserIdFromToken();
-
-    Swal.fire({
-        title: 'Cancel Booking?',
-        text: `Are you sure you want to cancel your booking for ${className}?`,
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#d33',
-        cancelButtonColor: '#3085d6',
-        confirmButtonText: 'Yes, cancel it!'
-    }).then((result) => {
-        if (result.isConfirmed) {
-            $.ajax({
-                url: `http://localhost:8080/api/Class/CancelBooking/${userId}/${classId}`,
-                method: 'DELETE',
-                contentType: 'application/json',
-                success: function (response) {
-                    if (response.success) {
-                        Swal.fire({
-                            title: "Canceled!",
-                            text: response.message || "Your booking has been canceled",
-                            icon: "success"
-
-                        });
-                        loadBookedClasses(userId); // Refresh the list
-                    } else {
-                        Swal.fire({
-                            title: "Canceled!",
-                            text: response.message || "Your booking has not been  canceled",
-                            icon: "error"
-                        });
-
-                    }
-                },
-                error: function (xhr, status, error) {
-
-                    Swal.fire({
-                        title: "Canceled!",
-                        text: JSON.parse(xhr.responseText).message || "Your booking has not been  canceled",
-                        icon: "error"
-                    });
-                }
-            });
-        }
-    });
-}
-
-function openFeedback(classId, className, instructorName) {
-    // Store class details for feedback submission
-    document.getElementById('feedbackModal').dataset.classId = classId;
-    document.getElementById('feedbackModal').dataset.className = className;
-    document.getElementById('feedbackModal').dataset.instructorName = instructorName;
-    document.getElementById('feedbackModal').style.display = 'flex';
-}
-
+document.querySelector('.profile-img').addEventListener('click', function () {
+    document.querySelector('.profile-dropdown').style.display =
+        document.querySelector('.profile-dropdown').style.display === 'block' ? 'none' : 'block';
+});
 
 var drawer = $("#profileDrawer").kendoDrawer({
     template: `
@@ -663,9 +517,9 @@ $(document).on("submit", "#profileForm", function (e) {
     }
 
     //         @* $("#profileDrawer").hide(); // Hide the drawer
-    //   $(".user-profile-container").removeClass("no-hover"); // Enable hover again *@
+//   $(".user-profile-container").removeClass("no-hover"); // Enable hover again *@
 
-    if (!valid) return;
+if (!valid) return;
 
     var formData = new FormData();
     formData.append("userId", userId);
@@ -701,7 +555,7 @@ $(document).on("submit", "#profileForm", function (e) {
                 'success'
             );
             drawer.hide();
-            $(".profile-dropdown").hide(); // Hide the dropdown after successful update
+            $(".profile-dropdown").hide();
         },
         error: function (xhr) {
             Swal.fire(
@@ -713,6 +567,202 @@ $(document).on("submit", "#profileForm", function (e) {
         }
     });
 
+
 });
 
+async function fetchUpcomingClassCount(userId) {
+    try {
+      const response = await fetch(`${uri}/api/User/UpcomingClassCountByUser/${userId}`);
+      const data = await response.json();
+  
+      if (data.count > -1) {
+        const label = data.count === 1 ? "class" : "classes";
+        document.getElementById( "active-classes").textContent = `${data.count} active ${label}`;
+      } 
+      else 
+      {
+        document.getElementById("active-classes").textContent = "Failed to load classes";
+        console.warn("API error:", data.message || "Unknown issue");
+      }
+    } 
+    catch (error) 
+    {
+      console.error("Fetch error:", error);
+      document.getElementById("active-classes").textContent = "Error loading classes";
+    }
+  }
+  
+  async function fetchCompletedClassCount(userId) {
+    try 
+    {
+      const response = await fetch(`${uri}/api/User/CompletedClassCountByUser/${userId}`);
+      const data = await response.json();
+  
+      if (data.count > -1) {
+        const label = data.count === 1 ? "Class" : "Classes";
+        document.getElementById("completed-classes").textContent = `🥇 ${data.count} ${label} Completed`;
+      } 
+      else 
+      {
+        document.getElementById("completed-classes").textContent = "🥇 Failed to load classes";
+        console.warn("API error:", data.message || "Unknown issue");
+      }
+    } 
+    catch (error) 
+    {
+      console.error("Error fetching completed class count:", error);
+      document.getElementById("completed-classes").textContent = "🥇 Error loading classes";
+    }
+  }
+  
+  fetchUpcomingClassCount(userId);
+  fetchCompletedClassCount(userId);
+  
 
+  function loadBookedClasses(userId) {
+    if (!userId) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Authentication Required',
+            text: 'Please login to view your booked classes'
+        });
+        return;
+    }
+
+    $.ajax({
+        url: `http://localhost:8080/api/Class/GetBookedClassesByUser/${userId}`,
+        method: 'GET',
+        success: function (response) {
+            if (response.success && response.data) {
+                displayClasses(response.data);
+            } else {
+                console.error('Failed to load classes:', response.message);
+            }
+        },
+        error: function (xhr, status, error) {
+            console.error('Error loading classes:', error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Failed to load your booked classes'
+            });
+        }
+    });
+}
+
+function getClassStatus(startDate, endDate) {
+    const now = new Date();
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+
+    if (now < start) {
+        return 'upcoming';
+    } else if (now > end) {
+        return 'completed';
+    } else {
+        return 'live';
+    }
+}
+
+function displayClasses(classes) {
+    const classGrid = document.querySelector('.class-grid');
+    classGrid.innerHTML = '';
+
+    classes.forEach(classItem => {
+        const startDate = new Date(classItem.startDate);
+        const endDate = new Date(classItem.endDate);
+        const status = getClassStatus(startDate, endDate);
+
+
+        // Add different styling for live status
+        const statusStyle = status === 'live' ?
+            'background-color: #FF6363 ; color: #000000;' :
+            (status === 'completed' ? 'background-color:rgb(114, 215, 67) ; color: #0f0f0f;' : '');
+
+        const classCard = `
+            <div class="class-card" data-status="${status}" data-class-id="${classItem.classId}">
+                <img src="/ClassAssets/${classItem.assets.banner}" alt="${classItem.className}" class="class-img" />
+                <div class="class-info">
+                    <h3>${classItem.className}</h3>
+                    <p><strong>Instructor:</strong> ${classItem.instructorName}</p>
+                    <p><strong>Schedule:</strong> ${formatDate(startDate)} - ${formatDate(endDate)} | ${classItem.startTime.substring(0, 5)} - ${classItem.endTime.substring(0, 5)}</p>
+                    <span class="status-tag" style="${statusStyle}">${status.charAt(0).toUpperCase() + status.slice(1)}</span>
+                    ${classItem.waitList != 0 && status != 'completed' && status != 'live' ?
+                `<div class="waitlist-box">WL: ${classItem.waitList}</div>` : ''}
+                </div>
+                ${status === 'completed' ?
+                `<button class="cancel-btn" style="background-color: #facc15; color: #0f0f0f; border: none;" 
+                    onclick="openFeedback('${classItem.classId}', '${classItem.className}', '${classItem.instructorName}')">
+                    Give Feedback
+                </button>` :
+
+
+
+                `<button class="cancel-btn" onclick="cancelBooking('${classItem.classId}', '${classItem.className}')">
+                        Cancel Booking
+                    </button>`
+            }
+            </div>
+        `;
+        classGrid.innerHTML += classCard;
+    });
+}
+
+function isClassCompleted(endDate) {
+    return new Date(endDate) < new Date();
+}
+
+function formatDate(date) {
+    return date.toLocaleDateString('en-GB', {
+        day: '2-digit',
+        month: 'short'
+    });
+}
+
+function cancelBooking(classId, className) {
+    const userId = getUserIdFromToken();
+
+    Swal.fire({
+        title: 'Cancel Booking?',
+        text: `Are you sure you want to cancel your booking for ${className}?`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Yes, cancel it!'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            $.ajax({
+                url: `http://localhost:8080/api/Class/CancelBooking/${userId}/${classId}`,
+                method: 'DELETE',
+                contentType: 'application/json',
+                success: function (response) {
+                    if (response.success) {
+                        Swal.fire({
+                            title: "Canceled!",
+                            text: response.message || "Your booking has been canceled",
+                            icon: "success"
+
+                        });
+                        loadBookedClasses(userId); // Refresh the list
+                    } else {
+                        Swal.fire({
+                            title: "Canceled!",
+                            text: response.message || "Your booking has not been  canceled",
+                            icon: "error"
+                        });
+
+                    }
+                },
+                error: function (xhr, status, error) {
+
+                    Swal.fire({
+                        title: "Canceled!",
+                        text: JSON.parse(xhr.responseText).message || "Your booking has not been  canceled",
+                        icon: "error"
+                    });
+                }
+            });
+        }
+    });
+}

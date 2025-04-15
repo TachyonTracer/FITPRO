@@ -20,7 +20,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Set message content and styling
     messageDiv.textContent = message;
-    messageDiv.style.background = success ? "green" : "red";
+    messageDiv.style.background = success ? "#28a745" : "red";
     messageDiv.style.color = "white";
     messageDiv.style.padding = "10px"; 
     messageDiv.style.marginBottom = "10px";

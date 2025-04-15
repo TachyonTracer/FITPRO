@@ -4,6 +4,7 @@
   --primary-color: rgb(242, 195, 67);
   --glass-color: rgba(255, 255, 255, 0.1);
   --error-color: #fd969a;
+  --success: #28a745;
 }
 
 * {
@@ -248,7 +249,7 @@ h1 {
 }
 
 .form-container {
-  border: 1px solid hsla(0, 0%, 65%, 0.2);
+  border: 3px solid var(--primary-color);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
   border-radius: 15px;
   backdrop-filter: blur(15px);
@@ -305,12 +306,8 @@ h1 {
 }
 
 .opacity {
-  opacity: 0.7;
-  transition: opacity 0.3s ease;
-}
-
-.opacity:hover {
   opacity: 1;
+  transition: opacity 0.3s ease;
 }
 
 .theme-btn-container {
@@ -428,7 +425,7 @@ h1 {
 }
 
 .k-upload-button:hover {
-  background-color: rgba(255, 77, 77, 0.8) !important;
+  background-color: var(--primary-color) !important;
 }
 .from-orange-500 {
   --tw-gradient-from: var(--error-color) var(--tw-gradient-from-position);
@@ -602,8 +599,8 @@ h1 {
 
 .wizard-buttons .next:hover,
 .k-wizard-buttons-right .k-button-solid-primary:hover {
-  background-color: rgba(255, 77, 77, 0.8);
-  box-shadow: 0 0 12px rgba(255, 77, 77, 0.3);
+  background-color: var(--primary-color);
+  box-shadow: 0 0 12px rgba(255, 234, 77, 0.3);
 }
 
 .swal2-popup {
@@ -637,7 +634,7 @@ h1 {
 }
 
 .swal2-confirm:hover {
-  background-color: #ff6666 !important;
+  background-color: var(--primary-color) !important;
   transform: scale(1.03) !important;
 }
 
@@ -664,19 +661,19 @@ h1 {
 
 /* Success Icon */
 .swal2-icon.swal2-success {
-  border-color: #28a745 !important;
+  border-color: var(--success) !important;
   /* Green border */
-  color: #28a745 !important;
+  color: var(--success) !important;
   /* Green checkmark */
 }
 
 .swal2-icon.swal2-success .swal2-success-ring {
-  border-color: #28a745 !important;
+  border-color: var(--success) !important;
   /* Outer circle */
 }
 
 .swal2-icon.swal2-success [class^="swal2-success-line"] {
-  background-color: #28a745 !important;
+  background-color: var(--success) !important;
   /* Check lines */
 }
 

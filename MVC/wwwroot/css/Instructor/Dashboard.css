@@ -1,7 +1,7 @@
 :root {
-  --background: #1a1a2e;
+  --background: #0d0d0d;
   --color: #ffffff;
-  --primary-color: #ff4d4d;
+  --primary-color: #facc15;
   --glass-color: rgba(255, 255, 255, 0.1);
   --card-bg: rgba(26, 26, 46, 0.8);
   --border-color: rgba(255, 255, 255, 0.1);
@@ -284,8 +284,8 @@ h2 {
 }
 
 .btn-primary:hover {
-  background-color: #ff3333;
-  border-color: #ff3333;
+  background-color: #a38305;
+  border-color: #a38305;
   transform: translateY(-2px);
   box-shadow: 0 4px 8px rgba(255, 77, 77, 0.3);
 }
@@ -901,7 +901,7 @@ input[type="file"] {
 }
 
 .swal2-confirm:hover {
-  background-color: #ff6666 !important;
+  background-color: #5e9029 !important;
   transform: scale(1.03) !important;
 }
 
@@ -1055,3 +1055,4 @@ height: auto;
 
 /* Do Not Remove */
 /* Notification CSS Ends */
+
