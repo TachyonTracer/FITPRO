@@ -9,8 +9,10 @@
     <title>Login - FitPro</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700&family=Bebas+Neue&display=swap"
         rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.17.2/dist/sweetalert2.all.min.js" \></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.17.2/dist/sweetalert2.all.min.js"></script>
     <link rel="stylesheet" href="@Url.Content("~/css/Auth/Login.css")" asp-append-version="true">
+    <!-- Add Google reCAPTCHA v3 script -->
+    <script src="https://www.google.com/recaptcha/api.js?render=6LfHLAYrAAAAAH9RZqN-E0uczyLtAdlBo9vmZbmE"></script>
 </head>
 
 <body>
@@ -46,19 +48,17 @@
                         <span class="validation-message"></span>
                     </div>
 
-                    <div id="captcha-container">
-                        <span id="captcha-question"></span>
-                        <div class="input-wrapper">
-                            <input type="text" id="captcha-answer" placeholder="ANSWER" />
-                            <span class="validation-message"></span>
-                        </div>
-                    </div>
+                    <!-- Remove the old CAPTCHA container -->
+
+                    <!-- Add a hidden input for the reCAPTCHA token -->
+                    <input type="hidden" id="recaptcha-token" name="recaptcha-token" />
 
                     <button type="submit" class="opacity">LOGIN</button>
                 </form>
                 <div class="register-forget opacity">
                     <a href="Register" aria-label="Register for a new account">REGISTER</a>
-                    <a href="http://localhost:8081/auth/ForgotPassword" aria-label="Recover forgotten password">FORGOT PASSWORD</a>
+                    <a href="http://localhost:8081/auth/ForgotPassword" aria-label="Recover forgotten password">FORGOT
+                        PASSWORD</a>
                 </div>
             </div>
             <div class="circle circle-two"></div>
@@ -78,6 +78,13 @@
     </div>
     <script src="~/js/Auth/Login-theme.js" asp-append-version="true"></script>
     <script src="~/js/Auth/Login.js" asp-append-version="true"></script>
+    
+    <div class="captcha-notice">
+        <p>This site is protected by reCAPTCHA and the Google
+            <a href="https://policies.google.com/privacy" target="_blank">Privacy Policy</a> and
+            <a href="https://policies.google.com/terms" target="_blank">Terms of Service</a> apply.
+        </p>
+    </div>
 </body>
 
 </html>

@@ -35,9 +35,6 @@ window.onload = function () {
 };
 
 document.addEventListener("DOMContentLoaded", () => {
-  const captchaContainer = document.getElementById("captcha-container");
-  const captchaQuestion = document.getElementById("captcha-question");
-  const captchaAnswer = document.getElementById("captcha-answer");
   const loginForm = document.getElementById("login-form");
   const roleOptions = document.querySelectorAll(".role-option");
   const usernameInput = document.getElementById("username");
@@ -147,27 +144,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // Real-time validation for CAPTCHA
-  captchaAnswer.addEventListener("input", function () {
-    const message = this.nextElementSibling;
-    if (!this.value) {
-      showMessage("Answer is required", false);
-      message.textContent = "Answer is required";
-    } else {
-      hideMessage();
-      message.textContent = "";
-    }
-  });
-
-  // Generate a simple math CAPTCHA
-  function generateCaptcha() {
-    const num1 = Math.floor(Math.random() * 10) + 1;
-    const num2 = Math.floor(Math.random() * 10) + 1;
-    captchaQuestion.textContent = `What is ${num1} + ${num2}?`;
-    return num1 + num2;
-  }
-
-  let correctAnswer = generateCaptcha();
   let selectedRole = null;
 
   // Role Selection Logic
@@ -186,13 +162,12 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  // Form submission
+  // Form submission with reCAPTCHA v3
   loginForm.addEventListener("submit", (e) => {
     e.preventDefault();
 
     const email = usernameInput.value.trim();
     const password = passwordInput.value.trim();
-    const userAnswer = parseInt(captchaAnswer.value, 10) || 0;
     let isValid = true;
 
     // Email validation
@@ -228,24 +203,6 @@ document.addEventListener("DOMContentLoaded", () => {
       passwordMessage.textContent = "";
     }
 
-    // CAPTCHA validation
-    const captchaMessage = captchaAnswer.nextElementSibling;
-    if (!captchaAnswer.value) {
-      showMessage("Answer is required", false);
-      captchaMessage.textContent = "Answer is required";
-      isValid = false;
-      return;
-    } else if (userAnswer !== correctAnswer) {
-      showMessage("Incorrect answer", false);
-      captchaMessage.textContent = "Incorrect answer";
-      isValid = false;
-      correctAnswer = generateCaptcha();
-      captchaAnswer.value = "";
-      return;
-    } else {
-      captchaMessage.textContent = "";
-    }
-
     // Role validation
     if (!selectedRole) {
       Swal.fire({
@@ -260,11 +217,26 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    // Proceed with form submission if valid
+    // Execute reCAPTCHA
+    grecaptcha.ready(function () {
+      grecaptcha.execute('6LfHLAYrAAAAAH9RZqN-E0uczyLtAdlBo9vmZbmE', { action: 'login' })
+        .then(function (token) {
+          // Add token to form
+          document.getElementById('recaptcha-token').value = token;
+
+          // Submit the form
+          submitLoginForm(email, password, selectedRole, token);
+        });
+    });
+  });
+
+  function submitLoginForm(email, password, role, recaptchaToken) {
+    // Proceed with form submission
     const payload = {
       email: email,
       password: password,
-      role: selectedRole,
+      role: role,
+      recaptchaToken: recaptchaToken
     };
 
     $.ajax({
@@ -280,17 +252,15 @@ document.addEventListener("DOMContentLoaded", () => {
           title: "Login Successful",
           text: "You have successfully logged in!",
         }).then(() => {
-            // Perform redirection based on user role
-            if (result.userRole == "user") {
-              window.location.href = "/user/home";  
-            } else if (result.userRole == "instructor") {
-              window.location.href = "/instructor";
-            } else if (result.userRole == "admin") {
-              window.location.href = "/admin";
-            }
+          // Perform redirection based on user role
+          if (result.userRole == "user") {
+            window.location.href = "/user/home";
+          } else if (result.userRole == "instructor") {
+            window.location.href = "/instructor";
+          } else if (result.userRole == "admin") {
+            window.location.href = "/admin";
+          }
         });
-        
-
       },
       error: function (xhr) {
         const errorMessage = xhr.responseJSON?.message || "Login failed";
@@ -301,5 +271,5 @@ document.addEventListener("DOMContentLoaded", () => {
         });
       },
     });
-  });
+  }
 });
