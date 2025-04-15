@@ -413,10 +413,7 @@ function openFeedback(classId, className, instructorName) {
     document.getElementById('feedbackModal').dataset.instructorName = instructorName;
     document.getElementById('feedbackModal').style.display = 'flex';
 }
-document.querySelector('.profile-img').addEventListener('click', function () {
-    document.querySelector('.profile-dropdown').style.display =
-        document.querySelector('.profile-dropdown').style.display === 'block' ? 'none' : 'block';
-});
+
 
 var drawer = $("#profileDrawer").kendoDrawer({
     template: `
@@ -717,3 +714,5 @@ $(document).on("submit", "#profileForm", function (e) {
     });
 
 });
+
+
