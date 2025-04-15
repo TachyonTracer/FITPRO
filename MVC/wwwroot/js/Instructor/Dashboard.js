@@ -155,6 +155,11 @@ document.addEventListener("DOMContentLoaded", function () {
       legend: {
         labels: { color: "white" },
       },
+      tooltip: {
+        bodyColor: "white",
+        titleColor: "white",
+        backgroundColor: "#333", // optional: dark tooltip background
+      },
     },
   };
 
@@ -165,11 +170,14 @@ const classTypeCtx = document.getElementById("classTypeChart").getContext("2d");
 const classTypeChart = new Chart(classTypeCtx, {
   type: "doughnut",
   data: {
-    labels: [],  // Labels will be populated dynamically
+    labels: [{
+      text: "Loading...", // Placeholder text
+      color:["#fff"]// Style for the placeholder
+    }],  // Labels will be populated dynamically
     datasets: [
       {
         data: [],  // Data will be populated dynamically
-        backgroundColor: ["#ff4d4d", "#4d4dff", "#4dff4d", "#ff9d4d"], // You can change the color logic if needed
+        backgroundColor: ["#ff4d4d", "#4d4dff", "#a38305", "#0d0d0d"], // You can change the color logic if needed
       },
     ],
   },
@@ -177,6 +185,7 @@ const classTypeChart = new Chart(classTypeCtx, {
     maintainAspectRatio: false,
     height: 400,
     width: 300,
+    
   },
 });
 
@@ -200,9 +209,9 @@ async function updateChartData(instructorId) {
       // Map the response to chart labels and data
       classTypeChart.data.labels = classData.map(item => item.key);  
       classTypeChart.data.datasets[0].data = classData.map(item => item.value);
-
+      
       classTypeChart.data.datasets[0].backgroundColor = classData.map((_, index) => {
-        const colors = ["#ff4d4d", "#4d4dff", "#4dff4d", "#ff9d4d"];
+        const colors = ["#facc15", "#4d4dff", "#a38305", "#0d0d0d"];
         return colors[index % colors.length];
       });
 
@@ -232,8 +241,8 @@ updateChartData(instructorId);
         {
           label: "Student Engagement",
           data: [65, 75, 82, 87],
-          borderColor: "#ff4d4d",
-          backgroundColor: "rgba(255, 77, 77, 0.2)",
+          borderColor: "#facc15",
+          backgroundColor: "rgba(160, 158, 61, 0.2)",
         },
       ],
     },
@@ -249,7 +258,7 @@ updateChartData(instructorId);
         {
           label: "Monthly Revenue",
           data: [3500, 3800, 4000, 4250],
-          backgroundColor: "#ff4d4d",
+          backgroundColor: "#facc15",
         },
       ],
     },
