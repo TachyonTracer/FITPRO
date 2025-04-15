@@ -23,6 +23,15 @@ namespace MVC
         {
             return View();
         }
+         public ActionResult Myclasses()
+        {
+            return View();
+        }
+
+         public ActionResult Home()
+        {
+            return View();
+        }
         public ActionResult Dashboard()
         {
             return View();
@@ -46,5 +55,8 @@ namespace MVC
         {
             return View();
         }
+
+        
+
     }
 }

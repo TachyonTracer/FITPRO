@@ -416,5 +416,28 @@ public async Task<IActionResult> UpdateClass([FromForm] Class request)
             return BadRequest(new { success = false, message = "Class is already active" });
         }
         #endregion
+
+        #region Classwise Waitlist Count
+        [HttpGet("ClasswiseWaitlistCount/{classId}")]
+        public async Task<IActionResult> ClasswiseWaitlistCount(string classId)
+        {
+            var upcomingClassCount = await _classRepo.ClasswiseWaitlistCount(classId);
+            if (upcomingClassCount != -1)
+            {
+                return Ok(new
+                {
+                    success = true,
+                    message = "Classwsie Waitlist Count fetched successfully",
+                    count = upcomingClassCount
+                });
+            }
+
+            return BadRequest(new
+            {
+                success = false,
+                message = "Failed to fetch Classwise Waitlist Count"
+            });
+        }
+        #endregion
     }
 }

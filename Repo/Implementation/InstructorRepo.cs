@@ -512,7 +512,7 @@ public class InstructorRepo : IInstructorInterface
 
             using (var cmd = new NpgsqlCommand(@"SELECT COUNT(*)
                                                     FROM t_class
-                                                    WHERE c_instructorid = @c_instructorid", _conn))
+                                                    WHERE c_instructorid = @c_instructorid;", _conn))
             {
                 cmd.Parameters.AddWithValue("@c_instructorid", Convert.ToInt32(instructorId));
 

@@ -1,3 +1,6 @@
+@{
+    Layout="../Shared/_UserLayout.cshtml";
+}
 <!DOCTYPE html>
 <html lang="en">
 
@@ -5,235 +8,28 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>FitPro - Dark Theme</title>
-  <link rel="stylesheet" href="style.css" />
+  @* <link rel="stylesheet" href="style.css" /> *@
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet" />
-  <style>
+     
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+    <link href="https://kendo.cdn.telerik.com/themes/6.7.0/default/default-main.css" rel="stylesheet">
+    <script src="https://kendo.cdn.telerik.com/2023.1.117/js/kendo.all.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
-body {
-    background: url("/img/gym1.jpg") no-repeat center center fixed;
-    background-size: cover;
-  background-color: #0d0d0d;
-  font-family: "Poppins", sans-serif;
-  color: #facc15;
-  margin: 0;
-  padding: 0;
-}
-
-/* Navigation Bar */
-.navbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background: rgba(0, 0, 0, 0.6);
-  padding: 7px 30px;
-  position: sticky;
-  top: 0;
-  width: 100%;
-  z-index: 1000;
-  backdrop-filter: blur(10px);
-  border-bottom: 1px solid #333;
-}
-
-.logo img {
-  height: 40px;
-  width: auto;
-  object-fit: contain;
-  filter: brightness(1.2);
-  margin-top: 7px;
-}
-
-.nav-links {
- flex: 2;
-  display: flex;
-  justify-content: center;
-  gap: 62px;
-  list-style: none;
-  margin-right: 100px;
-}
-
-.nav-links li a {
-  text-decoration: none;
-  color: #eaeaea;
-  font-weight: 500;
-  transition: color 0.3s ease;
-}
-
-.nav-links li a:hover {
-  color: #facc15;
-}
-
-/* Header Section */
-header {
-  background: #111;
-  text-align: center;
-  padding: 10px 20px 20px;
-}
-
-header h1 {
-  font-size: 42px;
-  margin-bottom: 10px;
-  margin-top: 10px;
-}
-
-header p {
-  font-size: 16px;
-  color: #facc15;
-  opacity: 0.85;
-  margin-top: 10px;
-}
-
-/* Class Cards Grid */
-.class-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-  gap: 30px;
-  padding: 50px 40px;
-}
-
-/* Class Card */
-.class-card {
-  background: #1a1a1a;
-  border: 1px solid #333;
-  border-radius: 16px;
-  overflow: hidden;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.class-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 0 15px rgba(255, 255, 0, 0.1);
-}
-
-.class-card img {
-  width: 100%;
-  height: 220px;
-  object-fit: cover;
-}
-
-.card-content {
-  padding: 20px;
-}
-
-.card-content h2 {
-  font-size: 22px;
-  color: #fde047;
-  margin-bottom: 10px;
-}
-
-.card-content p {
-  font-size: 15px;
-  margin-bottom: 12px;
-  color: #e7e7e7;
-}
-
-.card-content button {
-  background-color: #facc15;
-  color: #111;
-  padding: 10px 18px;
-  border: none;
-  border-radius: 6px;
-  font-size: 14px;
-  cursor: pointer;
-  font-weight: bold;
-  transition: background-color 0.3s ease, transform 0.2s;
-}
-
-.card-content button:hover {
-  background-color: #ffe347;
-  transform: scale(1.05);
-}
-
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  font-family: "Segoe UI", sans-serif;
-}
-
-.profile-wrapper {
-  position: relative;
-  display: inline-block;
-}
-
-.profile-img {
-  width: 40px;
-  height: 40px;
-  border-radius: 80px;
-  object-fit: cover;
-  border: 2px solid #facc15;
-  cursor: pointer;
-}
-
-.profile-dropdown {
-  display: none;
-  position: absolute;
-  top: 50px;
-  right: 0;
-  background-color: #111;
-  border: 1px solid #333;
-  border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(255, 255, 0, 0.1);
-  min-width: 160px;
-  z-index: 999;
-}
-
-.profile-dropdown a {
-  display: block;
-  padding: 10px 15px;
-  color: #facc15;
-  text-decoration: none;
-  transition: background 0.3s;
-}
-
-.profile-dropdown a:hover {
-  background-color: #222;
-  color: #fff;
-}
-
-.loading {
-  text-align: center;
-  padding: 2rem;
-  color: #facc15;
-  font-size: 1.2rem;
-}
-
-.error-message {
-  text-align: center;
-  padding: 2rem;
-  color: #ff4444;
-  background: rgba(255, 0, 0, 0.1);
-  border-radius: 8px;
-  margin: 1rem;
-}
-
-  </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+     <link rel="stylesheet" href="@Url.Content("~/css/User/Index.css")" asp-append-version="true">
+  
 </head>
 
 <body>
 
-  <!-- Transparent Nav -->
-  <nav class="navbar">
-    <div class="logo">
-      <img src="~/img/logo.png" alt="FitPro Logo" />
-    </div>
-    <ul class="nav-links">
-      <li><a href="#">Home</a></li>
-      <li><a href="#classes">Classes</a></li>
-      <li><a href="#">My Classes</a></li>
-      <li><a href="#">Contact</a></li>
-    </ul>
-
-    <!-- Wrap everything inside .profile-wrapper -->
-<div class="profile-wrapper">
-  <img src="~/img/fitlogo.png" alt="Profile" class="profile-img" />
-  <div class="profile-dropdown">
-    <a href="#" onclick="updateProfile()">Update Profile</a>
-    <a href="#" onclick="logout()">Logout</a>
-  </div>
-</div>
-
-  </nav>
-
+ 
+  <div id="profileDrawer"></div>
   <!-- Hero/Header -->
   <header>
     <h1>💪 FitPro Class Booking</h1>
@@ -248,71 +44,7 @@ header p {
 
   <!-- Confetti & Script -->
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-  <script>
-    // Update the loadClasses function
-    async function loadClasses() {
-      const classGrid = document.getElementById('classes');
-      const loading = document.getElementById('loading');
-
-      try {
-        const response = await fetch('http://localhost:8080/api/Class/GetAllClasses');
-        const result = await response.json();
-        
-        loading.style.display = 'none';
-        
-        if (!result.data || !Array.isArray(result.data)) {
-          throw new Error('Invalid data format received from API');
-        }
-        
-        result.data.forEach(classItem => {
-          // Function to extract description text
-          const getDescription = (desc) => {
-            if (!desc) return 'No description available';
-            if (typeof desc === 'string') return desc;
-            if (typeof desc === 'object') {
-              // Handle nested description object
-              return desc.description || desc.text || Object.values(desc)[0] || 'No description available';
-            }
-            return 'No description available';
-          };
-
-          const card = `
-            <div class="class-card">
-              <img src="${classItem.imageUrl || '/img/fitness.jpg'}" alt="${classItem.className}" />
-              <div class="card-content">
-                <h2>${classItem.className}</h2>
-                <p>${getDescription(classItem.description)}</p>
-                <p><strong>Instructor:</strong> ${classItem.instructorName || 'Not assigned'}</p>
-                <p><strong>Duration:</strong> ${classItem.duration || 'N/A'} Hours</p>
-                <p><strong>Capacity:</strong> ${classItem.maxCapacity || classItem.capacity || 'N/A'} spots</p>
-                <button onclick="viewClassDetails(${classItem.classId})">Book Now</button>
-              </div>
-            </div>
-          `;
-          classGrid.insertAdjacentHTML('beforeend', card);
-        });
-      } catch (error) {
-        loading.innerHTML = 'Error loading classes. Please try again later.';
-        loading.classList.add('error-message');
-        console.error('Error:', error);
-      }
-    }
-
-    // Function to view class details
-    function viewClassDetails(classId) {
-        // Redirect to the class details page with the class ID
-        window.location.href = `/User/Classdetails?id=${classId}`;
-    }
-
-    // Load classes when the page loads
-    document.addEventListener('DOMContentLoaded', loadClasses);
-
-    // Profile dropdown toggle
-    document.querySelector('.profile-img').addEventListener('click', function() {
-      document.querySelector('.profile-dropdown').style.display = 
-        document.querySelector('.profile-dropdown').style.display === 'block' ? 'none' : 'block';
-    });
-  </script>
+      @* <script src="@Url.Content("~/js/User/Index.js")" asp-append-version="true"></script> *@
 </body>
 
 </html>
