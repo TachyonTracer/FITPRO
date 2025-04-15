@@ -33,12 +33,32 @@ function parseJwt(token) {
     return null;
   }
 }
+
+async function getBookedClasses() {
+    try {
+        const response = await $.ajax({
+            url: `${uri}/api/Class/GetBookedClassesByUser/${userId}`,
+            method: 'GET'
+        });
+        
+        if (response.success && response.data) {
+            return response.data.map(c => c.classId);
+            console.log("Booked Class IDs:", response.data.map(c => c.classId)); // Log the booked class IDs
+        }
+        return [];
+    } catch (error) {
+        console.error('Error fetching booked classes:', error);
+        return [];
+    }
+}
 // Update the loadClasses function
 async function loadClasses() {
   const classGrid = document.getElementById('classes');
   const loading = document.getElementById('loading');
 
   try {
+    const bookedClassIds = await getBookedClasses();
+    console.log('Booked Class IDs:', bookedClassIds); // Log the booked class IDs
     const response = await fetch('http://localhost:8080/api/Class/GetAllClasses');
     const result = await response.json();
 
@@ -47,8 +67,9 @@ async function loadClasses() {
     if (!result.data || !Array.isArray(result.data)) {
       throw new Error('Invalid data format received from API');
     }
-
+    classGrid.innerHTML = '';
     result.data.forEach(classItem => {
+        const isBooked = bookedClassIds.includes(classItem.classId);
       // Function to extract description text
       const getDescription = (desc) => {
         if (!desc) return 'No description available';
@@ -59,6 +80,9 @@ async function loadClasses() {
         }
         return 'No description available';
       };
+      const buttonHtml = isBooked 
+      ? `<button class="booked-btn" disabled>Booked</button>`
+      : `<button onclick="viewClassDetails(${classItem.classId})">Book Now</button>`;
 
       const card = `
         <div class="class-card">
@@ -69,7 +93,7 @@ async function loadClasses() {
             <p><strong>Instructor:</strong> ${classItem.instructorName || 'Not assigned'}</p>
             <p><strong>Duration:</strong> ${classItem.duration || 'N/A'} Hours</p>
             <p><strong>Capacity:</strong> ${classItem.maxCapacity || classItem.capacity || 'N/A'} spots</p>
-            <button onclick="viewClassDetails(${classItem.classId})">Book Now</button>
+             ${buttonHtml}
           </div>
         </div>
       `;

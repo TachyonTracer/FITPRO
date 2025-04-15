@@ -1,6 +1,134 @@
+let drawer;
 $("document").ready(function () {
     const userId = getUserIdFromToken();
     loadBookedClasses(userId);
+    
+ drawer = $("#profileDrawer").kendoDrawer({
+    template: `
+            <div class="k-drawer-content">
+                <div class="k-drawer-title">Update Profile</div>
+                <form id="profileForm" class="profile-form">
+                    <div class="mb-2">
+                        <label for="userName" class="form-label">Name</label>
+                        <input id="userName"/>
+                        <span class="text-danger validation-message" id="nameError"></span>
+                    </div>
+                    <div class="mb-2">
+                        <label for="email" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="email" disabled>
+                    </div>
+                    <div class="mb-2">
+                        <label for="phone" class="form-label">Phone</label>
+                        <input id="phone"/>
+                        <span class="text-danger validation-message" id="phoneError"></span>
+                    </div>
+                    <div class="mb-2">
+                        <label for="height" class="form-label">Height (cm)</label>
+                        <input id="height" />
+                        <span class="text-danger validation-message" id="heightError"></span>
+                    </div>
+                    <div class="mb-2">
+                        <label for="weight" class="form-label">Weight (kg)</label>
+                        <input id="weight"/>
+                        <span class="text-danger validation-message" id="weightError"></span>
+                    </div>
+                    <div class="mb-2">
+                        <label for="goal" class="form-label">Goal</label>
+                        <select id="goal" multiple ></select>
+                        <span class="text-danger validation-message" id="goalError"></span>
+                    </div>
+                    <div class="mb-2">
+                        <label for="medicalCondition" class="form-label">Medical Condition</label>
+                        <select id="medicalCondition" multiple ></select>
+                        <span class="text-danger validation-message" id="medicalError"></span>
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label me-2">Profile Image</label>
+                        <div class="d-flex align-items-center">
+                            <img id="imagePreview" src="" alt="Preview" class="ms-2" style="width: 86px; height: 86px; margin-right: 14px; display: none; object-fit: cover;">
+                            <input type="file" id="profileImage" class="form-control form-control-sm" accept="image/*" style="max-width: 70%;">
+                        </div>
+                        <span class="text-danger validation-message" id="imageError"></span>
+                    </div>
+                    <div class="d-flex justify-content-end">
+                        <button type="button" class="btn btn-secondary me-2" id="cancelProfileBtn">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                    </div>
+                </form>
+            </div>
+        `,
+    position: "right",
+    mode: "push",
+    width: "400px",
+    minHeight: "100vh",
+    swipeToOpen: false,
+    autoCollapse: false,
+}).data("kendoDrawer");
+
+// Initialize Kendo UI Components with Validations
+$("#userName").kendoTextBox({
+    placeholder: "Enter your name"
+});
+
+$("#phone").kendoMaskedTextBox({
+    mask: "0000000000",
+    placeholder: "__________"
+});
+
+$("#height").kendoNumericTextBox({
+    min: 100, max: 250, step: 1, format: "# cm"
+});
+
+$("#weight").kendoNumericTextBox({
+    min: 30, max: 200, step: 1, format: "#.00 kg"
+});
+
+$("#goal").kendoMultiSelect({
+    dataSource: ["Weight Loss", "Muscle Gain", "General Fitness", "Endurance Training", "Flexibility Improvement", "Sports Specific", "Weight Management"],
+    placeholder: "Select goals..."
+});
+
+$("#medicalCondition").kendoMultiSelect({
+    dataSource: ["Diabetes", "High Blood Pressure", "Heart Disease", "Asthma", "Arthritis", "Back Pain", "None", "Hypertension"],
+    placeholder: "Select medical conditions..."
+});
+
+
+
+// Function to Show Profile Drawer and Fetch Data
+window.showProfileDrawer = function () {
+
+    if (userId) {
+        console.log("Extracted User ID:", userId);
+    }
+
+    drawer.show();
+
+    $.ajax({
+        url: `${uri}/api/User/GetUserById/${userId}`,
+        type: "GET",
+        success: function (response) {
+            $("#userName").val(response.userName);
+            $("#email").val(response.email);
+            $("#phone").val(response.mobile);
+            $("#height").data("kendoNumericTextBox").value(response.height);
+            $("#weight").data("kendoNumericTextBox").value(response.weight);
+
+            var goalValues = response.goal.split(", ").map(g => g.trim());
+            $("#goal").data("kendoMultiSelect").value(goalValues);
+
+            var medicalValues = response.medicalCondition.split(", ").map(mc => mc.trim());
+            $("#medicalCondition").data("kendoMultiSelect").value(medicalValues);
+
+            if (response.profileImage) {
+                $("#imagePreview").attr("src", `../User_Images/${response.profileImage}`).show();
+            }
+        },
+        error: function (xhr) {
+            alert("Error fetching user details: " + xhr.responseText);
+        }
+    });
+};
 })
 let uri = "http://localhost:8080";
 // Function to format date and time
@@ -415,132 +543,6 @@ function openFeedback(classId, className, instructorName) {
 }
 
 
-var drawer = $("#profileDrawer").kendoDrawer({
-    template: `
-            <div class="k-drawer-content">
-                <div class="k-drawer-title">Update Profile</div>
-                <form id="profileForm" class="profile-form">
-                    <div class="mb-2">
-                        <label for="userName" class="form-label">Name</label>
-                        <input id="userName"/>
-                        <span class="text-danger validation-message" id="nameError"></span>
-                    </div>
-                    <div class="mb-2">
-                        <label for="email" class="form-label">Email</label>
-                        <input type="email" class="form-control" id="email" disabled>
-                    </div>
-                    <div class="mb-2">
-                        <label for="phone" class="form-label">Phone</label>
-                        <input id="phone"/>
-                        <span class="text-danger validation-message" id="phoneError"></span>
-                    </div>
-                    <div class="mb-2">
-                        <label for="height" class="form-label">Height (cm)</label>
-                        <input id="height" />
-                        <span class="text-danger validation-message" id="heightError"></span>
-                    </div>
-                    <div class="mb-2">
-                        <label for="weight" class="form-label">Weight (kg)</label>
-                        <input id="weight"/>
-                        <span class="text-danger validation-message" id="weightError"></span>
-                    </div>
-                    <div class="mb-2">
-                        <label for="goal" class="form-label">Goal</label>
-                        <select id="goal" multiple ></select>
-                        <span class="text-danger validation-message" id="goalError"></span>
-                    </div>
-                    <div class="mb-2">
-                        <label for="medicalCondition" class="form-label">Medical Condition</label>
-                        <select id="medicalCondition" multiple ></select>
-                        <span class="text-danger validation-message" id="medicalError"></span>
-                    </div>
-                    <div class="mb-2">
-                        <label class="form-label me-2">Profile Image</label>
-                        <div class="d-flex align-items-center">
-                            <img id="imagePreview" src="" alt="Preview" class="ms-2" style="width: 86px; height: 86px; margin-right: 14px; display: none; object-fit: cover;">
-                            <input type="file" id="profileImage" class="form-control form-control-sm" accept="image/*" style="max-width: 70%;">
-                        </div>
-                        <span class="text-danger validation-message" id="imageError"></span>
-                    </div>
-                    <div class="d-flex justify-content-end">
-                        <button type="button" class="btn btn-secondary me-2" id="cancelProfileBtn">Cancel</button>
-                        <button type="submit" class="btn btn-primary">Save Changes</button>
-                    </div>
-                </form>
-            </div>
-        `,
-    position: "right",
-    mode: "push",
-    width: "400px",
-    minHeight: "100vh",
-    swipeToOpen: false,
-    autoCollapse: false,
-}).data("kendoDrawer");
-
-// Initialize Kendo UI Components with Validations
-$("#userName").kendoTextBox({
-    placeholder: "Enter your name"
-});
-
-$("#phone").kendoMaskedTextBox({
-    mask: "0000000000",
-    placeholder: "__________"
-});
-
-$("#height").kendoNumericTextBox({
-    min: 100, max: 250, step: 1, format: "# cm"
-});
-
-$("#weight").kendoNumericTextBox({
-    min: 30, max: 200, step: 1, format: "#.00 kg"
-});
-
-$("#goal").kendoMultiSelect({
-    dataSource: ["Weight Loss", "Muscle Gain", "General Fitness", "Endurance Training", "Flexibility Improvement", "Sports Specific", "Weight Management"],
-    placeholder: "Select goals..."
-});
-
-$("#medicalCondition").kendoMultiSelect({
-    dataSource: ["Diabetes", "High Blood Pressure", "Heart Disease", "Asthma", "Arthritis", "Back Pain", "None", "Hypertension"],
-    placeholder: "Select medical conditions..."
-});
-
-
-
-// Function to Show Profile Drawer and Fetch Data
-window.showProfileDrawer = function () {
-
-    if (userId) {
-        console.log("Extracted User ID:", userId);
-    }
-
-    drawer.show();
-
-    $.ajax({
-        url: `${uri}/api/User/GetUserById/${userId}`,
-        type: "GET",
-        success: function (response) {
-            $("#userName").val(response.userName);
-            $("#email").val(response.email);
-            $("#phone").val(response.mobile);
-            $("#height").data("kendoNumericTextBox").value(response.height);
-            $("#weight").data("kendoNumericTextBox").value(response.weight);
-
-            var goalValues = response.goal.split(", ").map(g => g.trim());
-            $("#goal").data("kendoMultiSelect").value(goalValues);
-
-            var medicalValues = response.medicalCondition.split(", ").map(mc => mc.trim());
-            $("#medicalCondition").data("kendoMultiSelect").value(medicalValues);
-
-            if (response.profileImage) {
-                $("#imagePreview").attr("src", `../User_Images/${response.profileImage}`).show();
-            }
-        },
-        error: function (xhr) {
-            alert("Error fetching user details: " + xhr.responseText);
-        }
-    });
-};
 
 // Handle Image Preview
 $(document).on("change", "#profileImage", function () {
@@ -716,3 +718,159 @@ $(document).on("submit", "#profileForm", function (e) {
 });
 
 
+
+/* Do Not Remove */
+/* Notification JavaScript Starts*/
+/* Includes All the JS Functions for Notification Badge, Icons, Buttons and List */
+
+// var userId = "29"; // Change this dynamically based on logged-in user
+// userId_ = getUserIdFromToken();
+userId = userId.toString();
+var role = "user    "; // instrctor or user
+var counter = 0;
+var fetcherConn = "";
+if (role == "admin") {
+  var fetcherConn = "NewAdminNotification";
+} else if (role == "instructor") {
+  var fetcherConn = "NewInstructorNotification";
+} else {
+  var fetcherConn = "NewUserNotification";
+}
+
+// Convert timestamp to seconds/minutes/hours ago
+function timeAgo(timestamp) {
+  let currentTime = Math.floor(Date.now() / 1000); // Current time in seconds
+  let timeDiff = currentTime - timestamp;
+
+  if (timeDiff < 60) return `${timeDiff} seconds ago`;
+  if (timeDiff < 3600) return `${Math.floor(timeDiff / 60)} minutes ago`;
+  if (timeDiff < 86400) return `${Math.floor(timeDiff / 3600)} hours ago`;
+  return `${Math.floor(timeDiff / 86400)} days ago`;
+}
+
+const connection = new signalR.HubConnectionBuilder()
+  .withUrl(
+    `${uri}/notificationHub?userId=${userId}&role=${role}`
+  )
+  .withAutomaticReconnect()
+  .build();
+
+connection.start().then(() => {
+  console.log("Connected to SignalR! with userid: "+userId);
+  connection.invoke("FetchNotifications", userId, role);
+});
+
+// Receive new notification
+connection.on(fetcherConn, (message) => {
+  console.log("New Notification:", message);
+  addNotification(message);
+});
+
+// Load unread notifications
+connection.on("ReceiveNotifications", (notifications) => {
+  console.log("Unread Notifications:", notifications);
+  updateNotificationList(notifications);
+});
+
+// Open Notifications Dropdown
+function openNotifications() {
+  console.log("Fetching Notification on Toggle...");
+  connection.invoke("FetchNotifications", userId, role);
+  let dropdown = document.getElementById("notificationDropdown");
+  dropdown.style.display = dropdown.style.display === "none" ? "block" : "none";
+}
+
+// Add Notification to List (New notifications appear on top)
+function addNotification(message) {
+  let list = document.getElementById("notificationList");
+
+  // Remove "No new notifications" message if it exists
+  let noNotificationItem = list.querySelector(".text-muted");
+  if (noNotificationItem) {
+    list.removeChild(noNotificationItem);
+  }
+
+  let item = document.createElement("li");
+  item.className = "list-group-item d-flex align-items-start";
+
+  let parts = message.split("::");
+
+  let title = parts[0];
+  let body = parts[1];
+
+  let timestamp = parseInt(parts[2]);
+  let timeAgoText = timeAgo(timestamp);
+
+  item.innerHTML = `
+        <span class="bg-danger rounded-circle me-2 mt-2"></span>
+        <div>
+            <strong>${title}</strong><br>
+            <small>${body}</small><br>
+            <small>${timeAgoText}</small>
+        </div>
+    `;
+
+  // Insert at the top instead of the bottom
+  list.prepend(item);
+
+  counter++;
+  updateBellIcon();
+}
+
+// Update Notification List
+function updateNotificationList(notifications) {
+  let list = document.getElementById("notificationList");
+  list.innerHTML = "";
+  counter = 0; // Reset counter before processing new notifications
+
+  if (notifications.length === 0) {
+    list.innerHTML =
+      '<li class="list-group-item text-center text-muted">No new notifications</li>';
+  } else {
+    notifications.forEach((message) => {
+      let item = document.createElement("li");
+      item.className = "list-group-item d-flex align-items-start";
+
+      let parts = message.split("::");
+
+      let title = parts[0];
+      let body = parts[1];
+
+      let timestamp = parseInt(parts[2]);
+      let timeAgoText = timeAgo(timestamp);
+
+      item.innerHTML = `
+                <span class="bg-danger rounded-circle me-2 mt-2"></span>
+                <div>
+                    <strong>${title}</strong><br>
+                    <small>${body}</small><br>
+                    <small>${timeAgoText}</small>
+                </div>
+            `;
+
+      // Insert at the top instead of the bottom
+      list.prepend(item);
+
+      counter++; // Increase counter for each unread notification
+    });
+  }
+  updateBellIcon();
+}
+
+// Update Bell Icon Count
+function updateBellIcon() {
+  let badge = document.getElementById("notificationCount");
+  badge.textContent = counter > 0 ? counter : 0;
+  badge.style.display = counter > 0 ? "inline" : "none";
+}
+
+// Mark All as Read
+function markAllAsRead() {
+  counter = 0;
+  connection.invoke("MarkAllAsRead", userId, role).then(() => {
+    updateNotificationList([]); // Clear notifications
+  });
+}
+
+/* Do Not Remove */
+/* Notification JavaScript Ends */
