@@ -1055,8 +1055,9 @@ public class InstructorRepo : IInstructorInterface
         #endregion
 
         #region AddNewComment
-            public async Task<int> AddNewComment(BlogComment comment)
+            public async Task<BlogComment> AddNewComment(BlogComment comment)
             {
+                var cmt = new BlogComment();
                 if (_conn.State == System.Data.ConnectionState.Closed)
                 {
                     await _conn.OpenAsync();
@@ -1082,7 +1083,7 @@ public class InstructorRepo : IInstructorInterface
                             else
                             {
                                 Console.WriteLine("User not found.");
-                                return 0;
+                                return cmt;
                             }
                         }
                     }
@@ -1113,6 +1114,7 @@ public class InstructorRepo : IInstructorInterface
                         if (result != null)
                         {
                             int commentId = Convert.ToInt32(result);
+                            comment.commentId= commentId;
 
                             // Increment comment count
                             string updateQuery = "UPDATE t_blogpost SET c_comments = c_comments + 1 WHERE c_blog_id = @blogId";
@@ -1121,18 +1123,18 @@ public class InstructorRepo : IInstructorInterface
                                 updateCmd.Parameters.AddWithValue("@blogId", comment.blogId ?? (object)DBNull.Value);
                                 await updateCmd.ExecuteNonQueryAsync();
                             }
-                            return commentId;
+                            return comment;
                         }
                         else
                         {
-                            return 0;
+                            return cmt;
                         }
                     }
                 }
                 catch (Exception ex)
                 {
                     Console.WriteLine("Error saving comment --> " + ex.Message);
-                    return 0;
+                    return cmt;
                 }
                 finally
                 {
@@ -1286,6 +1288,7 @@ public class InstructorRepo : IInstructorInterface
         #region fetchBlogAuthorById
             public async Task<Instructor> fetchBlogAuthorById(int author_id)
             {
+                var author = new Instructor();
                 string query = @"
                                 SELECT 
                                     c_instructorid, c_instructorname,
@@ -1323,13 +1326,13 @@ public class InstructorRepo : IInstructorInterface
                 catch (Exception ex)
                 {
                     Console.WriteLine("Error While Updating Profile Basic : " + ex.Message);
-                    return null;
+                    // return author;
                 }
                 finally
                 {
                     _conn.Close();
                 }
-                return null;
+                return author;
             }
         #endregion
     #endregion

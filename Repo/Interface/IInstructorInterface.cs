@@ -35,7 +35,7 @@ public interface IInstructorInterface
         Task<List<BlogPost>> GetBlogsByInstructorId(int instructor_id);
         Task<BlogPost> GetBlogById(int blog_id);
 
-        Task<int> AddNewComment(BlogComment comment);
+        Task<BlogComment> AddNewComment(BlogComment comment);
         Task<List<BlogComment>> fetchBlogComments(int blog_id);
         Task<BlogPost> fetchBlogByUri(string source_uri);
         Task<Instructor> fetchBlogAuthorById(int author_id);

@@ -304,6 +304,50 @@
         animation: spin 1s infinite linear;
     }
 
+
+    .blog-card {
+        position: relative;
+        border-radius: 12px;
+        overflow: hidden;
+        transition: transform 0.25s ease, box-shadow 0.25s ease;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+
+    .blog-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    .blog-open-icon {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        z-index: 10;
+        @* background-color: rgba(255, 255, 255, 0.85); *@
+        background-color: #facc15;
+        padding: 5px 7px;
+        border-radius: 50%;
+        cursor: pointer;
+        transition: background-color 0.2s;
+    }
+
+    .blog-open-icon:hover {
+        @* background-color: #facc15; *@
+        background-color: rgba(255, 255, 255, 0.85);
+    }
+
+    .copy-link {
+        margin-left: 2px;
+        cursor: pointer;
+        color: #888;
+        transition: color 0.2s ease;
+    }
+
+    .copy-link:hover {
+        @* color: #333; *@
+        color: #facc15;
+    }
+
     @@keyframes spin {
         from {
             transform: rotate(0deg);
@@ -397,6 +441,7 @@
         let allBlogs = [];
         let filteredBlogs = [];
         let currentSort = 'latest';
+        let token = "";
 
         // Sample blog data for fallback
         const sampleBlogs = [
@@ -450,18 +495,18 @@
         ];
 
         @* Utility Functions *@
-            function parseJwt(token) {
-                try {
-                    const base64Url = token.split(".")[1];
-                    const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
-                    return JSON.parse(atob(base64));
-                } catch (error) {
-                    console.error("Invalid token:", error);
-                    return null;
-                }
+        function parseJwt(token) {
+            try {
+                const base64Url = token.split(".")[1];
+                const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+                return JSON.parse(atob(base64));
+            } catch (error) {
+                console.error("Invalid token:", error);
+                return null;
             }
+        }
         function getUserIdFromToken() {
-            const token = localStorage.getItem("authToken");
+            token = localStorage.getItem("authToken");
             if (!token) {
                 console.warn("No auth token found in localStorage.");
                 return null;
@@ -477,7 +522,7 @@
 
         // Fetch blogs on page load
         $(document).ready(function () {
-            const token = localStorage.getItem('authToken');
+            token = localStorage.getItem('authToken');
 
             // Try to fetch actual data first
             $.ajax({
@@ -501,7 +546,8 @@
                             likes: entry.c_likes || 0,
                             comments: entry.c_comments || 0,
                             is_completed: entry.c_is_published || 0,
-                            createdAt: entry.c_created_at
+                            createdAt: entry.c_created_at,
+                            sourceUrl: 'http://localhost:8081/user/blogpost/' + entry.c_source_url
                         }));
                         filteredBlogs = [...allBlogs];
                         sortBlogs(currentSort);
@@ -541,13 +587,19 @@
             }
 
             filteredBlogs.forEach(blog => {
-                const blogCard = $('<div>').addClass('blog-card');
+
+                const blogCard = $('<div>')
+                    .addClass('blog-card')
+                    .css('position', 'relative');
 
                 // Determine button text based on is_completed status
                 const buttonText = blog.is_completed ? "Edit" : "Edit Draft";
                 const buttonIcon = "fa-edit";
 
                 blogCard.html(`
+                    <div class="blog-open-icon" title="Open Blog">
+                        <i class="fas fa-external-link-alt"></i>
+                    </div>
                     <img src="${blog.thumbnailUrl || '/images/default-blog.jpg'}" alt="${blog.title}" class="blog-thumbnail">
                     <div class="blog-details">
                         <div>
@@ -561,17 +613,38 @@
                             <span class="stat">
                                 <i class="fas fa-calendar"></i> ${new Date(blog.createdAt * 1000).toLocaleDateString()}
                             </span>
+                            <span class="stat copy-link" title="Copy Link" data-url="${blog.sourceUrl}">
+                                <i class="fas fa-link"></i>
+                            </span>
                             ${!blog.is_completed ? '<span class="stat" style="color:#ff9800"><i class="fas fa-exclamation-circle"></i> Draft</span>' : ''}
                             <div class="blog-actions">
-                                <button class="edit-btn" onclick="editBlog(${blog.id})"><i class="fas ${buttonIcon}"></i> ${buttonText}</button>
+                                <button class="edit-btn" onclick="editBlog(${blog.id})"><i class="fas fa-edit"></i> ${buttonText}</button>
                                 <button class="delete-btn" onclick="deleteBlog(${blog.id})"><i class="fas fa-trash"></i></button>
                             </div>
                         </div>
                     </div>
                 `);
+
                 blogListElement.append(blogCard);
             });
         }
+
+        // Open blog when clicking the open icon
+        $(document).on('click', '.blog-open-icon', function (e) {
+            e.stopPropagation();
+            const blogUrl = $(this).closest('.blog-card').find('.copy-link').data('url');
+            window.open(blogUrl, '_blank');
+        });
+
+        // Copy blog URL
+        $(document).on('click', '.copy-link', function (e) {
+            e.stopPropagation();
+            const url = $(this).data('url');
+            navigator.clipboard.writeText(url).then(() => {
+                $(this).attr('title', 'Copied!').tooltip('show');
+                setTimeout(() => $(this).attr('title', 'Copy Link'), 1000);
+            });
+        });
 
         function formatDate(dateString) {
             if (!dateString) return 'Unknown date';
@@ -636,7 +709,8 @@
 
         // Create New Blog button click handler
         $(document).on('click', '#createBlogBtn', function () {
-            window.location.href = "/instructor/BlogEditor";
+            @* window.location.href = "/instructor/BlogEditor"; *@
+            window.open("http://localhost:8081/instructor/BlogEditor", '_blank');
         });
 
         // Edit and Delete functions
@@ -669,7 +743,6 @@
                     }
                 });
             }
-        }
         }
     </script>
 </body>

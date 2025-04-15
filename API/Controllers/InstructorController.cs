@@ -669,13 +669,13 @@ namespace API
                 int result = await _instructorRepo.DeleteBlog(blog_id);
 
                 if (result > 0)
-                    return Ok(new { message = "Blog deleted successfully." });
+                    return Ok(new { success=true, message = "Blog deleted successfully." });
                 else
-                    return NotFound(new { message = "Blog not found or already deleted." });
+                    return NotFound(new { success=false, message = "Blog not found or already deleted." });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { message = "An error occurred while deleting the blog.", error = ex.Message });
+                return StatusCode(500, new { success=false, message = "An error occurred while deleting the blog.", error = ex.Message });
             }
         }
 
@@ -692,7 +692,7 @@ namespace API
                     }
                     var result = await _instructorRepo.AddNewComment(comment);
 
-                    if (result <= 0)
+                    if (result.commentId < 0)
                     {
                         return BadRequest(new { success = false, message = "Unable to add comment."});
                     }
@@ -700,7 +700,7 @@ namespace API
                     {
                         success = true,
                         message = "Comment Added.",
-                        comment_id = result
+                        comment = result
                     });
 
                 } catch {
@@ -752,7 +752,7 @@ namespace API
                 try {
                     var blog = await _instructorRepo.fetchBlogByUri(source_uri);
 
-                    if (blog == null)
+                    if (blog.c_blog_id == null)
                     {
                         return BadRequest(new { success = false, message = "No blog found on the given URI."});
                     }
@@ -779,7 +779,7 @@ namespace API
                 try {
                     var author_info = await _instructorRepo.fetchBlogAuthorById(Convert.ToInt32(author_id));
 
-                    if (author_info == null)
+                    if (author_info.instructorId == null)
                     {
                         return BadRequest(new { success = false, message = "Unable to fetch author info"});
                     }
