@@ -9,8 +9,14 @@ document.addEventListener("DOMContentLoaded", function () {
 	  }
 	  const decoded = parseJwt(token);
 	  if (decoded) {
-		console.log("this is line 144 decoded:" + JSON.parse(decoded.UserObject).instructorName);
-		console.log("this is line 144 decoded:" + JSON.parse(decoded.UserObject).specialization);
+		console.log(
+		  "this is line 144 decoded:" +
+			JSON.parse(decoded.UserObject).instructorName
+		);
+		console.log(
+		  "this is line 144 decoded:" +
+			JSON.parse(decoded.UserObject).specialization
+		);
   
 		return JSON.parse(decoded.UserObject).instructorId;
 	  }
@@ -28,9 +34,6 @@ document.addEventListener("DOMContentLoaded", function () {
 		return null;
 	  }
 	}
-  
-
-
   
 	fetchClassTypesFromAPI();
   
@@ -124,66 +127,194 @@ document.addEventListener("DOMContentLoaded", function () {
 	//Eqippments(static) Based On The Class Type
 	const equipmentByClassType = {
 	  Yoga: [
-		{ value: "Yoga Mat", icon: "🧘", description: "Essential for yoga and floor exercises" },
-		{ value: "Yoga Blocks", icon: "🟫", description: "Support for deeper poses" },
+		{
+		  value: "Yoga Mat",
+		  icon: "🧘",
+		  description: "Essential for yoga and floor exercises",
+		},
+		{
+		  value: "Yoga Blocks",
+		  icon: "🟫",
+		  description: "Support for deeper poses",
+		},
 		{
 		  value: "Resistance Bands",
 		  icon: "🔄",
 		  description: "For strength and flexibility training",
 		},
-		{ value: "Exercise Ball", icon: "⚽", description: "For balance and core exercises" },
-		{ value: "Dumbbells", icon: "🏋️", description: "Strength training weights" },
+		{
+		  value: "Exercise Ball",
+		  icon: "⚽",
+		  description: "For balance and core exercises",
+		},
+		{
+		  value: "Dumbbells",
+		  icon: "🏋️",
+		  description: "Strength training weights",
+		},
 		{ value: "Barbells", icon: "💪", description: "Heavyweight lifting" },
-		{ value: "Kettlebells", icon: "🏋️‍♂️", description: "Functional strength training" },
-		{ value: "Treadmill", icon: "🏃", description: "For cardiovascular exercise" },
+		{
+		  value: "Kettlebells",
+		  icon: "🏋️‍♂️",
+		  description: "Functional strength training",
+		},
+		{
+		  value: "Treadmill",
+		  icon: "🏃",
+		  description: "For cardiovascular exercise",
+		},
 	  ],
 	  Gym: [
-		{ value: "Dumbbells", icon: "🏋️", description: "Strength training weights" },
+		{
+		  value: "Dumbbells",
+		  icon: "🏋️",
+		  description: "Strength training weights",
+		},
 		{ value: "Barbells", icon: "💪", description: "Heavyweight lifting" },
-		{ value: "Kettlebells", icon: "🏋️‍♂️", description: "Functional strength training" },
-		{ value: "Treadmill", icon: "🏃", description: "For cardiovascular exercise" },
+		{
+		  value: "Kettlebells",
+		  icon: "🏋️‍♂️",
+		  description: "Functional strength training",
+		},
+		{
+		  value: "Treadmill",
+		  icon: "🏃",
+		  description: "For cardiovascular exercise",
+		},
 	  ],
 	  Zumba: [
-		{ value: "Dance Sneakers", icon: "👟", description: "Comfortable footwear for Zumba" },
-		{ value: "Light Dumbbells", icon: "🎽", description: "For adding intensity" },
-		{ value: "Resistance Bands", icon: "🌀", description: "For muscle toning" },
-		{ value: "Aerobic Step", icon: "📶", description: "For high-energy moves" },
+		{
+		  value: "Dance Sneakers",
+		  icon: "👟",
+		  description: "Comfortable footwear for Zumba",
+		},
+		{
+		  value: "Light Dumbbells",
+		  icon: "🎽",
+		  description: "For adding intensity",
+		},
+		{
+		  value: "Resistance Bands",
+		  icon: "🌀",
+		  description: "For muscle toning",
+		},
+		{
+		  value: "Aerobic Step",
+		  icon: "📶",
+		  description: "For high-energy moves",
+		},
 	  ],
 	  Boxing: [
-		{ value: "Boxing Gloves", icon: "🥊", description: "Essential for boxing training" },
-		{ value: "Punching Bag", icon: "🎯", description: "For practicing punches" },
-		{ value: "Hand Wraps", icon: "🩹", description: "Protects hands and wrists" },
-		{ value: "Speed Rope", icon: "⏳", description: "Improves footwork and agility" },
+		{
+		  value: "Boxing Gloves",
+		  icon: "🥊",
+		  description: "Essential for boxing training",
+		},
+		{
+		  value: "Punching Bag",
+		  icon: "🎯",
+		  description: "For practicing punches",
+		},
+		{
+		  value: "Hand Wraps",
+		  icon: "🩹",
+		  description: "Protects hands and wrists",
+		},
+		{
+		  value: "Speed Rope",
+		  icon: "⏳",
+		  description: "Improves footwork and agility",
+		},
 	  ],
 	  Cycling: [
-		{ value: "Stationary Bike", icon: "🚴", description: "For indoor cycling" },
-		{ value: "Cycling Shoes", icon: "👟", description: "Enhances pedal efficiency" },
-		{ value: "Heart Rate Monitor", icon: "❤️", description: "Tracks workout intensity" },
-		{ value: "Resistance Bands", icon: "🌀", description: "For off-bike workouts" },
+		{
+		  value: "Stationary Bike",
+		  icon: "🚴",
+		  description: "For indoor cycling",
+		},
+		{
+		  value: "Cycling Shoes",
+		  icon: "👟",
+		  description: "Enhances pedal efficiency",
+		},
+		{
+		  value: "Heart Rate Monitor",
+		  icon: "❤️",
+		  description: "Tracks workout intensity",
+		},
+		{
+		  value: "Resistance Bands",
+		  icon: "🌀",
+		  description: "For off-bike workouts",
+		},
 	  ],
 	  CrossFit: [
-		{ value: "Kettlebells", icon: "🏋️‍♀️", description: "For functional training" },
-		{ value: "Plyo Box", icon: "📦", description: "For explosive jump training" },
-		{ value: "Medicine Ball", icon: "⚾", description: "For strength and conditioning" },
-		{ value: "Battle Ropes", icon: "🪢", description: "For endurance workouts" },
+		{
+		  value: "Kettlebells",
+		  icon: "🏋️‍♀️",
+		  description: "For functional training",
+		},
+		{
+		  value: "Plyo Box",
+		  icon: "📦",
+		  description: "For explosive jump training",
+		},
+		{
+		  value: "Medicine Ball",
+		  icon: "⚾",
+		  description: "For strength and conditioning",
+		},
+		{
+		  value: "Battle Ropes",
+		  icon: "🪢",
+		  description: "For endurance workouts",
+		},
 	  ],
 	  Pilates: [
-		{ value: "Pilates Reformer", icon: "🛏️", description: "Enhances core workouts" },
-		{ value: "Stability Ball", icon: "🎱", description: "For balance and control" },
+		{
+		  value: "Pilates Reformer",
+		  icon: "🛏️",
+		  description: "Enhances core workouts",
+		},
+		{
+		  value: "Stability Ball",
+		  icon: "🎱",
+		  description: "For balance and control",
+		},
 		{ value: "Foam Roller", icon: "🔵", description: "For muscle recovery" },
-		{ value: "Resistance Ring", icon: "⭕", description: "For toning exercises" },
+		{
+		  value: "Resistance Ring",
+		  icon: "⭕",
+		  description: "For toning exercises",
+		},
 	  ],
   
 	  Kickboxing: [
-		{ value: "Kickboxing Gloves", icon: "🥋", description: "Protects hands during training" },
+		{
+		  value: "Kickboxing Gloves",
+		  icon: "🥋",
+		  description: "Protects hands during training",
+		},
 		{ value: "Thai Pads", icon: "🛡️", description: "For kick drills" },
 		{ value: "Heavy Bag", icon: "👜", description: "For striking practice" },
-		{ value: "Agility Ladder", icon: "🏁", description: "For footwork training" },
+		{
+		  value: "Agility Ladder",
+		  icon: "🏁",
+		  description: "For footwork training",
+		},
 	  ],
 	  "Strength Training": [
 		{ value: "Power Rack", icon: "🏗️", description: "For barbell exercises" },
-		{ value: "Adjustable Dumbbells", icon: "⚖️", description: "Versatile strength training" },
-		{ value: "Bench Press", icon: "🛏️", description: "For upper body workouts" },
+		{
+		  value: "Adjustable Dumbbells",
+		  icon: "⚖️",
+		  description: "Versatile strength training",
+		},
+		{
+		  value: "Bench Press",
+		  icon: "🛏️",
+		  description: "For upper body workouts",
+		},
 		{
 		  value: "Weighted Vest",
 		  icon: "🎽",
@@ -195,27 +326,35 @@ document.addEventListener("DOMContentLoaded", function () {
 	console.log(equipmentByClassType);
   
 	const equipmentDropdown = document.getElementById("equipmentDropdown");
-	const equipmentMenu = document.querySelector(".equipment-dropdown .dropdown-menu");
-	const selectedEquipmentContainer = document.getElementById("selectedEquipment");
+	const equipmentMenu = document.querySelector(
+	  ".equipment-dropdown .dropdown-menu"
+	);
+	const selectedEquipmentContainer =
+	  document.getElementById("selectedEquipment");
 	let selectedEquipment = [];
   
-	$('.equipment-dropdown .dropdown-menu input[type="checkbox"]').on("change", function () {
-	  const itemValue = $(this).val();
-	  if ($(this).is(":checked")) {
-		// Find the equipment object and add it
-		const classType = $("#classType").val();
-		const equipmentItem = equipmentByClassType[classType].find(
-		  (item) => item.value === itemValue
-		);
-		if (equipmentItem) {
-		  selectedEquipment.push(equipmentItem);
+	$('.equipment-dropdown .dropdown-menu input[type="checkbox"]').on(
+	  "change",
+	  function () {
+		const itemValue = $(this).val();
+		if ($(this).is(":checked")) {
+		  // Find the equipment object and add it
+		  const classType = $("#classType").val();
+		  const equipmentItem = equipmentByClassType[classType].find(
+			(item) => item.value === itemValue
+		  );
+		  if (equipmentItem) {
+			selectedEquipment.push(equipmentItem);
+		  }
+		} else {
+		  selectedEquipment = selectedEquipment.filter(
+			(item) => item.value !== itemValue
+		  );
 		}
-	  } else {
-		selectedEquipment = selectedEquipment.filter((item) => item.value !== itemValue);
+		updateSelectedEquipmentDisplay();
+		// validateEquipment(); // Add this line to validate in real-time
 	  }
-	  updateSelectedEquipmentDisplay();
-	  // validateEquipment(); // Add this line to validate in real-time
-	});
+	);
   
 	function validateEquipment() {
 	  const $equipmentDropdown = $(".equipment-dropdown");
@@ -251,7 +390,9 @@ document.addEventListener("DOMContentLoaded", function () {
   
 	  // Validate each selected equipment belongs to the current class type
 	  const validEquipment = selectedEquipment.every((item) =>
-		equipmentByClassType[classType].some((validItem) => validItem.value === item.value)
+		equipmentByClassType[classType].some(
+		  (validItem) => validItem.value === item.value
+		)
 	  );
   
 	  if (!validEquipment) {
@@ -277,7 +418,9 @@ document.addEventListener("DOMContentLoaded", function () {
   
 	  if (selectedEquipment.length === 0) {
 		$dropdownText.text("Select equipment...");
-		$selectedEquipmentContainer.html('<span class="text-muted">No equipment selected</span>');
+		$selectedEquipmentContainer.html(
+		  '<span class="text-muted">No equipment selected</span>'
+		);
 		return;
 	  }
   
@@ -289,8 +432,12 @@ document.addEventListener("DOMContentLoaded", function () {
   
 	  const $list = $("<ul>").addClass("selected-equipment-list");
 	  selectedEquipment.forEach((item) => {
-		const $listItem = $("<li>").addClass("selected-equipment-item").text(item.value);
-		const $removeBtn = $("<button>").addClass("equipment-remove-btn").html("&times;");
+		const $listItem = $("<li>")
+		  .addClass("selected-equipment-item")
+		  .text(item.value);
+		const $removeBtn = $("<button>")
+		  .addClass("equipment-remove-btn")
+		  .html("&times;");
   
 		$removeBtn.on("click", function (e) {
 		  e.preventDefault();
@@ -306,11 +453,15 @@ document.addEventListener("DOMContentLoaded", function () {
 	}
   
 	function unselectEquipment(value) {
-	  const $checkbox = $(`.equipment-dropdown .dropdown-menu input[value="${value}"]`);
+	  const $checkbox = $(
+		`.equipment-dropdown .dropdown-menu input[value="${value}"]`
+	  );
 	  if ($checkbox.length) {
 		$checkbox.prop("checked", false);
 	  }
-	  selectedEquipment = selectedEquipment.filter((item) => item.value !== value);
+	  selectedEquipment = selectedEquipment.filter(
+		(item) => item.value !== value
+	  );
 	  console.log("Selected Equipment (After Remove):", selectedEquipment);
 	  updateSelectedEquipmentDisplay();
 	}
@@ -327,7 +478,9 @@ document.addEventListener("DOMContentLoaded", function () {
   
 	  equipmentByClassType[classType].forEach((item) => {
 		const $listItem = $("<li>");
-		const $label = $("<label>").addClass("dropdown-item d-flex align-items-center");
+		const $label = $("<label>").addClass(
+		  "dropdown-item d-flex align-items-center"
+		);
 		const $checkbox = $("<input>")
 		  .attr({ type: "checkbox", value: item.value })
 		  .addClass("form-check-input me-2");
@@ -336,7 +489,9 @@ document.addEventListener("DOMContentLoaded", function () {
 		  if ($(this).is(":checked")) {
 			selectedEquipment.push(item);
 		  } else {
-			selectedEquipment = selectedEquipment.filter((equip) => equip.value !== item.value);
+			selectedEquipment = selectedEquipment.filter(
+			  (equip) => equip.value !== item.value
+			);
 		  }
 		  updateSelectedEquipmentDisplay();
 		});
@@ -355,51 +510,56 @@ document.addEventListener("DOMContentLoaded", function () {
   
 	const style = document.createElement("style");
 	style.textContent = `
-			  .equipment-dropdown.is-invalid .dropdown-toggle {
-				  border-color: #dc3545;
-			  }
-			  
-			  .equipment-dropdown.is-invalid .invalid-feedback {
-				  display: block;
-				  color: #dc3545;
-				  font-size: 0.875em;
-				  margin-top: 0.25rem;
-			  }
-		  `;
+				.equipment-dropdown.is-invalid .dropdown-toggle {
+					border-color: #dc3545;
+				}
+				
+				.equipment-dropdown.is-invalid .invalid-feedback {
+					display: block;
+					color: #dc3545;
+					font-size: 0.875em;
+					margin-top: 0.25rem;
+				}
+			`;
 	document.head.appendChild(style);
   
 	//Map For Address
-	document.getElementById("mapModal").addEventListener("shown.bs.modal", function () {
-	  if (!map) {
-		map = L.map("map").setView([0, 0], 2);
-		L.tileLayer("https://tiles.stadiamaps.com/tiles/osm_bright/{z}/{x}/{y}{r}.png", {
-		  attribution:
-			'©️ <a href="https://www.stadiamaps.com/" target="_blank">Stadia Maps</a> ©️ <a href="https://openmaptiles.org/" target="_blank">OpenMapTiles</a> ©️ <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-		}).addTo(map);
+	document
+	  .getElementById("mapModal")
+	  .addEventListener("shown.bs.modal", function () {
+		if (!map) {
+		  map = L.map("map").setView([0, 0], 2);
+		  L.tileLayer(
+			"https://tiles.stadiamaps.com/tiles/osm_bright/{z}/{x}/{y}{r}.png",
+			{
+			  attribution:
+				'©️ <a href="https://www.stadiamaps.com/" target="_blank">Stadia Maps</a> ©️ <a href="https://openmaptiles.org/" target="_blank">OpenMapTiles</a> ©️ <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+			}
+		  ).addTo(map);
   
-		map.on("click", async (e) => {
-		  if (marker) map.removeLayer(marker);
-		  marker = L.marker(e.latlng).addTo(map);
-		  await fetchAddress(e.latlng.lat, e.latlng.lng);
-		});
-	  }
-  
-	  //Live Location Fetch
-	  if (navigator.geolocation) {
-		navigator.geolocation.getCurrentPosition(
-		  (pos) => {
-			const { latitude, longitude } = pos.coords;
-			map.setView([latitude, longitude], 15);
+		  map.on("click", async (e) => {
 			if (marker) map.removeLayer(marker);
-			marker = L.marker([latitude, longitude]).addTo(map);
-			fetchAddress(latitude, longitude);
-		  },
-		  (error) => {
-			console.log("Geolocation error:", error);
-		  }
-		);
-	  }
-	});
+			marker = L.marker(e.latlng).addTo(map);
+			await fetchAddress(e.latlng.lat, e.latlng.lng);
+		  });
+		}
+  
+		//Live Location Fetch
+		if (navigator.geolocation) {
+		  navigator.geolocation.getCurrentPosition(
+			(pos) => {
+			  const { latitude, longitude } = pos.coords;
+			  map.setView([latitude, longitude], 15);
+			  if (marker) map.removeLayer(marker);
+			  marker = L.marker([latitude, longitude]).addTo(map);
+			  fetchAddress(latitude, longitude);
+			},
+			(error) => {
+			  console.log("Geolocation error:", error);
+			}
+		  );
+		}
+	  });
   
 	//Fetch Address From The Map (Select)
 	async function fetchAddress(lat, lng) {
@@ -442,7 +602,9 @@ document.addEventListener("DOMContentLoaded", function () {
 		}
 	  } catch (error) {
 		console.error("Error fetching address:", error);
-		document.getElementById("address").value = `Lat: ${lat.toFixed(4)}, Lng: ${lng.toFixed(4)}`;
+		document.getElementById("address").value = `Lat: ${lat.toFixed(
+		  4
+		)}, Lng: ${lng.toFixed(4)}`;
 		document.getElementById("city").value = "Unknown City";
 	  }
 	}
@@ -451,7 +613,9 @@ document.addEventListener("DOMContentLoaded", function () {
 	document.getElementById("city").readOnly = true;
   
 	openMapBtn.addEventListener("click", () => mapModal.show());
-	document.getElementById("confirmLocationBtn").addEventListener("click", () => mapModal.hide());
+	document
+	  .getElementById("confirmLocationBtn")
+	  .addEventListener("click", () => mapModal.hide());
   
 	const form = document.getElementById("classForm");
 	const selectedEquipmentDiv = document.getElementById("selectedEquipment");
@@ -620,7 +784,8 @@ document.addEventListener("DOMContentLoaded", function () {
 		}
   
 		// Process normal images second
-		const normalImagesNeeded = 5 - selectedFiles.filter((f) => !f.isBanner).length;
+		const normalImagesNeeded =
+		  5 - selectedFiles.filter((f) => !f.isBanner).length;
   
 		if (normalImagesNeeded > 0 && normalSizedFiles.length > 0) {
 		  // Only take as many as we need
@@ -640,7 +805,8 @@ document.addEventListener("DOMContentLoaded", function () {
 		  }
   
 		  // Show message if we rejected some for size
-		  const rejectedForSize = normalFilesToAdd.length - validNormalFiles.length;
+		  const rejectedForSize =
+			normalFilesToAdd.length - validNormalFiles.length;
 		  if (rejectedForSize > 0) {
 			Swal.fire({
 			  title: "Invalid Images",
@@ -760,18 +926,16 @@ document.addEventListener("DOMContentLoaded", function () {
 		  dropText.textContent = `Drag and drop images or click to select (${
 			selectedFiles.length
 		  }/${MAX_IMAGES})
-									  Need: 1 banner image (${BANNER_DIMENSIONS.width}x${
-			BANNER_DIMENSIONS.height
-		  }) 
-									  and ${5 - normalImagesCount} normal images`;
+										Need: 1 banner image (${BANNER_DIMENSIONS.width}x${BANNER_DIMENSIONS.height}) 
+										and ${5 - normalImagesCount} normal images`;
 		} else if (!hasBannerImage) {
 		  dropText.textContent = `Drag and drop a banner image or click to select (${selectedFiles.length}/${MAX_IMAGES})
-									  Need: 1 banner image (${BANNER_DIMENSIONS.width}x${BANNER_DIMENSIONS.height})`;
+										Need: 1 banner image (${BANNER_DIMENSIONS.width}x${BANNER_DIMENSIONS.height})`;
 		} else if (normalImagesCount < 5) {
 		  dropText.textContent = `Drag and drop normal images or click to select (${
 			selectedFiles.length
 		  }/${MAX_IMAGES})
-									  Need: ${5 - normalImagesCount} more normal images`;
+										Need: ${5 - normalImagesCount} more normal images`;
 		}
 	  }
 	}
@@ -780,51 +944,51 @@ document.addEventListener("DOMContentLoaded", function () {
 	function addCustomStyles() {
 	  const style = document.createElement("style");
 	  style.textContent = `
-					  .image-preview-container {
-						  position: relative;
-						  display: inline-block;
-						  margin: 10px;
-						  border: 2px solid #ddd;
-						  border-radius: 4px;
-						  overflow: hidden;
-					  }
-					  .banner-image-container {
-						  border-color: #007bff;
-						  box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
-					  }
-					  .image-preview-item {
-						  width: 250px;
-						  height: 250px;
-						  object-fit: cover;
-					  }
-					  .image-label {
-						  position: absolute;
-						  bottom: 5px;
-						  left: 5px;
-						  background-color: rgba(0, 0, 0, 0.7);
-						  color: white;
-						  padding: 2px 8px;
-						  border-radius: 3px;
-						  font-size: 12px;
-					  }
-					  .remove-btn {
-						  position: absolute;
-						  top: 5px;
-						  right: 5px;
-						  background-color: rgba(255, 0, 0, 0.7);
-						  color: white;
-						  border: none;
-						  width: 24px;
-						  height: 24px;
-						  border-radius: 50%;
-						  cursor: pointer;
-						  font-size: 16px;
-					  }
-					  .drag-over {
-						  background-color: rgba(0, 123, 255, 0.1);
-						  border: 2px dashed #007bff;
-					  }
-				  `;
+						.image-preview-container {
+							position: relative;
+							display: inline-block;
+							margin: 10px;
+							border: 2px solid #ddd;
+							border-radius: 4px;
+							overflow: hidden;
+						}
+						.banner-image-container {
+							border-color: #007bff;
+							box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+						}
+						.image-preview-item {
+							width: 250px;
+							height: 250px;
+							object-fit: cover;
+						}
+						.image-label {
+							position: absolute;
+							bottom: 5px;
+							left: 5px;
+							background-color: rgba(0, 0, 0, 0.7);
+							color: white;
+							padding: 2px 8px;
+							border-radius: 3px;
+							font-size: 12px;
+						}
+						.remove-btn {
+							position: absolute;
+							top: 5px;
+							right: 5px;
+							background-color: rgba(255, 0, 0, 0.7);
+							color: white;
+							border: none;
+							width: 24px;
+							height: 24px;
+							border-radius: 50%;
+							cursor: pointer;
+							font-size: 16px;
+						}
+						.drag-over {
+							background-color: rgba(0, 123, 255, 0.1);
+							border: 2px dashed #007bff;
+						}
+					`;
 	  document.head.appendChild(style);
 	}
   
@@ -846,27 +1010,43 @@ document.addEventListener("DOMContentLoaded", function () {
 	  $endDate.next(".invalid-feedback").text("");
   
 	  if (!startDateValue && !endDateValue) {
-		$startDate.addClass("is-invalid").next(".invalid-feedback").text("Start date is required");
-		$endDate.addClass("is-invalid").next(".invalid-feedback").text("End date is required");
+		$startDate
+		  .addClass("is-invalid")
+		  .next(".invalid-feedback")
+		  .text("Start date is required");
+		$endDate
+		  .addClass("is-invalid")
+		  .next(".invalid-feedback")
+		  .text("End date is required");
 		return false;
 	  }
   
 	  if (!startDateValue) {
-		$startDate.addClass("is-invalid").next(".invalid-feedback").text("Start date is required");
+		$startDate
+		  .addClass("is-invalid")
+		  .next(".invalid-feedback")
+		  .text("Start date is required");
 		return false;
 	  } else {
 		$startDate.addClass("is-valid");
 	  }
   
 	  if (!endDateValue) {
-		$endDate.addClass("is-invalid").next(".invalid-feedback").text("End date is required");
+		$endDate
+		  .addClass("is-invalid")
+		  .next(".invalid-feedback")
+		  .text("End date is required");
 		return false;
 	  } else {
 		$endDate.addClass("is-valid");
 	  }
   
-	  const startDate = new Date(startDateValue);
-	  const endDate = new Date(endDateValue);
+	  // Convert DD-MM-YYYY to Date objects
+	  const [startDay, startMonth, startYear] = startDateValue.split('-');
+	  const [endDay, endMonth, endYear] = endDateValue.split('-');
+	  
+	  const startDate = new Date(startYear, startMonth - 1, startDay);
+	  const endDate = new Date(endYear, endMonth - 1, endDay);
   
 	  // Ensure end date is after start date
 	  if (endDate <= startDate) {
@@ -877,15 +1057,9 @@ document.addEventListener("DOMContentLoaded", function () {
 		return false;
 	  }
   
-	  // Ensure date range is between 2 and 90 days
+	  // Ensure minimum 2 days for the class
 	  const daysDifference = (endDate - startDate) / (1000 * 60 * 60 * 24);
-	  if (daysDifference > 90) {
-		$endDate
-		  .addClass("is-invalid")
-		  .next(".invalid-feedback")
-		  .text("Maximum date range is 90 days");
-		return false;
-	  } else if (daysDifference < 2) {
+	  if (daysDifference < 2) {
 		$endDate
 		  .addClass("is-invalid")
 		  .next(".invalid-feedback")
@@ -908,18 +1082,30 @@ document.addEventListener("DOMContentLoaded", function () {
 	  $endTime.next(".invalid-feedback").text("");
   
 	  if (!startTime && !endTime) {
-		$startTime.addClass("is-invalid").next(".invalid-feedback").text("Start time is required");
-		$endTime.addClass("is-invalid").next(".invalid-feedback").text("End time is required");
+		$startTime
+		  .addClass("is-invalid")
+		  .next(".invalid-feedback")
+		  .text("Start time is required");
+		$endTime
+		  .addClass("is-invalid")
+		  .next(".invalid-feedback")
+		  .text("End time is required");
 		return false;
 	  }
   
 	  if (!startTime) {
-		$startTime.addClass("is-invalid").next(".invalid-feedback").text("Start time is required");
+		$startTime
+		  .addClass("is-invalid")
+		  .next(".invalid-feedback")
+		  .text("Start time is required");
 		return false;
 	  }
   
 	  if (!endTime) {
-		$endTime.addClass("is-invalid").next(".invalid-feedback").text("End time is required");
+		$endTime
+		  .addClass("is-invalid")
+		  .next(".invalid-feedback")
+		  .text("End time is required");
 		return false;
 	  }
   
@@ -942,10 +1128,16 @@ document.addEventListener("DOMContentLoaded", function () {
 	  // Ensure time difference is between 1 and 8 hours
 	  const timeDiffMinutes = endTotalMinutes - startTotalMinutes;
 	  if (timeDiffMinutes < 60) {
-		$endTime.addClass("is-invalid").next(".invalid-feedback").text("Minimum duration is 1 hour");
+		$endTime
+		  .addClass("is-invalid")
+		  .next(".invalid-feedback")
+		  .text("Minimum duration is 1 hour");
 		return false;
 	  } else if (timeDiffMinutes > 480) {
-		$endTime.addClass("is-invalid").next(".invalid-feedback").text("Maximum duration is 8 hours");
+		$endTime
+		  .addClass("is-invalid")
+		  .next(".invalid-feedback")
+		  .text("Maximum duration is 8 hours");
 		return false;
 	  }
   
@@ -1016,7 +1208,10 @@ document.addEventListener("DOMContentLoaded", function () {
 		description1.classList.add("is-invalid");
 		description1.nextElementSibling.textContent = "Description is required.";
 		isValid = false;
-	  } else if (description1.value.trim().length < 50 || description1.value.trim().length > 200) {
+	  } else if (
+		description1.value.trim().length < 50 ||
+		description1.value.trim().length > 200
+	  ) {
 		description1.classList.add("is-invalid");
 		description1.nextElementSibling.textContent = `Description must be between 50 and 200 characters (currently: ${
 		  description1.value.trim().length
@@ -1029,9 +1224,13 @@ document.addEventListener("DOMContentLoaded", function () {
 	  // Validate second description
 	  if (!description2.value.trim()) {
 		description2.classList.add("is-invalid");
-		description2.nextElementSibling.textContent = "Benefits description is required.";
+		description2.nextElementSibling.textContent =
+		  "Benefits description is required.";
 		isValid = false;
-	  } else if (description2.value.trim().length < 50 || description2.value.trim().length > 200) {
+	  } else if (
+		description2.value.trim().length < 50 ||
+		description2.value.trim().length > 200
+	  ) {
 		description2.classList.add("is-invalid");
 		description2.nextElementSibling.textContent = `Benefits description must be between 50 and 200 characters (currently: ${
 		  description2.value.trim().length
@@ -1045,81 +1244,98 @@ document.addEventListener("DOMContentLoaded", function () {
 	}
   
 	// Add input event listeners for real-time validation
-	document.getElementById("classDescription").addEventListener("input", function () {
-	  const maxLength = 200;
-	  if (this.value.length > maxLength) {
-		this.value = this.value.slice(0, maxLength);
-	  }
-  
-	  // Only show validation if form was previously validated or field is not empty
-	  if (form.classList.contains("was-validated") || this.value.trim().length > 0) {
-		if (!this.value.trim()) {
-		  this.classList.add("is-invalid");
-		  this.nextElementSibling.textContent = "Description is required.";
-		} else if (this.value.trim().length < 50) {
-		  this.classList.add("is-invalid");
-		  this.nextElementSibling.textContent = `Description must be at least 50 characters.`;
-		} else if (this.value.trim().length > 200) {
-		  this.classList.add("is-invalid");
-		  this.nextElementSibling.textContent = "Description cannot exceed 200 characters.";
-		} else {
-		  this.classList.remove("is-invalid");
-		  this.classList.add("is-valid");
-		  this.nextElementSibling.textContent = "";
+	document
+	  .getElementById("classDescription")
+	  .addEventListener("input", function () {
+		const maxLength = 200;
+		if (this.value.length > maxLength) {
+		  this.value = this.value.slice(0, maxLength);
 		}
-	  }
   
-	  updateCharacterCounter(this);
-	});
-  
-	document.getElementById("classBenefits").addEventListener("input", function () {
-	  const maxLength = 200;
-	  if (this.value.length > maxLength) {
-		this.value = this.value.slice(0, maxLength);
-	  }
-  
-	  // Only show validation if form was previously validated or field is not empty
-	  if (form.classList.contains("was-validated") || this.value.trim().length > 0) {
-		if (!this.value.trim()) {
-		  this.classList.add("is-invalid");
-		  this.nextElementSibling.textContent = "Benefits description is required.";
-		} else if (this.value.trim().length < 50) {
-		  this.classList.add("is-invalid");
-		  this.nextElementSibling.textContent = `Benefits description must be at least 50 characters.`;
-		} else if (this.value.trim().length > 200) {
-		  this.classList.add("is-invalid");
-		  this.nextElementSibling.textContent = "Benefits description cannot exceed 200 characters.";
-		} else {
-		  this.classList.remove("is-invalid");
-		  this.classList.add("is-valid");
-		  this.nextElementSibling.textContent = "";
+		// Only show validation if form was previously validated or field is not empty
+		if (
+		  form.classList.contains("was-validated") ||
+		  this.value.trim().length > 0
+		) {
+		  if (!this.value.trim()) {
+			this.classList.add("is-invalid");
+			this.nextElementSibling.textContent = "Description is required.";
+		  } else if (this.value.trim().length < 50) {
+			this.classList.add("is-invalid");
+			this.nextElementSibling.textContent = `Description must be at least 50 characters.`;
+		  } else if (this.value.trim().length > 200) {
+			this.classList.add("is-invalid");
+			this.nextElementSibling.textContent =
+			  "Description cannot exceed 200 characters.";
+		  } else {
+			this.classList.remove("is-invalid");
+			this.classList.add("is-valid");
+			this.nextElementSibling.textContent = "";
+		  }
 		}
-	  }
   
-	  updateCharacterCounter(this);
-	});
+		updateCharacterCounter(this);
+	  });
+  
+	document
+	  .getElementById("classBenefits")
+	  .addEventListener("input", function () {
+		const maxLength = 200;
+		if (this.value.length > maxLength) {
+		  this.value = this.value.slice(0, maxLength);
+		}
+  
+		// Only show validation if form was previously validated or field is not empty
+		if (
+		  form.classList.contains("was-validated") ||
+		  this.value.trim().length > 0
+		) {
+		  if (!this.value.trim()) {
+			this.classList.add("is-invalid");
+			this.nextElementSibling.textContent =
+			  "Benefits description is required.";
+		  } else if (this.value.trim().length < 50) {
+			this.classList.add("is-invalid");
+			this.nextElementSibling.textContent = `Benefits description must be at least 50 characters.`;
+		  } else if (this.value.trim().length > 200) {
+			this.classList.add("is-invalid");
+			this.nextElementSibling.textContent =
+			  "Benefits description cannot exceed 200 characters.";
+		  } else {
+			this.classList.remove("is-invalid");
+			this.classList.add("is-valid");
+			this.nextElementSibling.textContent = "";
+		  }
+		}
+  
+		updateCharacterCounter(this);
+	  });
 	// Add blur event listeners for length validation
-	document.getElementById("classDescription").addEventListener("blur", function () {
-	  const value = this.value.trim();
-	  if (value && (value.length < 50 || value.length > 200)) {
-		this.classList.add("is-invalid");
-		this.nextElementSibling.textContent = `Description must be between 50 and 200 characters.`;
-	  } else if (value) {
-		this.classList.remove("is-invalid");
-		this.classList.add("is-valid");
-	  }
-	});
+	document
+	  .getElementById("classDescription")
+	  .addEventListener("blur", function () {
+		const value = this.value.trim();
+		if (value && (value.length < 50 || value.length > 200)) {
+		  this.classList.add("is-invalid");
+		  this.nextElementSibling.textContent = `Description must be between 50 and 200 characters.`;
+		} else if (value) {
+		  this.classList.remove("is-invalid");
+		  this.classList.add("is-valid");
+		}
+	  });
   
-	document.getElementById("classBenefits").addEventListener("blur", function () {
-	  const value = this.value.trim();
-	  if (value && (value.length < 50 || value.length > 200)) {
-		this.classList.add("is-invalid");
-		this.nextElementSibling.textContent = `Benefits description must be between 50 and 200 characters.`;
-	  } else if (value) {
-		this.classList.remove("is-invalid");
-		this.classList.add("is-valid");
-	  }
-	});
+	document
+	  .getElementById("classBenefits")
+	  .addEventListener("blur", function () {
+		const value = this.value.trim();
+		if (value && (value.length < 50 || value.length > 200)) {
+		  this.classList.add("is-invalid");
+		  this.nextElementSibling.textContent = `Benefits description must be between 50 and 200 characters.`;
+		} else if (value) {
+		  this.classList.remove("is-invalid");
+		  this.classList.add("is-valid");
+		}
+	  });
   
 	function updateCharacterCounter(element) {
 	  const maxLength = 200;
@@ -1128,12 +1344,12 @@ document.addEventListener("DOMContentLoaded", function () {
 		counter = document.createElement("small");
 		counter.className = "char-counter";
 		counter.style.cssText = `
-			  color: #fff;
-			  display: block;
-			  margin-top: 5px;
-			  font-size: 0.875rem;
-			  opacity: 0.8;
-		  `;
+				color: #fff;
+				display: block;
+				margin-top: 5px;
+				font-size: 0.875rem;
+				opacity: 0.8;
+			`;
 		element.parentElement.appendChild(counter);
 	  }
 	  counter.textContent = `${element.value.length}/${maxLength} characters`;
@@ -1216,7 +1432,8 @@ document.addEventListener("DOMContentLoaded", function () {
 	  const classTypeSelect = document.getElementById("classType");
 	  if (!classTypeSelect.value) {
 		classTypeSelect.classList.add("is-invalid");
-		classTypeSelect.nextElementSibling.textContent = "Please select a class type";
+		classTypeSelect.nextElementSibling.textContent =
+		  "Please select a class type";
 		return false;
 	  } else {
 		classTypeSelect.classList.remove("is-invalid");
@@ -1235,7 +1452,8 @@ document.addEventListener("DOMContentLoaded", function () {
 		return false;
 	  } else if (isNaN(fee) || fee < 0 || fee > 100000) {
 		feeInput.classList.add("is-invalid");
-		feeInput.nextElementSibling.textContent = "Fee must be between $0 and $100,000";
+		feeInput.nextElementSibling.textContent =
+		  "Fee must be between $0 and $100,000";
 		return false;
 	  } else {
 		feeInput.classList.remove("is-invalid");
@@ -1254,7 +1472,8 @@ document.addEventListener("DOMContentLoaded", function () {
 		return false;
 	  } else if (isNaN(capacity) || capacity < 1 || capacity > 1000) {
 		capacityInput.classList.add("is-invalid");
-		capacityInput.nextElementSibling.textContent = "Capacity must be between 1 and 1000";
+		capacityInput.nextElementSibling.textContent =
+		  "Capacity must be between 1 and 1000";
 		return false;
 	  } else {
 		capacityInput.classList.remove("is-invalid");
@@ -1293,67 +1512,84 @@ document.addEventListener("DOMContentLoaded", function () {
 	  // }
 	});
   
-	document.getElementById("confirmLocationBtn").addEventListener("click", function () {
-	  validateAddress(); // Validate address when location is confirmed
-	  mapModal.hide();
-	});
+	document
+	  .getElementById("confirmLocationBtn")
+	  .addEventListener("click", function () {
+		validateAddress(); // Validate address when location is confirmed
+		mapModal.hide();
+	  });
   
 	// document.getElementById('imageInput').addEventListener('change', validateImages);
 	// dropZone.addEventListener('drop', function (e) {
 	// 	setTimeout(validateImages, 100); // Short delay to allow files to process
 	// });
   
-	document.getElementById("imageInput").addEventListener("change", function (e) {
-	  handleFileSelect(e.target.files);
-	});
+	document
+	  .getElementById("imageInput")
+	  .addEventListener("change", function (e) {
+		handleFileSelect(e.target.files);
+	  });
   
 	dropZone.addEventListener("drop", function (e) {
 	  e.preventDefault();
 	  handleFileSelect(e.dataTransfer.files);
 	});
-
-   function calculateDuration(startTime, endTime, startDate, endDate) {
-    // Check for missing inputs
-    if (!startDate || !endDate || !startTime || !endTime) {
-      console.log("Missing inputs - returning 0");
-      return 0;
-    }
-
-    try {
-      // Parse dates and times
-      const startDateTime = new Date(`${startDate}T${startTime}`);
-      const endDateTime = new Date(`${startDate}T${endTime}`);
-
-      // Validate parsed dates
-      if (isNaN(startDateTime.getTime()) || isNaN(endDateTime.getTime())) {
-        console.log("Invalid date/time format - returning 0");
-        return 0;
-      }
-
-      // Calculate daily duration in hours
-      const dailyDurationHours = (endDateTime - startDateTime) / (1000 * 60 * 60);
-
-      // Calculate number of days between start and end date
-      const startDateObj = new Date(startDate);
-      const endDateObj = new Date(endDate);
-      const daysDifference = Math.ceil((endDateObj - startDateObj) / (1000 * 60 * 60 * 24)) + 1;
-
-      // Calculate total hours
-      const totalHours = Math.round(dailyDurationHours * daysDifference);
-
-      console.log(`Daily duration: ${dailyDurationHours} hours`);
-      console.log(`Days difference: ${daysDifference}`);
-      console.log(`Total hours: ${totalHours}`);
-
-      return totalHours > 0 ? totalHours : 0;
-    } catch (error) {
-      console.error("Error calculating duration:", error);
-      return 0;
-    }
-  }
-
-  var instructorId = getUserIdFromToken(); 
-
+  
+	function formatDateForAPI(dateString) {
+	  // Convert from DD-MM-YYYY to YYYY-MM-DD
+	  const [day, month, year] = dateString.split('-');
+	  return `${year}-${month}-${day}`;
+	}
+  
+	function calculateDuration(startTime, endTime, startDate, endDate) {
+	  if (!startDate || !endDate || !startTime || !endTime) {
+		console.log("Missing inputs - returning 0");
+		return 0;
+	  }
+  
+	  try {
+		// Convert dates from DD-MM-YYYY to YYYY-MM-DD for proper parsing
+		const [startDay, startMonth, startYear] = startDate.split('-');
+		const formattedStartDate = `${startYear}-${startMonth}-${startDay}`;
+		
+		const [endDay, endMonth, endYear] = endDate.split('-');
+		const formattedEndDate = `${endYear}-${endMonth}-${endDay}`;
+  
+		const startDateTime = new Date(`${formattedStartDate}T${startTime}`);
+		const endDateTime = new Date(`${formattedStartDate}T${endTime}`);
+  
+		// Validate parsed dates
+		if (isNaN(startDateTime.getTime()) || isNaN(endDateTime.getTime())) {
+		  console.log("Invalid date/time format - returning 0");
+		  return 0;
+		}
+  
+		// Calculate daily duration in hours
+		const dailyDurationHours =
+		  (endDateTime - startDateTime) / (1000 * 60 * 60);
+  
+		// Calculate number of days between start and end date
+		const startDateObj = new Date(formattedStartDate);
+		const endDateObj = new Date(formattedEndDate);
+		const daysDifference =
+		  Math.ceil((endDateObj - startDateObj) / (1000 * 60 * 60 * 24)) + 1;
+  
+		// Calculate total hours
+		const totalHours = Math.round(dailyDurationHours * daysDifference);
+  
+		console.log(`Daily duration: ${dailyDurationHours} hours`);
+		console.log(`Days difference: ${daysDifference}`);
+		console.log(`Total hours: ${totalHours}`);
+  
+		return totalHours > 0 ? totalHours : 0;
+	  } catch (error) {
+		console.error("Error calculating duration:", error);
+		return 0;
+	  }
+	}
+  
+	var instructorId = getUserIdFromToken();
+  
 	form.addEventListener("submit", function (e) {
 	  e.preventDefault();
   
@@ -1430,13 +1666,14 @@ document.addEventListener("DOMContentLoaded", function () {
 	  // 	return;
 	  // }
   
-	  const equipmentValues = selectedEquipment.map((item) => item.value).join(", ");
-const startTime = $startTime.val();
-    const endTime = $endTime.val();
-    const startDate = $startDate.val();
-    const endDate = $endDate.val();
-    let duration = calculateDuration(startTime, endTime, startDate, endDate);
-	  
+	  const equipmentValues = selectedEquipment
+		.map((item) => item.value)
+		.join(", ");
+	  const startTime = $startTime.val();
+	  const endTime = $endTime.val();
+	  const startDate = $startDate.val();
+	  const endDate = $endDate.val();
+	  let duration = calculateDuration(startTime, endTime, startDate, endDate);
   
 	  const assets = {
 		images: Array.from(imageInput.files).map((file) => ({
@@ -1454,12 +1691,15 @@ const startTime = $startTime.val();
 	  formData.append("instructorId", instructorId);
 	  formData.append("description", JSON.stringify(description));
 	  formData.append("type", document.getElementById("classType").value);
-	  formData.append("startDate", document.getElementById("startDate").value);
-	  formData.append("endDate", document.getElementById("endDate").value || "");
+	  formData.append("startDate", formatDateForAPI(startDate));
+	  formData.append("endDate", formatDateForAPI(endDate));
 	  formData.append("startTime", startTimeInput.value || "");
 	  formData.append("endTime", endTimeInput.value || "");
-	  formData.append("duration", duration );
-	  formData.append("maxCapacity", document.getElementById("maxCapacity").value);
+	  formData.append("duration", duration);
+	  formData.append(
+		"maxCapacity",
+		document.getElementById("maxCapacity").value
+	  );
 	  formData.append("requiredEquipments", equipmentValues || "");
 	  formData.append("createdAt", new Date().toISOString());
 	  formData.append("status", document.getElementById("status").value);
@@ -1475,7 +1715,11 @@ const startTime = $startTime.val();
   
 	  selectedFiles.forEach((file, index) => {
 		formData.append("assetFiles", file);
-		console.log(`Appending file ${index}: ${file.name} (${file.isBanner ? "Banner" : "Normal"})`);
+		console.log(
+		  `Appending file ${index}: ${file.name} (${
+			file.isBanner ? "Banner" : "Normal"
+		  })`
+		);
 	  });
   
 	  console.log("Form Data Entries:");
@@ -1538,5 +1782,143 @@ const startTime = $startTime.val();
 		form.classList.remove("was-validated");
 	  }
 	});
-  });
   
+	// Add this near your other document.ready code
+	document
+	  .getElementById("predictClassBtn")
+	  .addEventListener("click", async function () {
+		// Validate required fields first
+		const isClassTypeValid = validateClassType();
+		const isFeeValid = validateFee();
+		const isTimeValid = validateTimeRange();
+		const isDateValid = validateDateRange();
+
+		
+
+		const startDate = document.getElementById("startDate").value;
+  		const endDate = document.getElementById("endDate").value;
+  
+		if (!isClassTypeValid || !isFeeValid || !isTimeValid || !isDateValid) {
+		  Swal.fire({
+			title: "Incomplete Information",
+			text: "Please fill in all required fields before predicting class popularity.",
+			icon: "warning",
+			confirmButtonText: "OK",
+		  });
+		  return;
+		}
+  
+		// Get form values
+		const formData = new FormData();
+		formData.append(
+		  "c_classname",
+		  document.getElementById("className").value
+		);
+		formData.append("c_type", document.getElementById("classType").value);
+		formData.append(
+		  "c_startdate",
+		  new Date(startDate).toISOString().split('T')[0]
+		);
+		formData.append("c_enddate", new Date(endDate).toISOString().split('T')[0]);
+		formData.append(
+		  "c_starttime",
+		  document.getElementById("startTime").value
+		);
+		formData.append("c_endtime", document.getElementById("endTime").value);
+		formData.append(
+		  "c_maxcapacity",
+		  document.getElementById("maxCapacity").value
+		);
+		formData.append(
+		  "c_requiredequipments",
+		  selectedEquipment.map((item) => item.value).join(", ")
+		);
+		formData.append("c_city", document.getElementById("city").value);
+		formData.append("c_fees", document.getElementById("fee").value);
+		formData.append("gender", "Any"); // Default value
+		formData.append("rating", "4.5"); // Default rating
+  
+		try {
+		  const response = await fetch(
+			"http://localhost:8080/api/Class/PredictClassPopularity",
+			{
+			  method: "POST",
+			  body: formData,
+			}
+		  );
+  
+		  const result = await response.json();
+  
+		  if (result.success) {
+			const data = result.data;
+			const confidenceColor =
+			  data.confidence_level === "High"
+				? "success"
+				: data.confidence_level === "Medium"
+				? "warning"
+				: "danger";
+  
+			Swal.fire({
+			  title: "Class Popularity Prediction",
+			  html: `
+					  <div class="prediction-result">
+						  <h4 class="mb-3">Prediction Results</h4>
+						  <p>
+							  <strong>Popularity:</strong> 
+							  <span class="text-${
+								data.is_popular ? "success" : "danger"
+							  }">
+								  ${
+									data.is_popular
+									  ? "Likely to be Popular"
+									  : "May Need Promotion"
+								  }
+							  </span>
+						  </p>
+						  <p>
+							  <strong>Confidence Level:</strong> 
+							  <span class="text-${confidenceColor}">${
+				data.confidence_level
+			  }</span>
+						  </p>
+						  <p>
+							  <strong>Probability:</strong> 
+							  ${Math.round(data.popularity_probability * 100)}%
+						  </p>
+						  
+						  <div class="reasons">
+							  <h5>Key Factors:</h5>
+							  <ul>
+								  ${data.reasons
+									.map((reason) => `<li>${reason}</li>`)
+									.join("")}
+							  </ul>
+						  </div>
+						  
+						  <div class="recommendations">
+							  <h5>Recommendations:</h5>
+							  <ul>
+								  ${data.recommendations
+									.map((rec) => `<li>${rec}</li>`)
+									.join("")}
+							  </ul>
+						  </div>
+					  </div>
+				  `,
+			  width: 600,
+			  confirmButtonText: "Got it!",
+			  confirmButtonColor: "#17a2b8",
+			});
+		  } else {
+			throw new Error(result.message);
+		  }
+		} catch (error) {
+		  Swal.fire({
+			title: "Prediction Error",
+			text: error.message || "Failed to predict class popularity",
+			icon: "error",
+			confirmButtonText: "OK",
+		  });
+		}
+	  });
+  });
