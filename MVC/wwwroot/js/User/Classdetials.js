@@ -74,9 +74,12 @@ window.onload = () => {
     }
 };
 
+
 async function bookThisClass() {
-    const urlParams = new URLSearchParams(window.location.search);
-    const classId = urlParams.get('id');
+    // const urlParams = new URLSearchParams(window.location.search);
+    // const classId =  ViewBag.ClassId;
+    const pathArray = window.location.pathname.split('/');
+    const classId = pathArray[pathArray.length - 1];
     const userId = getUserIdFromToken();
 
     if (!classId) {

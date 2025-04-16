@@ -170,8 +170,6 @@ app.MapGet("/weatherforecast", () =>
 
 // Map SignalR Hub
 app.MapHub<NotificationHub>("/notificationHub");
-// var rabbitMQService = app.Services.GetRequiredService<RabbitMQService>(); // Start RabbitMQ Listener **after** app is built
-// rabbitMQService.StartListening();
 
 using (var scope = app.Services.CreateScope())
 {

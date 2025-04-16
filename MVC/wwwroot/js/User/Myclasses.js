@@ -1,4 +1,5 @@
 let drawer;
+let uri = "http://localhost:8080";
 $("document").ready(function () {
     const userId = getUserIdFromToken();
     loadBookedClasses(userId);
