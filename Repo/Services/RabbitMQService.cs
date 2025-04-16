@@ -5,69 +5,31 @@ using System.Text;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.SignalR;
-using Microsoft.Extensions.Configuration;
-using System.Threading;
 
 
 public class RabbitMQService
 {
+    private readonly IConnection _connection;
+    private readonly IModel _channel;
     private readonly RedisService _redisService;
     private readonly IHubContext<NotificationHub> _hubContext;
-    private readonly IConfiguration _configuration;
-    private IConnection? _connection;
-    private IModel? _channel;
 
     private const string AdminQueue = "admin_notifications";
-    private const int MaxRetries = 5;
-    private const int RetryDelayMs = 5000;
 
-    public RabbitMQService(RedisService redisService, IHubContext<NotificationHub> hubContext, IConfiguration configuration)
+    public RabbitMQService(RedisService redisService, IHubContext<NotificationHub> hubContext)
     {
         _redisService = redisService;
         _hubContext = hubContext;
-        _configuration = configuration;
 
-        ConnectWithRetry();
-    }
+        // Dynamically determine RabbitMQ hostname
+        var rabbitMqHost = Environment.GetEnvironmentVariable("RabbitMQ__HostName") ?? "localhost";
+        var factory = new ConnectionFactory() { HostName = rabbitMqHost };
+        _connection = factory.CreateConnection();
+        _channel = _connection.CreateModel();
 
-    private void ConnectWithRetry()
-    {
-        var factory = new ConnectionFactory()
-        {
-            HostName = _configuration["RabbitMQ:HostName"] ?? "localhost",
-            UserName = _configuration["RabbitMQ:UserName"] ?? "guest",
-            Password = _configuration["RabbitMQ:Password"] ?? "guest",
-            RequestedHeartbeat = TimeSpan.FromSeconds(60),
-            AutomaticRecoveryEnabled = true,
-            NetworkRecoveryInterval = TimeSpan.FromSeconds(10)
-        };
+        // Ensure Admin queue exists
+        EnsureQueueExists(AdminQueue);
 
-        for (int retry = 0; retry < MaxRetries; retry++)
-        {
-            try
-            {
-                if (retry > 0)
-                {
-                    Console.WriteLine($"Retrying RabbitMQ connection... Attempt {retry + 1} of {MaxRetries}");
-                    Thread.Sleep(RetryDelayMs);
-                }
-
-                _connection = factory.CreateConnection();
-                _channel = _connection.CreateModel();
-                
-                // Ensure Admin queue exists
-                EnsureQueueExists(AdminQueue);
-                
-                Console.WriteLine("Successfully connected to RabbitMQ");
-                return;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Failed to connect to RabbitMQ (Attempt {retry + 1}): {ex.Message}");
-                if (retry == MaxRetries - 1)
-                    throw;
-            }
-        }
     }
 
     public void InitializeQueues(List<string> users)
