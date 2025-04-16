@@ -19,6 +19,8 @@
     <link rel="stylesheet" href="@Url.Content("~/css/User/Classdetials.css")" asp-append-version="true">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+         <script src="https://js.stripe.com/v3/"></script>
+
 </head>
 
 <body>
@@ -88,7 +90,7 @@
                     <p>This class is currently full. You can join the waiting list to be notified if a spot opens up.
                     </p>
                 </div>
-                <button class="waitlist-btn" onclick="joinWaitlist()">Join Waiting List</button>
+                <button class="waitlist-btn" onclick="bookThisClass()">Join Waiting List</button>
             </div>
 
         </div>

@@ -2,6 +2,10 @@ let drawer;
 $("document").ready(function () {
     const userId = getUserIdFromToken();
     loadBookedClasses(userId);
+    var user = localStorage.getItem("authToken");
+    if (!user) {
+        window.location.href = "/auth/login"
+    }
     
  drawer = $("#profileDrawer").kendoDrawer({
     template: `
@@ -130,7 +134,12 @@ window.showProfileDrawer = function () {
     });
 };
 })
-let uri = "http://localhost:8080";
+
+// In Myclasses.js, check if uri already exists before declaring it
+if (typeof uri === 'undefined') {
+    let uri = "http://localhost:8080";
+}
+
 // Function to format date and time
 var userId;
 
@@ -277,10 +286,23 @@ function submitFeedback() {
         },
         error: function (xhr, status, error) {
             console.error('Error submitting feedback:', error);
+
+            let errorMessage = 'Failed to submit feedback. Please try again.';
+
+            try {
+                // Parse the response text to get the actual message
+                const errorResponse = JSON.parse(xhr.responseText);
+                if (errorResponse && errorResponse.message) {
+                    errorMessage = errorResponse.message;
+                }
+            } catch (e) {
+                console.error('Error parsing error response:', e);
+            }
+
             Swal.fire({
                 icon: 'error',
                 title: 'Error',
-                text: 'Failed to submit feedback. Please try again.'
+                text: errorMessage
             });
         }
     });

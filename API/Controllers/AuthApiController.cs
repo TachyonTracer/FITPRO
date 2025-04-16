@@ -10,6 +10,9 @@ using Microsoft.IdentityModel.Tokens;
 using Repo;
 using System.Text.Json;
 using Nest;
+using System.Net.Http;
+using Microsoft.Extensions.Configuration;
+using System.Text.Json.Serialization;
 
 namespace API
 {
@@ -20,34 +23,43 @@ namespace API
         private readonly IConfiguration _myConfig;
         private readonly RabbitMQService _rabbitMQService;
         private readonly IAuthInterface _authRepo;
+        private readonly HttpClient _httpClient;
 
         public AuthApiController(IConfiguration myConfig, IAuthInterface authRepo, RabbitMQService rabbitMQService)
         {
             _myConfig = myConfig;
             _rabbitMQService = rabbitMQService;
             _authRepo = authRepo;
+            _httpClient = new HttpClient();
         }
-        #region  Login 
 
+        #region Login
 
         [HttpPost("login")]
-        public async Task<IActionResult> Login([FromBody] LoginVM userCredentials)
+        public async Task<IActionResult> Login([FromBody] LoginVM request)
         {
             try
             {
-                if (userCredentials == null ||
-                    string.IsNullOrEmpty(userCredentials.email) ||
-                    string.IsNullOrEmpty(userCredentials.password) ||
-                    string.IsNullOrEmpty(userCredentials.role))
+                // First validate reCAPTCHA
+                bool isRecaptchaValid = await ValidateRecaptchaToken(request.recaptchaToken);
+                if (!isRecaptchaValid)
+                {
+                    return BadRequest(new { message = "reCAPTCHA validation failed. Please try again." });
+                }
+
+                if (request == null ||
+                    string.IsNullOrEmpty(request.email) ||
+                    string.IsNullOrEmpty(request.password) ||
+                    string.IsNullOrEmpty(request.role))
                 {
                     return BadRequest(new { success = false, message = "Invalid login credentials." });
                 }
 
                 object user;
                 string role;
-                if (userCredentials.email == "admin@gmail.com")
+                if (request.email == "admin@gmail.com")
                 {
-                    var adminObj = await _authRepo.LoginAdmin(userCredentials); // Fetch admin from DB
+                    var adminObj = await _authRepo.LoginAdmin(new LoginVM { email = request.email, password = request.password, role = request.role }); // Fetch admin from DB
                     if (adminObj == null)
                     {
                         return Unauthorized(new { success = false, message = "Invalid admin credentials." });
@@ -58,11 +70,9 @@ namespace API
                         role = "admin";
                     }
                 }
-                else
-
-                if (userCredentials.role.ToLower() == "user" && userCredentials.email != "admin@gmail.com")
+                else if (request.role.ToLower() == "user" && request.email != "admin@gmail.com")
                 {
-                    var userObj = await _authRepo.LoginUser(userCredentials);
+                    var userObj = await _authRepo.LoginUser(new LoginVM { email = request.email, password = request.password, role = request.role });
                     if (userObj == null)
                     {
                         return Unauthorized(new { success = false, message = "Invalid email or password." });
@@ -74,9 +84,9 @@ namespace API
                     user = userObj;
                     role = "user";
                 }
-                else if (userCredentials.role.ToLower() == "instructor")
+                else if (request.role.ToLower() == "instructor")
                 {
-                    var instructorObj = await _authRepo.LoginInstructor(userCredentials);
+                    var instructorObj = await _authRepo.LoginInstructor(new LoginVM { email = request.email, password = request.password, role = request.role });
                     if (instructorObj == null)
                     {
                         return Unauthorized(new { success = false, message = "Invalid email or password." });
@@ -105,7 +115,6 @@ namespace API
                     user = instructorObj;
                     role = "instructor";
                 }
-
                 else
                 {
                     return BadRequest(new { success = false, message = "Invalid role specified." });
@@ -129,7 +138,6 @@ namespace API
                     signingCredentials: signIn
                 );
 
-
                 return Ok(new { success = true, message = "Login Successful", authToken = new JwtSecurityTokenHandler().WriteToken(authToken), userRole = role });
             }
             catch (Exception ex)
@@ -137,13 +145,36 @@ namespace API
                 Console.WriteLine($"[ERROR] Login Failed: " + ex);
                 return StatusCode(500, new { success = false, message = "Internal server error." });
             }
+        }
 
+        private async Task<bool> ValidateRecaptchaToken(string token)
+        {
+            if (string.IsNullOrEmpty(token))
+                return false;
+
+            var recaptchaSecret = _myConfig["RecaptchaSettings:SecretKey"];
+
+            // Create form data for verification
+            var content = new FormUrlEncodedContent(new[]
+            {
+                new KeyValuePair<string, string>("secret", recaptchaSecret),
+                new KeyValuePair<string, string>("response", token)
+            });
+
+            var response = await _httpClient.PostAsync(
+                "https://www.google.com/recaptcha/api/siteverify",
+                content);
+
+            if (!response.IsSuccessStatusCode)
+                return false;
+
+            var responseContent = await response.Content.ReadAsStringAsync();
+            var recaptchaResponse = JsonSerializer.Deserialize<RecaptchaV2Response>(responseContent);
+
+            return recaptchaResponse.success;
         }
 
         #endregion
-
-
-
 
         #region DispatchOTP
         [HttpPost("Dispatch-otp")]
@@ -195,7 +226,6 @@ namespace API
         }
         #endregion
 
-
         #region Update Password
 
         [HttpPost("update-password")]
@@ -229,9 +259,6 @@ namespace API
             }
         }
         #endregion
-
-
-
 
         #region Register User
         [HttpPost("register-user")]
@@ -421,7 +448,6 @@ namespace API
         }
         #endregion
 
-
         #region Activate User
         [HttpGet("activateuser")]
         public async Task<IActionResult> ActivateUser([FromQuery] string token)
@@ -467,7 +493,7 @@ namespace API
             if (statusCode == 1)
             {
                 // Sending Instructor Notification to Admin (12)
-                _rabbitMQService.PublishNotification("12", "admin", 
+                _rabbitMQService.PublishNotification("12", "admin",
                     $"New Instructor Registered::{instructorName} needs Approval to be an Instructor::{DateTimeOffset.UtcNow.ToUnixTimeSeconds()}");
 
                 return Redirect("http://localhost:8081/auth/login?message=Activation%20Successful");
@@ -502,6 +528,8 @@ namespace API
             }
         }
         #endregion
-
     }
+
+
+
 }

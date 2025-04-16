@@ -190,7 +190,7 @@ async function loadClasses() {
 
       const card = `
         <div class="class-card">
-          <img src="${classItem.imageUrl || '/img/fitness.jpg'}" alt="${classItem.className}" />
+          <img src="/ClassAssets/${classItem.assets.banner || '/img/fitness.jpg'}" alt="${classItem.className}" />
           <div class="card-content">
             <h2>${classItem.className}</h2>
             <p>${getDescription(classItem.description)}</p>
