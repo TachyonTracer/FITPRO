@@ -1,0 +1,132 @@
+<!-- Bootstrap CSS (commented as per your original) -->
+@* <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet"> *@\
+
+<head>
+    <link rel="stylesheet" href="@Url.Content("~/css/Instructor/Attendance.css")" asp-append-version="true">
+</head>
+
+<body>
+<div id="attendance-container">
+    <!-- Left Sidebar - Controls -->
+    <div class="attendance-sidebar">
+        <!-- Class Selection Panel -->
+        <div class="control-panel">
+            <div class="control-panel-title">Class Selection</div>
+
+            <div class="select-wrapper">
+                <select id="classSelect" class="select-control combobox">
+                    <!-- Classes will be populated here -->
+                    <option value="">Select a class</option>
+                </select>
+            </div>
+
+            <div class="class-period-info">
+                <i class="fas fa-calendar-alt"></i>
+                <span id="classPeriodInfo">Please select a class to view period details</span>
+            </div>
+        </div>
+
+        <!-- Search & Filter Panel -->
+        <div class="control-panel">
+            <div class="control-panel-title">Search & Filter</div>
+
+            <div class="filter-controls">
+                <div class="filter-group">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="attendance-search" class="filter-input" placeholder="Search by username...">
+                </div>
+
+                <div class="button-row">
+                    <button id="show-absent" class="filter-btn">
+                        <i class="fas fa-user-times"></i> Show Absent
+                    </button>
+
+                    <button id="show-present" class="filter-btn">
+                        <i class="fas fa-user-check"></i> Show Present
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Actions Panel -->
+        <div class="control-panel">
+            <div class="control-panel-title">Actions</div>
+
+            <div class="filter-controls">
+                <div class="button-row">
+                    <button id="markAllPresent" class="action-btn btn-present">
+                        <i class="fas fa-user-check"></i> Mark All Present
+                    </button>
+
+                    <button id="markAllAbsent" class="action-btn btn-absent">
+                        <i class="fas fa-user-times"></i> Mark All Absent
+                    </button>
+                </div>
+
+                <button id="saveAttendance" class="action-btn btn-save">
+                    <i class="fas fa-save"></i> Save Attendance
+                </button>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Main Content - Attendance Table -->
+    <div class="attendance-main">
+        <!-- Date Navigation -->
+        <div class="date-navigation">
+            <button id="prevDay" class="date-nav-btn">
+                <i class="fas fa-chevron-left"></i> Previous
+            </button>
+
+            <div class="date-picker-container">
+                <span class="date-picker-label">Select Date:</span>
+                <input type="date" id="datePicker">
+            </div>
+
+            <span id="dateRangeDisplay"></span>
+
+            <button id="nextDay" class="date-nav-btn">
+                Next <i class="fas fa-chevron-right"></i>
+            </button>
+        </div>
+
+        <!-- Attendance Table -->
+        <div id="attendance-table-wrapper">
+            <table class="table table-bordered table-hover" id="attendanceTable">
+                <thead>
+                    <tr>
+                        <th style="width: 200px; text-align: left;">Username</th>
+                        <!-- Date headers will be dynamically added here -->
+                        <th style="width: 100px;">Attendance %</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Attendance data will be populated here -->
+                </tbody>
+            </table>
+        </div>
+
+      
+        <div class="report-buttons-container">
+            <button id="dailyReportBtn" class="pdf-btn">
+                <i class="fas fa-file-pdf"></i> Generate Daily PDF Report
+            </button>
+            <button id="classReportBtn" class="pdf-btn">
+                <i class="fas fa-file-pdf"></i> Generate Complete PDF Report
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- PDF Generation Library -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
+
+<!-- Additional scripts -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="@Url.Content("~/js/Instructor/Attendance.js")" asp-append-version="true"></script>
+
+
+
+</body>

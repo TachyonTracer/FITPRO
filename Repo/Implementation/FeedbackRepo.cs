@@ -250,5 +250,66 @@ namespace Repo
                     _conn.Close();
             }
         }
+
+        public List<ClassFeedback> GetClassFeedbacksByInstructorId(int instructorId)
+        {
+            var feedbacks = new List<ClassFeedback>();
+
+            try
+            {
+                _conn.Open();
+                var query = @"
+            SELECT 
+                f.c_feedbackid,
+                f.c_userid,
+                f.c_classid,
+                f.c_feedback,
+                f.c_rating,
+                f.c_createdat,
+                u.c_username AS user_name,
+                c.c_classname AS class_name,
+                i.c_instructorname AS instructor_name
+            FROM t_feedback_class f
+            JOIN t_user u ON f.c_userid = u.c_userid
+            JOIN t_class c ON f.c_classid = c.c_classid
+            JOIN t_instructor i ON c.c_instructorid = i.c_instructorid
+            WHERE c.c_instructorid = @instructorId
+            ORDER BY f.c_createdat DESC";
+
+                using var cmd = new NpgsqlCommand(query, _conn);
+                cmd.Parameters.AddWithValue("@instructorId", instructorId);
+
+                using var reader = cmd.ExecuteReader();
+                while (reader.Read())
+                {
+                    var feedback = new ClassFeedback
+                    {
+                        feedbackId = Convert.ToInt32(reader["c_feedbackid"]),
+                        userId = Convert.ToInt32(reader["c_userid"]),
+                        classId = Convert.ToInt32(reader["c_classid"]),
+                        rating = Convert.ToInt32(reader["c_rating"]),
+                        feedback = reader["c_feedback"]?.ToString(),
+                        createdAt = Convert.ToDateTime(reader["c_createdat"]),
+                        userName = reader["user_name"]?.ToString(),
+                        className = reader["class_name"]?.ToString(),
+                        instructorName = reader["instructor_name"]?.ToString()
+                    };
+                    feedbacks.Add(feedback);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Database error: {ex.Message}");
+                return null;
+            }
+            finally
+            {
+                if (_conn.State == System.Data.ConnectionState.Open)
+                    _conn.Close();
+            }
+
+            return feedbacks;
+        }
+
     }
 }

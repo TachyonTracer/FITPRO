@@ -21,7 +21,9 @@ public class RabbitMQService
         _redisService = redisService;
         _hubContext = hubContext;
 
-        var factory = new ConnectionFactory() { HostName = "localhost" };
+        // Dynamically determine RabbitMQ hostname
+        var rabbitMqHost = Environment.GetEnvironmentVariable("RabbitMQ__HostName") ?? "localhost";
+        var factory = new ConnectionFactory() { HostName = rabbitMqHost };
         _connection = factory.CreateConnection();
         _channel = _connection.CreateModel();
 

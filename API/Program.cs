@@ -1,5 +1,6 @@
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.Net.Http.Headers;
 using Microsoft.OpenApi.Models;
@@ -90,7 +91,9 @@ builder.Services.AddAuthentication(option =>
         ValidateLifetime = false,
         ValidAudience = builder.Configuration["Jwt:Audience"],
         ValidIssuer = builder.Configuration["Jwt:Issuer"],
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"] ?? throw new InvalidOperationException("Jwt:Key is not configured")))
+        IssuerSigningKey = new SymmetricSecurityKey(
+            Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"] 
+                ?? throw new InvalidOperationException("Jwt:Key is not configured")))
     };
 });
 builder.Services.AddCors(p => p.AddPolicy("corsapp", builder =>
@@ -108,11 +111,14 @@ builder.Services.AddSession(options =>
     options.Cookie.IsEssential = true;
 });
 
+builder.Services.AddDataProtection()
+    .SetApplicationName("FitPro")
+    .PersistKeysToFileSystem(new DirectoryInfo(@"/root/.aspnet/DataProtection-Keys"));
 
 // *** Notifications: Builder Configurations Starts *** //
 
 // Load Redis connection string
-string redisConnectionString = builder.Configuration.GetConnectionString("Redis") ?? "localhost:6379";
+string redisConnectionString = builder.Configuration.GetConnectionString("RedisConnectionString") ?? "redis:6379,password=,allowAdmin=true,abortConnect=false";
 // Register RedisService with connection string
 builder.Services.AddScoped<RedisService>(provider => new RedisService(redisConnectionString));
 builder.Services.AddSignalR(); // Register SignalR before RabbitMQService
@@ -164,8 +170,6 @@ app.MapGet("/weatherforecast", () =>
 
 // Map SignalR Hub
 app.MapHub<NotificationHub>("/notificationHub");
-// var rabbitMQService = app.Services.GetRequiredService<RabbitMQService>(); // Start RabbitMQ Listener **after** app is built
-// rabbitMQService.StartListening();
 
 using (var scope = app.Services.CreateScope())
 {

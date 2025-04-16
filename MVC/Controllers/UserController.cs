@@ -18,9 +18,11 @@ namespace MVC
             return View();
         }
         
-
-        public ActionResult Classdetails()
+        [HttpGet]
+        [Route("user/Classdetails/{classId}")]
+        public ActionResult Classdetails(int classId)
         {
+            ViewBag.ClassId = classId;
             return View();
         }
          public ActionResult Myclasses()

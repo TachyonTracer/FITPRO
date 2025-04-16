@@ -21,7 +21,6 @@
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="@Url.Content("~/css/User/Home.css")" asp-append-version="true">
-    
 </head>
 
 <body>
@@ -55,39 +54,9 @@
         </div>
 
         <div class="recommendation">
-            <h3>🔥 Recommended for You</h3>
-            <!-- <div class="recommendation-list">
-                <div class="recommendation-item">
-                    <img src="fitness.jpg" alt="Zumba Burn">
-                    <div class="recommendation-info">
-                        <h4>Zumba Burn</h4>
-                        <p><strong>Instructor:</strong> Anjali</p>
-                        <p><strong>Time:</strong> 6:00 AM</p>
-                        <p><strong>Days:</strong> Mon/Wed/Fri</p>
-                    </div>
-                    
-                </div>
-                <div class="recommendation-item">
-                    <img src="tire.jpeg" alt="Yoga & Flow">
-                    <div class="recommendation-info">
-                        <h4>Yoga & Flow</h4>
-                        <p><strong>Instructor:</strong> Riya</p>
-                        <p><strong>Time:</strong> 7:30 AM</p>
-                        <p><strong>Days:</strong> Tue/Thu</p>
-                    </div>
-                </div>
-                <div class="recommendation-item">
-                    <img src="jumbo.jpg" alt="Core Crush">
-                    <div class="recommendation-info">
-                        <h4>Core Crush</h4>
-                        <p><strong>Instructor:</strong> Aman</p>
-                        <p><strong>Time:</strong> 5:00 PM</p>
-                        <p><strong>Days:</strong> Daily</p>
-                    </div>
-                </div>
-            </div>  -->
-            <div class="coming-soon-text">
-                🚧 This Feature Coming Soon! Stay healthy🚧
+            <h3>🔥 Recommended for You using AI</h3>
+            <div id="recommended-classes">
+                <p>Loading recommendations...</p>
             </div>
         </div>
 
@@ -124,8 +93,6 @@
                 </div>
             </div>
 
-
-
             <div class="footer-social">
                 <a href="#"><img src="~/img/insta.png" alt="Instagram" /></a>
                 <a href="#"><img src="~/img/facebook.png" alt="Facebook" /></a>
@@ -138,7 +105,9 @@
     </footer>
  
 
+
       @* <script src="@Url.Content("~/js/User/Home.js")" asp-append-version="true"></script> *@
+
 </body>
 
 </html>
