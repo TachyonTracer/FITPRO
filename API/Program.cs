@@ -112,7 +112,7 @@ builder.Services.AddSession(options =>
 // *** Notifications: Builder Configurations Starts *** //
 
 // Load Redis connection string
-string redisConnectionString = builder.Configuration.GetConnectionString("Redis") ?? "localhost:6379";
+string redisConnectionString = builder.Configuration.GetConnectionString("RedisConnectionString") ?? "redis:6379,password=,allowAdmin=true,abortConnect=false";
 // Register RedisService with connection string
 builder.Services.AddScoped<RedisService>(provider => new RedisService(redisConnectionString));
 builder.Services.AddSignalR(); // Register SignalR before RabbitMQService

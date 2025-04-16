@@ -3,11 +3,11 @@ FROM mcr.microsoft.com/dotnet/sdk:8.0-alpine AS build
 WORKDIR /app
 
 # Copy solution and projects
-COPY EduTrackPro.sln ./
+COPY FitPro.sln ./
 COPY API/API.csproj API/
 COPY MVC/MVC.csproj MVC/
 COPY Repo/Repo.csproj Repo/
-COPY EduTrackPro.csproj ./
+
 
 # Restore dependencies
 RUN dotnet restore

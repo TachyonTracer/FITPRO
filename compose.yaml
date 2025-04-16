@@ -9,8 +9,14 @@ services:
       - "8080:8080"
     environment:
       - ASPNETCORE_URLS=http://+:8080
+      - ConnectionStrings__RedisConnectionString=redis:6379,password=,allowAdmin=true,abortConnect=false
     networks:
-      - EduTrackPro-network
+      - FitPro-network
+    depends_on:
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_started
 
   mvc:
     build:
@@ -22,11 +28,47 @@ services:
       - "8081:8080"
     environment:
       - ASPNETCORE_URLS=http://+:8080
+      - ConnectionStrings__RedisConnectionString=redis:6379,password=,allowAdmin=true,abortConnect=false
     networks:
-      - EduTrackPro-network
+      - FitPro-network
     depends_on:
       - api
+      - redis
+      - rabbitmq
+
+  redis:
+    image: redis:alpine
+    ports:
+      - "6379:6379"
+    networks:
+      - FitPro-network
+    volumes:
+      - redis-data:/data
+    command: redis-server --appendonly yes
+    restart: always
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 3
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"   # RabbitMQ default port
+      - "15672:15672" # Management interface port
+    environment:
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
+    networks:
+      - FitPro-network
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
 
 networks:
-  EduTrackPro-network:
+  FitPro-network:
     driver: bridge
+
+volumes:
+  redis-data:
+  rabbitmq-data:
