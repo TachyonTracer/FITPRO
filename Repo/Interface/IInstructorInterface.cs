@@ -28,17 +28,10 @@ public interface IInstructorInterface
 	Task<int> UserCountByInstructor(string instructorId);
 	Task<List<Class>> UpcomingClassDetailsByInstructor(string instructorId);
     Task<List<KeyValuePair<string, int>>> GetTypewiseClassCount(string instructorId);
-        Task<bool> ApproveInstructor(string instructorId);
-        Task<bool> DisapproveInstructor(string instructorId);
-        Task<bool> SuspendInstructor(string instructorId);
+       
     #endregion
 
-	#region User Story: Instructor Dashboard View
-        Task<int> ClassCountByInstructor(string instructorId);
-        Task<int> UpcomingClassCountByInstructor(string instructorId);
-        Task<int> UserCountByInstructor(string instructorId);
-        Task<List<Class>> UpcomingClassDetailsByInstructor(string instructorId);
-	#endregion
+
 
     #region BlogPost    
         Task<int> SaveBlogDraft(BlogPost blogpost);
