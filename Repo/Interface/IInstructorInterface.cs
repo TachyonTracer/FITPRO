@@ -33,17 +33,5 @@ public interface IInstructorInterface
 
 
 
-    #region BlogPost    
-        Task<int> SaveBlogDraft(BlogPost blogpost);
-        Task<bool> UpdateBlogDraft(BlogPost blogpost);
-        Task<bool> PublishBlog(BlogPost blogpost);
-        Task<List<BlogPost>> GetBlogsByInstructorId(int instructor_id);
-        Task<BlogPost> GetBlogById(int blog_id);
-
-        Task<BlogComment> AddNewComment(BlogComment comment);
-        Task<List<BlogComment>> fetchBlogComments(int blog_id);
-        Task<BlogPost> fetchBlogByUri(string source_uri);
-        Task<Instructor> fetchBlogAuthorById(int author_id);
-        Task<int> DeleteBlog(int blogId);
-    #endregion
+  
 }

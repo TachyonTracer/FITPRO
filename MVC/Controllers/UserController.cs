@@ -53,16 +53,8 @@ namespace MVC
             return View("Error!");
         }
 
-        public IActionResult BlogPost()
-        {
-            return View();
-        }
-
         public IActionResult UserClassSchedule(){
             return View();
         }
-
-        
-
     }
 }
