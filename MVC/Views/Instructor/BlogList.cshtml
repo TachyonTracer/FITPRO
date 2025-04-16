@@ -540,7 +540,10 @@
                             title: entry.c_title,
                             description: entry.c_desc,
                             content: entry.c_content,
-                            thumbnailUrl: 'http://localhost:8081/blogImages/Thumbnails/' + entry.c_blog_id + '/' + entry.c_thumbnail || 'http://localhost:8081/blogImages/Thumbnails/default.png',
+                            @* thumbnailUrl: 'http://localhost:8081/blogImages/Thumbnails/' + entry.c_blog_id + '/' + entry.c_thumbnail || 'http://localhost:8081/blogImages/Thumbnails/default.png', *@
+                            thumbnailUrl: !entry.c_thumbnail || entry.c_thumbnail.includes('default')
+                                            ? 'http://localhost:8081/blogImages/Thumbnails/default.png'
+                                            : `http://localhost:8081/blogImages/Thumbnails/${entry.c_blog_id}/${entry.c_thumbnail}`,
                             tags: entry.c_tags ? entry.c_tags.split(",") : [],
                             views: entry.c_views || 0,
                             likes: entry.c_likes || 0,
