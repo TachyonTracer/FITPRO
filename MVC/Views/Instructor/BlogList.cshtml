@@ -540,7 +540,10 @@
                             title: entry.c_title,
                             description: entry.c_desc,
                             content: entry.c_content,
-                            thumbnailUrl: 'http://localhost:8081/blogImages/Thumbnails/' + entry.c_blog_id + '/' + entry.c_thumbnail || 'http://localhost:8081/blogImages/Thumbnails/default.png',
+                            @* thumbnailUrl: 'http://localhost:8081/blogImages/Thumbnails/' + entry.c_blog_id + '/' + entry.c_thumbnail || 'http://localhost:8081/blogImages/Thumbnails/default.png', *@
+                            thumbnailUrl: !entry.c_thumbnail || entry.c_thumbnail.includes('default')
+                                            ? 'http://localhost:8081/blogImages/Thumbnails/default.png'
+                                            : `http://localhost:8081/blogImages/Thumbnails/${entry.c_blog_id}/${entry.c_thumbnail}`,
                             tags: entry.c_tags ? entry.c_tags.split(",") : [],
                             views: entry.c_views || 0,
                             likes: entry.c_likes || 0,
@@ -597,9 +600,10 @@
                 const buttonIcon = "fa-edit";
 
                 blogCard.html(`
+                    ${blog.is_completed ? `
                     <div class="blog-open-icon" title="Open Blog">
                         <i class="fas fa-external-link-alt"></i>
-                    </div>
+                    </div>` : ''}
                     <img src="${blog.thumbnailUrl || '/images/default-blog.jpg'}" alt="${blog.title}" class="blog-thumbnail">
                     <div class="blog-details">
                         <div>
@@ -613,9 +617,10 @@
                             <span class="stat">
                                 <i class="fas fa-calendar"></i> ${new Date(blog.createdAt * 1000).toLocaleDateString()}
                             </span>
+                            ${blog.is_completed ? `
                             <span class="stat copy-link" title="Copy Link" data-url="${blog.sourceUrl}">
                                 <i class="fas fa-link"></i>
-                            </span>
+                            </span>` : ''}
                             ${!blog.is_completed ? '<span class="stat" style="color:#ff9800"><i class="fas fa-exclamation-circle"></i> Draft</span>' : ''}
                             <div class="blog-actions">
                                 <button class="edit-btn" onclick="editBlog(${blog.id})"><i class="fas fa-edit"></i> ${buttonText}</button>
@@ -715,7 +720,7 @@
 
         // Edit and Delete functions
         function editBlog(blogId) {
-            window.location.href = `/instructor/BlogEditor?id=${blogId}`;
+            window.open(`/instructor/BlogEditor?id=${blogId}`, '_blank');
         }
 
         function deleteBlog(blogId) {

@@ -7,24 +7,26 @@
         html {
             font-size: 14px;
             font-family: Arial, Helvetica, sans-serif;
-            color: #333;
+            color: #fff;
+            background-color: #121212;
         }
 
         body {
-            background-color: white;
-            color: #333;
+            background-color: #121212;
+            color: #fff;
         }
 
         /* Increase the total width */
-        .container-fluid {
+     .container-fluid {
             width: 95%;
             max-width: 1800px;
             margin: 0 auto;
-        }
+        } 
 
         .demo-section.wide {
             width: 100%;
             padding: 20px 0;
+            background-color: #121212;
         }
 
         /* Blog creation styles */
@@ -45,11 +47,13 @@
 
         .sidebar {
             flex: 1;
-            padding: 15px;
-            background-color: #f8f9fa;
-            border-radius: 5px;
+            padding: 20px;
+            background-color: #1e1e1e;
+            border-radius: 8px;
             height: fit-content;
-            color: #333;
+            color: #fff;
+            border: 1px solid #333;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
 
         .button-section {
@@ -60,70 +64,106 @@
         }
 
         .form-label {
-            color: #333;
-            margin-bottom: 8px;
+            color: #fff;
+            margin-bottom: 10px;
+            font-weight: 700;
+            font-size: 1.1rem;
+            letter-spacing: 0.5px;
         }
 
         .form-control {
-            background-color: white;
-            border: 1px solid #ced4da;
-            color: #333;
+            background-color: #2d2d2d;
+            border: 1px solid #444;
+            color: #fff;
+            font-weight: 500;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+            padding: 12px;
+            font-size: 1rem;
         }
 
         .form-control:focus {
-            background-color: white;
-            color: #333;
+            background-color: #3d3d3d;
+            color: #fff;
             border-color: #007bff;
             box-shadow: 0 0 0 0.25rem rgba(0, 123, 255, 0.25);
+            outline: none;
+        }
+
+        /* Override specific inputs to have white text on dark background */
+        #blogTitle,
+        #blogDescription,
+        #blogLabels {
+            color: #fff;
+            background-color: #2d2d2d;
+            border: 1px solid #444;
+        }
+
+        /* Keep placeholder color light but visible on dark background */
+        #blogTitle::placeholder,
+        #blogDescription::placeholder,
+        #blogLabels::placeholder {
+            color: #aaa;
+            font-weight: 400;
         }
 
         .form-control::placeholder {
-            color: #6c757d;
+            color: #aaa;
         }
 
         .tags-container {
             margin-top: 10px;
             min-height: 40px;
-            padding: 5px;
-            border: 1px solid #ced4da;
+            padding: 8px;
+            border: 1px solid #444;
             border-radius: 4px;
-            background-color: white;
+            background-color: #2d2d2d;
         }
 
         .tag {
             display: inline-block;
-            background-color: #e4e4e4;
-            color: #333;
-            padding: 2px 8px;
-            border-radius: 12px;
-            margin-right: 5px;
-            margin-bottom: 5px;
+            background-color: #1e1e1e;
+            color: #fff;
+            padding: 5px 10px;
+            border-radius: 20px;
+            margin-right: 8px;
+            margin-bottom: 8px;
             font-size: 14px;
+            font-weight: 500;
+            border: 1px solid #444;
+            transition: all 0.2s ease;
+        }
+
+        .tag:hover {
+            background-color: #333;
+            border-color: #555;
         }
 
         .tag .remove-tag {
-            margin-left: 5px;
+            margin-left: 8px;
             cursor: pointer;
             font-weight: bold;
+            color: #ccc;
         }
 
         .tag .remove-tag:hover {
-            color: #dc3545;
+            color: #ff6b6b;
         }
 
         .custom-file-upload {
             display: block;
             padding: 10px;
-            border: 1px solid #ced4da;
+            border: 1px solid #444;
             border-radius: 4px;
-            background-color: white;
+            background-color: #2d2d2d;
             text-align: center;
             cursor: pointer;
             margin-top: 15px;
+            color: #fff;
         }
 
         .custom-file-upload:hover {
-            background-color: #f8f9fa;
+            background-color: #3d3d3d;
         }
 
         /* Thumbnail styling updates */
@@ -131,15 +171,20 @@
             width: 100%;
             height: 150px;
             margin-top: 10px;
-            border-radius: 4px;
-            border: 1px solid #ced4da;
-            background-color: white;
+            border-radius: 8px;
+            border: 1px solid #444;
+            background-color: #2d2d2d;
             display: flex;
             align-items: center;
             justify-content: center;
             overflow: hidden;
             cursor: pointer;
-            /* Make it clear it's clickable */
+            transition: all 0.3s ease;
+        }
+
+        .thumbnail-preview:hover {
+            border-color: #007bff;
+            background-color: #333;
         }
 
         .thumbnail-preview img {
@@ -149,7 +194,7 @@
         }
 
         .thumbnail-placeholder {
-            color: #6c757d;
+            color: #aaa;
             font-size: 36px;
             /* Larger + sign */
             font-weight: lighter;
@@ -157,8 +202,8 @@
 
         /* Drag and drop styles */
         .drag-over {
-            border: 2px dashed #007bff;
-            background-color: rgba(0, 123, 255, 0.05);
+            border: 2px dashed #007bff !important;
+            background-color: rgba(0, 123, 255, 0.15);
         }
 
         .editor-container {
@@ -172,39 +217,47 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
+            background-color: rgba(0, 0, 0, 0.7);
             display: none;
             align-items: center;
             justify-content: center;
             z-index: 1000;
             color: white;
             font-size: 24px;
+            font-weight: 600;
         }
 
-        /* Reset Kendo Editor theme to light */
+        /* Kendo Editor customization for dark theme */
         .k-editor {
-            background-color: white;
-            color: #333;
-            border-color: #ced4da;
+            background-color: #2d2d2d;
+            color: #fff;
+            border-color: #444;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid #444 !important;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
 
         .k-editor-toolbar {
-            background-color: #f8f9fa;
-            border-color: #ced4da;
+            background-color: #1e1e1e;
+            border-color: #444;
+            padding: 8px !important;
         }
 
-        @* .k-toolbar .k-button,
+        .k-toolbar .k-button,
         .k-toolbar .k-button-group {
-            background-color: white;
-            color: #333;
-            border-color: #ced4da;
+            background-color: #333;
+            color: #fff;
+            border-color: #555;
+            border-radius: 4px;
+            margin: 0 2px;
         }
 
         .k-toolbar .k-button:hover,
         .k-toolbar .k-button.k-state-hover {
-            background-color: #e9ecef;
-            color: #333;
-        } *@
+            background-color: #444;
+            color: #fff;
+        }
 
         /* Custom styles to display icons properly */
         .k-editor .k-tool-text {
@@ -213,6 +266,7 @@
 
         .k-editor .k-tool-icon.k-icon {
             display: inline-block;
+            color: #fff;
         }
 
         /* Set specific icon for imageInsert */
@@ -221,53 +275,172 @@
             content: "\e13a";
             /* Kendo UI icon code for image */
             font-family: "WebComponentsIcons";
+            color: #fff;
         }
 
         .k-tool-icon.k-image-insert::before {
             content: "\f03e";
-
             font-family: "Font Awesome 5 Free";
             font-weight: 900;
-
             font-size: 16px;
+            color: #fff;
         }
 
         .k-editor-content {
-            background-color: white;
-            color: #333;
+            background-color: #2d2d2d;
+            color: #fff;
         }
 
         .k-content,
         .k-editable-area,
         .k-editor iframe {
-            background-color: white;
+            background-color: #2d2d2d;
             height: 70vh;
+            color: #fff;
+        }
+
+        .k-editor iframe body {
+            background-color: #2d2d2d;
+            color: #fff;
         }
 
         .demo-section {
-            background-color: white;
-            color: #333;
+            background-color: #121212;
+            color: #fff;
             padding: 20px;
         }
+
+        /* Error message styling */
+        .error-message {
+            color: #ff6b6b;
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+            display: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .input-error {
+         
+            background-color: rgba(255, 107, 107, 0.05);
+        }
+
+        .input-error:focus {
+
+            box-shadow: none;
+        }
+
+        /* Button styling */
+        .btn-warning {
+            background-color: #ffc107;
+            color: #fff;
+            font-weight: 600;
+            border-radius: 4px;
+            padding: 12px 20px;
+            transition: all 0.3s ease;
+            border: none;
+            font-size: 1.05rem;
+            text-shadow: 0px 1px 2px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-warning:hover {
+            background-color: #e0a800;
+
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-success {
+            background-color: #28a745;
+            color: #fff;
+            font-weight: 600;
+            border-radius: 4px;
+            padding: 12px 20px;
+            transition: all 0.3s ease;
+            border: none;
+            font-size: 1.05rem;
+            text-shadow: 0px 1px 2px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-success:hover {
+            background-color: #218838;
+
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-outline-secondary {
+            color: #fff;
+            border: 1px solid #6c757d;
+            background-color: #444;
+            font-weight: 500;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+            padding: 8px 16px;
+        }
+
+        .btn-outline-secondary:hover {
+            background-color: #6c757d;
+            color: #fff;
+            transform: translateY(-1px);
+        }
+
+        /* Text styling for stronger appearance */
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6 {
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .text-muted {
+            color: #bbb !important;
+        }
+
+        /* Additional Kendo Editor iframe styling */
+        .k-editor iframe html,
+        .k-editor iframe body {
+            background-color: #2d2d2d !important;
+            color: #fff !important;
+        }
+
+        /* Input group styling */
+        .input-group {
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .input-group .form-control {
+            border-right: none;
+        }
+
+        .input-group .btn {
+            border-top-left-radius: 0;
+            border-bottom-left-radius: 0;
+        }
     </style>
-    <title></title>
+    <title>Blog Editor</title>
     <link href="https://kendo.cdn.telerik.com/themes/10.2.0/default/default-main.css" rel="stylesheet" />
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
     <script src="https://kendo.cdn.telerik.com/2023.2.829/js/kendo.all.min.js"></script>
 
     <style>
         /* Additional styles for the header */
         .blog-editor-header {
-            background-color: #f8f9fa;
+            background-color: #1e1e1e;
             padding: 15px 0;
             margin-bottom: 20px;
-            border-bottom: 1px solid #e5e5e5;
+            border-bottom: 1px solid #333;
         }
 
         .blog-editor-header h1 {
             font-size: 24px;
             margin: 0;
+            color: #fff;
+            font-weight: 700;
         }
 
         .blog-editor-header .breadcrumb {
@@ -281,21 +454,36 @@
             gap: 10px;
             align-items: center;
         }
+
+        /* Override Bootstrap dark theme */
+        .breadcrumb-item,
+        .breadcrumb-item.active,
+        .breadcrumb-item+.breadcrumb-item::before {
+            color: #fff;
+        }
     </style>
 </head>
 
 <body>
 
-    <div id="example">
+    <div id="example" style="background-color: #121212">
         <div class="container-fluid">
+            <!-- Added Blog Editor Header -->
+            <div class="text-center mt-4">
+                <h1 style="color: #facc15; font-weight: 700; font-size: 2.5rem;">Blog Editor</h1>
+            </div>
+            
             <div class="demo-section wide">
                 <!-- Blog Source Url-->
                 <input id="blog_source_url" type="text" class="form-control" hidden>
 
                 <!-- Blog Title Input -->
                 <div class="input-section">
-                    <label for="blogTitle" class="form-label">Title:</label>
+                    <label for="blogTitle" class="form-label">
+                        <i class="fas fa-heading me-2 text-primary"></i>Title:
+                    </label>
                     <input id="blogTitle" type="text" class="form-control" placeholder="Enter your blog title">
+                    <div id="titleError" class="error-message"></div>
                 </div>
 
                 <!-- Page Layout with Editor and Sidebar -->
@@ -305,46 +493,67 @@
                         <textarea id="editor" aria-label="editor">
                         </textarea>
                         <div class="drop-zone">Drop image here</div>
+                        <div id="contentError" class="error-message"></div>
                     </div>
 
                     <!-- Sidebar Column -->
                     <div class="sidebar">
                         <!-- Description Input for Blog Listing -->
                         <div class="input-section">
-                            <label for="blogDescription" class="form-label">Description: <span class="text-muted">(max
-                                    200 characters)</span></label>
+                            <label for="blogDescription" class="form-label">
+                                <i class="fas fa-info-circle me-2 text-info"></i>Description:
+                            </label>
                             <textarea id="blogDescription" class="form-control" rows="3"
                                 placeholder="Brief description for blog listings" maxlength="200"></textarea>
-                            <div class="text-muted mt-1 small text-end">
-                                <span id="descCharCounter">0</span>/200 characters
+                            <span id="descriptionError" class="error-message"></span>
+                            <div class="text-end mt-1">
+                                <small><span id="descCharCounter">0</span>/200</small>
                             </div>
                         </div>
 
                         <!-- Labels Input -->
                         <div class="input-section">
-                            <label for="blogLabels" class="form-label">Labels:</label>
+                            <label for="blogLabels" class="form-label">
+                                <i class="fas fa-tags me-2 text-warning"></i>Labels:
+                            </label>
                             <div class="input-group">
-                                <input id="blogLabels" type="text" class="form-control"
+                                <input id="blogLabels" type="text" class="form-control" maxlength="20"
                                     placeholder="Type and press Enter to add tag">
-                                <button id="addTagBtn" class="btn btn-outline-secondary">Add</button>
+                                <button id="addTagBtn" class="btn btn-outline-secondary">
+                                    <i class="fas fa-plus"></i>
+                                </button>
                             </div>
                             <div id="tagsContainer" class="tags-container"></div>
+                                <span id="tagsError" class="error-message"></span>
+                            <div class="text-end mt-1">
+                                <small><span id="tagCounter">0</span>/5</small>
+                            </div>
                         </div>
 
                         <!-- Thumbnail Upload -->
                         <div class="input-section">
-                            <label class="form-label">Thumbnail:</label>
+                            <label class="form-label">
+                                <i class="fas fa-image me-2 text-primary"></i>Thumbnail:
+                            </label>
                             <input type="file" id="thumbnailUpload" style="display: none;" accept="image/*">
                             <div class="thumbnail-preview" id="thumbnailPreview"
                                 onclick="document.getElementById('thumbnailUpload').click();">
-                                <span class="thumbnail-placeholder">+</span>
+                                <span class="thumbnail-placeholder">
+                                    <i class="fas fa-cloud-upload-alt" style="font-size: 2rem;"></i>
+                                    <div style="font-size: 0.8rem; margin-top: 10px;">Click to upload</div>
+                                </span>
                             </div>
+                            <div id="thumbnailError" class="error-message"></div>
                         </div>
 
                         <!-- Buttons for Save Draft and Save -->
                         <div class="button-section">
-                            <button id="saveDraftButton" class="btn btn-warning">Save Draft</button>
-                            <button id="saveButton" class="btn btn-success">Publish</button>
+                            <button id="saveDraftButton" class="btn btn-warning">
+                                <i class="far fa-save me-2"></i>Save Draft
+                            </button>
+                            <button id="saveButton" class="btn btn-success">
+                                <i class="fas fa-paper-plane me-2"></i>Publish
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -352,16 +561,16 @@
                 <script>
 
                     @* Utility Functions *@
-                    function parseJwt(token) {
-                        try {
-                            const base64Url = token.split(".")[1];
-                            const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
-                            return JSON.parse(atob(base64));
-                        } catch (error) {
-                            console.error("Invalid token:", error);
-                            return null;
+                        function parseJwt(token) {
+                            try {
+                                const base64Url = token.split(".")[1];
+                                const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+                                return JSON.parse(atob(base64));
+                            } catch (error) {
+                                console.error("Invalid token:", error);
+                                return null;
+                            }
                         }
-                    }
                     function getUserIdFromToken() {
                         const token = localStorage.getItem("authToken");
                         if (!token) {
@@ -544,7 +753,7 @@
                                     // Check if response is successful and contains data
                                     if (response.success && response.data && response.data.entries) {
                                         const blog = response.data.entries;
-                                        
+
                                         // Decode base64 content if it's encoded
                                         if (blog.c_content && typeof blog.c_content === 'string') {
                                             try {
@@ -559,7 +768,7 @@
                                                 blog.content = blog.c_content;
                                             }
                                         }
-                                        
+
                                         // Map API response fields to expected format
                                         const mappedBlog = {
                                             id: blog.c_blog_id,
@@ -575,7 +784,7 @@
                                             labels: blog.c_tags,
                                             source_url: blog.c_source_url
                                         };
-                                        
+
                                         populateEditorWithBlogData(mappedBlog);
                                     } else {
                                         console.error('Invalid response format:', response);
@@ -699,7 +908,7 @@
                             } else {
                                 $("#saveButton").text("Update & Publish");
                                 @* $("#saveDraftButton").text("Save as Draft"); *@
-                                $("#saveDraftButton").hide(); 
+                                    $("#saveDraftButton").hide();
                             }
 
                             // Update page title to show we're editing
@@ -712,10 +921,22 @@
 
                             // Don't add duplicate tags
                             if (tags.includes(tagText.trim())) return;
+                            
+                            // Limit to 5 tags maximum
+                            if (tags.length >= 5) {
+                                alert("Maximum 5 labels allowed.");
+                                return;
+                            }
 
-                            tags.push(tagText.trim());
+                            // Limit each tag to 20 characters
+                            const trimmedTag = tagText.trim().substring(0, 20);
+                            
+                            tags.push(trimmedTag);
                             renderTags();
                             $("#blogLabels").val('');
+                            
+                            // Update tag counter
+                            $("#tagCounter").text(tags.length);
                         }
 
                         // Function to render tags in the container
@@ -731,6 +952,18 @@
                                     </span>
                                 `);
                             });
+                            
+                            // Update tag counter
+                            $("#tagCounter").text(tags.length);
+                            
+                            // Disable input if reached max tags
+                            if (tags.length >= 5) {
+                                $("#blogLabels").prop("disabled", true).attr("placeholder", "Maximum labels reached");
+                                $("#addTagBtn").prop("disabled", true);
+                            } else {
+                                $("#blogLabels").prop("disabled", false).attr("placeholder", "Type and press Enter to add tag");
+                                $("#addTagBtn").prop("disabled", false);
+                            }
                         }
 
                         // Add tag when button is clicked
@@ -772,6 +1005,12 @@
                             const tagIndex = $(this).parent().data("index");
                             tags.splice(tagIndex, 1);
                             renderTags();
+                            
+                            // Re-enable input if below max tags
+                            if (tags.length < 5) {
+                                $("#blogLabels").prop("disabled", false).attr("placeholder", "Type and press Enter to add tag");
+                                $("#addTagBtn").prop("disabled", false);
+                            }
                         });
 
                         // Thumbnail upload handling
@@ -932,6 +1171,13 @@
                                 formData.append("c_thumbnail", thumbnailData);
                             }
 
+                            // Validate before submission
+                            const validationResult = validateBlogContent(publish_);
+                            if (!validationResult.isValid) {
+                                showValidationErrors(validationResult.errors);
+                                return;
+                            }
+
                             // Show loading state
                             const btnId = publish_ ? "#saveButton" : "#saveDraftButton";
                             const originalText = $(btnId).text();
@@ -962,6 +1208,20 @@
                                         $(btnId).prop('disabled', true).text(afterApiText);
 
                                         alert(`Blog ${statusText} successfully!`);
+                                        
+                                        // Set a timeout to allow the user to see the success state before redirecting
+                                       
+                                            // Check if the opener window exists and is the BlogList page
+                                            if (window.opener && !window.opener.closed && window.opener.location.href.includes("BlogList")) {
+                                                // Refresh the parent/opener window to show updated blog list
+                                                window.opener.location.reload();
+                                                // Close the editor window
+                                                window.close();
+                                            } else {
+                                                // Navigate back to the blog list page
+                                                window.location.href = "/instructor";
+                                            }
+
 
                                     } else {
                                         alert(`Error: ${response.message || 'Unknown error occurred'}`);
@@ -976,11 +1236,211 @@
                                 }
                             });
                         }
+
+                        // Function to validate blog content before submission
+                        function validateBlogContent(publish_) {
+                            const title = $("#blogTitle").val().trim();
+                            const content = $("#editor").data("kendoEditor").value().trim();
+                            const description = $("#blogDescription").val().trim();
+                            const tags = $("#tagsContainer .tag").length;
+                            const thumbnail = $("#thumbnailPreview img").length;
+
+                            const errors = [];
+
+                            if (title === '') {
+                                errors.push({ field: 'title', message: "Title cannot be empty." });
+                            }
+
+                            if (content === '' || content.length < 50) {
+                                errors.push({ field: 'content', message: "Content cannot be empty and must be at least 50 characters long." });
+                            }
+
+                            if (description === '' || description.length < 20) {
+                                errors.push({ field: 'description', message: "Description cannot be empty and must be at least 20 characters long." });
+                            }
+
+                            if (tags === 0) {
+                                errors.push({ field: 'tags', message: "At least one tag must be added." });
+                            }
+
+                            if (thumbnail === 0) {
+                                errors.push({ field: 'thumbnail', message: "Thumbnail must be uploaded." });
+                            }
+
+                            return { isValid: errors.length === 0, errors };
+                        }
+
+                        // Function to display validation errors
+                        function showValidationErrors(errors) {
+                            // Clear all previous errors
+                            $(".error-message").hide().text("");
+                            $(".form-control").removeClass("input-error");
+                            $(".editor-container iframe").css("border-color", "");
+
+                            // If no errors, return
+                            if (!errors || errors.length === 0) return;
+
+                            // Display each error under the correct field
+                            errors.forEach(error => {
+                                const { field, message } = error;
+                                $(`#${field}Error`).text(message).show();
+
+                                // Add error styling to the input
+                                if (field === 'content') {
+                                    $(".editor-container iframe").css("border-color", "#dc3545");
+                                } else if (field === 'tags') {
+                                    $("#tagsContainer").addClass("input-error");
+                                } else if (field === 'thumbnail') {
+                                    $("#thumbnailPreview").addClass("input-error");
+                                } else {
+                                    $(`#blog${field.charAt(0).toUpperCase() + field.slice(1)}`).addClass("input-error");
+                                }
+                            });
+                        }
+
+                        // Function to clear all validation errors
+                        function clearValidationErrors() {
+                            $(".error-message").hide().text("");
+                            $(".form-control").removeClass("input-error");
+                            $(".editor-container iframe").css("border-color", "");
+                            $("#tagsContainer").removeClass("input-error");
+                            $("#thumbnailPreview").removeClass("input-error");
+                        }
+                    });
+
+                    // Add event listeners to clear validation errors as they're fixed
+                    $(document).ready(function () {
+                        // Clear title error when title is entered
+                        $("#blogTitle").on("input", function () {
+                            if ($(this).val().trim().length > 0) {
+                                $(this).removeClass("input-error");
+                                $("#titleError").hide().text("");
+                            }
+                        });
+
+                        // Clear content error when content changes
+                        $("#editor").data("kendoEditor").bind("change", function () {
+                            const content = this.value().trim();
+                            if (content.length >= 50) {
+                                $(".editor-container iframe").css("border-color", "");
+                                $("#contentError").hide().text("");
+                            }
+                        });
+
+                        // Clear description error when description is entered
+                        $("#blogDescription").on("input", function () {
+                            if ($(this).val().trim().length > 0) {
+                                $(this).removeClass("input-error");
+                                $("#descriptionError").hide().text("");
+                            }
+                        });
+
+                        // Clear tags error when a tag is added
+                        $(document).on("click", "#addTagBtn", function () {
+                            if ($("#tagsContainer .tag").length > 0) {
+                                $("#tagsContainer").removeClass("input-error");
+                                $("#tagsError").hide().text("");
+                            }
+                        });
+
+                        // Clear thumbnail error when image is selected
+                        $("#thumbnailUpload").on("change", function () {
+                            if (this.files.length > 0) {
+                                $("#thumbnailPreview").removeClass("input-error");
+                                $("#thumbnailError").hide().text("");
+                            }
+                        });
+
+                        // Also call validation on focus out to provide immediate feedback
+                        $("#blogTitle, #blogDescription").on("blur", function () {
+                            const field = $(this).attr("id").replace("blog", "").toLowerCase();
+                            const value = $(this).val().trim();
+
+                            if (value === '') {
+                                $(this).addClass("input-error");
+                                $(`#${field}Error`).text(`${field.charAt(0).toUpperCase() + field.slice(1)} cannot be empty.`).show();
+                            } else if (field === 'title' && value.length < 5) {
+                                $(this).addClass("input-error");
+                                $("#titleError").text("Title must be at least 5 characters long.").show();
+                            }
+                        });
+
+                        // Validate content on focus out
+                        $("#editor").data("kendoEditor").bind("blur", function () {
+                            const content = this.value().trim();
+                            const contentTextOnly = content.replace(/<[^>]*>/g, '').trim();
+
+                            if (content === '' || contentTextOnly.length < 50) {
+                                $(".editor-container iframe").css("border-color", "#dc3545");
+                                $("#contentError").text("Content must be at least 50 characters long.").show();
+                            }
+                        });
                     });
                 </script>
             </div>
         </div>
     </div>
+
+    <script>
+        // Add script to fix the Kendo Editor iframe body background
+        $(document).ready(function () {
+            setTimeout(function () {
+                try {
+                    const editorFrame = $("#editor").data("kendoEditor").body;
+                    if (editorFrame) {
+                        $(editorFrame).css({
+                            'background-color': '#2d2d2d',
+                            'color': '#fff'
+                        });
+
+                        // Try to inject styles into the iframe
+                        const style = editorFrame.ownerDocument.createElement('style');
+                        style.textContent = `
+                            body { 
+                                background-color: #2d2d2d !important; 
+                                color: #fff !important; 
+                            }
+                            p { color: #fff !important; }
+                            h1, h2, h3, h4, h5, h6 { color: #fff !important; font-weight: 700 !important; }
+                            a { color: #007bff !important; }
+                        `;
+                        editorFrame.ownerDocument.head.appendChild(style);
+                    }
+                } catch (e) {
+                    console.error('Error styling editor iframe:', e);
+                }
+            }, 1000);
+        });
+
+        // Add a tooltip to show instructions when hovering over parts of the interface
+        $(document).ready(function() {
+            // Add a slight pulse animation to the thumbnail upload icon
+            setInterval(function() {
+                $(".thumbnail-placeholder .fas").animate({ opacity: 0.7 }, 800).animate({ opacity: 1 }, 800);
+            }, 1600);
+
+            // Add visual feedback when adding tags
+            $("#addTagBtn").click(function() {
+                if ($("#blogLabels").val().trim() !== '') {
+                    $(this).html('<i class="fas fa-check"></i>');
+                    setTimeout(function() {
+                        $("#addTagBtn").html('<i class="fas fa-plus"></i>');
+                    }, 1000);
+                }
+            });
+
+            // Add title field animation when focused
+            $("#blogTitle").focus(function() {
+                $(this).parent().find(".fas").addClass("fa-bounce");
+                setTimeout(function() {
+                    $(".fa-heading").removeClass("fa-bounce");
+                }, 1000);
+            });
+            
+            // Add a tooltip for the title field
+            $("#blogTitle").attr("title", "Enter a compelling title for your blog post");
+        });
+    </script>
 </body>
 
 </html>
