@@ -221,6 +221,11 @@ function myclasses() {
     window.location.href = `/User/MyClasses?id=${userId}`;
 }
 
+function Schedule() {
+    // Redirect to the class details page with the class ID
+    window.location.href = `/User/UserClassSchedule`;
+}
+
 function home() {
     // Redirect to the class details page with the class ID
     window.location.href = `/User/home`;
