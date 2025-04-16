@@ -442,7 +442,7 @@ public async Task<IActionResult> UpdateClass([FromForm] Class request)
         #endregion
 
         #region PredictClass
-         [HttpPost("PredictClassPopularity")]
+        [HttpPost("PredictClassPopularity")]
         public async Task<IActionResult> PredictClassPopularity(
         [FromForm] string c_classname, [FromForm] string c_type,
         [FromForm] string c_startdate, [FromForm] string c_enddate, [FromForm] string c_starttime,
@@ -573,6 +573,78 @@ public async Task<IActionResult> UpdateClass([FromForm] Class request)
             if (time.Hours >= 12 && time.Hours < 17) return "Afternoon";
             if (time.Hours >= 17 && time.Hours <= 23) return "Evening";
             return "Unknown";
+        }
+        #endregion
+
+
+        #region Class Recommendation
+        [HttpPost("ClassRecommendation")]
+        public async Task<IActionResult> ClassRecommendation(
+            [FromForm] int userId,
+            [FromForm] string fitnessGoal,
+            [FromForm] string medicalCondition,
+            [FromForm] int user_age,
+            [FromForm] int user_weight)
+        {
+            try
+            {
+                var hybridRequest = new
+                {
+                    user_id = userId,
+                    user_profile = new
+                    {
+                        fitness_goal = fitnessGoal ?? "General",
+                        medical_condition = medicalCondition ?? "None",
+                        age = user_age,
+                        weight = user_weight
+                    }
+                };
+
+                Console.WriteLine($"Sending to Flask: {JsonSerializer.Serialize(hybridRequest)}");
+
+                // Call Flask API
+                using (var client = new HttpClient())
+                {
+                    client.BaseAddress = new Uri("http://localhost:5000"); // Flask server address
+                    var json = JsonSerializer.Serialize(hybridRequest);
+                    var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+                    var response = await client.PostAsync("/recommend", content);
+
+                    if (response.IsSuccessStatusCode)
+                    {
+                        var responseJson = await response.Content.ReadAsStringAsync();
+                        var result = JsonSerializer.Deserialize<Dictionary<string, object>>(responseJson);
+
+                        return Ok(new
+                        {
+                            success = true,
+                            message = "Class recommendation generated successfully",
+                            data = result
+                        });
+                    }
+                    else
+                    {
+                        var errors = await response.Content.ReadAsStringAsync();
+                        return StatusCode((int)response.StatusCode, new
+                        {
+                            success = false,
+                            message = "Failed to get class recommendations from Flask",
+                            error = errors
+                        });
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return StatusCode(500, new
+                {
+                    success = false,
+                    message = "An unexpected error occurred",
+                    error = ex.Message
+                });
+            }
         }
         #endregion
     }

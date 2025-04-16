@@ -651,3 +651,65 @@ h1 {
     height: 100vh;
     z-index: 1050;
 }
+
+
+/*#############################################*/
+/* Styling for Recommended Classes Section */
+.recommended-class-card {
+    background-color: #333; 
+    border-radius: 10px;
+    padding: 15px;
+    margin: 10px; 
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); 
+    width: 250px;
+    text-align: left; 
+    color: #fff;
+    display: inline-block;
+    vertical-align: top;
+    overflow: hidden;
+}
+
+.recommended-class-card img {
+    width: 100%; 
+    height: 150px; 
+    object-fit: cover;
+    border-radius: 8px; 
+    margin-bottom: 10px;
+}
+
+.recommended-class-card h4 {
+    font-size: 18px;
+    color: #fde047; 
+    margin-bottom: 8px;
+}
+
+.recommended-class-card p {
+    font-size: 14px;
+    color: #e7e7e7;
+    margin: 4px 0;
+}
+
+.recommended-class-card .details {
+    font-size: 12px;
+    color: #ccc;
+}
+
+.recommended-class-card a {
+    display: inline-block; 
+    margin-top: 10px;
+    padding: 8px 12px; 
+    background-color: #facc15; 
+    color: #111; 
+    font-weight: bold; 
+    border: none; 
+    text-decoration: none;
+    font-size: 12px; 
+    transition: background-color 0.2s ease, transform 0.2s;
+}
+
+.recommended-class-card a:hover {
+    background-color: #ffe347; 
+    transform: scale(1.05); 
+}
+/*#############################################*/
+/* End of Styling for Recommended Classes Section */

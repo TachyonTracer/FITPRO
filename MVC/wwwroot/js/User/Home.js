@@ -7,7 +7,7 @@ function setUserName() {
   if (token) {
     const decoded = parseJwt(token);
     if (decoded && decoded.UserObject) {
-      const userObj = JSON.parse(decoded.UserObject);
+      let userObj = JSON.parse(decoded.UserObject);
       const userName = userObj.name || userObj.userName || "User";
       document.getElementById("name").innerHTML = `<b>${userName}</b>`;
     }
@@ -509,3 +509,76 @@ async function fetchCompletedClassCount(userId) {
 
 fetchUpcomingClassCount(userId);
 fetchCompletedClassCount(userId);
+
+
+//#################################################33
+//Class Recommendation
+        const token = localStorage.getItem("authToken");
+        let userDetails = {};
+
+        if (token) {
+            const decoded = parseJwt(token);
+            if (decoded && decoded.UserObject) {
+                userDetails = JSON.parse(decoded.UserObject);
+            }
+        }
+        console.log(userDetails);
+
+        // Dynamically populate requestData from the authToken
+        const requestData = {
+            userId: userDetails.userId || 99,
+            fitnessGoal: userDetails.goal || "General Fitness",
+            medicalCondition: userDetails.medicalCondition || "None",
+            user_age: userDetails.age || 25,
+            user_weight: userDetails.weight || 70
+        };
+
+        $.ajax({
+            url: `${uri}/api/Class/ClassRecommendation`,
+            type: "POST",
+            contentType: "application/x-www-form-urlencoded",
+            data: $.param(requestData),
+            success: function (response) {
+                if (response.success) {
+                    const recommendedClasses = response.data.recommended_class_ids;
+                    const container = document.getElementById("recommended-classes");
+                    container.innerHTML = "";
+
+                    recommendedClasses.forEach((classId) => {
+                        $.ajax({
+                            url: `${uri}/api/Class/GetOneClass/?id=${classId}`,
+                            type: "GET",
+                            success: function (classDetails) {
+                                // Render the class details
+                                const classCard = `
+                                    <div class="recommended-class-card">
+                                        <img src="../ClassAssets/${classDetails.data.assets.banner}" alt="${classDetails.data.className}" />
+                                        <h4>${classDetails.data.className}</h4>
+                                        <p><strong>Instructor:</strong> ${classDetails.data.instructorName}</p>
+                                        <p><strong>Start Date:</strong> ${new Date(classDetails.data.startDate).toLocaleDateString()}</p>
+                                        <p><strong>Location:</strong> ${classDetails.data.city}</p>
+                                        <a href="/User/Bookclass?id=${classDetails.data.classId}" class="btn btn-primary">Book Now</a>
+                                    </div>
+                                `;
+                                container.innerHTML += classCard;
+                            },
+                            error: function (error) {
+                                console.error(`Error fetching details for class ID ${classId}:`, error);
+                            }
+                        });
+                    });
+                } else {
+                    document.getElementById("recommended-classes").innerHTML = `
+                        <p>No recommendations available at the moment. Stay tuned!</p>
+                    `;
+                }
+            },
+            error: function (error) {
+                console.error("Error fetching recommended classes:", error);
+                document.getElementById("recommended-classes").innerHTML = `
+                    <p>Failed to load recommendations. Please try again later.</p>
+                `;
+            }
+        });
+//#################################################33
+//End of Class Recommendation
