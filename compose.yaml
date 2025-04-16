@@ -22,6 +22,7 @@ services:
       - ConnectionStrings__pgconn=Server=${DB_HOST};Port=${DB_PORT};Database=${DB_NAME};UserId=${DB_USER};Password=${DB_PASS}
       - RecaptchaSettings__SiteKey=${RECAPTCHA_SITE_KEY}
       - RecaptchaSettings__SecretKey=${RECAPTCHA_SECRET_KEY}
+      - AI_SERVICE_URL=http://ai:5000
     networks:
       - FitPro-network
     depends_on:
@@ -100,6 +101,31 @@ services:
       timeout: 5s
       retries: 5
       start_period: 15s
+
+  ai:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        SERVICE: AI
+    ports:
+      - "5000:5000"
+    environment:
+      - FLASK_APP=main.py
+      - FLASK_ENV=development
+      - FLASK_RUN_HOST=0.0.0.0
+      - API_URL=http://api:8080
+    networks:
+      - FitPro-network
+    volumes:
+      - ./AI:/app/AI
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
 
 networks:
   FitPro-network:

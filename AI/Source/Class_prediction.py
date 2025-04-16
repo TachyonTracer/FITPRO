@@ -1,15 +1,17 @@
-
 import pandas as pd
 import joblib
 import numpy as np
+import os
 
+# Updated paths to use OS-agnostic path joining
+MODEL_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'Models')
 
 try:
-    model = joblib.load(r"Models\fitpro_class_popularity_model.pkl")
-    feature_columns = joblib.load(r"Models\feature_columns.pkl")
-    feature_importance = joblib.load(r"Models\feature_importance.pkl")
+    model = joblib.load(os.path.join(MODEL_DIR, 'fitpro_class_popularity_model.pkl'))
+    feature_columns = joblib.load(os.path.join(MODEL_DIR, 'feature_columns.pkl'))
+    feature_importance = joblib.load(os.path.join(MODEL_DIR, 'feature_importance.pkl'))
 except FileNotFoundError as e:
-    print(f"Error: {e}. Please ensure .pkl files are in the directory.")
+    print(f"Error: {e}. Please ensure .pkl files are in the Models directory.")
     exit(1)
 
 # Use your existing functions (already defined in your code)

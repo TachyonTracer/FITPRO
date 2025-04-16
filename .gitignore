@@ -8,5 +8,5 @@ bin
 /obj/
 /bin/
 .git/
-**/appsettings*.json
+# **/appsettings*.json
 .env

@@ -1,4 +1,4 @@
-# Use the .NET SDK to build the application
+# Build stage
 FROM mcr.microsoft.com/dotnet/sdk:8.0-alpine AS build
 WORKDIR /app
 
@@ -18,22 +18,42 @@ COPY . .
 RUN dotnet publish API/API.csproj -c Release -o /app/publish/API
 RUN dotnet publish MVC/MVC.csproj -c Release -o /app/publish/MVC
 
-# Use the .NET runtime for the final image
-FROM mcr.microsoft.com/dotnet/aspnet:8.0-alpine AS runtime
+# Runtime stage with Python and .NET
+FROM python:3.11-slim AS runtime
+
+# Install .NET Runtime
+RUN apt-get update && apt-get install -y wget && \
+    wget https://packages.microsoft.com/config/debian/11/packages-microsoft-prod.deb -O packages-microsoft-prod.deb && \
+    dpkg -i packages-microsoft-prod.deb && \
+    apt-get update && \
+    apt-get install -y aspnetcore-runtime-8.0
+
 WORKDIR /app
 COPY --from=build /app/publish .
 
-# Copy the wwwroot directory
+# Copy the wwwroot directory and AI project
 COPY MVC/wwwroot /app/MVC/wwwroot
+COPY AI/Source /app/AI/Source
+COPY AI/Models /app/AI/Models
+COPY AI/main.py /app/AI/
+COPY AI/requirements.txt /app/AI/
 
-# Set environment variable dynamically (API or MVC)
+# Install Python dependencies
+RUN pip install -r /app/AI/requirements.txt
+
+# Set environment variable dynamically
 ARG SERVICE
 ENV SERVICE=${SERVICE}
 WORKDIR /app/$SERVICE
 
-# Before the ENTRYPOINT
+# Create directory for DataProtection keys
 RUN mkdir -p /root/.aspnet/DataProtection-Keys && \
     chmod 777 /root/.aspnet/DataProtection-Keys
 
-# Run the specified service
-ENTRYPOINT ["sh", "-c", "dotnet /app/$SERVICE/$SERVICE.dll"]
+# Entrypoint script to handle both Python and .NET services
+ENTRYPOINT ["/bin/bash", "-c", "\
+    if [ \"$SERVICE\" = \"AI\" ]; then \
+        cd /app/AI && python main.py; \
+    else \
+        dotnet /app/$SERVICE/$SERVICE.dll; \
+    fi"]
