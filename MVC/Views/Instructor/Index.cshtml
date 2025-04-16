@@ -193,6 +193,7 @@
             <li>Schedule Classes</li>
             <li>Manage Classes</li>
             <li>Feedback</li>
+            <li>Attendance</li>
             <li>Your Blogs</li>
             <li>Schedule</li>
 
@@ -345,21 +346,28 @@
             </div>
         </div>
         <div>
-            <div class="content-area">
-                <div class="container">
-                    @Html.Partial("~/Views/Instructor/BlogList.cshtml")
-                </div>
+        <div class="content-area">
+            <div class="container">
+                @Html.Partial("~/Views/Instructor/Attendance.cshtml")
             </div>
         </div>
-
-         <div>
-            <div class="content-area">
-                <div class="container">
-                    @Html.Partial("~/Views/Instructor/ClassSchedule.cshtml")
-
-                </div>
+    </div>
+    <div>
+        <div class="content-area">
+            <div class="container">
+                @Html.Partial("~/Views/Instructor/BlogList.cshtml")
             </div>
         </div>
+    </div>
+
+    <div>
+        <div class="content-area">
+            <div class="container">
+                @Html.Partial("~/Views/Instructor/ClassSchedule.cshtml")
+
+            </div>
+        </div>
+    </div>
 
     </div>
 
