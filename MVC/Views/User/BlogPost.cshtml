@@ -384,6 +384,20 @@
             margin: 10px 0;
             display: none;
         }
+
+        .author-comment {
+            @* border-left: 4px solid #007BFF; *@
+            @* background-color: #f0f8ff; *@
+        }
+
+        .author-badge {
+            background-color: #007BFF;
+            color: white;
+            padding: 2px 6px;
+            font-size: 12px;
+            border-radius: 4px;
+            margin-left: 8px;
+        }
     </style>
 </head>
 
@@ -400,31 +414,195 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
     <script>
+
         document.addEventListener('DOMContentLoaded', function () {
+
             // Define commentsData globally within this scope
             let commentsData = [];
+            let BLOG_ID = -1;
+            let USER_OBJECT = null;
+            let USER_ROLE = "user"; // by default set to "user"
+            let USER_ID = getUserIdFromToken();
 
-            // Load blog data via AJAX
+            if(!USER_ID) {
+                console.warn("No Authentication");
+            } else {
+                console.log(USER_OBJECT);
+                console.log(USER_ID);
+                console.log(USER_ROLE);
+            }
+
+            // Start of Flow
             loadBlogData();
+
+
+            @* Utility Functions *@
+            function parseJwt(token) {
+                try {
+                    const base64Url = token.split(".")[1];
+                    const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+                    return JSON.parse(atob(base64));
+                } catch (error) {
+                    console.error("Invalid token:", error);
+                    return null;
+                }
+            }
+            function getUserIdFromToken() {
+                const token = localStorage.getItem("authToken");
+                if (!token) {
+                    console.warn("No auth token found in localStorage.");
+                    return null;
+                }
+                const jwt_decoded = parseJwt(token);
+                if (jwt_decoded) {
+                    USER_OBJECT = JSON.parse(jwt_decoded.UserObject);
+                    if (USER_OBJECT.instructorId) {
+                        USER_ROLE = "instructor";
+                        return USER_OBJECT.instructorId;
+                    } else {
+                        USER_ROLE = "user";
+                        return USER_OBJECT.userId;
+                    }
+                }
+                console.warn("Invalid or malformed token.");
+                return null;
+            }
+
+            // Extract the blog post ID from the URL
+            function getBlogPostIdFromUrl() {
+                const urlParts = window.location.pathname.split('/');
+                return urlParts[urlParts.length - 1];
+            }
+
 
             // Function to fetch blog data
             function loadBlogData() {
-                // You would replace this URL with your actual endpoint
-                const blogId = new URLSearchParams(window.location.search).get('id') || '1';
-                const url = `/api/blog/${blogId}`;
+                const blogPostId = getBlogPostIdFromUrl();
+                const url = `http://localhost:8080/api/Instructor/fetchBlogByUri?source_uri=${blogPostId}`;
 
                 $.ajax({
                     url: url,
-                    method: 'GET',
+                    method: 'POST',
                     dataType: 'json',
-                    success: function (data) {
-                        renderBlogPost(data);
+                    success: function (response) {
+                        if (response.success) {
+                            const blogData = response.data;
+                            BLOG_ID = response.data.c_blog_id;
+                            // After getting blog data, fetch author info
+                            fetchAuthorInfo(blogData);
+                        } else {
+                            console.error('Error fetching blog data:', response.message);
+                            renderBlogPost(getSampleBlogData());
+                        }
                     },
                     error: function (xhr, status, error) {
                         console.error('Error fetching blog data:', error);
                         // Load sample data as fallback
                         renderBlogPost(getSampleBlogData());
                     }
+                });
+            }
+
+            // Function to fetch author info
+            function fetchAuthorInfo(blogData) {
+                const authorId = blogData.c_blog_author_id;
+                const url = `http://localhost:8080/api/Instructor/fetchBlogAuthorById?author_id=${authorId}`;
+
+                $.ajax({
+                    url: url,
+                    method: 'POST',
+                    dataType: 'json',
+                    success: function (response) {
+                        if (response.success) {
+                            const authorData = response.data;
+                            // Combine blog and author data
+                            const combinedData = {
+                                ...blogData,
+                                c_authorname: authorData.instructorName,
+                                c_authorspecification: authorData.specialization,
+                                c_profilePicture: authorData.profileImage,
+                                isBookmarked: false // Default value
+                            };
+
+                            // Render blog with combined data
+                            renderBlogPost(combinedData);
+
+                            // After rendering blog, fetch comments
+                            fetchComments(blogData.c_blog_id);
+                        } else {
+                            console.error('Error fetching author data:', response.message);
+                            renderBlogPost(blogData);
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        console.error('Error fetching author data:', error);
+                        renderBlogPost(blogData);
+                    }
+                });
+            }
+
+            // Function to fetch comments
+            function fetchComments(blogId) {
+                const url = `http://localhost:8080/api/Instructor/fetchBlogComments?blogId_=${blogId}`;
+
+                $.ajax({
+                    url: url,
+                    method: 'POST',
+                    dataType: 'json',
+                    success: function (response) {
+                        if (response.success) {
+                            // Process comments to match our expected format
+                            const formattedComments = processComments(response.data.entries);
+                            commentsData = formattedComments;
+                            loadComments(formattedComments);
+                        } else {
+                            console.error('Error fetching comments:', response.message);
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        console.error('Error fetching comments:', error);
+                    }
+                });
+            }
+
+            // Process comments from API format to our format
+            function processComments(apiComments) {
+                return apiComments.map(comment => {
+                    // Format date from Unix timestamp
+                    const commentDate = new Date(comment.commentedAt * 1000);
+                    const formattedDate = formatDateTime(commentDate);
+
+                    return {
+                        id: comment.commentId.toString(),
+                        parent_id: comment.parentCommentId === -1 ? null : comment.parentCommentId.toString(),
+                        author: comment.authorName,
+                        avatar: comment.authorProfilePicture,
+                        date: formattedDate,
+                        text: comment.commentContent,
+                        isAuthorComment: (comment.userRole == "instructor" && comment.blogId == BLOG_ID)
+                    };
+                });
+            }
+
+            // Format date and time for displaying
+            function formatDateTime(date) {
+                return date.toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+            }
+
+            function formatDateTimeFromUnix(unixTimestamp) {
+                const date = new Date(unixTimestamp * 1000); // Convert seconds to milliseconds
+                return date.toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
                 });
             }
 
@@ -440,38 +618,6 @@
                     c_content: `<p>
                         The journey to fitness is deeply personal. What works for one person might not work for another.
                         This is why understanding your body's unique needs is the first step toward achieving your fitness goals.
-                        </p>
-
-                        <p>
-                        In this comprehensive guide, we'll explore how to design a workout routine that aligns with your specific
-                        goals, lifestyle, and preferences. Whether you're a beginner just starting out or an experienced fitness enthusiast
-                        looking to break through a plateau, this post will provide valuable insights to help you optimize your
-                        fitness journey.
-                        </p>
-                        <h1>Hello world</h1>
-                        <img src='http://localhost:8081/BlogImages/TempImages/1a841813-7ba5-4e25-839c-2e4470cd8d39.jpg' alt='' srcset=''
-                        width='1000'>
-
-
-                        <p class="highlight">
-                        "The best workout plan is the one you can stick to consistently. Sustainability trumps intensity every time."
-                        </p>
-
-                        <p>
-                        We'll cover different training methodologies, recovery strategies, nutrition basics, and how to track progress
-                        effectively. By the end of this article, you'll have actionable steps to create or refine your workout routine
-                        for maximum effectiveness.
-                        </p>
-
-                        <p>
-                        Remember that fitness is not just about physical transformation—it's about improving your overall quality of life,
-                        boosting your confidence, and enhancing your mental well-being. A well-designed fitness routine addresses all these
-                        aspects holistically.
-                        </p>
-
-                        <p>
-                        Ready to transform your approach to fitness? Let's dive in and discover the workout routine that will help you
-                        thrive both in and out of the gym.
                         </p>`,
                     c_likes: 128,
                     c_comments: 24,
@@ -482,6 +628,17 @@
 
             // Function to render blog post with provided data
             function renderBlogPost(blogData) {
+                // Decode base64 content if it exists
+                let contentHtml = blogData.c_content;
+                if (contentHtml && contentHtml.indexOf('<') === -1) {
+                    // This might be base64 encoded
+                    try {
+                        contentHtml = atob(contentHtml);
+                    } catch (e) {
+                        console.error('Error decoding content:', e);
+                    }
+                }
+
                 // Format the date from Unix epoch time
                 const publishDate = new Date(blogData.c_published_at * 1000);
                 const formattedDate = publishDate.toLocaleDateString('en-US', {
@@ -491,8 +648,14 @@
                 });
 
                 // Estimated read time calculation (rough estimate based on word count)
-                const wordCount = blogData.c_content.split(' ').length;
+                const wordCount = contentHtml.split(' ').length;
                 const readMinutes = Math.max(1, Math.round(wordCount / 200)); // Assuming average reading speed of 200 words per minute
+
+                // Format profile picture URL
+                let profilePicUrl = blogData.c_profilePicture;
+                if (profilePicUrl && !profilePicUrl.startsWith('http')) {
+                    profilePicUrl = `http://localhost:8081/Instructor_Images/${profilePicUrl}`;
+                }
 
                 // Create HTML for blog content
                 const blogHtml = `
@@ -506,13 +669,13 @@
 
                     <div class="author-section">
                         <div class="author-image">
-                            <img src="${blogData.c_profilePicture}" alt="Author profile"
-                                onerror="this.src='https://via.placeholder.com/60'">
+                            <img src="${profilePicUrl}" alt="Author profile"
+                            >
                         </div>
                         <div class="author-info">
                             <div class="author-name">${blogData.c_authorname}</div>
                             <div class="publication-info">
-                                <span>${blogData.c_authorspecification}</span>
+                                <span>${blogData.c_authorspecification || 'Author'}</span>
                                 <span>•</span>
                                 <span>${readMinutes} min read</span>
                                 <span>•</span>
@@ -525,18 +688,18 @@
                     <!-- Blog stats section -->
                     <div class="blog-stats">
                         <div class="blog-stats-item">
-                            <i class="fa-solid fa-eye"></i> ${blogData.c_views} views
+                            <i class="fa-solid fa-eye"></i> ${blogData.c_views || 0} views
                         </div>
                         <div class="blog-stats-item">
-                            <i class="fa-solid fa-hands-clapping"></i> ${blogData.c_likes} likes
+                            <i class="fa-solid fa-hands-clapping"></i> ${blogData.c_likes || 0} likes
                         </div>
                         <div class="blog-stats-item">
-                            <i class="fa-solid fa-comment"></i> ${blogData.c_comments} comments
+                            <i class="fa-solid fa-comment"></i> ${blogData.c_comments || 0} comments
                         </div>
                     </div>
 
                     <div class="blog-content">
-                        ${blogData.c_content}
+                        ${contentHtml}
                     </div>
 
                     <!-- Error message display -->
@@ -544,7 +707,7 @@
 
                     <!-- Comments Section -->
                     <div class="comments-section">
-                        <h3 class="comments-header">Comments (${blogData.c_comments})</h3>
+                        <h3 class="comments-header">Comments (${blogData.c_comments || 0})</h3>
 
                         <!-- Comment Form -->
                         <div class="comment-form">
@@ -561,67 +724,6 @@
 
                 // Replace loading indicator with blog content
                 document.getElementById('blog-container').innerHTML = blogHtml;
-
-                // Set commentsData to be accessible from outside this function
-                commentsData = [
-                    {
-                        id: "1",
-                        parent_id: null, // null means top-level comment
-                        author: "Sarah Johnson",
-                        avatar: "https://media.istockphoto.com/id/1300845620/vector/user-icon-flat-isolated-on-white-background-user-symbol-vector-illustration.jpg?s=612x612&w=0&k=20&c=yBeyba0hUkh14_jgv1OKqIH0CCSWU_4ckRkAoy2p73o=",
-                        date: "2 days ago",
-                        text: "This is exactly what I needed to read today! I've been struggling with consistency in my workout routine, and this perspective on sustainability over intensity is so important.",
-                        likes: 15
-                    },
-                    {
-                        id: "2",
-                        parent_id: null,
-                        author: "Michael Chen",
-                        avatar: "https://media.istockphoto.com/id/1300845620/vector/user-icon-flat-isolated-on-white-background-user-symbol-vector-illustration.jpg?s=612x612&w=0&k=20&c=yBeyba0hUkh14_jgv1OKqIH0CCSWU_4ckRkAoy2p73o=",
-                        date: "3 days ago",
-                        text: "I'd love to see more specific examples of how to create sustainable workout routines for different fitness levels. Could you elaborate on that in a future post?",
-                        likes: 8
-                    },
-                    {
-                        id: "3",
-                        parent_id: "1", // reply to comment with id "1"
-                        author: "Alex Johnson",
-                        avatar: "https://media.istockphoto.com/id/1300845620/vector/user-icon-flat-isolated-on-white-background-user-symbol-vector-illustration.jpg?s=612x612&w=0&k=20&c=yBeyba0hUkh14_jgv1OKqIH0CCSWU_4ckRkAoy2p73o=",
-                        date: "1 day ago",
-                        text: "Glad you found it helpful, Sarah! What specific part of your routine do you find hardest to maintain?",
-                        likes: 6
-                    },
-                    {
-                        id: "4",
-                        parent_id: "3", // reply to comment with id "3"
-                        author: "Sarah Johnson",
-                        avatar: "https://media.istockphoto.com/id/1300845620/vector/user-icon-flat-isolated-on-white-background-user-symbol-vector-illustration.jpg?s=612x612&w=0&k=20&c=yBeyba0hUkh14_jgv1OKqIH0CCSWU_4ckRkAoy2p73o=",
-                        date: "1 day ago",
-                        text: "Definitely consistency with cardio. I tend to focus more on strength training because I enjoy it more, but I know I need both for balanced fitness.",
-                        likes: 4
-                    },
-                    {
-                        id: "5",
-                        parent_id: "4", // nested reply to comment with id "4"
-                        author: "Alex Johnson",
-                        avatar: "https://media.istockphoto.com/id/1300845620/vector/user-icon-flat-isolated-on-white-background-user-symbol-vector-illustration.jpg?s=612x612&w=0&k=20&c=yBeyba0hUkh14_jgv1OKqIH0CCSWU_4ckRkAoy2p73o=",
-                        date: "23 hours ago",
-                        text: "That's common! Try integrating short cardio sessions (15-20 min) after your strength training rather than separate workouts. You're already at the gym, so leverage that momentum.",
-                        likes: 3
-                    },
-                    {
-                        id: "6",
-                        parent_id: null, // nested reply to comment with id "4"
-                        author: "Alex Johnson",
-                        avatar: "https://media.istockphoto.com/id/1300845620/vector/user-icon-flat-isolated-on-white-background-user-symbol-vector-illustration.jpg?s=612x612&w=0&k=20&c=yBeyba0hUkh14_jgv1OKqIH0CCSWU_4ckRkAoy2p73o=",
-                        date: "23 hours ago",
-                        text: "That's common! Try integrating short cardio sessions (15-20 min) after your strength training rather than separate workouts. You're already at the gym, so leverage that momentum.",
-                        likes: 3
-                    }
-                ];
-
-                // Load comments
-                loadComments(commentsData);
 
                 // Bookmark functionality
                 const bookmarkButton = document.getElementById('bookmark-button');
@@ -663,6 +765,8 @@
             // Functions to handle comments
             function loadComments(comments) {
                 const commentsList = document.querySelector('.comments-list');
+                if (!commentsList) return;
+                
                 commentsList.innerHTML = ''; // Clear existing comments
 
                 // First, render all top-level comments (parent_id is null)
@@ -699,14 +803,22 @@
             }
 
             function createCommentElement(comment) {
+                // Format profile picture URL
+                let avatarUrl = comment.avatar;
+                if (avatarUrl && !avatarUrl.startsWith('http')) {
+                    avatarUrl = `http://localhost:8081/User_Images/${avatarUrl}`;
+                }
+                
                 const commentElement = document.createElement('div');
-                commentElement.className = 'comment';
+                commentElement.className = `comment${comment.isAuthorComment ? ' author-comment' : ''}`;
+                @* commentElement.className = 'comment'; *@
                 commentElement.id = `comment-${comment.id}`;
 
-                commentElement.innerHTML = `
+                @* commentElement.innerHTML = `
                     <div class="comment-header">
                         <div class="commenter-avatar">
-                            <img src="${comment.avatar}" alt="${comment.author}">
+                            <img src="${avatarUrl}" alt="${comment.author}" 
+                                onerror="this.src='https://media.istockphoto.com/id/1300845620/vector/user-icon-flat-isolated-on-white-background-user-symbol-vector-illustration.jpg?s=612x612&w=0&k=20&c=yBeyba0hUkh14_jgv1OKqIH0CCSWU_4ckRkAoy2p73o='">
                         </div>
                         <div class="commenter-name">${comment.author}</div>
                         <div class="comment-date">${comment.date}</div>
@@ -723,139 +835,117 @@
                         <button class="comment-submit" data-parent-id="${comment.id}">Reply</button>
                     </div>
                     <div class="nested-comments" id="nested-comments-${comment.id}"></div>
+                `; *@
+
+                commentElement.innerHTML = `
+                    <div class="comment-header">
+                        <div class="commenter-avatar">
+                            <img src="${avatarUrl}" alt="${comment.author}" 
+                                onerror="this.src='https://media.istockphoto.com/id/1300845620/vector/user-icon-flat-isolated-on-white-background-user-symbol-vector-illustration.jpg?s=612x612&w=0&k=20&c=yBeyba0hUkh14_jgv1OKqIH0CCSWU_4ckRkAoy2p73o='">
+                        </div>
+                        <div class="commenter-name">
+                            ${comment.author}
+                            ${comment.isAuthorComment ? '<span class="author-badge">Author</span>' : ''}
+                        </div>
+                        <div class="comment-date">${comment.date}</div>
+                    </div>
+                    <div class="comment-body">
+                        ${comment.text}
+                    </div>
+                    <div class="comment-actions">
+                        <button class="comment-action reply-action" data-comment-id="${comment.id}">
+                            <i class="fa-solid fa-reply"></i>&nbsp;&nbsp;Reply
+                        </button>
+                    </div>
+                    <div class="reply-form" id="reply-form-${comment.id}">
+                        <textarea class="comment-input" placeholder="Write your reply..."></textarea>
+                        <button class="comment-submit" data-parent-id="${comment.id}">Reply</button>
+                    </div>
+                    <div class="nested-comments" id="nested-comments-${comment.id}"></div>
                 `;
 
                 return commentElement;
             }
 
             // Function to add a new comment
-            function addNewComment(text) {
+            function addNewComment(text, parentCommentId = null) {
                 try {
-                    const commentsList = document.querySelector('.comments-list');
-
-                    // Get max comment ID and increment by 1
-                    let maxId = 6; // Start from ID 7
-                    commentsData.forEach(comment => {
-                        const commentId = parseInt(comment.id);
-                        if (!isNaN(commentId) && commentId > maxId) {
-                            maxId = commentId;
-                        }
-                    });
-                    const newCommentId = (maxId + 1).toString();
-
-                    // Create formatted date and time
                     const now = new Date();
+                    const commentedAt = Math.floor(now.getTime() / 1000); // Unix timestamp
                     const formattedDateTime = formatDateTime(now);
+                    
+                    // Get blog ID from current page
+                    const blogPostId = getBlogPostIdFromUrl();
 
-                    const newComment = {
-                        id: newCommentId,
-                        parent_id: null, // top level comment has null parent_id
-                        author: "You",
-                        avatar: "https://media.istockphoto.com/id/1300845620/vector/user-icon-flat-isolated-on-white-background-user-symbol-vector-illustration.jpg?s=612x612&w=0&k=20&c=yBeyba0hUkh14_jgv1OKqIH0CCSWU_4ckRkAoy2p73o=",
-                        date: formattedDateTime,
-                        text: text,
-                        likes: 0
+                    const payload = {
+                        commentId: -1,
+                        blogId: BLOG_ID, // You might need to get this dynamically from your blog data
+                        userId: USER_ID, // This should be the logged-in user's ID
+                        commentedAt: commentedAt,
+                        commentContent: text,
+                        parentCommentId: parentCommentId === null ? -1 : parentCommentId,
+                        userRole: USER_ROLE,
+                        authorName: "Default User", // This should be the logged-in user's name
+                        authorProfilePicture: "default.png"
                     };
 
-                    // Add to our data array
-                    commentsData.push(newComment);
+                    $.ajax({
+                        url: 'http://localhost:8080/api/Instructor/AddNewComment',
+                        type: 'POST',
+                        contentType: 'application/json',
+                        data: JSON.stringify(payload),
+                        success: function (response) {
+                            if (response.success) {
+                                const newCommentId = response.comment.commentId.toString();
 
-                    const commentElement = createCommentElement(newComment);
+                                const newComment = {
+                                    id: newCommentId,
+                                    parent_id: response.comment.parentCommentId,
+                                    author: response.comment.authorName,
+                                    avatar: response.comment.authorProfilePicture,
+                                    date: formatDateTimeFromUnix(response.comment.commentedAt),
+                                    text: response.comment.commentContent
+                                };
 
-                    // Insert at the top of the list
-                    commentsList.insertBefore(commentElement, commentsList.firstChild);
+                                commentsData.push(newComment);
 
-                    // Update comment counters
-                    updateCommentsCounter(1);
+                                if (parentCommentId === null) {
+                                    // Add as a top-level comment
+                                    const commentsList = document.querySelector('.comments-list');
+                                    const commentElement = createCommentElement(newComment);
+                                    commentsList.insertBefore(commentElement, commentsList.firstChild);
+                                } else {
+                                    // Add as a reply
+                                    const nestedContainer = document.getElementById(`nested-comments-${parentCommentId}`);
+                                    if (nestedContainer) {
+                                        const replyElement = createCommentElement(newComment);
+                                        if (nestedContainer.firstChild) {
+                                            nestedContainer.insertBefore(replyElement, nestedContainer.firstChild);
+                                        } else {
+                                            nestedContainer.appendChild(replyElement);
+                                        }
+                                    }
+                                }
 
-                    // Attach event listeners
-                    attachCommentEventListeners();
+                                updateCommentsCounter(1);
+                                attachCommentEventListeners();
 
-                    console.log(`Added new comment with ID: ${newCommentId}, parent_id: null`);
+                                console.log(`Added new comment with ID: ${newCommentId}, parent_id: ${parentCommentId}`);
+                            } else {
+                                showError("Failed to add comment: " + response.message);
+                            }
+                        },
+                        error: function (xhr, status, error) {
+                            showError("Error adding comment: " + error);
+                        }
+                    });
 
                 } catch (error) {
                     showError("Error adding comment: " + error.message);
                 }
             }
 
-            // Function to add a new reply
-            function addNewReply(text, parentId) {
-                try {
-                    // Find the parent comment's nested-comments container
-                    const nestedCommentsContainer = document.getElementById(`nested-comments-${parentId}`);
-
-                    // Check if the container exists
-                    if (!nestedCommentsContainer) {
-                        throw new Error(`Cannot find nested comments container for parent: ${parentId}`);
-                    }
-
-                    // Get max comment ID and increment by 1
-                    let maxId = 6; // Start from ID 7
-                    commentsData.forEach(comment => {
-                        const commentId = parseInt(comment.id);
-                        if (!isNaN(commentId) && commentId > maxId) {
-                            maxId = commentId;
-                        }
-                    });
-                    const newReplyId = (maxId + 1).toString();
-
-                    // Create formatted date and time
-                    const now = new Date();
-                    const formattedDateTime = formatDateTime(now);
-
-                    const newReply = {
-                        id: newReplyId,
-                        parent_id: parentId, // Set the parent_id to the comment being replied to
-                        author: "You",
-                        avatar: "https://media.istockphoto.com/id/1300845620/vector/user-icon-flat-isolated-on-white-background-user-symbol-vector-illustration.jpg?s=612x612&w=0&k=20&c=yBeyba0hUkh14_jgv1OKqIH0CCSWU_4ckRkAoy2p73o=",
-                        date: formattedDateTime,
-                        text: text,
-                        likes: 0
-                    };
-
-                    // Add to our data array
-                    commentsData.push(newReply);
-
-                    const replyElement = createCommentElement(newReply);
-
-                    // Add to the nested comments - insert at the beginning to show newest reply first
-                    if (nestedCommentsContainer.firstChild) {
-                        nestedCommentsContainer.insertBefore(replyElement, nestedCommentsContainer.firstChild);
-                    } else {
-                        nestedCommentsContainer.appendChild(replyElement);
-                    }
-
-                    // Update comment counters
-                    updateCommentsCounter(1);
-
-                    // Attach event listeners
-                    attachCommentEventListeners();
-
-                    console.log(`Added new reply with ID: ${newReplyId}, parent_id: ${parentId}`);
-
-                } catch (error) {
-                    showError("Error adding reply: " + error.message);
-                }
-            }
-
-            // Helper function to format date and time
-            function formatDateTime(date) {
-                const day = date.getDate();
-                const month = date.toLocaleString('default', { month: 'short' });
-                const year = date.getFullYear();
-                const hours = date.getHours();
-                const minutes = date.getMinutes().toString().padStart(2, '0');
-
-                // Format: "May 15, 2023 at 14:30"
-                return `${month} ${day}, ${year} at ${hours}:${minutes}`;
-            }
-
             function attachCommentEventListeners() {
-                // Remove all existing event listeners first by cloning and replacing elements
-                // This prevents duplicate event listeners
-
-                // Remove the like button handlers since we removed the like buttons
-
                 // Reply buttons 
                 document.querySelectorAll('.reply-action').forEach(button => {
                     const newButton = button.cloneNode(true);
@@ -893,89 +983,48 @@
                         const parentId = this.getAttribute('data-parent-id');
 
                         if (replyText) {
-                            addNewReply(replyText, parentId);
+                            addNewComment(replyText, parentId);
                             replyInput.value = '';
-                            // Close the reply form after submission
-                            const replyForm = document.getElementById(`reply-form-${parentId}`);
-                            if (replyForm) {
-                                replyForm.classList.remove('active');
-                            }
+                            // Close the reply form after submitting
+                            document.getElementById(`reply-form-${parentId}`).classList.remove('active');
                         }
                     });
                 });
-            }
-
-            // Function to show error messages
-            function showError(message) {
-                const errorElement = document.getElementById('error-message');
-                errorElement.textContent = message;
-                errorElement.style.display = 'block';
-
-                setTimeout(() => {
-                    errorElement.style.display = 'none';
-                }, 5000);
-
-                console.error(message);
             }
 
             // Function to update comments counter
             function updateCommentsCounter(increment) {
-                try {
-                    // Update header counter
-                    const commentsHeader = document.querySelector('.comments-header');
-                    const currentCount = parseInt(commentsHeader.textContent.match(/\d+/)[0]);
+                const commentsHeader = document.querySelector('.comments-header');
+                if (commentsHeader) {
+                    const currentCount = parseInt(commentsHeader.textContent.match(/\d+/) || 0);
                     const newCount = currentCount + increment;
                     commentsHeader.textContent = `Comments (${newCount})`;
-
-                    // Update reactions counter
-                    const commentButton = document.getElementById('comment-button');
-                    if (commentButton) {
-                        const currentButtonCount = parseInt(commentButton.textContent.trim().split(' ')[1]);
-                        const newButtonCount = currentButtonCount + increment;
-                        commentButton.innerHTML = `<i class="fa-solid fa-comment"></i> ${newButtonCount}`;
+                    
+                    // Also update the comments stats counter
+                    const commentsStats = document.querySelector('.blog-stats-item:has(.fa-comment)');
+                    if (commentsStats) {
+                        commentsStats.innerHTML = `<i class="fa-solid fa-comment"></i> ${newCount} comments`;
                     }
-                } catch (error) {
-                    console.error("Error updating comment counters:", error);
                 }
             }
 
-            // Listen for clicks on the like button
-            const likeButton = document.getElementById('like-button');
-            if (likeButton) {
-                likeButton.addEventListener('click', function () {
-                    const currentLikes = parseInt(this.textContent.trim().split(' ')[1]);
-                    const newCount = currentLikes + 1;
-                    this.innerHTML = `<i class="fa-solid fa-hands-clapping"></i> ${newCount}`;
-                });
+            // Function to show error message
+            function showError(message) {
+                const errorMessageElement = document.getElementById('error-message');
+                if (errorMessageElement) {
+                    errorMessageElement.textContent = message;
+                    errorMessageElement.style.display = 'block';
+                    
+                    // Hide after 5 seconds
+                    setTimeout(() => {
+                        errorMessageElement.style.display = 'none';
+                    }, 5000);
+                } else {
+                    console.error(message);
+                }
             }
-
-            // Smooth scroll to comments when comment button is clicked
-            const commentButton = document.getElementById('comment-button');
-            if (commentButton) {
-                commentButton.addEventListener('click', function () {
-                    document.querySelector('.comments-section').scrollIntoView({
-                        behavior: 'smooth'
-                    });
-                });
-            }
-
-            // Fallback for icons if Font Awesome fails to load
-            setTimeout(function () {
-                const icons = document.querySelectorAll('.reaction-btn i');
-                icons.forEach(icon => {
-                    if (getComputedStyle(icon).width === '0px') {
-                        // Fallback to text if icons don't load
-                        if (icon.className.includes('hands-clapping')) {
-                            icon.textContent = '👏';
-                        } else if (icon.className.includes('comment')) {
-                            icon.textContent = '💬';
-                        } else if (icon.className.includes('share')) {
-                            icon.textContent = '↗️';
-                        }
-                    }
-                });
-            }, 1000);
         });
+
     </script>
 </body>
 

@@ -197,7 +197,13 @@
             <input type="hidden" id="instructorId" value="1">
             <input type="hidden" id="status" value="Active">
 
-            <button type="submit" id="createClassBtn" class="btn">Create Class</button>
+            <!-- Add this before the Create Class button -->
+            <div class="d-flex gap-3 mt-3">
+                <button type="button" id="predictClassBtn" class="btn btn-info">
+                    <i class="bi bi-graph-up"></i> Predict Class Popularity
+                </button>
+                <button type="submit" id="createClassBtn" class="btn">Create Class</button>
+            </div>
         </form>
     </div>
 </div>
