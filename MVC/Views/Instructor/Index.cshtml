@@ -92,6 +92,8 @@
             <li>Manage Classes</li>
             <li>Feedback</li>
             <li>Your Blogs</li>
+            <li>Schedule</li>
+
         </ul>
         <div>
             <div class="content-area">
@@ -253,6 +255,15 @@
                     <p>This would be the feedback section.</p> *@
                     @* html *@
                     @Html.Partial("~/Views/Instructor/BlogList.cshtml")
+
+                </div>
+            </div>
+        </div>
+
+         <div>
+            <div class="content-area">
+                <div class="container">
+                    @Html.Partial("~/Views/Instructor/ClassSchedule.cshtml")
 
                 </div>
             </div>
