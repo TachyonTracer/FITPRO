@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.DataProtection;
 using Npgsql;
 using Repo;
 
@@ -9,6 +10,10 @@ builder.Services.AddScoped<NpgsqlConnection>((provider) =>
 });
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+
+builder.Services.AddDataProtection()
+    .SetApplicationName("FitPro")
+    .PersistKeysToFileSystem(new DirectoryInfo(@"/root/.aspnet/DataProtection-Keys"));
 
 var app = builder.Build();
 
