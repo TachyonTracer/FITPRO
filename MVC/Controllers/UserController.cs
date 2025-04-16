@@ -36,9 +36,5 @@ namespace MVC
             return View("Error!");
         }
 
-        public IActionResult BlogPost()
-        {
-            return View();
-        }
     }
 }

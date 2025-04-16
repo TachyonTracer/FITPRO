@@ -542,7 +542,7 @@
             // Function to fetch blog data
             function loadBlogData() {
                 const blogPostId = getBlogPostIdFromUrl();
-                const url = `http://localhost:8080/api/Instructor/fetchBlogByUri?source_uri=${blogPostId}`;
+                const url = `http://localhost:8080/api/Blog/fetchBlogByUri?source_uri=${blogPostId}`;
 
                 $.ajax({
                     url: url,
@@ -570,7 +570,7 @@
             // Function to fetch author info
             function fetchAuthorInfo(blogData) {
                 const authorId = blogData.c_blog_author_id;
-                const url = `http://localhost:8080/api/Instructor/fetchBlogAuthorById?author_id=${authorId}`;
+                const url = `http://localhost:8080/api/Blog/fetchBlogAuthorById?author_id=${authorId}`;
 
                 $.ajax({
                     url: url,
@@ -607,7 +607,7 @@
 
             // Function to fetch comments
             function fetchComments(blogId) {
-                const url = `http://localhost:8080/api/Instructor/fetchBlogComments?blogId_=${blogId}`;
+                const url = `http://localhost:8080/api/Blog/fetchBlogComments?blogId_=${blogId}`;
 
                 $.ajax({
                     url: url,
@@ -863,7 +863,7 @@
                 function sendBookmarkToServer(bookmarked) {
                     // AJAX call to update bookmark status on server
                     $.ajax({
-                        url: 'http://localhost:8080/api/Instructor/updateBlogBookmark',
+                        url: 'http://localhost:8080/api/Blog/updateBlogBookmark',
                         type: 'POST',
                         contentType: 'application/json',
                         data: JSON.stringify({
@@ -941,7 +941,7 @@
                 function sendLikeToServer(liked) {
                     // AJAX call to update like status on server
                     $.ajax({
-                        url: 'http://localhost:8080/api/Instructor/updateBlogLike',
+                        url: 'http://localhost:8080/api/Blog/updateBlogLike',
                         type: 'POST',
                         contentType: 'application/json',
                         data: JSON.stringify({
@@ -1109,7 +1109,7 @@
                     };
 
                     $.ajax({
-                        url: 'http://localhost:8080/api/Instructor/AddNewComment',
+                        url: 'http://localhost:8080/api/Blog/AddNewComment',
                         type: 'POST',
                         contentType: 'application/json',
                         data: JSON.stringify(payload),

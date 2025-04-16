@@ -526,7 +526,7 @@
 
             // Try to fetch actual data first
             $.ajax({
-                url: `http://localhost:8080/api/Instructor/GetInstructorBlogsById?instructor_id=${getUserIdFromToken().toString()}`,
+                url: `http://localhost:8080/api/Blog/GetInstructorBlogsById?instructor_id=${getUserIdFromToken().toString()}`,
                 type: 'POST',
                 headers: {
                     'Authorization': token ? `Bearer ${token}` : '',
@@ -550,7 +550,7 @@
                             comments: entry.c_comments || 0,
                             is_completed: entry.c_is_published || 0,
                             createdAt: entry.c_created_at,
-                            sourceUrl: 'http://localhost:8081/user/blogpost/' + entry.c_source_url
+                            sourceUrl: 'http://localhost:8081/Blog/blogpost/' + entry.c_source_url
                         }));
                         filteredBlogs = [...allBlogs];
                         sortBlogs(currentSort);
@@ -714,19 +714,19 @@
 
         // Create New Blog button click handler
         $(document).on('click', '#createBlogBtn', function () {
-            @* window.location.href = "/instructor/BlogEditor"; *@
-            window.open("http://localhost:8081/instructor/BlogEditor", '_blank');
+            @* window.location.href = "/Blog/BlogEditor"; *@
+            window.open("http://localhost:8081/Blog/BlogEditor", '_blank');
         });
 
         // Edit and Delete functions
         function editBlog(blogId) {
-            window.open(`/instructor/BlogEditor?id=${blogId}`, '_blank');
+            window.open(`/Blog/BlogEditor?id=${blogId}`, '_blank');
         }
 
         function deleteBlog(blogId) {
             if (confirm('Are you sure you want to delete this blog post? This action cannot be undone.')) {
                 $.ajax({
-                    url: `http://localhost:8080/api/Instructor/delete-blog/${blogId}`,
+                    url: `http://localhost:8080/api/Blog/delete-blog/${blogId}`,
                     type: 'DELETE',
                     headers: {
                         'Authorization': token ? `Bearer ${token}` : ''

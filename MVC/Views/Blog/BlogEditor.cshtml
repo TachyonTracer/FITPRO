@@ -650,7 +650,7 @@
 
                                             // AJAX call to upload the file
                                             $.ajax({
-                                                url: 'http://localhost:8080/api/Instructor/SaveImage',
+                                                url: 'http://localhost:8080/api/Blog/SaveImage',
                                                 type: 'POST',
                                                 data: formData,
                                                 processData: false,
@@ -743,7 +743,7 @@
                             const token = localStorage.getItem('authToken');
 
                             $.ajax({
-                                url: `http://localhost:8080/api/Instructor/GetBlogById?blog_id=${blogId}`,
+                                url: `http://localhost:8080/api/Blog/GetBlogById?blog_id=${blogId}`,
                                 type: 'POST',
                                 headers: {
                                     'Authorization': token ? `Bearer ${token}` : '',
@@ -1086,7 +1086,7 @@
 
                             // AJAX call to upload the file
                             $.ajax({
-                                url: 'http://localhost:8080/api/instructor/SaveImage',
+                                url: 'http://localhost:8080/api/Blog/SaveImage',
                                 type: 'POST',
                                 data: formData,
                                 processData: false,
@@ -1116,12 +1116,12 @@
 
                         // Save Draft button click handler
                         $("#saveDraftButton").click(function () {
-                            saveContent(0, 'http://localhost:8080/api/instructor/SaveDraft');
+                            saveContent(0, 'http://localhost:8080/api/Blog/SaveDraft');
                         });
 
                         // Save button click handler
                         $("#saveButton").click(function () {
-                            saveContent(1, 'http://localhost:8080/api/instructor/PublishBlog');
+                            saveContent(1, 'http://localhost:8080/api/Blog/PublishBlog');
                         });
 
                         // Function to save content with is_published status
