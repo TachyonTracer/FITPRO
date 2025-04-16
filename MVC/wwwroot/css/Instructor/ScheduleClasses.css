@@ -1,11 +1,11 @@
 :root {
-    --background: #1a1a2e;
+    --background: #0d0d0d;
     --color: #ffffff;
-    --primary-color: #ff4d4d;
+    --primary-color: #facc15;
     --glass-color: rgba(255, 255, 255, 0.1);
     --card-bg: rgba(26, 26, 46, 0.8);
     --border-color: rgba(255, 255, 255, 0.1);
-}
+  }
 
 * {
     box-sizing: border-box;
@@ -248,11 +248,12 @@ h2 {
     background-color: var(--primary-color);
     border-color: var(--primary-color);
     transition: all 0.3s ease;
+    color: black;
 }
 
 .btn-primary:hover {
-    background-color: #ff3333;
-    border-color: #ff3333;
+    background-color:  #d3b94d;
+    border-color:  #b6950f;
     transform: translateY(-2px);
     box-shadow: 0 4px 8px rgba(255, 77, 77, 0.3);
 }

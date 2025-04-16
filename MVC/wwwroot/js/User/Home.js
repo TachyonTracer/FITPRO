@@ -18,6 +18,10 @@ function setUserName() {
 window.onload = function () {
   setUserName();
   userId = getUserIdFromToken();
+  var user = localStorage.getItem("authToken");
+  if (!user) {
+      window.location.href = "/auth/login"
+  }
 };
 
 userId = getUserIdFromToken();

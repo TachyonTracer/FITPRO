@@ -7,11 +7,13 @@ header {
 }
 
 :root {
-	--background: #1a1a2e;
+	--background: #0d0d0d;
 	--color: #ffffff;
-	--primary-color: #ff4d4d;
+	--primary-color: #facc15;
 	--glass-color: rgba(255, 255, 255, 0.1);
-}
+	--card-bg: rgba(26, 26, 46, 0.8);
+	--border-color: rgba(255, 255, 255, 0.1);
+  }
 
 body {
 	font-family: "Poppins", sans-serif;

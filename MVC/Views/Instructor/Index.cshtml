@@ -166,7 +166,7 @@
                         <li class="list-group-item text-center text-muted">No new notifications</li>
                     </ul>
                     <div class="p-2 border-top bg-light">
-                        <button class="btn btn-sm btn-danger w-100" onclick="markAllAsRead()">Mark all as read</button>
+                        <button class="btn btn-sm btn-warning w-100" onclick="markAllAsRead()">Mark all as read</button>
                     </div>
                 </div>
             </div>
@@ -194,6 +194,8 @@
             <li>Manage Classes</li>
             <li>Feedback</li>
             <li>Your Blogs</li>
+            <li>Schedule</li>
+
         </ul>
         <div>
             <div class="content-area">
@@ -349,6 +351,16 @@
                 </div>
             </div>
         </div>
+
+         <div>
+            <div class="content-area">
+                <div class="container">
+                    @Html.Partial("~/Views/Instructor/ClassSchedule.cshtml")
+
+                </div>
+            </div>
+        </div>
+
     </div>
 
     <div id="profileDrawer"></div>
@@ -360,7 +372,7 @@
             <div class="class-details-grid" id="classDetailsContent"></div>
         </div>
     </div>
-
+    <script src="@Url.Content("~/js/Instructor/index.js")" asp-append-version="true"></script>
     <script src="@Url.Content("~/js/Instructor/Dashboard.js")" asp-append-version="true"></script>
     <script src="@Url.Content("~/js/Instructor/ScheduleClasses.js")" asp-append-version="true"></script>
     <script src="@Url.Content("~/js/Instructor/Feedback.js")" asp-append-version="true"></script>

@@ -101,14 +101,31 @@ namespace Repo
             return feedbacks;
         }
 
-        public bool AddClassFeedback(ClassFeedback feedback)
+        public int AddClassFeedback(ClassFeedback feedback)
         {
             try
             {
                 _conn.Open();
+
+                // First check if the user already submitted feedback for this class
+                var checkQuery = @"SELECT COUNT(*) FROM t_feedback_class 
+                                  WHERE c_userid = @userId AND c_classid = @classId";
+                using var checkCmd = new NpgsqlCommand(checkQuery, _conn);
+                checkCmd.Parameters.AddWithValue("@userId", feedback.userId);
+                checkCmd.Parameters.AddWithValue("@classId", feedback.classId);
+
+                int existingFeedbacks = Convert.ToInt32(checkCmd.ExecuteScalar());
+                if (existingFeedbacks > 0)
+                {
+                    Console.WriteLine($"User {feedback.userId} already submitted feedback for class {feedback.classId}");
+                    return -1; // Return -1 to indicate user already submitted feedback
+                }
+
+                // If no existing feedback, insert the new one
                 var query = @"INSERT INTO t_feedback_class 
                               (c_userid, c_classid, c_rating, c_feedback, c_createdat) 
-                              VALUES (@userId, @classId, @rating, @feedback, @createdAt)";
+                              VALUES (@userId, @classId, @rating, @feedback, @createdAt)
+                              RETURNING c_feedbackid";
                 using var cmd = new NpgsqlCommand(query, _conn);
                 cmd.Parameters.AddWithValue("@userId", feedback.userId);
                 cmd.Parameters.AddWithValue("@classId", feedback.classId);
@@ -116,11 +133,19 @@ namespace Repo
                 cmd.Parameters.AddWithValue("@feedback", feedback.feedback);
                 cmd.Parameters.AddWithValue("@createdAt", feedback.createdAt);
 
-                return cmd.ExecuteNonQuery() > 0;
+                // Get the ID of the inserted feedback
+                var result = cmd.ExecuteScalar();
+                return result != null ? Convert.ToInt32(result) : 0;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error adding class feedback: {ex.Message}");
+                return 0; // Return 0 to indicate an error occurred
             }
             finally
             {
-                _conn.Close();
+                if (_conn.State == System.Data.ConnectionState.Open)
+                    _conn.Close();
             }
         }
 

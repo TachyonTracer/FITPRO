@@ -55,5 +55,12 @@ namespace MVC
         {
             return View();
         }
+
+        public IActionResult UserClassSchedule(){
+            return View();
+        }
+
+        
+
     }
 }
