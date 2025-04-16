@@ -336,16 +336,26 @@
             background: none;
             border: none;
             color: #FFD700;
-            font-size: 24px;
+            font-size: 28px;
             cursor: pointer;
-            transition: all 0.2s ease;
+            transition: all 0.3s ease;
             position: absolute;
             top: 40px;
             right: 20px;
+            padding: 10px;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: rgba(0, 0, 0, 0.5);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
         }
 
         .bookmark-btn:hover {
             transform: scale(1.1);
+            background-color: rgba(0, 0, 0, 0.7);
         }
 
         .bookmark-btn.active {
@@ -353,7 +363,61 @@
         }
 
         .bookmark-btn:not(.active) {
-            color: #555;
+            color: #aaaaaa;
+        }
+
+        /* Medium-style floating reaction buttons */
+        .reaction-floating {
+            position: fixed;
+            left: calc(50% - 400px - 100px);
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            padding: 15px 0;
+            border-radius: 30px;
+            background-color: rgba(30, 30, 30, 0.8);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            z-index: 100;
+        }
+
+        .reaction-floating .reaction-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-color: #2a2a2a;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.2s ease;
+        }
+
+        .reaction-floating .reaction-btn i {
+            margin: 0;
+            font-size: 24px;
+        }
+
+        .reaction-floating .reaction-count {
+            font-size: 14px;
+            text-align: center;
+            margin-top: 5px;
+            color: #aaaaaa;
+        }
+
+        .reaction-floating .reaction-btn:hover {
+            background-color: #3a3a3a;
+            transform: scale(1.1);
+        }
+
+        .reaction-floating .reaction-btn.active {
+            background-color: rgba(255, 215, 0, 0.2);
+        }
+
+        .reaction-floating .reaction-btn.active i {
+            color: #FFD700;
         }
 
         /* Blog stats section */
@@ -682,7 +746,10 @@
                                 <span>${formattedDate}</span>
                             </div>
                         </div>
-                        <button class="follow-btn">Follow</button>
+                        <button class="like-blog-btn" id="like-blog-btn">
+                            <i class="fa-${blogData.isLiked ? 'solid' : 'regular'} fa-heart"></i>
+                            <span class="like-text">${blogData.isLiked ? 'Liked' : 'Like'}</span>
+                        </button>
                     </div>
 
                     <!-- Blog stats section -->
@@ -690,16 +757,33 @@
                         <div class="blog-stats-item">
                             <i class="fa-solid fa-eye"></i> ${blogData.c_views || 0} views
                         </div>
-                        <div class="blog-stats-item">
-                            <i class="fa-solid fa-hands-clapping"></i> ${blogData.c_likes || 0} likes
+                        <div class="blog-stats-item like-stats" role="button">
+                            <i class="fa-solid fa-heart"></i> <span class="like-count">${blogData.c_likes || 0}</span> likes
                         </div>
-                        <div class="blog-stats-item">
+                        <div class="blog-stats-item comment-stats" role="button">
                             <i class="fa-solid fa-comment"></i> ${blogData.c_comments || 0} comments
                         </div>
                     </div>
 
                     <div class="blog-content">
                         ${contentHtml}
+                    </div>
+                    
+                    <!-- Reactions section -->
+                    <div class="reaction-section">
+                        <div class="reactions-left">
+                            <button class="reaction-btn like-button" id="like-button" title="Like this article">
+                                <i class="fa-${blogData.isLiked ? 'solid' : 'regular'} fa-heart"></i>
+                                <span class="like-count">${blogData.c_likes || 0}</span>
+                            </button>
+                            <button class="reaction-btn comment-button" id="comment-button" title="Go to comments">
+                                <i class="fa-regular fa-comment"></i>
+                                <span>${blogData.c_comments || 0}</span>
+                            </button>
+                        </div>
+                        <button class="reaction-btn bookmark-btn-bottom" id="bookmark-button-bottom" title="Save article">
+                            <i class="fa-${blogData.isBookmarked ? 'solid' : 'regular'} fa-bookmark"></i>
+                        </button>
                     </div>
 
                     <!-- Error message display -->
@@ -727,19 +811,37 @@
 
                 // Bookmark functionality
                 const bookmarkButton = document.getElementById('bookmark-button');
+                const bookmarkButtonBottom = document.getElementById('bookmark-button-bottom');
                 let isBookmarked = blogData.isBookmarked;
 
                 // Set initial bookmark state
                 updateBookmarkIcon();
 
+                // Handle top bookmark button click
                 bookmarkButton.addEventListener('click', function () {
-                    isBookmarked = !isBookmarked;
-                    updateBookmarkIcon();
-                    // In a real app, you'd save this state to the server
-                    console.log('Bookmark state:', isBookmarked);
+                    handleBookmarkAction();
                 });
 
+                // Handle bottom bookmark button click
+                bookmarkButtonBottom.addEventListener('click', function () {
+                    handleBookmarkAction();
+                });
+
+                function handleBookmarkAction() {
+                    if (!USER_ID) {
+                        showError("Please login to bookmark this blog");
+                        return;
+                    }
+
+                    isBookmarked = !isBookmarked;
+                    updateBookmarkIcon();
+                    
+                    // Send bookmark status to server
+                    sendBookmarkToServer(isBookmarked);
+                }
+
                 function updateBookmarkIcon() {
+                    // Update top bookmark button
                     if (isBookmarked) {
                         bookmarkButton.classList.add('active');
                         bookmarkButton.innerHTML = '<i class="fa-solid fa-bookmark"></i>';
@@ -747,6 +849,123 @@
                         bookmarkButton.classList.remove('active');
                         bookmarkButton.innerHTML = '<i class="fa-regular fa-bookmark"></i>';
                     }
+                    
+                    // Update bottom bookmark button
+                    if (isBookmarked) {
+                        bookmarkButtonBottom.classList.add('active');
+                        bookmarkButtonBottom.innerHTML = '<i class="fa-solid fa-bookmark"></i>';
+                    } else {
+                        bookmarkButtonBottom.classList.remove('active');
+                        bookmarkButtonBottom.innerHTML = '<i class="fa-regular fa-bookmark"></i>';
+                    }
+                }
+
+                function sendBookmarkToServer(bookmarked) {
+                    // AJAX call to update bookmark status on server
+                    $.ajax({
+                        url: 'http://localhost:8080/api/Instructor/updateBlogBookmark',
+                        type: 'POST',
+                        contentType: 'application/json',
+                        data: JSON.stringify({
+                            blogId: BLOG_ID,
+                            userId: USER_ID,
+                            isBookmarked: bookmarked
+                        }),
+                        success: function(response) {
+                            if (!response.success) {
+                                showError("Failed to update bookmark status: " + response.message);
+                                // Revert the UI change if server update failed
+                                isBookmarked = !isBookmarked;
+                                updateBookmarkIcon();
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            showError("Error updating bookmark status: " + error);
+                            // Revert the UI change if server update failed
+                            isBookmarked = !isBookmarked;
+                            updateBookmarkIcon();
+                        }
+                    });
+                }
+
+                // Like functionality
+                const likeBlogBtn = document.getElementById('like-blog-btn');
+                const likeButton = document.getElementById('like-button');
+                let isLiked = blogData.isLiked || false;
+                let likeCount = blogData.c_likes || 0;
+
+                // Set initial like state
+                updateLikeState();
+
+                // Handle like button clicks (both buttons)
+                likeBlogBtn.addEventListener('click', function() {
+                    handleLikeAction();
+                });
+
+                likeButton.addEventListener('click', function() {
+                    handleLikeAction();
+                });
+
+                function handleLikeAction() {
+                    if (!USER_ID) {
+                        showError("Please login to like this blog");
+                        return;
+                    }
+
+                    isLiked = !isLiked;
+                    likeCount = isLiked ? likeCount + 1 : likeCount - 1;
+                    updateLikeState();
+                    
+                    // Send like status to server
+                    sendLikeToServer(isLiked);
+                }
+
+                function updateLikeState() {
+                    // Update both like buttons
+                    likeBlogBtn.innerHTML = `<i class="fa-${isLiked ? 'solid' : 'regular'} fa-heart"></i> <span class="like-text">${isLiked ? 'Liked' : 'Like'}</span>`;
+                    likeButton.innerHTML = `<i class="fa-${isLiked ? 'solid' : 'regular'} fa-heart"></i> <span class="like-count">${likeCount}</span>`;
+                    
+                    // Update like count in stats section
+                    document.querySelector('.blog-stats .like-count').textContent = likeCount;
+                    
+                    // Add/remove active class for styling
+                    if (isLiked) {
+                        likeBlogBtn.classList.add('active');
+                        likeButton.classList.add('active');
+                    } else {
+                        likeBlogBtn.classList.remove('active');
+                        likeButton.classList.remove('active');
+                    }
+                }
+
+                function sendLikeToServer(liked) {
+                    // AJAX call to update like status on server
+                    $.ajax({
+                        url: 'http://localhost:8080/api/Instructor/updateBlogLike',
+                        type: 'POST',
+                        contentType: 'application/json',
+                        data: JSON.stringify({
+                            blogId: BLOG_ID,
+                            userId: USER_ID,
+                            isLiked: liked
+                        }),
+                        success: function(response) {
+                            if (!response.success) {
+                                showError("Failed to update like status: " + response.message);
+                                // Revert the UI change if server update failed
+                                isLiked = !isLiked;
+                                likeCount = isLiked ? likeCount + 1 : likeCount - 1;
+                                updateLikeState();
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            showError("Error updating like status: " + error);
+                            // Revert the UI change if server update failed
+                            isLiked = !isLiked;
+                            likeCount = isLiked ? likeCount + 1 : likeCount - 1;
+                            updateLikeState();
+                        }
+                    });
                 }
 
                 // Comment submission
