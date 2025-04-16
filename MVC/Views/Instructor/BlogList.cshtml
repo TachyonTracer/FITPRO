@@ -304,6 +304,50 @@
         animation: spin 1s infinite linear;
     }
 
+
+    .blog-card {
+        position: relative;
+        border-radius: 12px;
+        overflow: hidden;
+        transition: transform 0.25s ease, box-shadow 0.25s ease;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+
+    .blog-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    .blog-open-icon {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        z-index: 10;
+        @* background-color: rgba(255, 255, 255, 0.85); *@
+        background-color: #facc15;
+        padding: 5px 7px;
+        border-radius: 50%;
+        cursor: pointer;
+        transition: background-color 0.2s;
+    }
+
+    .blog-open-icon:hover {
+        @* background-color: #facc15; *@
+        background-color: rgba(255, 255, 255, 0.85);
+    }
+
+    .copy-link {
+        margin-left: 2px;
+        cursor: pointer;
+        color: #888;
+        transition: color 0.2s ease;
+    }
+
+    .copy-link:hover {
+        @* color: #333; *@
+        color: #facc15;
+    }
+
     @@keyframes spin {
         from {
             transform: rotate(0deg);
@@ -315,8 +359,7 @@
         }
     }
 
-    @@media
-    (max-width: 768px) {
+    @@media (max-width: 768px) {
 
         /* Responsive adjustments */
         .blog-card {
@@ -398,6 +441,7 @@
         let allBlogs = [];
         let filteredBlogs = [];
         let currentSort = 'latest';
+        let token = "";
 
         // Sample blog data for fallback
         const sampleBlogs = [
@@ -462,7 +506,7 @@
             }
         }
         function getUserIdFromToken() {
-            const token = localStorage.getItem("authToken");
+            token = localStorage.getItem("authToken");
             if (!token) {
                 console.warn("No auth token found in localStorage.");
                 return null;
@@ -478,7 +522,7 @@
 
         // Fetch blogs on page load
         $(document).ready(function () {
-            const token = localStorage.getItem('authToken');
+            token = localStorage.getItem('authToken');
 
             // Try to fetch actual data first
             $.ajax({
@@ -496,13 +540,14 @@
                             title: entry.c_title,
                             description: entry.c_desc,
                             content: entry.c_content,
-                            thumbnailUrl: 'http://localhost:8081/blogImages/Thumbnails/' + entry.c_thumbnail || 'http://localhost:8081/blogImages/Thumbnails/default.png',
+                            thumbnailUrl: 'http://localhost:8081/blogImages/Thumbnails/' + entry.c_blog_id + '/' + entry.c_thumbnail || 'http://localhost:8081/blogImages/Thumbnails/default.png',
                             tags: entry.c_tags ? entry.c_tags.split(",") : [],
                             views: entry.c_views || 0,
                             likes: entry.c_likes || 0,
                             comments: entry.c_comments || 0,
-                            is_completed: entry.c_is_completed || 0,
-                            createdAt: entry.c_created_at
+                            is_completed: entry.c_is_published || 0,
+                            createdAt: entry.c_created_at,
+                            sourceUrl: 'http://localhost:8081/user/blogpost/' + entry.c_source_url
                         }));
                         filteredBlogs = [...allBlogs];
                         sortBlogs(currentSort);
@@ -542,13 +587,19 @@
             }
 
             filteredBlogs.forEach(blog => {
-                const blogCard = $('<div>').addClass('blog-card');
+
+                const blogCard = $('<div>')
+                    .addClass('blog-card')
+                    .css('position', 'relative');
 
                 // Determine button text based on is_completed status
-                const buttonText = blog.is_completed ? "Edit" : "Edit";
-                const buttonIcon = blog.is_completed ? "fa-edit" : "fa-pen";
+                const buttonText = blog.is_completed ? "Edit" : "Edit Draft";
+                const buttonIcon = "fa-edit";
 
                 blogCard.html(`
+                    <div class="blog-open-icon" title="Open Blog">
+                        <i class="fas fa-external-link-alt"></i>
+                    </div>
                     <img src="${blog.thumbnailUrl || '/images/default-blog.jpg'}" alt="${blog.title}" class="blog-thumbnail">
                     <div class="blog-details">
                         <div>
@@ -559,18 +610,41 @@
                             <span class="stat"><i class="fas fa-eye"></i> ${blog.views || 0}</span>
                             <span class="stat"><i class="fas fa-heart"></i> ${blog.likes || 0}</span>
                             <span class="stat"><i class="fas fa-comment"></i> ${blog.comments || 0}</span>
-                            <span class="stat"><i class="fas fa-calendar"></i> ${formatDate(blog.createdAt)}</span>
+                            <span class="stat">
+                                <i class="fas fa-calendar"></i> ${new Date(blog.createdAt * 1000).toLocaleDateString()}
+                            </span>
+                            <span class="stat copy-link" title="Copy Link" data-url="${blog.sourceUrl}">
+                                <i class="fas fa-link"></i>
+                            </span>
                             ${!blog.is_completed ? '<span class="stat" style="color:#ff9800"><i class="fas fa-exclamation-circle"></i> Draft</span>' : ''}
                             <div class="blog-actions">
-                                <button class="edit-btn" onclick="editBlog(${blog.id})"><i class="fas ${buttonIcon}"></i> ${buttonText}</button>
+                                <button class="edit-btn" onclick="editBlog(${blog.id})"><i class="fas fa-edit"></i> ${buttonText}</button>
                                 <button class="delete-btn" onclick="deleteBlog(${blog.id})"><i class="fas fa-trash"></i></button>
                             </div>
                         </div>
                     </div>
                 `);
+
                 blogListElement.append(blogCard);
             });
         }
+
+        // Open blog when clicking the open icon
+        $(document).on('click', '.blog-open-icon', function (e) {
+            e.stopPropagation();
+            const blogUrl = $(this).closest('.blog-card').find('.copy-link').data('url');
+            window.open(blogUrl, '_blank');
+        });
+
+        // Copy blog URL
+        $(document).on('click', '.copy-link', function (e) {
+            e.stopPropagation();
+            const url = $(this).data('url');
+            navigator.clipboard.writeText(url).then(() => {
+                $(this).attr('title', 'Copied!').tooltip('show');
+                setTimeout(() => $(this).attr('title', 'Copy Link'), 1000);
+            });
+        });
 
         function formatDate(dateString) {
             if (!dateString) return 'Unknown date';
@@ -635,7 +709,8 @@
 
         // Create New Blog button click handler
         $(document).on('click', '#createBlogBtn', function () {
-            window.location.href = "/instructor/BlogEditor";
+            @* window.location.href = "/instructor/BlogEditor"; *@
+            window.open("http://localhost:8081/instructor/BlogEditor", '_blank');
         });
 
         // Edit and Delete functions
@@ -645,10 +720,28 @@
 
         function deleteBlog(blogId) {
             if (confirm('Are you sure you want to delete this blog post? This action cannot be undone.')) {
-                // For sample data, just remove from arrays
-                allBlogs = allBlogs.filter(blog => blog.id !== blogId);
-                filteredBlogs = filteredBlogs.filter(blog => blog.id !== blogId);
-                renderBlogs();
+                $.ajax({
+                    url: `http://localhost:8080/api/Instructor/delete-blog/${blogId}`,
+                    type: 'DELETE',
+                    headers: {
+                        'Authorization': token ? `Bearer ${token}` : ''
+                    },
+                    success: function (response) {
+                        // Remove from UI arrays
+                        allBlogs = allBlogs.filter(blog => blog.id !== blogId);
+                        filteredBlogs = filteredBlogs.filter(blog => blog.id !== blogId);
+                        renderBlogs();
+                        @* alert(response.message || "Blog deleted successfully."); *@
+                    },
+                    error: function (xhr) {
+                        if (xhr.status === 404) {
+                            alert("Blog not found.");
+                        } else {
+                            const errMsg = xhr.responseJSON && xhr.responseJSON.message ? xhr.responseJSON.message : xhr.statusText;
+                            alert("Error deleting blog: " + errMsg);
+                        }
+                    }
+                });
             }
         }
     </script>
