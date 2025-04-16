@@ -50,7 +50,7 @@ def recommend_for_new_user(user_profile, class_data, df_cleaned, top_n=5):
 
 
 # Hybrid Recommendation function
-def hybrid_recommendation(user_id, user_profile, user_item_matrix, class_data, df_cleaned, user_similarity_df, top_n=5):
+def hybrid_recommendation(user_id, user_profile, user_item_matrix, class_data, df_cleaned, user_similarity_df, top_n=4):
     if is_new_user(user_id, user_item_matrix):
         print(f"User {user_id} is new. Using content-based filtering.")
         return recommend_for_new_user(user_profile, class_data, df_cleaned, top_n)
