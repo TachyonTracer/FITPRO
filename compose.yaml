@@ -20,6 +20,8 @@ services:
       - ASPNETCORE_DATAPROTECTION__APPLICATIONNAME=FitPro
       - ASPNETCORE_DATAPROTECTION__PERSISTKEYSTOFILESYSTEM=/root/.aspnet/DataProtection-Keys
       - ConnectionStrings__pgconn=Server=${DB_HOST};Port=${DB_PORT};Database=${DB_NAME};UserId=${DB_USER};Password=${DB_PASS}
+      - RecaptchaSettings__SiteKey=${RECAPTCHA_SITE_KEY}
+      - RecaptchaSettings__SecretKey=${RECAPTCHA_SECRET_KEY}
     networks:
       - FitPro-network
     depends_on:
@@ -52,6 +54,8 @@ services:
       - ASPNETCORE_DATAPROTECTION__APPLICATIONNAME=FitPro
       - ASPNETCORE_DATAPROTECTION__PERSISTKEYSTOFILESYSTEM=/root/.aspnet/DataProtection-Keys
       - ConnectionStrings__pgconn=Server=${DB_HOST};Port=${DB_PORT};Database=${DB_NAME};UserId=${DB_USER};Password=${DB_PASS}
+      - RecaptchaSettings__SiteKey=${RECAPTCHA_SITE_KEY}
+      - RecaptchaSettings__SecretKey=${RECAPTCHA_SECRET_KEY}
     networks:
       - FitPro-network
     depends_on:
