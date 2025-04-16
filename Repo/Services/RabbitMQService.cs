@@ -34,7 +34,7 @@ public class RabbitMQService
     {
         var factory = new ConnectionFactory()
         {
-            HostName = _configuration["RabbitMQ:HostName"] ?? "rabbitmq",
+            HostName = _configuration["RabbitMQ:HostName"] ?? "localhost",
             UserName = _configuration["RabbitMQ:UserName"] ?? "guest",
             Password = _configuration["RabbitMQ:Password"] ?? "guest",
             RequestedHeartbeat = TimeSpan.FromSeconds(60),
