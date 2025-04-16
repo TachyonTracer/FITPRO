@@ -207,7 +207,7 @@ public class ClassRepo : IClassInterface
         List<Class> classes = new List<Class>();
         try
         {
-            using (var cmd = new NpgsqlCommand("SELECT t1.*,t2.c_instructorname FROM t_Class t1 join t_instructor t2 on t1.c_instructorid = t2.c_instructorid", _conn))
+            using (var cmd = new NpgsqlCommand("SELECT t1.*,t2.c_instructorname FROM t_Class t1 join t_instructor t2 on t1.c_instructorid = t2.c_instructorid where t1.c_status = 'Active'", _conn))
             {
                 if (_conn.State == System.Data.ConnectionState.Closed)
                 {

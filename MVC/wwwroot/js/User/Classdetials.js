@@ -1,3 +1,11 @@
+$("document").ready(function(){
+
+    var user = localStorage.getItem("authToken");
+    if (!user) {
+        window.location.href = "/auth/login"
+    }
+});
+
 function showTab(tab) {
     const detailsTab = document.getElementById('details-tab');
     const equipmentTab = document.getElementById('equipment-tab');
@@ -66,19 +74,10 @@ window.onload = () => {
     }
 };
 
-// Update the joinWaitlist function
-function joinWaitlist() {
-    waitlistCount++;
-    document.getElementById('waitlist-count').textContent = waitlistCount;
-    updateWaitlistColor(waitlistCount);
-    alert("🕓 You've been added to the waiting list!");
-}
-
 async function bookThisClass() {
     const urlParams = new URLSearchParams(window.location.search);
     const classId = urlParams.get('id');
-
-   
+    const userId = getUserIdFromToken();
 
     if (!classId) {
         Swal.fire({
@@ -90,14 +89,198 @@ async function bookThisClass() {
     }
 
     try {
-        const response = await fetch('http://localhost:8080/api/Class/BookClass', {
+        // First check if the user has already booked this class
+        const checkResponse = await fetch('http://localhost:8080/api/Class/IsClassAlreadyBooked', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
                 classId: parseInt(classId),
-                userId: userId
+                userId: parseInt(userId)
+            })
+        });
+
+        const checkResult = await checkResponse.json();
+        if (!checkResult.success) {
+            Swal.fire({
+                title: 'Already Booked',
+                text: checkResult.message,
+                icon: 'info'
+            });
+            return;
+        }
+
+        // Get class details to determine availability and fee
+        const classResponse = await fetch(`http://localhost:8080/api/Class/GetOneClass?id=${classId}`);
+        const classData = await classResponse.json();
+
+        if (!classData.sucess || !classData.data) {
+            Swal.fire({
+                title: 'Error',
+                text: 'Failed to fetch class details',
+                icon: 'error'
+            });
+            return;
+        }
+
+        const classInfo = classData.data;
+
+        // Check if this is a direct booking (available capacity) or waitlist
+        if (classInfo.availableCapacity > 0) {
+            // Initialize Stripe
+            const stripe = Stripe('pk_test_51R9873B6NxmJUHpLwRmbtVWKFWIAFHzLx27IWuda1MiaD1WtS6G9uimHfT4bepFIzXCYNQ0BpcYEo1FWSH651Zjp00H0cXnR7g');
+
+            // Create checkout session
+            try {
+                const sessionResponse = await fetch('http://localhost:8080/Checkout/create-checkout-session', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        ClassName: classInfo.className,
+                        ClassDescription: classInfo.description?.purpose || 'N/A',
+                        amount: classInfo.fee * 100, // Stripe expects amount in cents
+                        currency: "INR",
+                        classId: classId,
+                        userId: userId
+                    })
+                });
+
+                const session = await sessionResponse.json();
+
+                if (!session.sessionId) {
+                    Swal.fire({
+                        title: "Payment Error",
+                        text: "Failed to initiate payment. Please try again later.",
+                        icon: "error",
+                        confirmButtonText: "OK"
+                    });
+                    return;
+                }
+
+                // Store session ID for verification after payment
+                localStorage.setItem("sessionId", session.sessionId);
+                localStorage.setItem("bookingClassId", classId);
+                localStorage.setItem("bookingUserId", userId);
+
+                // Redirect to Stripe checkout
+                const result = await stripe.redirectToCheckout({ sessionId: session.sessionId });
+
+                if (result.error) {
+                    Swal.fire({
+                        title: "Payment Error",
+                        text: result.error.message,
+                        icon: "error",
+                        confirmButtonText: "OK"
+                    });
+                }
+            } catch (error) {
+                console.error('Payment error:', error);
+                Swal.fire({
+                    title: "Payment Error",
+                    text: "Unable to process payment. Please try again later.",
+                    icon: "error",
+                    confirmButtonText: "OK"
+                });
+            }
+        } else {
+            // Handle waitlist WITH payment - using the same payment flow as booking
+            Swal.fire({
+                title: "Join Waitlist",
+                text: "This class is currently full. Would you like to join the waitlist? You'll only be charged if you get a spot.",
+                icon: "question",
+                showCancelButton: true,
+                confirmButtonText: "Yes, Join Waitlist",
+                cancelButtonText: "Cancel"
+            }).then(async (result) => {
+                if (result.isConfirmed) {
+                    try {
+                        // Use Stripe for waitlist entries too
+                        const stripe = Stripe('pk_test_51R9873B6NxmJUHpLwRmbtVWKFWIAFHzLx27IWuda1MiaD1WtS6G9uimHfT4bepFIzXCYNQ0BpcYEo1FWSH651Zjp00H0cXnR7g');
+
+                        // Create checkout session - same as booking but add a waitlist flag
+                        const sessionResponse = await fetch('http://localhost:8080/Checkout/create-checkout-session', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                ClassName: classInfo.className,
+                                ClassDescription: `Waitlist entry for ${classInfo.className}`,
+                                amount: classInfo.fee * 100, // Same fee for waitlist
+                                currency: "INR",
+                                classId: classId,
+                                userId: userId,
+                                isWaitlist: true // Add a flag to indicate this is for waitlist
+                            })
+                        });
+
+                        const session = await sessionResponse.json();
+
+                        if (!session.sessionId) {
+                            Swal.fire({
+                                title: "Payment Error",
+                                text: "Failed to initiate payment for waitlist. Please try again later.",
+                                icon: "error",
+                                confirmButtonText: "OK"
+                            });
+                            return;
+                        }
+
+                        // Store session ID for verification after payment
+                        localStorage.setItem("sessionId", session.sessionId);
+                        localStorage.setItem("bookingClassId", classId);
+                        localStorage.setItem("bookingUserId", userId);
+                        localStorage.setItem("isWaitlist", "true"); // Flag to indicate waitlist in storage
+
+                        // Redirect to Stripe checkout
+                        const result = await stripe.redirectToCheckout({ sessionId: session.sessionId });
+
+                        if (result.error) {
+                            Swal.fire({
+                                title: "Payment Error",
+                                text: result.error.message,
+                                icon: "error",
+                                confirmButtonText: "OK"
+                            });
+                        }
+                    } catch (error) {
+                        console.error('Waitlist payment error:', error);
+                        Swal.fire({
+                            title: "Payment Error",
+                            text: "Unable to process waitlist payment. Please try again later.",
+                            icon: "error",
+                            confirmButtonText: "OK"
+                        });
+                    }
+                }
+            });
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        Swal.fire({
+            title: 'Error',
+            text: 'An unexpected error occurred. Please try again.',
+            icon: 'error',
+            confirmButtonText: 'OK'
+        });
+    }
+}
+
+// Add a function to handle successful payments after returning from Stripe
+async function completeBookingAfterPayment(sessionId, classId, userId) {
+    try {
+        const response = await fetch('http://localhost:8080/api/Class/CompleteBookingAfterPayment', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                sessionId: sessionId,
+                classId: parseInt(classId),
+                userId: parseInt(userId)
             })
         });
 
@@ -122,36 +305,59 @@ async function bookThisClass() {
             });
 
             Swal.fire({
-                title: 'Success!',
-                text: 'Class booked successfully!',
+                title: 'Booking Successful!',
+                text: 'Your payment was successful and the class has been booked.',
                 icon: 'success',
                 confirmButtonText: 'OK'
-            }).then(() => {
-                window.location.reload();
             });
         } else {
             Swal.fire({
-                title: 'Booking Failed',
-                text: result.message || 'Failed to book class',
+                title: 'Booking Error',
+                text: result.message || 'There was a problem completing your booking after payment.',
                 icon: 'error',
                 confirmButtonText: 'OK'
             });
         }
     } catch (error) {
-        console.error('Error:', error);
+        console.error('Error completing booking after payment:', error);
         Swal.fire({
-            title: 'Error',
-            text: 'Failed to book class. Please try again.',
+            title: 'Booking Error',
+            text: 'There was a problem completing your booking after payment.',
             icon: 'error',
             confirmButtonText: 'OK'
         });
     }
 }
 
-function getUserIdFromToken() {
-    // Hardcoded user ID for testing without login
-    return 1; // You can change this to any valid user ID in your database
+function parseJwt(token) {
+    try {
+        const base64Url = token.split(".")[1];
+        const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+        return JSON.parse(atob(base64));
+    } catch (error) {
+        console.error("Invalid token:", error);
+        return null;
+    }
+
 }
+function getUserIdFromToken() {
+    const token = localStorage.getItem("authToken");
+    if (!token) {
+        console.warn("No auth token found in localStorage.");
+        return null;
+    }
+    const decoded = parseJwt(token);
+    if (decoded) {
+        return JSON.parse(decoded.UserObject).userId; // Updated to return instructorId from decoded token
+    }
+    console.warn("Invalid or malformed token.");
+    return null;
+}
+
+// function getUserIdFromToken() {
+//     // Hardcoded user ID for testing without login
+//     return 1; // You can change this to any valid user ID in your database
+// }
 
 // Add this function before your DOMContentLoaded event handler
 async function getCoordinatesFromAddress(address) {
@@ -213,25 +419,100 @@ async function fetchWaitlistCount(classId) {
         const data = await response.json();
 
         if (data.success) {
+            // document.getElementById("waitlist-count").textContent = 0;
             document.getElementById("waitlist-count").textContent = data.count;
         } else {
             document.getElementById("waitlist-count").textContent = "N/A";
             console.error("Failed to fetch count:", data.message);
         }
-    } 
-    catch (error) 
-    {
+    }
+    catch (error) {
         console.error("Error fetching waitlist count:", error);
         document.getElementById("waitlist-count").textContent = "Error";
     }
 }
 
-// Update the DOMContentLoaded event handler
+// Update this part of your DOMContentLoaded event handler
+async function updateBookingSection(classInfo) {
+    const bookSection = document.getElementById('book-section');
+    const waitlistSection = document.getElementById('waitlist-section');
+
+    // Fetch the waitlist count
+    try {
+        const response = await fetch(`http://localhost:8080/api/Class/ClasswiseWaitlistCount/${classInfo.classId}`);
+        const data = await response.json();
+
+        const waitlistCount = data.success ? data.count : 0;
+
+        if (classInfo.availableCapacity > 0) {
+            // Show Book Now button
+            bookSection.style.display = 'block';
+            waitlistSection.style.display = 'none';
+
+            // Make sure the button has the correct onclick handler
+            document.querySelector('.book-now-btn').onclick = bookThisClass;
+        } else {
+            // Show Join Waiting List button
+            bookSection.style.display = 'none';
+            waitlistSection.style.display = 'block';
+            document.getElementById('waitlist-count').textContent = waitlistCount;
+            updateWaitlistColor(waitlistCount);
+
+            // Make sure the waitlist button has the same onclick handler as booking
+            document.querySelector('.waitlist-btn').onclick = bookThisClass;
+        }
+    } catch (error) {
+        console.error('Error fetching waitlist count:', error);
+    }
+}
+
+// Replace your current DOMContentLoaded event listener with this:
 document.addEventListener('DOMContentLoaded', async function () {
+    // Check if authentication token exists FIRST, before doing anything else
+    const authToken = localStorage.getItem('authToken');
+
+    if (!authToken) {
+        // Store current page URL to redirect back after login
+        localStorage.setItem('redirectAfterLogin', window.location.href);
+
+        // Show alert and then redirect, using async/await to ensure alert is shown
+        await Swal.fire({
+            title: 'Authentication Required',
+            text: 'Please log in to view class details',
+            icon: 'warning',
+            showCancelButton: false,
+            confirmButtonColor: '#3085d6',
+            confirmButtonText: 'Go to Login'
+        });
+
+        // After alert is closed, redirect immediately
+        window.location.href = '/Auth/Login';
+        return; // Stop execution
+    }
+
+    // Continue with the rest of your code for authenticated users
     const urlParams = new URLSearchParams(window.location.search);
     const classId = urlParams.get('id');
-    console.log(classId);
+    const paymentSuccess = urlParams.get('payment_success');
 
+    // Process payment success if needed
+    if (paymentSuccess === 'true') {
+        const sessionId = localStorage.getItem('sessionId');
+        const classId = localStorage.getItem('bookingClassId');
+        const userId = localStorage.getItem('bookingUserId');
+
+        if (sessionId && classId && userId) {
+            // Verify payment and complete booking
+            completeBookingAfterPayment(sessionId, classId, userId);
+
+            // Clear stored booking data
+            localStorage.removeItem('sessionId');
+            localStorage.removeItem('bookingClassId');
+            localStorage.removeItem('bookingUserId');
+        }
+    }
+
+    // Your existing class loading code...
     if (!classId) {
         Swal.fire({
             title: 'Error',
@@ -285,18 +566,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         });
 
         // Update booking section based on availability
-        const bookSection = document.getElementById('book-section');
-        const waitlistSection = document.getElementById('waitlist-section');
-
-        if (classInfo.availableCapacity > 0) {
-            bookSection.style.display = 'block';
-            waitlistSection.style.display = 'none';
-        } else {
-            bookSection.style.display = 'none';
-            waitlistSection.style.display = 'block';
-            document.getElementById('waitlist-count').textContent = classInfo.waitlistCount || 0;
-            updateWaitlistColor(classInfo.waitlistCount || 0);
-        }
+        updateBookingSection(classInfo);
 
         // Update gallery images if available
         if (classInfo.assets) {

@@ -12,7 +12,7 @@ public interface IFeedbackInterface
 
 
     
-    bool AddClassFeedback(ClassFeedback feedback);
+    int AddClassFeedback(ClassFeedback feedback);
     List<ClassFeedback> GetClassFeedbacksByClassId(int classId);
 
     // Validation
