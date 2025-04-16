@@ -3,21 +3,11 @@ import pandas as pd
 import joblib
 import numpy as np
 
-# app = Flask(__name__)
 
-# Load pre-trained model, feature_columns, and feature_importance
 try:
-    model = joblib.load("Models/fitpro_class_popularity_model.pkl")
-    print("Model loaded successfully:", type(model))
-except Exception as e:
-    print(f"Error loading model: {e}")
-    exit(1)
-    
-try:
-    model = joblib.load("Models/fitpro_class_popularity_model.pkl")
-    print(type(model))
-    feature_columns = joblib.load("Models/feature_columns.pkl")
-    feature_importance = joblib.load("Models/feature_importance.pkl")
+    model = joblib.load(r"Models\fitpro_class_popularity_model.pkl")
+    feature_columns = joblib.load(r"Models\feature_columns.pkl")
+    feature_importance = joblib.load(r"Models\feature_importance.pkl")
 except FileNotFoundError as e:
     print(f"Error: {e}. Please ensure .pkl files are in the directory.")
     exit(1)
@@ -142,6 +132,3 @@ def interpret_prediction(prediction, probability, new_class_data, feature_import
     return result
 
 
-
-# if __name__ == '__main__':
-#     app.run(debug=True, host='0.0.0.0', port=5000)
