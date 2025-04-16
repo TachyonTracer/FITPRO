@@ -51,19 +51,21 @@ namespace API.Controllers
         public IActionResult GetInstructorFeedbacks(int instructorId)
         {
             var feedbacks = _feedbackRepo.GetInstructorFeedbacksByInstructorId(instructorId);
-            
+
             if (feedbacks == null || !feedbacks.Any())
             {
-                return NotFound(new { 
-                    success = false, 
-                    message = "No feedbacks found for this instructor" 
+                return NotFound(new
+                {
+                    success = false,
+                    message = "No feedbacks found for this instructor"
                 });
             }
 
-            return Ok(new { 
-                success = true, 
-                message = "Instructor feedbacks fetched successfully", 
-                data = feedbacks 
+            return Ok(new
+            {
+                success = true,
+                message = "Instructor feedbacks fetched successfully",
+                data = feedbacks
             });
         }
 
@@ -74,36 +76,56 @@ namespace API.Controllers
             try
             {
                 var feedbacks = _feedbackRepo.GetClassFeedbacksByClassId(classId);
-                
+
                 if (feedbacks == null)
                 {
-                    return StatusCode(500, new { 
-                        success = false, 
-                        message = "Error retrieving feedbacks" 
+                    return StatusCode(500, new
+                    {
+                        success = false,
+                        message = "Error retrieving feedbacks"
                     });
                 }
 
                 if (!feedbacks.Any())
                 {
-                    return NotFound(new { 
-                        success = false, 
-                        message = $"No feedbacks found for class ID: {classId}" 
+                    return NotFound(new
+                    {
+                        success = false,
+                        message = $"No feedbacks found for class ID: {classId}"
                     });
                 }
 
-                return Ok(new { 
-                    success = true, 
-                    message = "Class feedbacks fetched successfully", 
-                    data = feedbacks 
+                return Ok(new
+                {
+                    success = true,
+                    message = "Class feedbacks fetched successfully",
+                    data = feedbacks
                 });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { 
-                    success = false, 
-                    message = $"Internal server error: {ex.Message}" 
+                return StatusCode(500, new
+                {
+                    success = false,
+                    message = $"Internal server error: {ex.Message}"
                 });
             }
         }
+
+        [HttpGet("class/instructor/{instructorId}")]
+        public IActionResult GetAllClassFeedbacksByInstructor(int instructorId)
+        {
+            var feedbacks = _feedbackRepo.GetClassFeedbacksByInstructorId(instructorId);
+            return Ok(new { success = true, message = "Feedbacks fetched", data = feedbacks });
+        }
+
+        [HttpGet("class/{classId}/rating/{rating}")]
+        public IActionResult GetClassFeedbacksByRating(int classId, int rating)
+        {
+            var all = _feedbackRepo.GetClassFeedbacksByClassId(classId);
+            var filtered = all.Where(f => f.rating == rating).ToList();
+            return Ok(new { success = true, message = $"Filtered feedbacks for rating {rating}", data = filtered });
+        }
+
     }
 }

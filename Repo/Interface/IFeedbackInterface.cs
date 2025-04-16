@@ -17,4 +17,7 @@ public interface IFeedbackInterface
 
     // Validation
     bool HasUserJoinedClass(int userId, int classId);
+
+    List<ClassFeedback> GetClassFeedbacksByInstructorId(int instructorId);
+
 }
