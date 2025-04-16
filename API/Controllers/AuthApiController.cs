@@ -36,30 +36,30 @@ namespace API
         #region Login
 
         [HttpPost("login")]
-        public async Task<IActionResult> Login([FromBody] LoginRequest request)
+        public async Task<IActionResult> Login([FromBody] LoginVM request)
         {
             try
             {
                 // First validate reCAPTCHA
-                bool isRecaptchaValid = await ValidateRecaptchaToken(request.RecaptchaToken);
+                bool isRecaptchaValid = await ValidateRecaptchaToken(request.recaptchaToken);
                 if (!isRecaptchaValid)
                 {
                     return BadRequest(new { message = "reCAPTCHA validation failed. Please try again." });
                 }
 
                 if (request == null ||
-                    string.IsNullOrEmpty(request.Email) ||
-                    string.IsNullOrEmpty(request.Password) ||
-                    string.IsNullOrEmpty(request.Role))
+                    string.IsNullOrEmpty(request.email) ||
+                    string.IsNullOrEmpty(request.password) ||
+                    string.IsNullOrEmpty(request.role))
                 {
                     return BadRequest(new { success = false, message = "Invalid login credentials." });
                 }
 
                 object user;
                 string role;
-                if (request.Email == "admin@gmail.com")
+                if (request.email == "admin@gmail.com")
                 {
-                    var adminObj = await _authRepo.LoginAdmin(new LoginVM { email = request.Email, password = request.Password, role = request.Role }); // Fetch admin from DB
+                    var adminObj = await _authRepo.LoginAdmin(new LoginVM { email = request.email, password = request.password, role = request.role }); // Fetch admin from DB
                     if (adminObj == null)
                     {
                         return Unauthorized(new { success = false, message = "Invalid admin credentials." });
@@ -70,9 +70,9 @@ namespace API
                         role = "admin";
                     }
                 }
-                else if (request.Role.ToLower() == "user" && request.Email != "admin@gmail.com")
+                else if (request.role.ToLower() == "user" && request.email != "admin@gmail.com")
                 {
-                    var userObj = await _authRepo.LoginUser(new LoginVM { email = request.Email, password = request.Password, role = request.Role });
+                    var userObj = await _authRepo.LoginUser(new LoginVM { email = request.email, password = request.password, role = request.role });
                     if (userObj == null)
                     {
                         return Unauthorized(new { success = false, message = "Invalid email or password." });
@@ -84,9 +84,9 @@ namespace API
                     user = userObj;
                     role = "user";
                 }
-                else if (request.Role.ToLower() == "instructor")
+                else if (request.role.ToLower() == "instructor")
                 {
-                    var instructorObj = await _authRepo.LoginInstructor(new LoginVM { email = request.Email, password = request.Password, role = request.Role });
+                    var instructorObj = await _authRepo.LoginInstructor(new LoginVM { email = request.email, password = request.password, role = request.role });
                     if (instructorObj == null)
                     {
                         return Unauthorized(new { success = false, message = "Invalid email or password." });
@@ -153,18 +153,25 @@ namespace API
                 return false;
 
             var recaptchaSecret = _myConfig["RecaptchaSettings:SecretKey"];
+
+            // Create form data for verification
+            var content = new FormUrlEncodedContent(new[]
+            {
+                new KeyValuePair<string, string>("secret", recaptchaSecret),
+                new KeyValuePair<string, string>("response", token)
+            });
+
             var response = await _httpClient.PostAsync(
-                $"https://www.google.com/recaptcha/api/siteverify?secret={recaptchaSecret}&response={token}",
-                new StringContent(""));
+                "https://www.google.com/recaptcha/api/siteverify",
+                content);
 
             if (!response.IsSuccessStatusCode)
                 return false;
 
             var responseContent = await response.Content.ReadAsStringAsync();
-            var recaptchaResponse = JsonSerializer.Deserialize<RecaptchaResponse>(responseContent);
+            var recaptchaResponse = JsonSerializer.Deserialize<RecaptchaV2Response>(responseContent);
 
-            // You can adjust the score threshold based on your security requirements
-            return recaptchaResponse.Success && recaptchaResponse.Score >= 0.5;
+            return recaptchaResponse.success;
         }
 
         #endregion
@@ -523,32 +530,6 @@ namespace API
         #endregion
     }
 
-    public class LoginRequest
-    {
-        public string Email { get; set; }
-        public string Password { get; set; }
-        public string Role { get; set; }
-        public string RecaptchaToken { get; set; }
-    }
 
-    public class RecaptchaResponse
-    {
-        [JsonPropertyName("success")]
-        public bool Success { get; set; }
 
-        [JsonPropertyName("score")]
-        public double Score { get; set; }
-
-        [JsonPropertyName("action")]
-        public string Action { get; set; }
-
-        [JsonPropertyName("challenge_ts")]
-        public string ChallengeTimestamp { get; set; }
-
-        [JsonPropertyName("hostname")]
-        public string Hostname { get; set; }
-
-        [JsonPropertyName("error-codes")]
-        public string[] ErrorCodes { get; set; }
-    }
 }

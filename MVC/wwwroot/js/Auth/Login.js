@@ -1,8 +1,30 @@
 var uri = "http://localhost:8080";
 
+// Add this variable at the top of your script
+let recaptchaCompleted = false;
+
+// Add this at the top of your file
+var onloadCallback = function () {
+  grecaptcha.render('recaptcha-div', {
+    'sitekey': '6LdkwwgrAAAAAH9_icrIwM6fkKMCzTH2zMmcuZSf',
+    'theme': 'dark',
+    'callback': 'recaptchaCallback',
+    'size': 'normal',
+    'challenge-type': 'image',
+    'type': 'image'
+  });
+};
+
 function getQueryParam(name) {
   const params = new URLSearchParams(window.location.search);
   return params.get(name);
+}
+
+// Add this callback function for reCAPTCHA
+function recaptchaCallback() {
+  // Hide error message when captcha is successfully completed
+  document.querySelector('.captcha-error').style.display = 'none';
+  recaptchaCompleted = true;
 }
 
 window.onload = function () {
@@ -144,6 +166,23 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
+  // Add these event listeners to reset captcha when user changes form inputs after a failure
+  usernameInput.addEventListener("focus", function () {
+    if (document.querySelector('.captcha-error').style.display === 'block') {
+      grecaptcha.reset();
+      document.querySelector('.captcha-error').style.display = 'none';
+      document.querySelector('.captcha-container').classList.remove('captcha-error-highlight');
+    }
+  });
+
+  passwordInput.addEventListener("focus", function () {
+    if (document.querySelector('.captcha-error').style.display === 'block') {
+      grecaptcha.reset();
+      document.querySelector('.captcha-error').style.display = 'none';
+      document.querySelector('.captcha-container').classList.remove('captcha-error-highlight');
+    }
+  });
+
   let selectedRole = null;
 
   // Role Selection Logic
@@ -213,21 +252,26 @@ document.addEventListener("DOMContentLoaded", () => {
       isValid = false;
     }
 
+    // reCAPTCHA validation with better error handling
+    const recaptchaResponse = grecaptcha.getResponse();
+    if (!recaptchaResponse) {
+      document.querySelector('.captcha-error').textContent = "Please complete the captcha verification";
+      document.querySelector('.captcha-error').style.display = 'block';
+      document.querySelector('.captcha-container').classList.add('captcha-error-highlight');
+      isValid = false;
+    } else {
+      document.querySelector('.captcha-error').style.display = 'none';
+      document.querySelector('.captcha-container').classList.remove('captcha-error-highlight');
+    }
+
     if (!isValid) {
+      // Always reset the CAPTCHA to force a new challenge on retry
+      grecaptcha.reset();
       return;
     }
 
-    // Execute reCAPTCHA
-    grecaptcha.ready(function () {
-      grecaptcha.execute('6LfHLAYrAAAAAH9RZqN-E0uczyLtAdlBo9vmZbmE', { action: 'login' })
-        .then(function (token) {
-          // Add token to form
-          document.getElementById('recaptcha-token').value = token;
-
-          // Submit the form
-          submitLoginForm(email, password, selectedRole, token);
-        });
-    });
+    // Submit form
+    submitLoginForm(email, password, selectedRole, recaptchaResponse);
   });
 
   function submitLoginForm(email, password, role, recaptchaToken) {
@@ -245,8 +289,11 @@ document.addEventListener("DOMContentLoaded", () => {
       data: JSON.stringify(payload),
       contentType: "application/json",
       success: function (result) {
-        localStorage.setItem("authToken", result.authToken);
+        // Reset the reCAPTCHA immediately
+        grecaptcha.reset();
 
+        localStorage.setItem("authToken", result.authToken);
+        // Rest of your success handling...
         Swal.fire({
           icon: "success",
           title: "Login Successful",
@@ -263,6 +310,9 @@ document.addEventListener("DOMContentLoaded", () => {
         });
       },
       error: function (xhr) {
+        // Reset the reCAPTCHA immediately
+        grecaptcha.reset();
+
         const errorMessage = xhr.responseJSON?.message || "Login failed";
         Swal.fire({
           icon: "error",
