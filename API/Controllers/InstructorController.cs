@@ -798,7 +798,61 @@ namespace API
             }
         }
 
+
+        [HttpPost]
+        [Route("fetchLikeStatusForBlog")]
+        public async Task<IActionResult> fetchLikeStatusForBlog(vm_RegisterLike like_info)
+        {
+            if(like_info.blogId != null && like_info.userId != null && like_info.userRole != null) {
+                try {
+
+                    var result = await _instructorRepo.fetchLikeStatusForBlog(like_info);
+
+                    if (result.likeId <0 )
+                    {
+                        return BadRequest(new { success = false, message = "Unable to fetch like status, Please try again later.", data=result});
+                    }
+                    return Ok(new
+                    {
+                        success = true,
+                        message = "successfully fetched your like status for this blog.",
+                        data = result
+                    });
+
+                } catch {
+                    return StatusCode(500, new { success=false, message="Something went wrong, please try again later."});
+                }
+            } else {
+                return BadRequest(new {success=false, message="Invalid Data Provided."});
+            }
+        }
+
+        [HttpPost]
+        [Route("RegisterLike")]
+        public async Task<IActionResult> RegisterLike([FromBody] vm_RegisterLike like_req)
+        {
+            if(like_req.blogId != null && like_req.userId != null && like_req.liked != null) {
+                try {
+
+                    var result = await _instructorRepo.RegisterLike(like_req);
+
+                    if (result <= 0)
+                    {
+                        return BadRequest(new { success = false, message = "Unable to register your like at this moment, Please try again later."});
+                    }
+                    return Ok(new
+                    {
+                        success = true,
+                        message = "Like Preference Updated.",
+                    });
+
+                } catch {
+                    return StatusCode(500, new { success=false, message="Something went wrong, please try again later."});
+                }
+            } else {
+                return BadRequest(new {success=false, message="Invalid Data Provided."});
+            }
+        }
         #endregion
     }
-
 }

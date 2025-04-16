@@ -1335,5 +1335,170 @@ public class InstructorRepo : IInstructorInterface
                 return author;
             }
         #endregion
+
+        #region RegisterLike
+            public async Task<int> RegisterLike(vm_RegisterLike like_req)
+            {
+                int result = 0;
+                if (_conn.State == System.Data.ConnectionState.Closed)
+                {
+                    await _conn.OpenAsync();
+                }
+
+                try
+                {
+                    // First, check if the user already liked/disliked the blog
+                    string checkQuery = @"
+                        SELECT c_liked FROM t_blog_likes 
+                        WHERE c_blog_id = @blogId AND c_user_id = @userId AND c_user_role = @userRole";
+
+                    bool? existingLike = null;
+
+                    using (var checkCmd = new NpgsqlCommand(checkQuery, _conn))
+                    {
+                        checkCmd.Parameters.AddWithValue("@blogId", like_req.blogId);
+                        checkCmd.Parameters.AddWithValue("@userId", like_req.userId);
+                        checkCmd.Parameters.AddWithValue("@userRole", like_req.userRole);
+                        var existing = await checkCmd.ExecuteScalarAsync();
+                        if (existing != null && existing != DBNull.Value)
+                        {
+                            existingLike = Convert.ToBoolean(existing);
+                        }
+                    }
+
+                    // Upsert the like
+                    string upsertQuery = @"
+                        INSERT INTO t_blog_likes (
+                            c_blog_id, c_user_id, c_liked, c_liked_at, c_user_role
+                        ) VALUES (
+                            @c_blog_id, @c_user_id, @c_liked, @c_liked_at, @c_user_role
+                        )
+                        ON CONFLICT (c_blog_id, c_user_id, c_user_role)
+                        DO UPDATE SET 
+                            c_liked = EXCLUDED.c_liked,
+                            c_liked_at = EXCLUDED.c_liked_at
+                        RETURNING c_like_id;";
+
+                    using (var upsertCmd = new NpgsqlCommand(upsertQuery, _conn))
+                    {
+                        upsertCmd.Parameters.AddWithValue("@c_blog_id", like_req.blogId);
+                        upsertCmd.Parameters.AddWithValue("@c_user_id", like_req.userId);
+                        upsertCmd.Parameters.AddWithValue("@c_liked", like_req.liked);
+                        upsertCmd.Parameters.AddWithValue("@c_liked_at", DateTimeOffset.UtcNow.ToUnixTimeSeconds());
+                        upsertCmd.Parameters.AddWithValue("@c_user_role", like_req.userRole); // or pull from session/claim if available
+
+                        var insertedId = await upsertCmd.ExecuteScalarAsync();
+
+                        if (insertedId != null)
+                        {
+                            // Adjust like count in t_blogpost only if:
+                            // - This is a new like
+                            // - OR a status change (like -> dislike or vice versa)
+
+                            int likeChange = 0;
+
+                            if (existingLike == null && like_req.liked)
+                                likeChange = 1; // new like
+                            else if (existingLike == null && !like_req.liked)
+                                likeChange = 0; // new dislike, don't affect like count
+                            else if (existingLike != like_req.liked)
+                                likeChange = like_req.liked ? 1 : -1;
+
+                            if (likeChange != 0)
+                            {
+                                string updateLikesQuery = @"
+                                    UPDATE t_blogpost 
+                                    SET c_likes = c_likes + @likeChange
+                                    WHERE c_blog_id = @blogId";
+
+                                using (var updateCmd = new NpgsqlCommand(updateLikesQuery, _conn))
+                                {
+                                    updateCmd.Parameters.AddWithValue("@likeChange", likeChange);
+                                    updateCmd.Parameters.AddWithValue("@blogId", like_req.blogId);
+                                    await updateCmd.ExecuteNonQueryAsync();
+                                }
+                            }
+
+                            result = 1;
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("Error saving like --> " + ex.Message);
+                    result = 0;
+                }
+                finally
+                {
+                    if (_conn.State == System.Data.ConnectionState.Open)
+                    {
+                        await _conn.CloseAsync();
+                    }
+                }
+
+                return result;
+            }
+
+        #endregion
+
+        #region FetchLikeStatusForBlog
+            public async Task<vm_RegisterLike> fetchLikeStatusForBlog(vm_RegisterLike like_info)
+            {
+                vm_RegisterLike like_info_ = new vm_RegisterLike();
+                like_info_.likeId = -1;
+
+                if (_conn.State == System.Data.ConnectionState.Closed)
+                {
+                    await _conn.OpenAsync();
+                }
+
+                try
+                {
+                    // First, check if the user already liked/disliked the blog
+                    string checkQuery = @"
+                        SELECT * FROM t_blog_likes 
+                        WHERE c_blog_id = @blogId AND c_user_id = @userId AND c_user_role = @userRole";
+
+                    using (var checkCmd = new NpgsqlCommand(checkQuery, _conn))
+                    {
+                        checkCmd.Parameters.AddWithValue("@blogId", like_info.blogId);
+                        checkCmd.Parameters.AddWithValue("@userId", like_info.userId);
+                        checkCmd.Parameters.AddWithValue("@userRole", like_info.userRole);
+
+                        using (var reader = await checkCmd.ExecuteReaderAsync())
+                        {
+                            while (await reader.ReadAsync())
+                            {
+                                vm_RegisterLike like_info__ = new vm_RegisterLike
+                                {
+                                    likeId = reader.GetInt32(reader.GetOrdinal("c_like_id")),
+                                    blogId = reader.GetInt32(reader.GetOrdinal("c_blog_id")),
+                                    userId = reader.GetInt32(reader.GetOrdinal("c_user_id")),
+                                    liked = reader.GetBoolean(reader.GetOrdinal("c_liked")),
+                                    likedAt = reader.GetInt32(reader.GetOrdinal("c_liked_at")),
+                                    userRole = reader.GetString(reader.GetOrdinal("c_user_role")),
+                                };
+                                like_info_ = like_info__;
+                            }
+                        }
+                    }              
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("Error saving like --> " + ex.Message);
+                    return like_info_;
+                }
+                finally
+                {
+                    if (_conn.State == System.Data.ConnectionState.Open)
+                    {
+                        await _conn.CloseAsync();
+                    }
+                }
+
+                return like_info_;
+            }
+
+        #endregion
     #endregion
 }

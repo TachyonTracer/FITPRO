@@ -40,5 +40,8 @@ public interface IInstructorInterface
         Task<BlogPost> fetchBlogByUri(string source_uri);
         Task<Instructor> fetchBlogAuthorById(int author_id);
         Task<int> DeleteBlog(int blogId);
+        Task<int> RegisterLike(vm_RegisterLike like_req);
+        Task<vm_RegisterLike> fetchLikeStatusForBlog(vm_RegisterLike like_info);
+
     #endregion
 }
