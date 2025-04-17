@@ -56,5 +56,9 @@ namespace MVC
         public IActionResult UserClassSchedule(){
             return View();
         }
+
+        public IActionResult ExploreBlogs(){
+            return View();
+        }
     }
 }

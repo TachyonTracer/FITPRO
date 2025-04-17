@@ -311,6 +311,37 @@ namespace API
             }
         }
 
+        [HttpGet]
+        [Route("GetBlogsForUser")]
+
+        public async Task<IActionResult> GetBlogsForUser()
+        {
+            try
+            {
+                var blog_list = await _blogRepo.GetBlogsForUser();
+
+                if (blog_list.Count == 0)
+                {
+                    return BadRequest(new { success = false, message = "No blogs found.", data = blog_list });
+                }
+                return Ok(new
+                {
+                    success = true,
+                    message = "Fetched All blogs.",
+                    data = new
+                    {
+                        count = blog_list.Count,
+                        entries = blog_list
+                    }
+                });
+
+            }
+            catch
+            {
+                return StatusCode(500, new { success = false, message = "Something went wrong fetching your blogs, please try again later." });
+            }
+        }
+
 
         [HttpPost]
         [Route("GetBlogById")]

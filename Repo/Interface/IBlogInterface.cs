@@ -10,6 +10,7 @@ public interface IBlogInterface
         Task<bool> UpdateBlogDraft(BlogPost blogpost);
         Task<bool> PublishBlog(BlogPost blogpost);
         Task<List<BlogPost>> GetBlogsByInstructorId(int instructor_id);
+        Task<List<BlogPost>> GetBlogsForUser();
         Task<BlogPost> GetBlogById(int blog_id);
 
         Task<BlogComment> AddNewComment(BlogComment comment);
