@@ -26,6 +26,7 @@ public interface IUserInterface
 	Task<User> GetUserByIdAsync(int userId);
 	Task<int> UpcomingClassCountByUser(string userId);
 	Task<int> CompletedClassCountByUser(string userId);
+	Task<int> EnrolledClassCountByUser(string userId);
 
 
 	#region User Balance

@@ -334,6 +334,29 @@ namespace API
 		#endregion
 
 
+		#region Enrolled Class Count By User
+		[HttpGet("EnrolledClassCountByUser/{userId}")]
+		public async Task<IActionResult> EnrolledClassCountByUser(string userId)
+		{
+			var classCount = await _userRepo.EnrolledClassCountByUser(userId);
+			if (classCount != -1)
+			{
+				return Ok(new
+				{
+					message = "Enrolled Class Count By User fetched successfully",
+					count = classCount
+				});
+			}
+
+			return BadRequest(new
+			{
+				success = false,
+				message = "Failed to fetch Enrolled Class Count By User"
+			});
+		}
+		#endregion
+
+
 
 		#region Add Balance 
 		[HttpPost("AddBalance")]

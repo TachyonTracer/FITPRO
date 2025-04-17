@@ -303,7 +303,7 @@ updateChartData(instructorId);
       console.log("Instructor Data:", response);
 
       if (response) {
-        $("#userName").text(response.instructorName);
+        $("#userName").text("Welcome, " + response.instructorName );
 
         // Profile Image Handling
         if (response.profileImage) {

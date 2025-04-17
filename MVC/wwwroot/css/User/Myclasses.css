@@ -130,6 +130,7 @@ body {
     gap: 62px;
     list-style: none;
     margin-right: 100px;
+    margin: 5px;
 }
 
 .nav-links li a {

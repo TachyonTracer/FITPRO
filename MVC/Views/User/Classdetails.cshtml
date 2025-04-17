@@ -18,10 +18,12 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="@Url.Content("~/css/User/ClassDetials.css")" asp-append-version="true">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-     <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.0/signalr.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.0/signalr.min.js"></script>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-         <script src="https://js.stripe.com/v3/"></script>
-
+    <script src="https://js.stripe.com/v3/"></script>
+    <style>
+       
+    </style>
 </head>
 
 <body>
@@ -64,7 +66,7 @@
                     </div>
                 </div>
             </div>
-            
+
             <img id="navProfileImage" src="~/img/fitlogo.png" alt="Profile" class="profile-img" />
             <div class="profile-dropdown">
                 <a onclick="showProfileDrawer()">Update Profile</a>
@@ -91,36 +93,44 @@
         <div class="class-details">
             <h1>Power Yoga Class</h1>
 
-            <div class="instructor-info">
+            @* <div class="instructor-info">
                 <img src="fitness.jpg" alt="Instructor">
                 <div class="instructor-text">
                     <strong>Paras</strong>
                     Specialization: Power Yoga, Meditation, Flexibility Training
                 </div>
+            </div> *@
+            <div class="instructor-info">
+            <img src="~/img/default-instructor.png" alt="Instructor">
+            <div class="instructor-text">
+                <strong>Loading...</strong>
+                <p>Specialization: Loading...</p>
+               
             </div>
-
-            <h3>Schedule</h3>
-            <p><strong>Dates:</strong> 27 April - 4 May</p>
-            <p><strong>Time:</strong> 3:35 PM - 6:38 PM</p>
-            <p><strong>Duration:</strong> 183 minutes</p>
-
-            <div id="book-section">
-                <button class="book-now-btn" onclick="bookThisClass()">Book Now</button>
-            </div>
-
-            <div id="waitlist-section" class="waitlist-box">
-                <div class="waiting-message">
-                    <div class="waitlist-title-bar">
-                        <h3 class="waitlist-title">⚠️ Class Full</h3>
-                        <span class="waitlist-badge">WL: <span id="waitlist-count">Loading...</span></span>
-                    </div>
-                    <p>This class is currently full. You can join the waiting list to be notified if a spot opens up.
-                    </p>
-                </div>
-                <button class="waitlist-btn" onclick="bookThisClass()">Join Waiting List</button>
-            </div>
-
         </div>
+
+        <h3>Schedule</h3>
+        <p><strong>Dates:</strong> 27 April - 4 May</p>
+        <p><strong>Time:</strong> 3:35 PM - 6:38 PM</p>
+        <p><strong>Duration:</strong> 183 minutes</p>
+
+        <div id="book-section">
+            <button class="book-now-btn" onclick="bookThisClass()">Book Now</button>
+        </div>
+
+        <div id="waitlist-section" class="waitlist-box">
+            <div class="waiting-message">
+                <div class="waitlist-title-bar">
+                    <h3 class="waitlist-title">⚠️ Class Full</h3>
+                    <span class="waitlist-badge">WL: <span id="waitlist-count">Loading...</span></span>
+                </div>
+                <p>This class is currently full. You can join the waiting list to be notified if a spot opens up.
+                </p>
+            </div>
+            <button class="waitlist-btn" onclick="bookThisClass()">Join Waiting List</button>
+        </div>
+
+    </div>
     </div>
 
     <!-- Tabs Section Below -->
