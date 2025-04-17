@@ -680,18 +680,18 @@ $(document).on("submit", "#profileForm", function (e) {
   });
 });
 
-async function fetchUpcomingClassCount(userId) {
+async function fetchEnrolledClassCount(userId) {
   try {
     const response = await fetch(
-      `${uri}/api/User/UpcomingClassCountByUser/${userId}`
+      `${uri}/api/User/EnrolledClassCountByUser/${userId}`
     );
     const data = await response.json();
 
     if (data.count > -1) {
-      const label = data.count === 1 ? "class" : "classes";
+      const label = data.count === 1 ? "Class" : "Classes";
       document.getElementById(
         "active-classes"
-      ).textContent = `${data.count} active ${label}`;
+      ).textContent = `${data.count} Enrolled ${label}`;
     } else {
       document.getElementById("active-classes").textContent =
         "Failed to load classes";
@@ -700,6 +700,30 @@ async function fetchUpcomingClassCount(userId) {
   } catch (error) {
     console.error("Fetch error:", error);
     document.getElementById("active-classes").textContent =
+      "Error loading classes";
+  }
+}
+
+async function fetchUpcomingClassCount(userId) {
+  try {
+    const response = await fetch(
+      `${uri}/api/User/UpcomingClassCountByUser/${userId}`
+    );
+    const data = await response.json();
+
+    if (data.count > -1) {
+      const label = data.count === 1 ? "Class" : "Classes";
+      document.getElementById(
+        "upcoming-classes"
+      ).textContent = `${data.count} Upcoming ${label}`;
+    } else {
+      document.getElementById("upcoming-classes").textContent =
+        "Failed to load classes";
+      console.warn("API error:", data.message || "Unknown issue");
+    }
+  } catch (error) {
+    console.error("Fetch error:", error);
+    document.getElementById("upcoming-classes").textContent =
       "Error loading classes";
   }
 }
@@ -730,6 +754,7 @@ async function fetchCompletedClassCount(userId) {
 
 fetchUpcomingClassCount(userId);
 fetchCompletedClassCount(userId);
+fetchEnrolledClassCount(userId);
 
 function loadBookedClasses(userId) {
   if (!userId) {
