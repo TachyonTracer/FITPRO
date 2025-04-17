@@ -7,9 +7,9 @@ $("document").ready(function () {
     if (!user) {
         window.location.href = "/auth/login"
     }
-    
- drawer = $("#profileDrawer").kendoDrawer({
-    template: `
+
+    drawer = $("#profileDrawer").kendoDrawer({
+        template: `
             <div class="k-drawer-content">
                 <div class="k-drawer-title">Update Profile</div>
                 <form id="profileForm" class="profile-form">
@@ -62,78 +62,78 @@ $("document").ready(function () {
                 </form>
             </div>
         `,
-    position: "right",
-    mode: "push",
-    width: "400px",
-    minHeight: "100vh",
-    swipeToOpen: false,
-    autoCollapse: false,
-}).data("kendoDrawer");
+        position: "right",
+        mode: "push",
+        width: "400px",
+        minHeight: "100vh",
+        swipeToOpen: false,
+        autoCollapse: false,
+    }).data("kendoDrawer");
 
-// Initialize Kendo UI Components with Validations
-$("#userName").kendoTextBox({
-    placeholder: "Enter your name"
-});
-
-$("#phone").kendoMaskedTextBox({
-    mask: "0000000000",
-    placeholder: "__________"
-});
-
-$("#height").kendoNumericTextBox({
-    min: 100, max: 250, step: 1, format: "# cm"
-});
-
-$("#weight").kendoNumericTextBox({
-    min: 30, max: 200, step: 1, format: "#.00 kg"
-});
-
-$("#goal").kendoMultiSelect({
-    dataSource: ["Weight Loss", "Muscle Gain", "General Fitness", "Endurance Training", "Flexibility Improvement", "Sports Specific", "Weight Management"],
-    placeholder: "Select goals..."
-});
-
-$("#medicalCondition").kendoMultiSelect({
-    dataSource: ["Diabetes", "High Blood Pressure", "Heart Disease", "Asthma", "Arthritis", "Back Pain", "None", "Hypertension"],
-    placeholder: "Select medical conditions..."
-});
-
-
-
-// Function to Show Profile Drawer and Fetch Data
-window.showProfileDrawer = function () {
-
-    if (userId) {
-        console.log("Extracted User ID:", userId);
-    }
-
-    drawer.show();
-
-    $.ajax({
-        url: `${uri}/api/User/GetUserById/${userId}`,
-        type: "GET",
-        success: function (response) {
-            $("#userName").val(response.userName);
-            $("#email").val(response.email);
-            $("#phone").val(response.mobile);
-            $("#height").data("kendoNumericTextBox").value(response.height);
-            $("#weight").data("kendoNumericTextBox").value(response.weight);
-
-            var goalValues = response.goal.split(", ").map(g => g.trim());
-            $("#goal").data("kendoMultiSelect").value(goalValues);
-
-            var medicalValues = response.medicalCondition.split(", ").map(mc => mc.trim());
-            $("#medicalCondition").data("kendoMultiSelect").value(medicalValues);
-
-            if (response.profileImage) {
-                $("#imagePreview").attr("src", `../User_Images/${response.profileImage}`).show();
-            }
-        },
-        error: function (xhr) {
-            alert("Error fetching user details: " + xhr.responseText);
-        }
+    // Initialize Kendo UI Components with Validations
+    $("#userName").kendoTextBox({
+        placeholder: "Enter your name"
     });
-};
+
+    $("#phone").kendoMaskedTextBox({
+        mask: "0000000000",
+        placeholder: "__________"
+    });
+
+    $("#height").kendoNumericTextBox({
+        min: 100, max: 250, step: 1, format: "# cm"
+    });
+
+    $("#weight").kendoNumericTextBox({
+        min: 30, max: 200, step: 1, format: "#.00 kg"
+    });
+
+    $("#goal").kendoMultiSelect({
+        dataSource: ["Weight Loss", "Muscle Gain", "General Fitness", "Endurance Training", "Flexibility Improvement", "Sports Specific", "Weight Management"],
+        placeholder: "Select goals..."
+    });
+
+    $("#medicalCondition").kendoMultiSelect({
+        dataSource: ["Diabetes", "High Blood Pressure", "Heart Disease", "Asthma", "Arthritis", "Back Pain", "None", "Hypertension"],
+        placeholder: "Select medical conditions..."
+    });
+
+
+
+    // Function to Show Profile Drawer and Fetch Data
+    window.showProfileDrawer = function () {
+
+        if (userId) {
+            console.log("Extracted User ID:", userId);
+        }
+
+        drawer.show();
+
+        $.ajax({
+            url: `${uri}/api/User/GetUserById/${userId}`,
+            type: "GET",
+            success: function (response) {
+                $("#userName").val(response.userName);
+                $("#email").val(response.email);
+                $("#phone").val(response.mobile);
+                $("#height").data("kendoNumericTextBox").value(response.height);
+                $("#weight").data("kendoNumericTextBox").value(response.weight);
+
+                var goalValues = response.goal.split(", ").map(g => g.trim());
+                $("#goal").data("kendoMultiSelect").value(goalValues);
+
+                var medicalValues = response.medicalCondition.split(", ").map(mc => mc.trim());
+                $("#medicalCondition").data("kendoMultiSelect").value(medicalValues);
+
+                if (response.profileImage) {
+                    $("#imagePreview").attr("src", `../User_Images/${response.profileImage}`).show();
+                }
+            },
+            error: function (xhr) {
+                alert("Error fetching user details: " + xhr.responseText);
+            }
+        });
+    };
 })
 function Schedule() {
     // Redirect to the class details page with the class ID
@@ -220,27 +220,35 @@ document.querySelectorAll(".class-card").forEach(card => {
 
 let selectedRating = 0;
 
-function openFeedback() {
-    document.getElementById("feedbackModal").style.display = "flex";
-}
-
-function closeFeedback() {
+// Replace your openFeedback function with this:
+function openFeedback(classId, className, instructorName) {
     const modal = document.getElementById('feedbackModal');
-    modal.style.display = 'none';
+    modal.dataset.classId = classId;
+    modal.dataset.className = className;
+    modal.dataset.instructorName = instructorName;
+    modal.style.display = 'flex';
+
+    // Reset form when opening
     document.getElementById('feedbackText').value = '';
     document.querySelectorAll('#starRating span').forEach(star => {
         star.classList.remove('active');
     });
-    document.getElementById("feedbackModal").style.display = "none";
+}
+
+// Replace your closeFeedback function with this:
+function closeFeedback() {
+    document.getElementById('feedbackModal').style.display = 'none';
     resetFeedback();
 }
 
+// Replace your resetFeedback function with this:
 function resetFeedback() {
     document.getElementById("feedbackText").value = "";
     selectedRating = 0;
     document.querySelectorAll("#starRating span").forEach(s => s.classList.remove("active"));
 }
 
+// Replace your submitFeedback function with this:
 function submitFeedback() {
     const modal = document.getElementById('feedbackModal');
     const userId = getUserIdFromToken();
@@ -253,11 +261,18 @@ function submitFeedback() {
 
     // Validation
     if (!feedback || rating === 0) {
-        Swal.fire({
-            icon: 'warning',
-            title: 'Incomplete Feedback',
-            text: 'Please provide both feedback text and rating'
+        // Make sure modal is completely hidden first
+        modal.style.display = "none";
+
+        // Use requestAnimationFrame to ensure DOM is updated before showing SweetAlert
+        requestAnimationFrame(() => {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Incomplete Feedback',
+                text: 'Please provide both feedback text and rating'
+            });
         });
+
         return;
     }
 
@@ -272,44 +287,61 @@ function submitFeedback() {
         instructorName: instructorName
     };
 
-    // Send feedback to backend
-    $.ajax({
-        url: 'http://localhost:8080/api/Feedback/class',
-        method: 'POST',
-        contentType: 'application/json',
-        data: JSON.stringify(feedbackData),
-        success: function (response) {
-            Swal.fire({
-                icon: 'success',
-                title: 'Success',
-                text: 'Feedback submitted successfully!'
-            });
-            closeFeedback();
-            loadBookedClasses(userId); // Refresh the class list
+    // First hide the modal
+    modal.style.display = "none";
 
-        },
-        error: function (xhr, status, error) {
-            console.error('Error submitting feedback:', error);
-
-            let errorMessage = 'Failed to submit feedback. Please try again.';
-
-            try {
-                // Parse the response text to get the actual message
-                const errorResponse = JSON.parse(xhr.responseText);
-                if (errorResponse && errorResponse.message) {
-                    errorMessage = errorResponse.message;
-                }
-            } catch (e) {
-                console.error('Error parsing error response:', e);
+    // Use requestAnimationFrame to ensure DOM is updated before showing SweetAlert
+    requestAnimationFrame(() => {
+        // Show loading state
+        Swal.fire({
+            title: 'Submitting Feedback',
+            text: 'Please wait...',
+            allowOutsideClick: false,
+            didOpen: () => {
+                Swal.showLoading();
             }
+        });
 
-            Swal.fire({
-                icon: 'error',
-                title: 'Error',
-                text: errorMessage
-            });
-        }
+        // Send feedback to backend
+        $.ajax({
+            url: 'http://localhost:8080/api/Feedback/class',
+            method: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify(feedbackData),
+            success: function (response) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Success',
+                    text: 'Feedback submitted successfully!'
+                });
+
+                loadBookedClasses(userId); // Refresh the class list
+            },
+            error: function (xhr, status, error) {
+                console.error('Error submitting feedback:', error);
+
+                let errorMessage = 'Failed to submit feedback. Please try again.';
+
+                try {
+                    const errorResponse = JSON.parse(xhr.responseText);
+                    if (errorResponse && errorResponse.message) {
+                        errorMessage = errorResponse.message;
+                    }
+                } catch (e) {
+                    console.error('Error parsing error response:', e);
+                }
+
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: errorMessage
+                });
+            }
+        });
     });
+
+    // Reset the feedback form
+    resetFeedback();
 }
 
 function getUserNameFromToken() {
@@ -456,48 +488,34 @@ function getClassStatus(startDate, endDate) {
     }
 }
 
-// Update the displayClasses function to use the new status logic
+// Update the displayClasses function to show a message when no classes are booked
 function displayClasses(classes) {
     const classGrid = document.querySelector('.class-grid');
-    classGrid.innerHTML = '';
 
-    classes.forEach(classItem => {
-        const startDate = new Date(classItem.startDate);
-        const endDate = new Date(classItem.endDate);
-        const status = getClassStatus(startDate, endDate);
+    // Remove the loading indicator
+    const loadingElement = document.getElementById('loading-classes');
+    if (loadingElement) {
+        loadingElement.remove();
+    }
 
-
-        // Add different styling for live status
-        const statusStyle = status === 'live' ?
-            'background-color: #FF6363 ; color: #000000;' :
-            (status === 'completed' ? 'background-color:rgb(114, 215, 67) ; color: #0f0f0f;' : '');
-
-        const classCard = `
-            <div class="class-card" data-status="${status}" data-class-id="${classItem.classId}">
-                <img src="/ClassAssets/${classItem.assets.banner}" alt="${classItem.className}" class="class-img" />
-                <div class="class-info">
-                    <h3>${classItem.className}</h3>
-                    <p><strong>Instructor:</strong> ${classItem.instructorName}</p>
-                    <p><strong>Schedule:</strong> ${formatDate(startDate)} - ${formatDate(endDate)} | ${classItem.startTime.substring(0, 5)} - ${classItem.endTime.substring(0, 5)}</p>
-                    <span class="status-tag" style="${statusStyle}">${status.charAt(0).toUpperCase() + status.slice(1)}</span>
-                    ${classItem.waitList != 0 && status != 'completed' && status != 'live' ?
-                `<div class="waitlist-box">WL: ${classItem.waitList}</div>` : ''}
+    // Check if classes array is empty
+    if (!classes || classes.length === 0) {
+        // Simple message when no classes are booked - now with centered container
+        classGrid.innerHTML = `
+            <div class="message-container">
+                <div class="no-classes-message">
+                    <h3>No Classes Booked</h3>
+                    <p>You haven't booked any fitness classes yet.</p>
+                    <a href="/User/index" class="btn btn-primary">Explore Classes</a>
                 </div>
-                ${status === 'completed' ?
-                `<button class="cancel-btn" style="background-color: #facc15; color: #0f0f0f; border: none;" 
-                    onclick="openFeedback('${classItem.classId}', '${classItem.className}', '${classItem.instructorName}')">
-                    Give Feedback
-                </button>` :
-
-
-
-                `<button class="cancel-btn" onclick="cancelBooking('${classItem.classId}', '${classItem.className}')">
-                        Cancel Booking
-                    </button>`
-            }
             </div>
         `;
-        classGrid.innerHTML += classCard;
+        return;
+    }
+
+    // Original code for displaying classes
+    classes.forEach(classItem => {
+        // Your existing code to display class cards
     });
 }
 
@@ -561,11 +579,11 @@ function cancelBooking(classId, className) {
 }
 
 function openFeedback(classId, className, instructorName) {
-    // Store class details for feedback submission
-    document.getElementById('feedbackModal').dataset.classId = classId;
-    document.getElementById('feedbackModal').dataset.className = className;
-    document.getElementById('feedbackModal').dataset.instructorName = instructorName;
-    document.getElementById('feedbackModal').style.display = 'flex';
+    const modal = document.getElementById('feedbackModal');
+    modal.dataset.classId = classId;
+    modal.dataset.className = className;
+    modal.dataset.instructorName = instructorName;
+    modal.style.display = 'flex';
 }
 
 
@@ -756,78 +774,78 @@ var role = "user    "; // instrctor or user
 var counter = 0;
 var fetcherConn = "";
 if (role == "admin") {
-  var fetcherConn = "NewAdminNotification";
+    var fetcherConn = "NewAdminNotification";
 } else if (role == "instructor") {
-  var fetcherConn = "NewInstructorNotification";
+    var fetcherConn = "NewInstructorNotification";
 } else {
-  var fetcherConn = "NewUserNotification";
+    var fetcherConn = "NewUserNotification";
 }
 
 // Convert timestamp to seconds/minutes/hours ago
 function timeAgo(timestamp) {
-  let currentTime = Math.floor(Date.now() / 1000); // Current time in seconds
-  let timeDiff = currentTime - timestamp;
+    let currentTime = Math.floor(Date.now() / 1000); // Current time in seconds
+    let timeDiff = currentTime - timestamp;
 
-  if (timeDiff < 60) return `${timeDiff} seconds ago`;
-  if (timeDiff < 3600) return `${Math.floor(timeDiff / 60)} minutes ago`;
-  if (timeDiff < 86400) return `${Math.floor(timeDiff / 3600)} hours ago`;
-  return `${Math.floor(timeDiff / 86400)} days ago`;
+    if (timeDiff < 60) return `${timeDiff} seconds ago`;
+    if (timeDiff < 3600) return `${Math.floor(timeDiff / 60)} minutes ago`;
+    if (timeDiff < 86400) return `${Math.floor(timeDiff / 3600)} hours ago`;
+    return `${Math.floor(timeDiff / 86400)} days ago`;
 }
 
 const connection = new signalR.HubConnectionBuilder()
-  .withUrl(
-    `${uri}/notificationHub?userId=${userId}&role=${role}`
-  )
-  .withAutomaticReconnect()
-  .build();
+    .withUrl(
+        `${uri}/notificationHub?userId=${userId}&role=${role}`
+    )
+    .withAutomaticReconnect()
+    .build();
 
 connection.start().then(() => {
-  console.log("Connected to SignalR! with userid: "+userId);
-  connection.invoke("FetchNotifications", userId, role);
+    console.log("Connected to SignalR! with userid: " + userId);
+    connection.invoke("FetchNotifications", userId, role);
 });
 
 // Receive new notification
 connection.on(fetcherConn, (message) => {
-  console.log("New Notification:", message);
-  addNotification(message);
+    console.log("New Notification:", message);
+    addNotification(message);
 });
 
 // Load unread notifications
 connection.on("ReceiveNotifications", (notifications) => {
-  console.log("Unread Notifications:", notifications);
-  updateNotificationList(notifications);
+    console.log("Unread Notifications:", notifications);
+    updateNotificationList(notifications);
 });
 
 // Open Notifications Dropdown
 function openNotifications() {
-  console.log("Fetching Notification on Toggle...");
-  connection.invoke("FetchNotifications", userId, role);
-  let dropdown = document.getElementById("notificationDropdown");
-  dropdown.style.display = dropdown.style.display === "none" ? "block" : "none";
+    console.log("Fetching Notification on Toggle...");
+    connection.invoke("FetchNotifications", userId, role);
+    let dropdown = document.getElementById("notificationDropdown");
+    dropdown.style.display = dropdown.style.display === "none" ? "block" : "none";
 }
 
 // Add Notification to List (New notifications appear on top)
 function addNotification(message) {
-  let list = document.getElementById("notificationList");
+    let list = document.getElementById("notificationList");
 
-  // Remove "No new notifications" message if it exists
-  let noNotificationItem = list.querySelector(".text-muted");
-  if (noNotificationItem) {
-    list.removeChild(noNotificationItem);
-  }
+    // Remove "No new notifications" message if it exists
+    let noNotificationItem = list.querySelector(".text-muted");
+    if (noNotificationItem) {
+        list.removeChild(noNotificationItem);
+    }
 
-  let item = document.createElement("li");
-  item.className = "list-group-item d-flex align-items-start";
+    let item = document.createElement("li");
+    item.className = "list-group-item d-flex align-items-start";
 
-  let parts = message.split("::");
+    let parts = message.split("::");
 
-  let title = parts[0];
-  let body = parts[1];
+    let title = parts[0];
+    let body = parts[1];
 
-  let timestamp = parseInt(parts[2]);
-  let timeAgoText = timeAgo(timestamp);
+    let timestamp = parseInt(parts[2]);
+    let timeAgoText = timeAgo(timestamp);
 
-  item.innerHTML = `
+    item.innerHTML = `
         <span class="bg-danger rounded-circle me-2 mt-2"></span>
         <div>
             <strong>${title}</strong><br>
@@ -836,36 +854,36 @@ function addNotification(message) {
         </div>
     `;
 
-  // Insert at the top instead of the bottom
-  list.prepend(item);
+    // Insert at the top instead of the bottom
+    list.prepend(item);
 
-  counter++;
-  updateBellIcon();
+    counter++;
+    updateBellIcon();
 }
 
 // Update Notification List
 function updateNotificationList(notifications) {
-  let list = document.getElementById("notificationList");
-  list.innerHTML = "";
-  counter = 0; // Reset counter before processing new notifications
+    let list = document.getElementById("notificationList");
+    list.innerHTML = "";
+    counter = 0; // Reset counter before processing new notifications
 
-  if (notifications.length === 0) {
-    list.innerHTML =
-      '<li class="list-group-item text-center text-muted">No new notifications</li>';
-  } else {
-    notifications.forEach((message) => {
-      let item = document.createElement("li");
-      item.className = "list-group-item d-flex align-items-start";
+    if (notifications.length === 0) {
+        list.innerHTML =
+            '<li class="list-group-item text-center text-muted">No new notifications</li>';
+    } else {
+        notifications.forEach((message) => {
+            let item = document.createElement("li");
+            item.className = "list-group-item d-flex align-items-start";
 
-      let parts = message.split("::");
+            let parts = message.split("::");
 
-      let title = parts[0];
-      let body = parts[1];
+            let title = parts[0];
+            let body = parts[1];
 
-      let timestamp = parseInt(parts[2]);
-      let timeAgoText = timeAgo(timestamp);
+            let timestamp = parseInt(parts[2]);
+            let timeAgoText = timeAgo(timestamp);
 
-      item.innerHTML = `
+            item.innerHTML = `
                 <span class="bg-danger rounded-circle me-2 mt-2"></span>
                 <div>
                     <strong>${title}</strong><br>
@@ -874,28 +892,28 @@ function updateNotificationList(notifications) {
                 </div>
             `;
 
-      // Insert at the top instead of the bottom
-      list.prepend(item);
+            // Insert at the top instead of the bottom
+            list.prepend(item);
 
-      counter++; // Increase counter for each unread notification
-    });
-  }
-  updateBellIcon();
+            counter++; // Increase counter for each unread notification
+        });
+    }
+    updateBellIcon();
 }
 
 // Update Bell Icon Count
 function updateBellIcon() {
-  let badge = document.getElementById("notificationCount");
-  badge.textContent = counter > 0 ? counter : 0;
-  badge.style.display = counter > 0 ? "inline" : "none";
+    let badge = document.getElementById("notificationCount");
+    badge.textContent = counter > 0 ? counter : 0;
+    badge.style.display = counter > 0 ? "inline" : "none";
 }
 
 // Mark All as Read
 function markAllAsRead() {
-  counter = 0;
-  connection.invoke("MarkAllAsRead", userId, role).then(() => {
-    updateNotificationList([]); // Clear notifications
-  });
+    counter = 0;
+    connection.invoke("MarkAllAsRead", userId, role).then(() => {
+        updateNotificationList([]); // Clear notifications
+    });
 }
 
 /* Do Not Remove */

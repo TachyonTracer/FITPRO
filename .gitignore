@@ -10,3 +10,4 @@ bin
 .git/
 **/appsettings*.json
 .env
+__pycache__/

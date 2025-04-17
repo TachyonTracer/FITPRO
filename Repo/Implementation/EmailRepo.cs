@@ -22,7 +22,7 @@ namespace Repo
             Port = Convert.ToInt32(configuration["Smtp:Port"]);
             Username = configuration["Smtp:Username"];
             Password = configuration["Smtp:Password"];
-            tcpClient = configuration["Smpt:tcpClient"];
+            tcpClient = configuration["Smtp:tcpClient"];
         }
 
 
@@ -30,37 +30,52 @@ namespace Repo
 
         public async Task SendOtpEmail(string username, string email, string otp)
         {
-            string templatePath = Path.Combine(Directory.GetCurrentDirectory(), "Templates", "Otp_Email.html");
-            string templateContent = await File.ReadAllTextAsync(templatePath);
-
-            // Replace placeholders in the template
-            templateContent = templateContent.Replace("#[UserName]#", username)
-                                           .Replace("#[OTP]#", otp);
-
-            using (MailMessage message = new MailMessage(new MailAddress(Username), new MailAddress(email)))
+            // Validate parameters
+            if (string.IsNullOrEmpty(email))
             {
-                message.Subject = "Your FitPro OTP for Password Reset";
-                message.Body = templateContent;
-                message.IsBodyHtml = true;
+                Console.WriteLine("Error: Email address is null or empty");
+                return;
+            }
 
-                using (SmtpClient smtp = new SmtpClient())
+            if (string.IsNullOrEmpty(Username))
+            {
+                Console.WriteLine("Error: SMTP username is null. Check your configuration.");
+                return;
+            }
+
+            try
+            {
+                string basePath = AppContext.BaseDirectory;
+                string templatePath = Path.Combine(basePath, "Templates", "Otp_Email.html");
+                string templateContent = await File.ReadAllTextAsync(templatePath);
+
+                // Replace placeholders in the template
+                templateContent = templateContent.Replace("#[UserName]#", username)
+                                            .Replace("#[OTP]#", otp);
+
+                using (MailMessage message = new MailMessage(new MailAddress(Username), new MailAddress(email)))
                 {
-                    smtp.Host = smtpServer;
-                    smtp.Port = Port;
-                    smtp.EnableSsl = true;
+                    message.Subject = "Your FitPro OTP for Password Reset";
+                    message.Body = templateContent;
+                    message.IsBodyHtml = true;
 
-                    NetworkCredential NetCre = new NetworkCredential(Username, Password);
-                    smtp.Credentials = NetCre;
-
-                    try
+                    using (SmtpClient smtp = new SmtpClient())
                     {
+                        smtp.Host = smtpServer;
+                        smtp.Port = Port;
+                        smtp.EnableSsl = true;
+
+                        NetworkCredential NetCre = new NetworkCredential(Username, Password);
+                        smtp.Credentials = NetCre;
+
                         await smtp.SendMailAsync(message);
                     }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine("Failed to send OTP email: " + ex.Message);
-                    }
                 }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Failed to send OTP email: {ex.Message}");
+                Console.WriteLine($"Stack trace: {ex.StackTrace}");
             }
         }
         #endregion
@@ -70,7 +85,8 @@ namespace Repo
         //For Succesfully ResetPassword Mail
         public async Task sendSuccessResetPwdEmail(string username, string email)
         {
-            string templatePath = Path.Combine(Directory.GetCurrentDirectory(), "Templates", "PasswordResetSuccess_Email.html");
+            string basePath = AppContext.BaseDirectory;
+            string templatePath = Path.Combine(basePath, "Templates", "PasswordResetSuccess_Email.html");
             string templateContent = await File.ReadAllTextAsync(templatePath);
 
             templateContent = templateContent.Replace("#[UserName]#", username);
@@ -110,7 +126,8 @@ namespace Repo
             try
             {
                 // Load email template
-                string templatePath = Path.Combine(Directory.GetCurrentDirectory(), "Templates", "Activation_Email.html");
+                string basePath = AppContext.BaseDirectory;
+                string templatePath = Path.Combine(basePath, "Templates", "Activation_Email.html");
                 string templateContent = await File.ReadAllTextAsync(templatePath);
 
                 // Replace placeholders with actual values
@@ -147,7 +164,8 @@ namespace Repo
             try
             {
                 // Load email template
-                string templatePath = Path.Combine(Directory.GetCurrentDirectory(), "Templates", "ApproveInstructor_Email.html");
+                string basePath = AppContext.BaseDirectory;
+                string templatePath = Path.Combine(basePath, "Templates", "ApproveInstructor_Email.html");
                 string templateContent = await File.ReadAllTextAsync(templatePath);
 
                 // Replace placeholders with actual values
@@ -183,7 +201,8 @@ namespace Repo
             try
             {
                 // Load email template
-                string templatePath = Path.Combine(Directory.GetCurrentDirectory(), "Templates", "DisapproveInstructor_Email.html");
+                string basePath = AppContext.BaseDirectory;
+                string templatePath = Path.Combine(basePath, "Templates", "DisapproveInstructor_Email.html");
                 string templateContent = await File.ReadAllTextAsync(templatePath);
 
                 // Replace placeholders with actual values
@@ -220,7 +239,8 @@ namespace Repo
             try
             {
                 // Load email template
-                string templatePath = Path.Combine(Directory.GetCurrentDirectory(), "Templates", "SuspendInstructor_Email.html");
+                string basePath = AppContext.BaseDirectory;
+                string templatePath = Path.Combine(basePath, "Templates", "SuspendInstructor_Email.html");
                 string templateContent = await File.ReadAllTextAsync(templatePath);
 
                 // Replace placeholders with actual values
@@ -257,7 +277,8 @@ namespace Repo
             try
             {
                 // Load email template
-                string templatePath = Path.Combine(Directory.GetCurrentDirectory(), "Templates", "SuspendUser_Email.html");
+                string basePath = AppContext.BaseDirectory;
+                string templatePath = Path.Combine(basePath, "Templates", "SuspendUser_Email.html");
                 string templateContent = await File.ReadAllTextAsync(templatePath);
 
                 // Replace placeholders with actual values
@@ -294,7 +315,8 @@ namespace Repo
             try
             {
                 // Load email template
-                string templatePath = Path.Combine(Directory.GetCurrentDirectory(), "Templates", "ActivateInstructor_Email.html");
+                string basePath = AppContext.BaseDirectory;
+                string templatePath = Path.Combine(basePath, "Templates", "ActivateInstructor_Email.html");
                 string templateContent = await File.ReadAllTextAsync(templatePath);
 
                 // Replace placeholders with actual values
@@ -330,7 +352,13 @@ namespace Repo
             try
             {
                 // Load email template
-                string templatePath = Path.Combine(Directory.GetCurrentDirectory(), "Templates", "ActivateUser_Email.html");
+                string basePath = AppContext.BaseDirectory;
+                string templatePath = Path.Combine(basePath, "Templates", "ActivateUser_Email.html");
+
+                if (!File.Exists(templatePath))
+                {
+                    throw new FileNotFoundException($"Email template not found at path: {templatePath}");
+                }
                 string templateContent = await File.ReadAllTextAsync(templatePath);
 
                 // Replace placeholders with actual values
@@ -366,7 +394,8 @@ namespace Repo
             try
             {
                 // Load email template
-                string templatePath = Path.Combine(Directory.GetCurrentDirectory(), "Templates", "BookingConfirmation_Email.html");
+                string basePath = AppContext.BaseDirectory;
+                string templatePath = Path.Combine(basePath, "Templates", "BookingConfirmation_Email.html");
                 string templateContent = await File.ReadAllTextAsync(templatePath);
 
                 // Replace placeholders with actual values

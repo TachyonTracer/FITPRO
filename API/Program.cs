@@ -93,14 +93,22 @@ builder.Services.AddAuthentication(option =>
         ValidAudience = builder.Configuration["Jwt:Audience"],
         ValidIssuer = builder.Configuration["Jwt:Issuer"],
         IssuerSigningKey = new SymmetricSecurityKey(
-            Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"] 
+            Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]
                 ?? throw new InvalidOperationException("Jwt:Key is not configured")))
     };
 });
-builder.Services.AddCors(p => p.AddPolicy("corsapp", builder =>
+
+// Replace the existing CORS configuration
+builder.Services.AddCors(options =>
 {
-    builder.WithOrigins("http://localhost:8080", "http://localhost:8081").AllowAnyMethod().AllowAnyHeader().AllowCredentials();
-}));
+    options.AddPolicy("corsapp", policy =>
+    {
+        policy.WithOrigins("http://localhost:8081")
+              .AllowAnyMethod()
+              .AllowAnyHeader()
+              .AllowCredentials(); // Important for cookies/authentication
+    });
+});
 
 //session injection
 builder.Services.AddDistributedMemoryCache();
@@ -115,7 +123,7 @@ builder.Services.AddSession(options =>
 builder.Services.AddDataProtection()
     .SetApplicationName("FitPro")
     .PersistKeysToFileSystem(new DirectoryInfo(@"/root/.aspnet/DataProtection-Keys"));
-    // .PersistKeysToFileSystem(new DirectoryInfo(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "FitPro-Keys"))); // For MacOS
+// .PersistKeysToFileSystem(new DirectoryInfo(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "FitPro-Keys"))); // For MacOS
 
 // *** Notifications: Builder Configurations Starts *** //
 

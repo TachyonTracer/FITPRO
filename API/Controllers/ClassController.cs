@@ -11,9 +11,12 @@ namespace API
     public class ClassController : ControllerBase
     {
         public readonly IClassInterface _classRepo;
-        public ClassController(IClassInterface classRepo)
+        private readonly IConfiguration _configuration;
+
+        public ClassController(IClassInterface classRepo, IConfiguration configuration)
         {
             _classRepo = classRepo;
+            _configuration = configuration;
         }
 
         #region User-Stroy : List Class 
@@ -102,6 +105,16 @@ namespace API
         public async Task<IActionResult> GetAll()
         {
             List<Class> classes = await _classRepo.GetAllClasses();
+            return Ok(new { sucess = true, message = "class fetch successfully", data = classes });
+        }
+        #endregion
+
+        #region GetAllActiveClasses
+        [HttpGet("GetAllActiveClasses")]
+        // [Authorize]
+        public async Task<IActionResult> GetAllActiveClasses()
+        {
+            List<Class> classes = await _classRepo.GetAllActiveClasses();
             return Ok(new { sucess = true, message = "class fetch successfully", data = classes });
         }
         #endregion
@@ -444,12 +457,12 @@ public async Task<IActionResult> UpdateClass([FromForm] Class request)
         #region PredictClass
         [HttpPost("PredictClassPopularity")]
         public async Task<IActionResult> PredictClassPopularity(
-        [FromForm] string c_classname, [FromForm] string c_type,
-        [FromForm] string c_startdate, [FromForm] string c_enddate, [FromForm] string c_starttime,
-        [FromForm] string c_endtime,[FromForm] int c_maxcapacity,
-        [FromForm] string c_requiredequipments,
-        [FromForm] string c_city, [FromForm] decimal c_fees,
-        [FromForm] string gender, [FromForm] double rating)
+            [FromForm] string c_classname, [FromForm] string c_type,
+            [FromForm] string c_startdate, [FromForm] string c_enddate, 
+            [FromForm] string c_starttime, [FromForm] string c_endtime,
+            [FromForm] int c_maxcapacity, [FromForm] string c_requiredequipments,
+            [FromForm] string c_city, [FromForm] decimal c_fees,
+            [FromForm] string gender, [FromForm] double rating)
         {
             try
             {
@@ -462,40 +475,41 @@ public async Task<IActionResult> UpdateClass([FromForm] Class request)
                 // Parse dates
                 DateTime startDate = string.IsNullOrEmpty(c_startdate) ? DateTime.Now : DateTime.ParseExact(c_startdate, "yyyy-MM-dd", null);
                 DateTime endDate = string.IsNullOrEmpty(c_enddate) ? DateTime.Now : DateTime.ParseExact(c_enddate, "yyyy-MM-dd", null);
-                // Calculate duration if not provided (override with form value if given)
                 int duration = CalculateDuration(c_starttime, c_endtime, startDate, endDate);
 
-                // Prepare prediction data matching Flask's expected format
                 var predictionData = new
                 {
-                    c_classname = c_classname,
-                    c_type = c_type,
-                    c_startdate = c_startdate,
-                    c_enddate = c_enddate,
-                    c_starttime = c_starttime,
-                    c_endtime = c_endtime,
+                    c_classname,
+                    c_type,
+                    c_startdate,
+                    c_enddate,
+                    c_starttime,
+                    c_endtime,
                     c_duration = duration,
-                    c_maxcapacity = c_maxcapacity,
+                    c_maxcapacity,
                     c_requiredequipments = c_requiredequipments ?? "None",
-                    c_city = c_city,
-                    c_fees = c_fees,
+                    c_city,
+                    c_fees,
                     Gender = gender ?? "Unknown",
-                    Rating = rating, // Instructor rating from form (can be overridden by existing data if needed)
+                    Rating = rating,
                     Is_Weekend = IsWeekend(startDate.ToString("yyyy-MM-dd")) ? "Yes" : "No",
                     Session = GetSession(c_starttime)
                 };
 
                 Console.WriteLine($"Prediction Data: {JsonSerializer.Serialize(predictionData)}");
 
-                // Convert to JSON
-                string jsonData = JsonSerializer.Serialize(predictionData);
+                // Get AI service URL from configuration
+                string aiServiceUrl=Environment.GetEnvironmentVariable("AI_SERVICE_URL") ?? "http://localhost:5000";
+     
 
                 // Call Flask API
                 using (var client = new HttpClient())
                 {
-                    client.BaseAddress = new Uri("http://localhost:5000"); // Flask server address
+                    var jsonData = JsonSerializer.Serialize(predictionData);
                     var content = new StringContent(jsonData, Encoding.UTF8, "application/json");
-                    var response = await client.PostAsync("/predict", content);
+                    
+                    // Use the configured AI service URL
+                    var response = await client.PostAsync($"{aiServiceUrl}/predict", content);
 
                     if (response.IsSuccessStatusCode)
                     {
@@ -515,7 +529,7 @@ public async Task<IActionResult> UpdateClass([FromForm] Class request)
                         return StatusCode((int)response.StatusCode, new
                         {
                             success = false,
-                            message = "Failed to get prediction from Flask",
+                            message = $"Failed to get prediction from AI service: {error}",
                             error = error
                         });
                     }
@@ -523,7 +537,7 @@ public async Task<IActionResult> UpdateClass([FromForm] Class request)
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                Console.WriteLine($"Error in PredictClassPopularity: {ex.Message}");
                 return StatusCode(500, new
                 {
                     success = false,
@@ -601,11 +615,12 @@ public async Task<IActionResult> UpdateClass([FromForm] Class request)
                 };
 
                 Console.WriteLine($"Sending to Flask: {JsonSerializer.Serialize(hybridRequest)}");
+               
 
                 // Call Flask API
                 using (var client = new HttpClient())
                 {
-                    client.BaseAddress = new Uri("http://localhost:5000"); // Flask server address
+                    client.BaseAddress = new Uri(Environment.GetEnvironmentVariable("AI_SERVICE_URL") ?? "http://localhost:5000");// Flask server address
                     var json = JsonSerializer.Serialize(hybridRequest);
                     var content = new StringContent(json, Encoding.UTF8, "application/json");
 

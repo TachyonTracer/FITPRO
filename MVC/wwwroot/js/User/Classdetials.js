@@ -73,13 +73,26 @@ window.onload = () => {
         updateWaitlistColor(waitlistCount);
     }
 };
-
+async function fetchInstructorDetails(instructorId) {
+    try {
+        console.log('Fetching instructor with ID:', instructorId);
+        const response = await fetch(`${uri}/api/Instructor/GetInstructorById/${instructorId}`);
+        const data = await response.json();
+        
+        console.log('Instructor API response:', data);
+        
+        if (data.success && data.data) {
+            return data.data;
+        }
+        throw new Error('Failed to fetch instructor details');
+    } catch (error) {
+        console.error('Error fetching instructor details:', error);
+        return null;
+    }
+}
 
 async function bookThisClass() {
-    // const urlParams = new URLSearchParams(window.location.search);
-    // const classId =  ViewBag.ClassId;
-    const pathArray = window.location.pathname.split('/');
-    const classId = pathArray[pathArray.length - 1];
+    const classId = document.getElementById('classId').value;
     const userId = getUserIdFromToken();
 
     if (!classId) {
@@ -469,6 +482,8 @@ async function updateBookingSection(classInfo) {
     }
 }
 
+
+
 // Replace your current DOMContentLoaded event listener with this:
 document.addEventListener('DOMContentLoaded', async function () {
     // Check if authentication token exists FIRST, before doing anything else
@@ -495,7 +510,7 @@ document.addEventListener('DOMContentLoaded', async function () {
 
     // Continue with the rest of your code for authenticated users
     const urlParams = new URLSearchParams(window.location.search);
-    const classId = urlParams.get('id');
+    const classId = document.getElementById('classId').value;
     const paymentSuccess = urlParams.get('payment_success');
 
     // Process payment success if needed
@@ -639,6 +654,29 @@ document.addEventListener('DOMContentLoaded', async function () {
                 </div>
             `;
         }
+
+        // Fetch and update instructor details
+        if (classInfo.instructorName) {
+            const instructorSection = document.querySelector('.instructor-info');
+            instructorSection.innerHTML = `
+                <img src="/img/fitness.jpg" 
+                    alt="${classInfo.instructorName}" 
+                    onerror="this.src='/img/default-instructor.png'">
+                <div class="instructor-text">
+                    <strong>${classInfo.instructorName}</strong>
+                    <p>Expert Fitness Instructor</p>
+                </div>
+            `;
+        } else {
+            document.querySelector('.instructor-info').innerHTML = `
+                <img src="/img/default-instructor.png" alt="Default Instructor">
+                <div class="instructor-text">
+                    <strong>Instructor information unavailable</strong>
+                    <p>Details not available at this time</p>
+                </div>
+            `;
+        }
+        
 
     } catch (error) {
         console.error('Error:', error);
