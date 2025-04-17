@@ -123,6 +123,7 @@ body {
 
 .profile-dropdown a:hover {
   background-color: var(--primary-color);
+  color:black
 }
 
 .user-profile-container:hover .profile-dropdown {
