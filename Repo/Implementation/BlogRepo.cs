@@ -231,67 +231,133 @@ public class BlogRepo : IBlogInterface
 
 
         #region GetBlogsForUser
-        public async Task<List<BlogPost>> GetBlogsForUser()
-        {
-
-            var blogList = new List<BlogPost>();
-
-            try
+            public async Task<List<BlogPost>> GetBlogsForUser()
             {
 
-                if (_conn.State == System.Data.ConnectionState.Open)
-                    await _conn.CloseAsync();
+                var blogList = new List<BlogPost>();
 
-                string query = @"SELECT * FROM t_blogpost
-                                    WHERE c_is_published = true";
-
-                using (var cmd = new NpgsqlCommand(query, _conn))
+                try
                 {
-                    // cmd.Parameters.AddWithValue("@c_blog_author_id", Convert.ToInt32(instructor_id));
-                    await _conn.OpenAsync();
-                    using (var reader = await cmd.ExecuteReaderAsync())
+
+                    if (_conn.State == System.Data.ConnectionState.Open)
+                        await _conn.CloseAsync();
+
+                    string query = @"SELECT * FROM t_blogpost
+                                        WHERE c_is_published = true";
+
+                    using (var cmd = new NpgsqlCommand(query, _conn))
                     {
-                        while (await reader.ReadAsync())
+                        // cmd.Parameters.AddWithValue("@c_blog_author_id", Convert.ToInt32(instructor_id));
+                        await _conn.OpenAsync();
+                        using (var reader = await cmd.ExecuteReaderAsync())
                         {
-                            BlogPost blog = new BlogPost
+                            while (await reader.ReadAsync())
                             {
-                                c_blog_id = reader.GetInt32(reader.GetOrdinal("c_blog_id")),
-                                c_blog_author_id = reader.GetInt32(reader.GetOrdinal("c_blog_author_id")),
-                                c_tags = reader.GetString(reader.GetOrdinal("c_tags")),
-                                c_title = reader.GetString(reader.GetOrdinal("c_title")),
-                                c_desc = reader.GetString(reader.GetOrdinal("c_desc")),
-                                c_content = reader.GetString(reader.GetOrdinal("c_content")),
-                                c_thumbnail = reader.GetString(reader.GetOrdinal("c_thumbnail")),
-                                c_source_url = reader.GetString(reader.GetOrdinal("c_source_url")),
-                                c_views = reader.GetInt32(reader.GetOrdinal("c_views")),
-                                c_likes = reader.GetInt32(reader.GetOrdinal("c_likes")),
-                                c_comments = reader.GetInt32(reader.GetOrdinal("c_comments")),
-                                c_created_at = reader.GetInt32(reader.GetOrdinal("c_created_at")),
-                                c_published_at = reader.GetInt32(reader.GetOrdinal("c_published_at")),
-                                c_is_published = reader.GetBoolean(reader.GetOrdinal("c_is_published")),
-                            };
-                            blogList.Add(blog);
+                                BlogPost blog = new BlogPost
+                                {
+                                    c_blog_id = reader.GetInt32(reader.GetOrdinal("c_blog_id")),
+                                    c_blog_author_id = reader.GetInt32(reader.GetOrdinal("c_blog_author_id")),
+                                    c_tags = reader.GetString(reader.GetOrdinal("c_tags")),
+                                    c_title = reader.GetString(reader.GetOrdinal("c_title")),
+                                    c_desc = reader.GetString(reader.GetOrdinal("c_desc")),
+                                    c_content = reader.GetString(reader.GetOrdinal("c_content")),
+                                    c_thumbnail = reader.GetString(reader.GetOrdinal("c_thumbnail")),
+                                    c_source_url = reader.GetString(reader.GetOrdinal("c_source_url")),
+                                    c_views = reader.GetInt32(reader.GetOrdinal("c_views")),
+                                    c_likes = reader.GetInt32(reader.GetOrdinal("c_likes")),
+                                    c_comments = reader.GetInt32(reader.GetOrdinal("c_comments")),
+                                    c_created_at = reader.GetInt32(reader.GetOrdinal("c_created_at")),
+                                    c_published_at = reader.GetInt32(reader.GetOrdinal("c_published_at")),
+                                    c_is_published = reader.GetBoolean(reader.GetOrdinal("c_is_published")),
+                                };
+                                blogList.Add(blog);
+                            }
                         }
                     }
-                }
-                await _conn.CloseAsync();
-                return blogList;
-            }
-
-            catch (Exception ex)
-            {
-                System.Console.WriteLine("Exception at GetBlogsForUser-->" + ex.Message);
-                return blogList;
-            }
-
-            finally
-            {
-                if (_conn.State == System.Data.ConnectionState.Open)
                     await _conn.CloseAsync();
+                    return blogList;
+                }
+
+                catch (Exception ex)
+                {
+                    System.Console.WriteLine("Exception at GetBlogsForUser-->" + ex.Message);
+                    return blogList;
+                }
+
+                finally
+                {
+                    if (_conn.State == System.Data.ConnectionState.Open)
+                        await _conn.CloseAsync();
+                }
             }
-        }
         #endregion
 
+        #region FetchBookmarkedBlogsForUser
+            public async Task<List<BlogPost>> FetchBookmarkedBlogsForUser(int user_id, string user_role)
+            {
+                var blogList = new List<BlogPost>();
+
+                try
+                {
+                    if (_conn.State == System.Data.ConnectionState.Open)
+                        await _conn.CloseAsync();
+
+                    string query = @"
+                        SELECT bp.*
+                        FROM t_blogpost bp
+                        INNER JOIN t_blog_bookmark bb 
+                            ON bp.c_blog_id = bb.c_blog_id
+                        WHERE bb.c_user_id = @c_user_id
+                        AND bb.c_user_role = @c_user_role
+                        AND bb.c_bookmarked = TRUE";
+
+                    using (var cmd = new NpgsqlCommand(query, _conn))
+                    {
+                        cmd.Parameters.AddWithValue("@c_user_id", user_id);
+                        cmd.Parameters.AddWithValue("@c_user_role", user_role);
+                        await _conn.OpenAsync();
+
+                        using (var reader = await cmd.ExecuteReaderAsync())
+                        {
+                            while (await reader.ReadAsync())
+                            {
+                                BlogPost blog = new BlogPost
+                                {
+                                    c_blog_id = reader.GetInt32(reader.GetOrdinal("c_blog_id")),
+                                    c_blog_author_id = reader.GetInt32(reader.GetOrdinal("c_blog_author_id")),
+                                    c_tags = reader.GetString(reader.GetOrdinal("c_tags")),
+                                    c_title = reader.GetString(reader.GetOrdinal("c_title")),
+                                    c_desc = reader.GetString(reader.GetOrdinal("c_desc")),
+                                    c_content = reader.GetString(reader.GetOrdinal("c_content")),
+                                    c_thumbnail = reader.GetString(reader.GetOrdinal("c_thumbnail")),
+                                    c_source_url = reader.GetString(reader.GetOrdinal("c_source_url")),
+                                    c_views = reader.GetInt32(reader.GetOrdinal("c_views")),
+                                    c_likes = reader.GetInt32(reader.GetOrdinal("c_likes")),
+                                    c_comments = reader.GetInt32(reader.GetOrdinal("c_comments")),
+                                    c_created_at = reader.GetInt32(reader.GetOrdinal("c_created_at")),
+                                    c_published_at = reader.GetInt32(reader.GetOrdinal("c_published_at")),
+                                    c_is_published = reader.GetBoolean(reader.GetOrdinal("c_is_published")),
+                                };
+                                blogList.Add(blog);
+                            }
+                        }
+                    }
+
+                    await _conn.CloseAsync();
+                    return blogList;
+                }
+                catch (Exception ex)
+                {
+                    System.Console.WriteLine("Exception at FetchBookmarkedBlogsForUser --> " + ex.Message);
+                    return blogList;
+                }
+                finally
+                {
+                    if (_conn.State == System.Data.ConnectionState.Open)
+                        await _conn.CloseAsync();
+                }
+            }
+        #endregion
 
         #region GetBlogById
         public async Task<BlogPost> GetBlogById(int blog_id)

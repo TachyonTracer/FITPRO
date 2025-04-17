@@ -11,6 +11,7 @@ public interface IBlogInterface
         Task<bool> PublishBlog(BlogPost blogpost);
         Task<List<BlogPost>> GetBlogsByInstructorId(int instructor_id);
         Task<List<BlogPost>> GetBlogsForUser();
+        Task<List<BlogPost>> FetchBookmarkedBlogsForUser(int user_id, string user_role);
         Task<BlogPost> GetBlogById(int blog_id);
 
         Task<BlogComment> AddNewComment(BlogComment comment);

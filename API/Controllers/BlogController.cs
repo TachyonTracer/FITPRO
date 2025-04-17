@@ -342,6 +342,45 @@ namespace API
             }
         }
 
+        [HttpPost]
+        [Route("fetchBookmarkedBlogsForUser")]
+
+        public async Task<IActionResult> FetchBookmarkedBlogsForUser(string user_id)
+        {
+            if (Convert.ToInt32(user_id) != null)
+            {
+                try
+                {
+                    var blog_list = await _blogRepo.FetchBookmarkedBlogsForUser(Convert.ToInt32(user_id), "user");
+
+                    if (blog_list.Count == 0)
+                    {
+                        return BadRequest(new { success = false, message = "You Haven't added any blog to you bookmark list.", data = blog_list });
+                    }
+                    return Ok(new
+                    {
+                        success = true,
+                        message = "Fetched All blogs.",
+                        data = new
+                        {
+                            count = blog_list.Count,
+                            entries = blog_list
+                        }
+                    });
+
+                }
+                catch
+                {
+                    return StatusCode(500, new { success = false, message = "Something went wrong fetching your blogs, please try again later." });
+                }
+            }
+            else
+            {
+                return BadRequest(new { success = false, message = "Instructor Id is required" });
+            }
+        }
+
+
 
         [HttpPost]
         [Route("GetBlogById")]
