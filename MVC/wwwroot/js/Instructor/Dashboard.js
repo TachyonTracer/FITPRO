@@ -172,7 +172,7 @@ const classTypeChart = new Chart(classTypeCtx, {
   data: {
     labels: [{
       text: "Loading...", // Placeholder text
-      color:["#fff"]// Style for the placeholder
+      color:["#ffff"]// Style for the placeholder
     }],  // Labels will be populated dynamically
     datasets: [
       {
@@ -185,8 +185,14 @@ const classTypeChart = new Chart(classTypeCtx, {
     maintainAspectRatio: false,
     height: 400,
     width: 300,
-    
-  },
+    plugins: {
+      legend: {
+        labels: {
+          color: "#ffffff"  // Legend label color set to white
+        }
+      }
+    }
+  }
 });
 
 // Function to fetch data from API and update the chart
@@ -211,7 +217,7 @@ async function updateChartData(instructorId) {
       classTypeChart.data.datasets[0].data = classData.map(item => item.value);
       
       classTypeChart.data.datasets[0].backgroundColor = classData.map((_, index) => {
-        const colors = ["#facc15", "#4d4dff", "#a38305", "#0d0d0d"];
+        const colors = ["#facc15", "#4d4dff", "#71a305", "#d64fcf", "#994fd6", "#51e6e8", "#eb8c54"];
         return colors[index % colors.length];
       });
 
@@ -297,7 +303,7 @@ updateChartData(instructorId);
       console.log("Instructor Data:", response);
 
       if (response) {
-        $("#userName").text(response.instructorName);
+        $("#userName").text("Welcome, " + response.instructorName );
 
         // Profile Image Handling
         if (response.profileImage) {

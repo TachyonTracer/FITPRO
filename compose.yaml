@@ -23,6 +23,12 @@ services:
       - RecaptchaSettings__SiteKey=${RECAPTCHA_SITE_KEY}
       - RecaptchaSettings__SecretKey=${RECAPTCHA_SECRET_KEY}
       - AI_SERVICE_URL=http://ai:5000
+      - Smtp__smtpServer=${SMTP_SERVER}
+      - Smtp__Port=${SMTP_PORT}
+      - Smtp__Username=${SMTP_USERNAME}
+      - Smtp__Password=${SMTP_PASSWORD}
+      - Smtp__EnableSsl=${SMTP_ENABLE_SSL}
+      - Smtp__tcpClient=${SMTP_TCP_CLIENT}
     networks:
       - FitPro-network
     depends_on:
@@ -57,6 +63,12 @@ services:
       - ConnectionStrings__pgconn=Server=${DB_HOST};Port=${DB_PORT};Database=${DB_NAME};UserId=${DB_USER};Password=${DB_PASS}
       - RecaptchaSettings__SiteKey=${RECAPTCHA_SITE_KEY}
       - RecaptchaSettings__SecretKey=${RECAPTCHA_SECRET_KEY}
+      - Smtp__smtpServer=${SMTP_SERVER}
+      - Smtp__Port=${SMTP_PORT}
+      - Smtp__Username=${SMTP_USERNAME}
+      - Smtp__Password=${SMTP_PASSWORD}
+      - Smtp__EnableSsl=${SMTP_ENABLE_SSL}
+      - Smtp__tcpClient=${SMTP_TCP_CLIENT}
     networks:
       - FitPro-network
     depends_on:

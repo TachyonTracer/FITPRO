@@ -414,11 +414,39 @@ body {
 
 /* Equipment Multiselect Styling */
 .dropdown-menu {
+  max-height: 200px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--primary-color) rgba(255, 255, 255, 0.1);
+  display: none; /* Hidden by default */
+  position: absolute;
+  z-index: 1050; /* High z-index to appear above other elements */
   background-color: var(--background);
   border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 8px;
   padding: 0.5rem;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+/* When active, display as inline */
+.dropdown-menu.active-dropdown {
+  display: inline;
+}
+
+/* Ensure equipment dropdown specifically has correct z-index */
+.equipment-dropdown .dropdown-menu {
+  z-index: 1050;
+}
+
+/* Improve dropdown item appearance */
+.dropdown-item {
+  color: #fff;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+.dropdown-item:hover {
+  background-color: rgba(255, 255, 255, 0.1);
 }
 
 .dropdown-item {
@@ -429,11 +457,6 @@ body {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-}
-
-.dropdown-item:hover {
-  background-color: rgba(255, 255, 255, 0.1);
-  color: var(--primary-color);
 }
 
 .dropdown-item input[type="checkbox"] {
