@@ -112,18 +112,6 @@ async function loadFeedbacks() {
             feedbackContainer.appendChild(classCard);
         });
 
-        // Add success notification
-        Swal.fire({
-            icon: 'success',
-            title: 'Feedbacks Loaded',
-            text: `Successfully loaded feedbacks for ${Object.keys(groupedFeedbacks).length} classes`,
-            toast: true,
-            position: 'top-end',
-            showConfirmButton: false,
-            timer: 3000,
-            timerProgressBar: true
-        });
-
     } catch (error) {
         console.error('Error:', error);
         feedbackContainer.innerHTML = `
