@@ -2,11 +2,11 @@
     Layout = "../Shared/_UserLayout.cshtml";
     ViewData["Title"] = "Class Schedule";
 }
-
+<link rel="stylesheet" href="@Url.Content("~/css/User/UserClassSchedule.css")" asp-append-version="true">
 <div id="userScheduleCalendarContainer">
     <div id="userScheduleCalendar"></div>
 </div>
-
+<div id="profileDrawer"></div>
 <!-- Custom Modal for Event Details -->
 <div class="userScheduleModal" id="userScheduleEventModal">
     <div class="userScheduleModalContent">
@@ -27,7 +27,7 @@
 <div class="userScheduleCircle userScheduleCircleOne"></div>
 <div class="userScheduleCircle userScheduleCircleTwo"></div>
 
-<style>
+@* <style>
     /* Calendar container */
     #userScheduleCalendarContainer {
         width: 95%;
@@ -447,7 +447,7 @@
             height: 400px !important;
         }
     }
-</style>
+</style> *@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {

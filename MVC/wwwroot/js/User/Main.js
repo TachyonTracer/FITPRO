@@ -2,6 +2,7 @@
 let uri = "http://localhost:8080";
 // Function to format date and time
 var userId;
+let drawer;
 
     function setUserName() {
         const token = localStorage.getItem("authToken");
@@ -297,7 +298,7 @@ document.querySelector('.profile-img').addEventListener('click', function () {
         document.querySelector('.profile-dropdown').style.display === 'block' ? 'none' : 'block';
 });
 
-var drawer = $("#profileDrawer").kendoDrawer({
+ drawer = $("#profileDrawer").kendoDrawer({
     template: `
             <div class="k-drawer-content">
                 <div class="k-drawer-title">Update Profile</div>
@@ -1023,3 +1024,224 @@ $.ajax({
 });
 //#################################################33
 //End of Class Recommendation
+
+
+document.addEventListener('DOMContentLoaded', function() {
+    var userScheduleUserId = getUserId();
+    
+    function getUserId() {
+        try {
+            const token = localStorage.getItem("authToken");
+            if (!token) {
+                console.warn("No auth token found in localStorage.");
+                return 34; // Default fallback ID
+            }
+            
+            const base64Url = token.split('.')[1];
+            const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+            const decoded = JSON.parse(atob(base64));
+            
+            if (decoded && decoded.UserObject) {
+                const userObj = JSON.parse(decoded.UserObject);
+                console.log("User object:", userObj);
+                return userObj.userId || 34;
+            }
+            
+            return 34; // Default fallback ID
+        } catch (error) {
+            console.error("Error getting user ID:", error);
+            return 34; // Default fallback ID
+        }
+    }
+
+    // Wait a short period to ensure jQuery and FullCalendar are fully loaded
+    setTimeout(function() {
+        if (typeof jQuery !== 'undefined' && typeof jQuery.fn.fullCalendar !== 'undefined') {
+            initializeCalendar();
+        } else {
+            console.error("FullCalendar or jQuery not available. Trying to load fallback scripts.");
+            loadFallbackScripts();
+        }
+    }, 300);
+
+    function loadFallbackScripts() {
+        // We'll load scripts only if they're not already loaded
+        if (typeof jQuery === 'undefined') {
+            const jQueryScript = document.createElement('script');
+            jQueryScript.src = 'https://code.jquery.com/jquery-3.6.0.min.js';
+            jQueryScript.onload = function() {
+                // Once jQuery is loaded, load FullCalendar
+                loadFullCalendar();
+            };
+            document.head.appendChild(jQueryScript);
+        } else if (typeof jQuery.fn.fullCalendar === 'undefined') {
+            loadFullCalendar();
+        }
+    }
+
+    function loadFullCalendar() {
+        const momentScript = document.createElement('script');
+        momentScript.src = 'https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js';
+        
+        const fullCalendarScript = document.createElement('script');
+        fullCalendarScript.src = 'https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.10.2/fullcalendar.min.js';
+        
+        momentScript.onload = function() {
+            document.head.appendChild(fullCalendarScript);
+        };
+        
+        fullCalendarScript.onload = function() {
+            initializeCalendar();
+        };
+        
+        document.head.appendChild(momentScript);
+    }
+
+    function initializeCalendar() {
+        $('#userScheduleCalendar').fullCalendar({
+            header: {
+                left: 'prev,next',
+                center: 'title',
+                right: 'month,agendaWeek,agendaDay'
+            },
+            defaultView: 'agendaWeek',
+            navLinks: true,
+            editable: false,
+            eventLimit: true,
+            slotDuration: '00:30:00',
+            minTime: '06:00:00',
+            maxTime: '22:00:00',
+            nowIndicator: true,
+            contentHeight: 'auto',
+            slotEventOverlap: false,
+            eventRender: function(event, element) {
+                element.find('.fc-time').hide();
+                element.attr('title', event.title + '\n' + 
+                    event.start.format('h:mm A') + ' - ' + event.end.format('h:mm A'));
+            },
+            events: function(start, end, timezone, callback) {
+                // Use fetch API instead of jQuery ajax for better error handling
+                fetch(`http://localhost:8080/api/Class/GetBookedClassesByUser/${userScheduleUserId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log("API response:", data);
+                        if (data && (data.success || data.data)) {
+                            var events = userScheduleGenerateEvents(data.data || []);
+                            callback(events);
+                        } else {
+                            console.error('Failed to fetch classes:', data?.message || 'Unknown error');
+                            callback([]);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error fetching data:', error);
+                        callback([]);
+                    });
+            },
+            eventClick: function(event) {
+                userScheduleShowEventModal(event);
+            }
+        });
+    }
+
+    function userScheduleGenerateEvents(classData) {
+        console.log("Processing class data:", classData);
+        var events = [];
+        
+        if (!classData || !classData.length) {
+            console.warn("No class data available.");
+            return events;
+        }
+
+        classData.forEach(function(classItem) {
+            if (!classItem) return;
+            
+            var startDate = moment(classItem.startDate);
+            var endDate = moment(classItem.endDate);
+            var startTime = classItem.startTime;
+            var endTime = classItem.endTime;
+
+            if (!startDate.isValid() || !endDate.isValid() || !startTime || !endTime) {
+                console.warn("Invalid class data:", classItem);
+                return;
+            }
+
+            for (var date = moment(startDate); date.isSameOrBefore(endDate); date.add(1, 'days')) {
+                var eventStart = moment(date.format('YYYY-MM-DD') + ' ' + startTime);
+                var eventEnd = moment(date.format('YYYY-MM-DD') + ' ' + endTime);
+
+                // Parse description
+                let description = 'No description available';
+                if (classItem.description) {
+                    try {
+                        if (typeof classItem.description === 'object') {
+                            description = `
+                                <strong>Purpose:</strong> ${classItem.description.purpose || 'N/A'}<br>
+                                <strong>Benefits:</strong> ${classItem.description.benefits || 'N/A'}<br>
+                                ${classItem.description.medicalCondition ? `<strong>Medical Condition:</strong> ${classItem.description.medicalCondition}<br>` : ''}
+                                ${classItem.description.moreInfo ? `<strong>More Info:</strong> ${classItem.description.moreInfo}<br>` : ''}
+                            `;
+                        } else if (typeof classItem.description === 'string') {
+                            description = classItem.description;
+                        }
+                    } catch (e) {
+                        console.error('Error parsing description:', e);
+                    }
+                }
+
+                events.push({
+                    id: classItem.classId + '-' + date.format('YYYYMMDD'),
+                    title: classItem.className || 'Unnamed Class',
+                    start: eventStart,
+                    end: eventEnd,
+                    description: description,
+                    classType: classItem.type || 'Fitness',
+                    instructorName: classItem.instructorName || 'Unknown',
+                    address: classItem.address || 'N/A',
+                    fee: classItem.fee || 'N/A',
+                    requiredEquipments: classItem.requiredEquipments || 'N/A',
+                    backgroundColor: '#3a87ad',
+                    borderColor: '#3a87ad'
+                });
+            }
+        });
+
+        console.log("Generated events:", events);
+        return events;
+    }
+
+    function userScheduleShowEventModal(event) {
+        document.getElementById('userScheduleModalTitle').textContent = event.title;
+        
+        const modalContent = `
+            <div style="margin-bottom: 15px; color: white;">
+                <strong>Class Type:</strong> ${event.classType}<br>
+                <strong>Instructor:</strong> ${event.instructorName}<br>
+                <strong>Address:</strong> ${event.address}<br>
+                <strong>Fee:</strong> ₹${event.fee}<br>
+                <strong>Required Equipment:</strong> ${event.requiredEquipments || 'N/A'}
+            </div>
+            <div style="margin-bottom: 15px; color: white;">
+                <strong>Date & Time:</strong><br>
+                ${event.start.format('dddd, MMMM D, YYYY')}<br>
+                ${event.start.format('h:mm A')} - ${event.end.format('h:mm A')}
+            </div>
+            <div style="margin-bottom: 15px; color: white;">
+                ${event.description}
+            </div>
+        `;
+        
+        document.getElementById('userScheduleModalBody').innerHTML = modalContent;
+        document.getElementById('userScheduleEventModal').style.display = 'block';
+    }
+
+    // Event listeners for modal close buttons
+    document.getElementById('userScheduleCloseBtn').addEventListener('click', closeModal);
+    document.getElementById('userScheduleFooterCloseBtn').addEventListener('click', closeModal);
+
+    function closeModal() {
+        document.getElementById('userScheduleEventModal').style.display = 'none';
+    }
+
+    
+});
