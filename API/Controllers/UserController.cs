@@ -136,7 +136,7 @@ namespace API
 		#region User stroy:List User Design
 		#region Suspend User
 		[HttpPost("UserSuspend/{id}")]
-		public async Task<IActionResult> SuspendInstructor(string id,[FromForm]string reason)
+		public async Task<IActionResult> SuspendInstructor(string id, [FromForm] string reason)
 		{
 			var instructor = await _userRepo.GetAllUsersById(int.Parse(id));
 			if (instructor == null)
@@ -144,7 +144,7 @@ namespace API
 				return NotFound(new { success = false, message = "User not found." });
 			}
 
-			var result = await _userRepo.SuspendUser(id,reason);
+			var result = await _userRepo.SuspendUser(id, reason);
 			if (result)
 			{
 				return Ok(new { success = true, message = "User Suspended.Suspend Mail send successfully!" });
@@ -154,23 +154,23 @@ namespace API
 		#endregion
 
 		#region Activate User
-        [HttpPost("UserActivate/{id}")]
-        public async Task<IActionResult> ActivateInstructor(string id)
-        {
-            var instructor = await _userRepo.GetAllUsersById(int.Parse(id));
-            if (instructor == null)
-            {
-                return NotFound(new {success = false, message = "User not found." });
-            }
+		[HttpPost("UserActivate/{id}")]
+		public async Task<IActionResult> ActivateInstructor(string id)
+		{
+			var instructor = await _userRepo.GetAllUsersById(int.Parse(id));
+			if (instructor == null)
+			{
+				return NotFound(new { success = false, message = "User not found." });
+			}
 
-            var result = await _userRepo.ActivateUser(id);
-            if (result)
-            {
-                return Ok(new {success = true, message = "User Activated,Mail send successfully!" });
-            }
-            return BadRequest(new { message = "Failed to Activate User." });
-        }
-        #endregion
+			var result = await _userRepo.ActivateUser(id);
+			if (result)
+			{
+				return Ok(new { success = true, message = "User Activated,Mail send successfully!" });
+			}
+			return BadRequest(new { message = "Failed to Activate User." });
+		}
+		#endregion
 		#endregion
 
 
@@ -290,47 +290,132 @@ namespace API
 
 
 		#region Upcoming Class Count By User
-        [HttpGet("UpcomingClassCountByUser/{userId}")]
-        public async Task<IActionResult> UpcomingClassCountByUser(string userId)
-        {
-            var classCount = await _userRepo.UpcomingClassCountByUser(userId);
-            if (classCount != -1)
-            {
-                return Ok(new
-                {
-                    message = "Upcoming Class Count By User fetched successfully",
-                    count = classCount
-                });
-            }
+		[HttpGet("UpcomingClassCountByUser/{userId}")]
+		public async Task<IActionResult> UpcomingClassCountByUser(string userId)
+		{
+			var classCount = await _userRepo.UpcomingClassCountByUser(userId);
+			if (classCount != -1)
+			{
+				return Ok(new
+				{
+					message = "Upcoming Class Count By User fetched successfully",
+					count = classCount
+				});
+			}
 
-            return BadRequest(new
-            {
-                success = false,
-                message = "Failed to fetch Upcoming Class Count By User"
-            });
-        }
-        #endregion
-		
+			return BadRequest(new
+			{
+				success = false,
+				message = "Failed to fetch Upcoming Class Count By User"
+			});
+		}
+		#endregion
+
 		#region Completed Class Count By User
-        [HttpGet("CompletedClassCountByUser/{userId}")]
-        public async Task<IActionResult> CompletedClassCountByUser(string userId)
-        {
-            var classCount = await _userRepo.CompletedClassCountByUser(userId);
-            if (classCount != -1)
-            {
-                return Ok(new
-                {
-                    message = "Completed Class Count By User fetched successfully",
-                    count = classCount
-                });
-            }
+		[HttpGet("CompletedClassCountByUser/{userId}")]
+		public async Task<IActionResult> CompletedClassCountByUser(string userId)
+		{
+			var classCount = await _userRepo.CompletedClassCountByUser(userId);
+			if (classCount != -1)
+			{
+				return Ok(new
+				{
+					message = "Completed Class Count By User fetched successfully",
+					count = classCount
+				});
+			}
 
-            return BadRequest(new
-            {
-                success = false,
-                message = "Failed to fetch Completed Class Count By User"
-            });
-        }
-        #endregion
+			return BadRequest(new
+			{
+				success = false,
+				message = "Failed to fetch Completed Class Count By User"
+			});
+		}
+		#endregion
+
+
+
+		#region Add Balance 
+		[HttpPost("AddBalance")]
+		public async Task<IActionResult> AddBalance(Balance balance)
+		{
+			if (!ModelState.IsValid)
+			{
+				return BadRequest(ModelState);
+			}
+
+			var result = await _userRepo.AddBalance(balance);
+			if (result == 1)
+			{
+				return Ok(new
+				{
+					success = true,
+					message = "Balance added successfully."
+				});
+			}
+			else if (result == 0)
+			{
+				return Ok(new
+				{
+					success = false,
+					message = "Failed to add balance."
+				});
+			}
+			else
+			{
+				return StatusCode(500, new
+				{
+					success = false,
+					message = "An unexpected error occurred while adding balance."
+				});
+			}
+		}
+		#endregion
+
+		#region Debit Balance 
+		[HttpPost("DebitBalance")]
+		public async Task<IActionResult> DebitBalance(Balance balance)
+		{
+			if (!ModelState.IsValid)
+			{
+				return BadRequest(ModelState);
+			}
+
+			var result = await _userRepo.DebitBalance(balance);
+			if (result == 1)
+			{
+				return Ok(new
+				{
+					success = true,
+					message = "Balance debited successfully."
+				});
+			}
+			else if (result == 0)
+			{
+				return Ok(new
+				{
+					success = false,
+					message = "Failed to debit balance."
+				});
+			}
+			else if (result == -1)
+			{
+				return Ok(new
+				{
+					success = false,
+					message = "Insufficient balance or user not found."
+				});
+			}
+			else
+			{
+				return StatusCode(500, new
+				{
+					success = false,
+					message = "An unexpected error occurred while debiting balance."
+				});
+			}
+		}
+		#endregion
+
 	}
 }
