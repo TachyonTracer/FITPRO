@@ -441,13 +441,31 @@ header {
     border-right: 0px solid var(--border-color);
     backdrop-filter: blur(10px);
 }
+/* Webkit scrollbar styling */
+.k-drawer::-webkit-scrollbar {
+    width: 6px;
+}
+
+.k-drawer::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 3px;
+}
+
+.k-drawer::-webkit-scrollbar-thumb {
+    background: #facc15;
+    border-radius: 3px;
+}
+
+.k-drawer::-webkit-scrollbar-thumb:hover {
+    background: #fde047;
+}
 
 .k-drawer-content {
-
     padding: 20px;
-    height: 100%;
-    overflow-y: auto;
+    height: 850px; /* Allow content to determine height */
+    min-height: 100%;
 }
+
 
 
 
