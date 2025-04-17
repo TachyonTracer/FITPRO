@@ -149,5 +149,21 @@ namespace API.Controllers
                 });
             }
         }
+
+        [HttpGet("class/instructor/{instructorId}")]
+        public IActionResult GetAllClassFeedbacksByInstructor(int instructorId)
+        {
+            var feedbacks = _feedbackRepo.GetClassFeedbacksByInstructorId(instructorId);
+            return Ok(new { success = true, message = "Feedbacks fetched", data = feedbacks });
+        }
+
+        [HttpGet("class/{classId}/rating/{rating}")]
+        public IActionResult GetClassFeedbacksByRating(int classId, int rating)
+        {
+            var all = _feedbackRepo.GetClassFeedbacksByClassId(classId);
+            var filtered = all.Where(f => f.rating == rating).ToList();
+            return Ok(new { success = true, message = $"Filtered feedbacks for rating {rating}", data = filtered });
+        }
+
     }
 }

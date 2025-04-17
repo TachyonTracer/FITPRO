@@ -63,6 +63,7 @@ builder.Services.AddScoped<IFeedbackInterface, FeedbackRepository>();
 builder.Services.AddScoped<IAttendanceInterface, AttendanceRepo>();
 
 
+builder.Services.AddScoped<IBlogInterface, BlogRepo>();
 
 // StripeConfiguration.ApiKey = builder.Configuration["Stripe:SecretKey"];
 // Configure Stripe settings
@@ -98,7 +99,9 @@ builder.Services.AddAuthentication(option =>
 });
 builder.Services.AddCors(p => p.AddPolicy("corsapp", builder =>
 {
-    builder.WithOrigins("http://localhost:8080", "http://localhost:8081").AllowAnyMethod().AllowAnyHeader().AllowCredentials();
+    builder.AllowAnyOrigin()
+           .AllowAnyMethod()
+           .AllowAnyHeader();
 }));
 
 //session injection
@@ -114,6 +117,7 @@ builder.Services.AddSession(options =>
 builder.Services.AddDataProtection()
     .SetApplicationName("FitPro")
     .PersistKeysToFileSystem(new DirectoryInfo(@"/root/.aspnet/DataProtection-Keys"));
+    // .PersistKeysToFileSystem(new DirectoryInfo(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "FitPro-Keys"))); // For MacOS
 
 // *** Notifications: Builder Configurations Starts *** //
 

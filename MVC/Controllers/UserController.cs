@@ -22,8 +22,7 @@ namespace MVC
         [Route("user/Classdetails/{classId}")]
         public ActionResult Classdetails(int classId)
         {
-            ViewBag.ClassId = classId;
-            return View();
+            return View(classId);
         }
          public ActionResult Myclasses()
         {
@@ -53,16 +52,8 @@ namespace MVC
             return View("Error!");
         }
 
-        public IActionResult BlogPost()
-        {
-            return View();
-        }
-
         public IActionResult UserClassSchedule(){
             return View();
         }
-
-        
-
     }
 }

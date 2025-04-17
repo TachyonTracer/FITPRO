@@ -37,6 +37,7 @@ COPY AI/Source /app/AI/Source
 COPY AI/Models /app/AI/Models
 COPY AI/main.py /app/AI/
 COPY AI/requirements.txt /app/AI/
+COPY API/Templates /app/API/Templates
 
 # Install Python dependencies
 RUN pip install -r /app/AI/requirements.txt

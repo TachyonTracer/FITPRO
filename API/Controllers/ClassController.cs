@@ -620,7 +620,7 @@ public async Task<IActionResult> UpdateClass([FromForm] Class request)
                 // Call Flask API
                 using (var client = new HttpClient())
                 {
-                    client.BaseAddress = new Uri(Environment.GetEnvironmentVariable("AI_SERVICE_URL") ?? "http://localhost:5000"); // Flask server address
+                    client.BaseAddress = new Uri(Environment.GetEnvironmentVariable("AI_SERVICE_URL") ?? "http://localhost:5000");// Flask server address
                     var json = JsonSerializer.Serialize(hybridRequest);
                     var content = new StringContent(json, Encoding.UTF8, "application/json");
 
