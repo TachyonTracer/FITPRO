@@ -586,3 +586,51 @@
     border-top: 1px solid #333;
     padding-top: 10px;
 }
+
+.k-drawer-container {
+    position: fixed;
+    top: 72px;
+    right: -400px;
+    width: 400px !important;
+    height: calc(100vh - 72px) !important; /* Adjust height to account for navbar */
+    z-index: 10000;
+    pointer-events: none;
+    transition: transform 0.3s ease-in-out;
+    overflow: hidden; /* Hide overflow on container */
+}
+
+.k-drawer {
+    pointer-events: auto;
+    background-color: rgba(0, 0, 0, 0.6);
+    border-right: 0px solid var(--border-color);
+    backdrop-filter: blur(10px);
+    height: 100%;
+    overflow-y: auto; /* Enable vertical scrolling */
+    scrollbar-width: thin; /* Firefox */
+    scrollbar-color: #facc15 rgba(0, 0, 0, 0.2); /* Firefox */
+}
+
+/* Webkit scrollbar styling */
+.k-drawer::-webkit-scrollbar {
+    width: 6px;
+}
+
+.k-drawer::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 3px;
+}
+
+.k-drawer::-webkit-scrollbar-thumb {
+    background: #facc15;
+    border-radius: 3px;
+}
+
+.k-drawer::-webkit-scrollbar-thumb:hover {
+    background: #fde047;
+}
+
+.k-drawer-content {
+    padding: 20px;
+    height: 850px; /* Allow content to determine height */
+    min-height: 100%;
+}
