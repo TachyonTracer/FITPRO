@@ -7,6 +7,15 @@ body {
     color: #facc15;
 }
 
+.swal2-container {
+    z-index: 10000 !important;
+  }
+  
+  /* Make sure your feedback modal has a lower z-index */
+  #feedbackModal {
+    z-index: 9000;
+  }
+
 .page-title {
     font-weight: bold;
     text-align: center;
