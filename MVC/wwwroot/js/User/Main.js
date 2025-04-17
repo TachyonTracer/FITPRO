@@ -998,7 +998,7 @@ $.ajax({
                                 <p><strong>Instructor:</strong> ${classDetails.data.instructorName}</p>
                                 <p><strong>Start Date:</strong> ${new Date(classDetails.data.startDate).toLocaleDateString()}</p>
                                 <p><strong>Location:</strong> ${classDetails.data.city}</p>
-                                <a href="/User/Bookclass?id=${classDetails.data.classId}" class="btn btn-primary">Book Now</a>
+                                <a href="/User/Classdetails/${classDetails.data.classId}" class="btn btn-primary">Book Now</a>
                             </div>
                         `;
                         container.innerHTML += classCard;
