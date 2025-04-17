@@ -135,7 +135,10 @@ window.showProfileDrawer = function () {
     });
 };
 })
-
+function Schedule() {
+    // Redirect to the class details page with the class ID
+    window.location.href = `/User/UserClassSchedule`;
+}
 // In Myclasses.js, check if uri already exists before declaring it
 if (typeof uri === 'undefined') {
     let uri = "http://localhost:8080";

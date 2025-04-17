@@ -3,8 +3,9 @@
   --color: #ffffff;
   --primary-color: #facc15;
   --glass-color: rgba(255, 255, 255, 0.1);
-  --card-bg: rgba(26, 26, 46, 0.8);
+  --card-bg: rgba(0, 0, 0, 0.7); /* Updated for more transparency */
   --border-color: rgba(255, 255, 255, 0.1);
+  --glass-blur: blur(10px); /* Added new variable for blur effect */
 }
 
 * {
@@ -14,6 +15,8 @@
 }
 
 body {
+  background: url("/img/gym1.jpg") no-repeat center center fixed;
+  background-size: cover;
   overflow: hidden;
   font-family: "Poppins", sans-serif;
   background: var(--background);
@@ -132,6 +135,8 @@ body {
 }
 
 #mainTabstrip .k-content {
+  background: url("/img/gym1.jpg") no-repeat center center fixed;
+  background-size: cover;
   padding: 20px 30px;
   margin-top: 40px;
   height: calc(100% - 60px);
@@ -159,17 +164,37 @@ h2 {
   transition: transform 0.3s ease, box-shadow 0.3s ease;
   margin-bottom: 20px;
   background: var(--card-bg);
-  border: 1px solid var(--border-color);
-  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
   color: var(--color);
   border-radius: 15px;
   max-width: 100%;
   overflow: hidden;
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+}
+
+.card-body {
+  background-color: rgb(42, 42, 42);  /* Semi-transparent black */
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  transition: all 0.3s ease;
+  color: var(--color);
+  padding: 20px;
+  border-radius: 12px;
+}
+
+.card-body:hover {
+  background-color: rgba(0, 0, 0, 0.7);  /* Darker on hover */
+  border-color: rgba(250, 204, 21, 0.3); /* Yellow accent on hover */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
 }
 
 .card:hover {
   transform: translateY(-10px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4), 0 0 30px rgba(0, 255, 255, 0.6);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.6), 0 0 30px rgba(250, 204, 21, 0.3);
+  border-color: rgba(250, 204, 21, 0.3);
 }
 
 .book-btn:disabled {
@@ -236,7 +261,7 @@ h2 {
   color: rgba(255, 255, 255, 0.8);
 }
 
-.k-tabstrip>.k-content {
+.k-tabstrip > .k-content {
   padding: 20px 0;
   background: transparent;
   border: none;
@@ -359,7 +384,6 @@ h2 {
 }
 
 @keyframes float {
-
   0%,
   100% {
     transform: translate(0, 0);
@@ -443,7 +467,8 @@ h2 {
   pointer-events: auto;
   background-color: var(--card-bg);
   border-right: 0px solid var(--border-color);
-  backdrop-filter: blur(10px);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
 }
 
 .k-drawer-content {
@@ -477,6 +502,8 @@ h2 {
   /* Slight background contrast */
   box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
   /* Soft shadow for depth */
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
 }
 
 /* Responsive adjustments */
@@ -592,15 +619,20 @@ canvas {
 
 .stat-card {
   background: var(--card-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
   border-radius: 10px;
   padding: 20px;
   height: 100%;
   transition: transform 0.3s ease;
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .stat-card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4), 0 0 30px rgba(0, 255, 255, 0.6);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.6), 0 0 30px rgba(250, 204, 21, 0.3);
+  background: rgba(0, 0, 0, 0.8);
+  border-color: rgba(250, 204, 21, 0.3);
 }
 
 /* Quick Actions */
@@ -777,6 +809,8 @@ canvas {
   border: 1px solid var(--border-color);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
   animation: slideIn 0.3s ease-out;
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
 }
 
 .close-popup {
@@ -950,7 +984,6 @@ input[type="file"] {
   display: none !important;
 }
 
-
 .instructor-image-preview {
   width: 86px;
   height: 86px;
@@ -966,7 +999,6 @@ input[type="file"] {
   transform: scale(1.05);
   transition: transform 0.3s ease;
 }
-
 
 /* Do Not Remove */
 /* Notification CSS Starts */
@@ -1018,19 +1050,19 @@ input[type="file"] {
 }
 
 #notificationList .list-group-item.text-center.text-muted {
-color: #555 !important;
-font-size: 14px; 
-font-weight: 500; 
-display: flex;
-justify-content: center; 
-align-items: center; 
-height: 50px; 
+  color: #555 !important;
+  font-size: 14px;
+  font-weight: 500;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 50px;
 }
 
 .p-2.border-top.bg-light .btn {
-font-size: 14px; 
-padding: 8px 10px; 
-height: auto; 
+  font-size: 14px;
+  padding: 8px 10px;
+  height: auto;
 }
 
 #notificationList .list-group-item strong {
@@ -1055,4 +1087,3 @@ height: auto;
 
 /* Do Not Remove */
 /* Notification CSS Ends */
-

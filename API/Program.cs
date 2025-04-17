@@ -63,6 +63,7 @@ builder.Services.AddScoped<IFeedbackInterface, FeedbackRepository>();
 builder.Services.AddScoped<IAttendanceInterface, AttendanceRepo>();
 
 
+builder.Services.AddScoped<IBlogInterface, BlogRepo>();
 
 // StripeConfiguration.ApiKey = builder.Configuration["Stripe:SecretKey"];
 // Configure Stripe settings
@@ -114,6 +115,7 @@ builder.Services.AddSession(options =>
 builder.Services.AddDataProtection()
     .SetApplicationName("FitPro")
     .PersistKeysToFileSystem(new DirectoryInfo(@"/root/.aspnet/DataProtection-Keys"));
+    // .PersistKeysToFileSystem(new DirectoryInfo(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "FitPro-Keys"))); // For MacOS
 
 // *** Notifications: Builder Configurations Starts *** //
 
