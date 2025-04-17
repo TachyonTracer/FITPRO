@@ -688,6 +688,11 @@ h2 {
     background: #f8f9fa;
 }
 
+.list-group
+{
+  height: 500px;
+}
+
 #notificationList .list-group-item .bg-danger {
     width: 8px;
     height: 8px;

@@ -109,6 +109,16 @@ namespace API
         }
         #endregion
 
+        #region GetAllActiveClasses
+        [HttpGet("GetAllActiveClasses")]
+        // [Authorize]
+        public async Task<IActionResult> GetAllActiveClasses()
+        {
+            List<Class> classes = await _classRepo.GetAllActiveClasses();
+            return Ok(new { sucess = true, message = "class fetch successfully", data = classes });
+        }
+        #endregion
+
         #region GetOne
         [HttpGet("GetOneClass")]
         // [Authorize]
@@ -490,8 +500,7 @@ public async Task<IActionResult> UpdateClass([FromForm] Class request)
 
                 // Get AI service URL from configuration
                 string aiServiceUrl=Environment.GetEnvironmentVariable("AI_SERVICE_URL") ?? "http://localhost:5000";
-                // string aiServiceUrl = _configuration["AI_SERVICE_URL"] ?? "http://localhost:5000";
-
+     
 
                 // Call Flask API
                 using (var client = new HttpClient())
@@ -606,6 +615,7 @@ public async Task<IActionResult> UpdateClass([FromForm] Class request)
                 };
 
                 Console.WriteLine($"Sending to Flask: {JsonSerializer.Serialize(hybridRequest)}");
+               
 
                 // Call Flask API
                 using (var client = new HttpClient())

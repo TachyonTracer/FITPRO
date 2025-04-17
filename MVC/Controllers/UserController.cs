@@ -22,8 +22,7 @@ namespace MVC
         [Route("user/Classdetails/{classId}")]
         public ActionResult Classdetails(int classId)
         {
-            ViewBag.ClassId = classId;
-            return View();
+            return View(classId);
         }
          public ActionResult Myclasses()
         {
