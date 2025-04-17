@@ -490,8 +490,6 @@ public async Task<IActionResult> UpdateClass([FromForm] Class request)
 
                 // Get AI service URL from configuration
                 string aiServiceUrl=Environment.GetEnvironmentVariable("AI_SERVICE_URL") ?? "http://localhost:5000";
-                // string aiServiceUrl = _configuration["AI_SERVICE_URL"] ?? "http://localhost:5000";
-
 
                 // Call Flask API
                 using (var client = new HttpClient())
