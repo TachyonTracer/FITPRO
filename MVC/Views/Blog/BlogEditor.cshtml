@@ -419,6 +419,94 @@
             border-top-left-radius: 0;
             border-bottom-left-radius: 0;
         }
+
+
+        /*SweetAlert css*/
+        .swal2-popup {
+            background: rgba(255, 255, 255, 0.029) !important; /* Glass color */
+            backdrop-filter: blur(20px) !important;
+            border: 1px solid hsla(0, 0%, 65%, 0.2) !important;
+            border-radius: 15px !important;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3) !important;
+            color: #ffffff !important; /* White color */
+        }
+
+        .swal2-title {
+            color: #ffffff !important; /* White color */
+            font-family: "Poppins", sans-serif !important;
+            letter-spacing: 1px !important;
+        }
+
+        .swal2-content {
+            color: #ffffff !important; /* White color */
+            font-family: "Poppins", sans-serif !important;
+        }
+
+        /* Confirm Button */
+        .swal2-confirm {
+            background-color: rgb(242, 195, 67) !important; /* Primary color */
+            color: #ffffff !important; /* White color */
+            border: none !important;
+            border-radius: 8px !important;
+            font-family: "Poppins", sans-serif !important;
+            transition: all 0.3s ease !important;
+        }
+
+        .swal2-confirm:hover {
+            background-color: rgb(242, 195, 67) !important; /* Primary color */
+            transform: scale(1.03) !important;
+        }
+
+        /* Cancel Button */
+        .swal2-cancel {
+            background-color: rgba(255, 255, 255, 0.1) !important;
+            color: #ffffff !important; /* White color */
+            border: 1px solid rgba(255, 255, 255, 0.2) !important;
+            border-radius: 8px !important;
+            font-family: "Poppins", sans-serif !important;
+            transition: all 0.3s ease !important;
+        }
+
+        .swal2-cancel:hover {
+            background-color: rgba(255, 255, 255, 0.2) !important;
+            transform: scale(1.03) !important;
+        }
+
+        /* Warning Icon */
+        .swal2-icon.swal2-warning {
+            color: rgb(242, 195, 67) !important; /* Primary color */
+            border-color: rgb(242, 195, 67) !important; /* Primary color */
+        }
+
+        /* Success Icon */
+        .swal2-icon.swal2-success {
+            border-color: #28a745 !important; /* Green border */
+            color: #28a745 !important; /* Green checkmark */
+        }
+
+        .swal2-icon.swal2-success .swal2-success-ring {
+            border-color: #28a745 !important; /* Outer circle */
+        }
+
+        .swal2-icon.swal2-success [class^='swal2-success-line'] {
+            background-color: #28a745 !important; /* Check lines */
+        }
+
+        .swal2-icon.swal2-success .swal2-success-circular-line-left,
+        .swal2-icon.swal2-success .swal2-success-circular-line-right,
+        .swal2-icon.swal2-success .swal2-success-fix {
+            display: none !important;
+        }
+
+        /* Error Icon */
+        .swal2-icon.swal2-error {
+            border-color: rgb(244, 70, 70) !important; /* Error color */
+            color: rgb(244, 70, 70) !important; /* Error color */
+        }
+
+        .swal2-error [class^=swal2-x-mark-line] {
+            background-color: rgb(244, 70, 70) !important; /* Error color */
+        }
     </style>
     <title>Blog Editor</title>
     <link href="https://kendo.cdn.telerik.com/themes/10.2.0/default/default-main.css" rel="stylesheet" />
@@ -426,6 +514,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
     <script src="https://kendo.cdn.telerik.com/2023.2.829/js/kendo.all.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <style>
         /* Additional styles for the header */
@@ -676,7 +765,12 @@
                                                     editor_.paste(img.outerHTML);
                                                 },
                                                 error: function (xhr, status, error) {
-                                                    alert("Image upload failed: " + error);
+                                                    Swal.fire({
+                                                        title: 'Error',
+                                                        text: 'Image upload failed: ' + error,
+                                                        icon: 'error',
+                                                        confirmButtonText: 'OK'
+                                                    });
                                                 }
                                             });
                                         }
@@ -788,7 +882,12 @@
                                         populateEditorWithBlogData(mappedBlog);
                                     } else {
                                         console.error('Invalid response format:', response);
-                                        alert('Could not load blog data. Starting with a new blog.');
+                                        Swal.fire({
+                                            title: 'Error',
+                                            text: 'Could not load blog data. Starting with a new blog.',
+                                            icon: 'error',
+                                            confirmButtonText: 'OK'
+                                        });
                                     }
                                 },
                                 error: function (xhr, status, error) {
@@ -865,7 +964,12 @@
                                 populateEditorWithBlogData(blog);
                             } else {
                                 console.error('Blog not found');
-                                alert('Could not find the blog you want to edit. Starting with a new blog.');
+                                Swal.fire({
+                                    title: 'Error',
+                                    text: 'Could not find the blog you want to edit. Starting with a new blog.',
+                                    icon: 'error',
+                                    confirmButtonText: 'OK'
+                                });
                             }
                         }
 
@@ -924,7 +1028,12 @@
 
                             // Limit to 5 tags maximum
                             if (tags.length >= 5) {
-                                alert("Maximum 5 labels allowed.");
+                                Swal.fire({
+                                    title: 'Error',
+                                    text: 'Maximum 5 labels allowed.',
+                                    icon: 'error',
+                                    confirmButtonText: 'OK'
+                                });
                                 return;
                             }
 
@@ -1110,7 +1219,12 @@
                                     editor.paste(img.outerHTML);
                                 },
                                 error: function (xhr, status, error) {
-                                    alert("Image upload failed: " + error);
+                                    Swal.fire({
+                                        title: 'Error',
+                                        text: 'Image upload failed: ' + error,
+                                        icon: 'error',
+                                        confirmButtonText: 'OK'
+                                    });
                                 }
                             });
                         }
@@ -1208,24 +1322,29 @@
                                         // Disable the save button and prevent redirection
                                         $(btnId).prop('disabled', true).text(afterApiText);
 
-                                        alert(`Blog ${statusText} successfully!`);
-
-                                        // Set a timeout to allow the user to see the success state before redirecting
-
-                                        // Check if the opener window exists and is the BlogList page
-                                        if (window.opener && !window.opener.closed && window.opener.location.href.includes("BlogList")) {
-                                            // Refresh the parent/opener window to show updated blog list
-                                            window.opener.location.reload();
-                                            // Close the editor window
-                                            window.close();
-                                        } else {
-                                            // Navigate back to the blog list page
-                                            window.location.href = "/instructor";
-                                        }
+                                        Swal.fire({
+                                            title: 'Success',
+                                            text: `Blog ${statusText} successfully!`,
+                                            icon: 'success',
+                                            confirmButtonText: 'OK'
+                                        }).then(() => {
+                                            // Redirect after the user clicks "OK"
+                                            if (window.opener && !window.opener.closed && window.opener.location.href.includes("BlogList")) {
+                                                window.opener.location.reload(); // Refresh parent window
+                                                window.close(); // Close the current window
+                                            } else {
+                                                window.location.href = "/instructor"; // Redirect to the instructor page
+                                            }
+                                        });
 
 
                                     } else {
-                                        alert(`Error: ${response.message || 'Unknown error occurred'}`);
+                                        Swal.fire({
+                                            title: 'Error',
+                                            text: `Error: ${response.message || 'Unknown error occurred'}`,
+                                            icon: 'error',
+                                            confirmButtonText: 'OK'
+                                        });
                                     }
                                 },
                                 error: function (xhr, status, error) {
@@ -1233,7 +1352,12 @@
                                     $(btnId).prop('disabled', false).text(originalText);
 
                                     console.error('Error saving blog:', error);
-                                    alert('Failed to save blog. Please try again later.');
+                                    Swal.fire({
+                                        title: 'Error',
+                                        text: 'Failed to save blog. Please try again later.',
+                                        icon: 'error',
+                                        confirmButtonText: 'OK'
+                                    });
                                 }
                             });
                         }

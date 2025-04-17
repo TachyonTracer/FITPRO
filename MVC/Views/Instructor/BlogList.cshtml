@@ -742,30 +742,56 @@
         }
 
         function deleteBlog(blogId) {
-            if (confirm('Are you sure you want to delete this blog post? This action cannot be undone.')) {
-                $.ajax({
-                    url: `http://localhost:8080/api/Blog/delete-blog/${blogId}`,
-                    type: 'DELETE',
-                    headers: {
-                        'Authorization': token ? `Bearer ${token}` : ''
-                    },
-                    success: function (response) {
-                        // Remove from UI arrays
-                        allBlogs = allBlogs.filter(blog => blog.id !== blogId);
-                        filteredBlogs = filteredBlogs.filter(blog => blog.id !== blogId);
-                        renderBlogs();
-                        @* alert(response.message || "Blog deleted successfully."); *@
-                    },
-                    error: function (xhr) {
-                        if (xhr.status === 404) {
-                            alert("Blog not found.");
-                        } else {
-                            const errMsg = xhr.responseJSON && xhr.responseJSON.message ? xhr.responseJSON.message : xhr.statusText;
-                            alert("Error deleting blog: " + errMsg);
+            Swal.fire({
+                title: 'Are you sure?',
+                text: 'You won’t be able to undo this action!',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, delete it!',
+                cancelButtonText: 'Cancel'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: `http://localhost:8080/api/Blog/delete-blog/${blogId}`,
+                        type: 'DELETE',
+                        headers: {
+                            'Authorization': token ? `Bearer ${token}` : ''
+                        },
+                        success: function (response) {
+                            // Remove from UI arrays
+                            allBlogs = allBlogs.filter(blog => blog.id !== blogId);
+                            filteredBlogs = filteredBlogs.filter(blog => blog.id !== blogId);
+                            renderBlogs();
+                            Swal.fire({
+                                title: 'Deleted!',
+                                text: response.message || 'Blog deleted successfully.',
+                                icon: 'success',
+                                confirmButtonText: 'OK'
+                            });
+                        },
+                        error: function (xhr) {
+                            if (xhr.status === 404) {
+                                Swal.fire({
+                                    title: 'Error',
+                                    text: 'Blog not found.',
+                                    icon: 'error',
+                                    confirmButtonText: 'OK'
+                                });
+                            } else {
+                                const errMsg = xhr.responseJSON && xhr.responseJSON.message ? xhr.responseJSON.message : xhr.statusText;
+                                Swal.fire({
+                                    title: 'Error',
+                                    text: 'Error deleting blog: ' + errMsg,
+                                    icon: 'error',
+                                    confirmButtonText: 'OK'
+                                });
+                            }
                         }
-                    }
-                });
-            }
+                    });
+                }
+            });
         }
     </script>
 </body>
