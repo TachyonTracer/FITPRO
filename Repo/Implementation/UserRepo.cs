@@ -602,4 +602,120 @@ public class UserRepo : IUserInterface
     #endregion
 
 
+
+	#region  AddBalance 
+	public async Task<int> AddBalance(Balance balance)
+	{
+		try
+		{
+			using (var cm = new NpgsqlCommand(@"UPDATE t_user SET c_balance = c_balance + @amount WHERE c_userid = @Userid", _conn))
+			{
+				cm.Parameters.AddWithValue("@Userid", balance.userId);
+				cm.Parameters.AddWithValue("@amount", balance.amount);
+
+				if (_conn.State == ConnectionState.Closed)
+				{
+					await _conn.OpenAsync();
+				}
+
+				var result = await cm.ExecuteNonQueryAsync();
+				if (
+					result > 0
+				)
+				{
+					return 1;
+				}
+				else
+				{
+					return 0;
+				}
+			}
+
+
+		}
+		catch (Exception ex)
+		{
+			Console.WriteLine(ex);
+			return -1;
+		}
+		finally
+		{
+			if (_conn.State != ConnectionState.Closed)
+			{
+				await _conn.CloseAsync();
+			}
+		}
+	}
+
+	#endregion
+
+	#region DebitBalance 
+
+	public async Task<int> DebitBalance(Balance balance)
+{
+    try
+    {
+        // Ensure the connection is open before using any command
+        if (_conn.State == ConnectionState.Closed)
+        {
+            await _conn.OpenAsync();
+        }
+
+        decimal currentBalance = 0;
+
+        // First command: check user's current balance
+        using (var cm = new NpgsqlCommand(@"SELECT c_balance FROM t_user WHERE c_userid = @Userid", _conn))
+        {
+            cm.Parameters.AddWithValue("@Userid", balance.userId);
+
+            using (var reader = await cm.ExecuteReaderAsync())
+            {
+                if (await reader.ReadAsync()) // Use ReadAsync() and no need for HasRow
+                {
+                    currentBalance = reader.GetDecimal(0); // or reader.GetFieldValue<decimal>(0);
+                }
+                else
+                {
+                    Console.WriteLine("User not found");
+                    return 0;
+                }
+            }
+        }
+
+        // Check balance
+        if (currentBalance < balance.amount)
+        {
+            Console.WriteLine("Insufficient balance");
+            return -1;
+        }
+
+        // Second command: perform the debit
+        using (var cmd = new NpgsqlCommand(@"UPDATE t_user SET c_balance = c_balance - @Amount WHERE c_userid = @Userid", _conn))
+        {
+            cmd.Parameters.AddWithValue("@Amount", balance.amount);
+            cmd.Parameters.AddWithValue("@Userid", balance.userId);
+
+            var result = await cmd.ExecuteNonQueryAsync();
+            return result > 0 ? 1 : 0;
+        }
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine(ex);
+        return -2;
+    }
+    finally
+    {
+        if (_conn.State != ConnectionState.Closed)
+        {
+            await _conn.CloseAsync();
+        }
+    }
+}
+
+
+
+	#endregion
+
+
 }
