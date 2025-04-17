@@ -489,7 +489,9 @@ public async Task<IActionResult> UpdateClass([FromForm] Class request)
                 Console.WriteLine($"Prediction Data: {JsonSerializer.Serialize(predictionData)}");
 
                 // Get AI service URL from configuration
-                string aiServiceUrl = _configuration["AI_SERVICE_URL"] ?? "http://ai:5000";
+                string aiServiceUrl=Environment.GetEnvironmentVariable("AI_SERVICE_URL") ?? "http://localhost:5000";
+                // string aiServiceUrl = _configuration["AI_SERVICE_URL"] ?? "http://localhost:5000";
+
 
                 // Call Flask API
                 using (var client = new HttpClient())
@@ -608,7 +610,7 @@ public async Task<IActionResult> UpdateClass([FromForm] Class request)
                 // Call Flask API
                 using (var client = new HttpClient())
                 {
-                    client.BaseAddress = new Uri("http://localhost:5000"); // Flask server address
+                    client.BaseAddress = new Uri(Environment.GetEnvironmentVariable("AI_SERVICE_URL") ?? "http://localhost:5000");// Flask server address
                     var json = JsonSerializer.Serialize(hybridRequest);
                     var content = new StringContent(json, Encoding.UTF8, "application/json");
 
