@@ -661,6 +661,7 @@ h2 {
 #notificationDropdown {
     display: none;
     width: 320px;
+    max-height: fit-content;
     position: absolute;
     left: -136px;
     z-index: 1000;
@@ -686,11 +687,6 @@ h2 {
 
 #notificationList .list-group-item:hover {
     background: #f8f9fa;
-}
-
-.list-group
-{
-  height: 500px;
 }
 
 #notificationList .list-group-item .bg-danger {
