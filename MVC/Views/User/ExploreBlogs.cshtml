@@ -118,7 +118,8 @@
         font-size: 14px;
     }
 
-    .sort-btn {
+    .sort-btn,
+    .view-btn {
         background: #282828;
         /* Darker button */
         color: #bbb;
@@ -136,7 +137,8 @@
         transition: all 0.3s ease;
     }
 
-    .sort-btn.active {
+    .sort-btn.active,
+    .view-btn.active {
         background: #facc15;
         color: #111;
         border-color: #facc15;
@@ -144,11 +146,18 @@
         /* Bold active */
     }
 
-    .sort-btn:hover:not(.active) {
+    .sort-btn:hover:not(.active),
+    .view-btn:hover:not(.active) {
         /* Hover effect for non-active buttons */
         background: #383838;
         border-color: #555;
         color: #fff;
+    }
+
+    .sort-divider {
+        color: #555;
+        font-size: 14px;
+        margin: 0 5px;
     }
 
     /* Create blog button - Removed from HTML, keeping style for reference if needed */
@@ -489,7 +498,8 @@
             /* Adjust gap */
         }
 
-        .sort-btn {
+        .sort-btn,
+        .view-btn {
             padding: 7px 15px;
             font-size: 13px;
         }
@@ -516,6 +526,10 @@
             <!-- Removed "Create New Blog" button -->
         </div>
         <div class="sort-options">
+            <span>View:</span>
+            <button class="view-btn active" data-view="all">All</button>
+            <button class="view-btn" data-view="bookmarked">Bookmarked</button>
+            <span class="sort-divider">|</span>
             <span>Sort by:</span>
             <button class="sort-btn active" data-sort="latest">Latest</button>
             <button class="sort-btn" data-sort="oldest">Oldest</button>
@@ -537,13 +551,16 @@
         let allBlogs = [];
         let filteredBlogs = [];
         let currentSort = 'latest';
+        let currentView = 'all';
         let token = "";
+        let isBookmarkedView = false;
 
         let USER_OBJECT = null;
         let USER_ROLE = "instructor"; // by default set to "instructor"
         let USER_ID = getUserIdFromToken();
 
-        if(!USER_ID) {
+
+        if (!USER_ID) {
             console.warn("No Authentication");
         } else {
             console.log(USER_OBJECT);
@@ -552,16 +569,16 @@
         }
 
         @* Utility Functions *@
-        function parseJwt(token) {
-            try {
-                const base64Url = token.split(".")[1];
-                const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
-                return JSON.parse(atob(base64));
-            } catch (error) {
-                console.error("Invalid token:", error);
-                return null;
+            function parseJwt(token) {
+                try {
+                    const base64Url = token.split(".")[1];
+                    const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+                    return JSON.parse(atob(base64));
+                } catch (error) {
+                    console.error("Invalid token:", error);
+                    return null;
+                }
             }
-        }
         function getUserIdFromToken() {
             const token = localStorage.getItem("authToken");
             if (!token) {
@@ -664,9 +681,35 @@
 
         // Fetch blogs on page load
         $(document).ready(function () {
+            function getUserIdFromToken() {
+                const token = localStorage.getItem("authToken");
+                if (!token) {
+                    console.warn("No auth token found in localStorage.");
+                    return null;
+                }
+                const jwt_decoded = parseJwt(token);
+                if (jwt_decoded) {
+                    USER_OBJECT = JSON.parse(jwt_decoded.UserObject);
+                    if (USER_OBJECT.instructorId) {
+                        USER_ROLE = "instructor";
+                        return USER_OBJECT.instructorId;
+                    } else {
+                        USER_ROLE = "user";
+                        return USER_OBJECT.userId;
+                    }
+                }
+                console.warn("Invalid or malformed token.");
+                return null;
+            }
             token = localStorage.getItem('authToken');
-            USER_ID = 11;
+            USER_ID = getUserIdFromToken();
+            console.log(USER_ID);
+
             // Try to fetch actual data first
+            fetchAllBlogs();
+        });
+
+        function fetchAllBlogs() {
             $.ajax({
                 url: `http://localhost:8080/api/Blog/GetBlogsForUser`,
                 type: 'GET',
@@ -707,7 +750,55 @@
                 },
                 timeout: 5000 // 5 second timeout
             });
-        });
+        }
+
+        function fetchBookmarkedBlogs() {
+            if (!USER_ID) {
+                showError("Please log in to view your bookmarked blogs.");
+                return;
+            }
+
+            $("#blog-list").html('<div class="loader"><i class="fas fa-spinner"></i></div>');
+
+            $.ajax({
+                url: `http://localhost:8080/api/Blog/fetchBookmarkedBlogsForUser?user_id=${USER_ID}`,
+                type: 'POST',
+                headers: {
+                    'Authorization': token ? `Bearer ${token}` : '',
+                    'Content-Type': 'application/json'
+                },
+                success: function (data) {
+                    if (data && data.success && data.data && data.data.entries.length > 0) {
+                        const bookmarkedBlogs = data.data.entries.map(entry => ({
+                            id: entry.c_blog_id,
+                            authorId: entry.c_blog_author_id,
+                            title: entry.c_title,
+                            description: entry.c_desc,
+                            content: entry.c_content,
+                            thumbnailUrl: !entry.c_thumbnail || entry.c_thumbnail.includes('default')
+                                ? 'http://localhost:8081/blogImages/Thumbnails/default.png'
+                                : `http://localhost:8081/blogImages/Thumbnails/${entry.c_blog_id}/${entry.c_thumbnail}`,
+                            tags: entry.c_tags ? entry.c_tags.split(",") : [],
+                            views: entry.c_views || 0,
+                            likes: entry.c_likes || 0,
+                            comments: entry.c_comments || 0,
+                            is_completed: entry.c_is_published || 0,
+                            createdAt: entry.c_created_at,
+                            sourceUrl: 'http://localhost:8081/Blog/blogpost/' + entry.c_source_url
+                        }));
+
+                        filteredBlogs = bookmarkedBlogs;
+                        renderBlogs();
+                    } else {
+                        $("#blog-list").html('<div class="no-blogs">You have no bookmarked blogs.</div>');
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.error('Error fetching bookmarked blogs:', error);
+                    showError("Failed to load bookmarked blogs. Please try again later.");
+                }
+            });
+        }
 
         function useSampleData() {
             console.log('Using sample blog data');
@@ -813,6 +904,9 @@
             $('.sort-btn').removeClass('active');
             $(`.sort-btn[data-sort="${sortType}"]`).addClass('active');
 
+            // Don't refetch if we're just changing sort order
+            // We'll sort the current filtered blogs instead
+
             switch (sortType) {
                 case 'latest':
                     filteredBlogs.sort((a, b) => new Date(b.createdAt * 1000) - new Date(a.createdAt * 1000));
@@ -827,17 +921,70 @@
             renderBlogs();
         }
 
-        function filterBlogs(searchTerm) {
-            if (!searchTerm.trim()) {
-                filteredBlogs = [...allBlogs];
+        function setView(viewType) {
+            currentView = viewType;
+
+            // Update active button
+            $('.view-btn').removeClass('active');
+            $(`.view-btn[data-view="${viewType}"]`).addClass('active');
+
+            if (viewType === 'bookmarked') {
+                isBookmarkedView = true;
+                fetchBookmarkedBlogs();
+                return;
+            }
+
+            isBookmarkedView = false;
+
+            // If switching back to all blogs, reset to all blogs
+            filteredBlogs = [...allBlogs];
+
+            // Apply search filter if any
+            const searchTerm = $('#search-input').val().trim();
+            if (searchTerm) {
+                searchFilter(searchTerm);
             } else {
-                searchTerm = searchTerm.toLowerCase();
+                // Just apply current sorting
+                sortBlogs(currentSort);
+            }
+        }
+
+        function searchFilter(searchTerm) {
+            if (!searchTerm.trim()) {
+                // If no search term, just reset to current view
+                if (currentView === 'bookmarked') {
+                    fetchBookmarkedBlogs();
+                } else {
+                    filteredBlogs = [...allBlogs];
+                    sortBlogs(currentSort);
+                }
+                return;
+            }
+
+            // If in bookmarked view and searching, filter bookmarked blogs locally
+            // We don't want to lose the bookmarked state
+            searchTerm = searchTerm.toLowerCase();
+
+            if (currentView === 'all') {
                 filteredBlogs = allBlogs.filter(blog =>
                     blog.title.toLowerCase().includes(searchTerm) ||
                     (blog.description && blog.description.toLowerCase().includes(searchTerm))
                 );
+            } else {
+                // We're already in bookmarked view, so filter the current filtered blogs
+                filteredBlogs = filteredBlogs.filter(blog =>
+                    blog.title.toLowerCase().includes(searchTerm) ||
+                    (blog.description && blog.description.toLowerCase().includes(searchTerm))
+                );
             }
+
+            // Apply current sort to filtered results
             sortBlogs(currentSort);
+        }
+
+        function filterBlogs(searchTerm) {
+            // Just call searchFilter with the search term
+            searchFilter(searchTerm);
         }
 
         // Event listeners for search and sort
@@ -857,6 +1004,10 @@
             sortBlogs($(this).data('sort'));
         });
 
+        $(document).on('click', '.view-btn', function () {
+            setView($(this).data('view'));
+        });
+
         // Make entire blog card clickable to open the blog
         @* $(document).on('click', '.blog-card', function (e) {
             // Prevent click action if clicking on interactive elements like copy or read button
@@ -868,8 +1019,8 @@
             }
         }); *@
 
-        // Ensure openBlog doesn't need the event if called directly
-        @* function openBlog(url, event) {
+            // Ensure openBlog doesn't need the event if called directly
+            @* function openBlog(url, event) {
             if (event) {
                 event.stopPropagation(); // Stop propagation only if called from button click
             }

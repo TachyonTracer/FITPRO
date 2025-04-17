@@ -600,12 +600,21 @@
                         if (response.success) {
                             const blogData = response.data;
                             BLOG_ID = response.data.c_blog_id;
-                            fetchAuthorInfo(blogData);
+                            fetchAuthorInfo(blogData); // Fetch author info first
                             if (USER_ID) {
                                 fetchLikeStatus(BLOG_ID, USER_ID, USER_ROLE);
-                                // Fetch bookmark status here if available via a separate API or assume from blogData
-                                // For now, we rely on blogData.isBookmarked or default to false
-                                IS_BOOKMARKED = blogData.isBookmarked || false;
+                                // Fetch bookmark status only if user is not an instructor
+                                if (USER_ROLE !== 'instructor') {
+                                    fetchBookmarkStatus(BLOG_ID, USER_ID, USER_ROLE);
+                                } else {
+                                    // For instructors, bookmarking isn't applicable, ensure UI reflects this
+                                    IS_BOOKMARKED = false;
+                                    updateBookmarkStateUI();
+                                }
+                            } else {
+                                // If no user, ensure bookmark state is false
+                                IS_BOOKMARKED = false;
+                                updateBookmarkStateUI();
                             }
                         } else {
                             console.error('Error fetching blog data:', response.message);
@@ -683,6 +692,47 @@
                         console.error('Error fetching like status:', error);
                         IS_LIKED = false;
                         updateLikeStateUI();
+                    }
+                });
+            }
+
+            // Function to fetch bookmark status for the current user
+            function fetchBookmarkStatus(blogId, userId, userRole) {
+                // Only proceed if the user is not an instructor
+                if (userRole === 'instructor') {
+                    IS_BOOKMARKED = false;
+                    updateBookmarkStateUI();
+                    return;
+                }
+
+                const payload = {
+                    bookmarkId: -1, // Not needed for fetching status, but included for consistency
+                    userId: userId,
+                    blogId: blogId,
+                    bookmarked: false, // Default value, API will return actual status
+                    bookmarkedAt: Math.floor(Date.now() / 1000), // Not strictly needed for fetch
+                    userRole: userRole
+                };
+
+                $.ajax({
+                    url: 'http://localhost:8080/api/Blog/fetchBookmarkStatusForBlog',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(payload),
+                    success: function (response) {
+                        if (response.success && response.data) {
+                            IS_BOOKMARKED = response.data.bookmarked;
+                            console.log("Fetched Bookmark Status:", IS_BOOKMARKED);
+                        } else {
+                            IS_BOOKMARKED = false; // Default to false if fetch fails or no record
+                            console.warn('Could not fetch bookmark status or no existing record:', response.message);
+                        }
+                        updateBookmarkStateUI(); // Update UI after fetching
+                    },
+                    error: function (xhr, status, error) {
+                        console.error('Error fetching bookmark status:', error);
+                        IS_BOOKMARKED = false; // Default to false on error
+                        updateBookmarkStateUI(); // Update UI even on error
                     }
                 });
             }
@@ -991,26 +1041,35 @@
             // --- Server Communication ---
 
             function sendBookmarkToServer(bookmarked) {
+                // Construct the payload for the RegisterBookmark API
+                const payload = {
+                    bookmarkId: -1, // API likely ignores this on insert/update but required by structure
+                    userId: USER_ID,
+                    blogId: BLOG_ID,
+                    bookmarked: bookmarked,
+                    bookmarkedAt: Math.floor(Date.now() / 1000),
+                    userRole: USER_ROLE
+                };
+
                 $.ajax({
-                    url: 'http://localhost:8080/api/Blog/updateBlogBookmark',
+                    url: 'http://localhost:8080/api/Blog/RegisterBookmark', // Updated API endpoint
                     type: 'POST',
                     contentType: 'application/json',
-                    data: JSON.stringify({
-                        blogId: BLOG_ID,
-                        userId: USER_ID,
-                        isBookmarked: bookmarked
-                    }),
+                    data: JSON.stringify(payload), // Send the new payload structure
                     success: function (response) {
                         if (!response.success) {
                             showError("Failed to update bookmark status: " + response.message);
+                            // Revert UI state on failure
                             IS_BOOKMARKED = !bookmarked;
                             updateBookmarkStateUI();
                         } else {
                             console.log("Bookmark status updated successfully.");
+                            // UI was already updated optimistically, no change needed here
                         }
                     },
                     error: function (xhr, status, error) {
                         showError("Error updating bookmark status: " + error);
+                        // Revert UI state on error
                         IS_BOOKMARKED = !bookmarked;
                         updateBookmarkStateUI();
                     }
