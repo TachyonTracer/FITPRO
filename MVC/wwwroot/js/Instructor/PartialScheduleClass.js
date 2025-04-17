@@ -356,6 +356,35 @@ document.addEventListener("DOMContentLoaded", function () {
 	  }
 	);
   
+	// Add this code near your equipment dropdown logic
+
+	// Toggle dropdown visibility when clicking the dropdown button
+	$('.equipment-dropdown .dropdown-toggle').on('click', function(e) {
+	  e.preventDefault();
+	  const $dropdownMenu = $(this).next('.dropdown-menu');
+	  
+	  // Toggle between display modes
+	  if ($dropdownMenu.hasClass('active-dropdown')) {
+		$dropdownMenu.removeClass('active-dropdown');
+	  } else {
+		$dropdownMenu.addClass('active-dropdown');
+	  }
+	});
+	
+	// Close dropdown when clicking outside
+	$(document).on('click', function(e) {
+	  if (!$(e.target).closest('.equipment-dropdown').length) {
+		$('.equipment-dropdown .dropdown-menu').removeClass('active-dropdown');
+	  }
+	});
+	
+	// Close dropdown when ESC key is pressed
+	$(document).on('keydown', function(e) {
+	  if (e.key === 'Escape') {
+		$('.equipment-dropdown .dropdown-menu').removeClass('active-dropdown');
+	  }
+	});
+  
 	function validateEquipment() {
 	  const $equipmentDropdown = $(".equipment-dropdown");
 	  const $feedbackElement = $equipmentDropdown.find(".invalid-feedback");
