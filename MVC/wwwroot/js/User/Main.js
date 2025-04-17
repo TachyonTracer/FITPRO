@@ -163,7 +163,7 @@ async function loadClasses() {
   try {
     const bookedClassIds = await getBookedClasses();
     console.log('Booked Class IDs:', bookedClassIds); // Log the booked class IDs
-    const response = await fetch('http://localhost:8080/api/Class/GetAllClasses');
+    const response = await fetch('http://localhost:8080/api/Class/GetAllActiveClasses');
     const result = await response.json();
 
     loading.style.display = 'none';

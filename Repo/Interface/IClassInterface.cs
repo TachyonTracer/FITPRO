@@ -3,6 +3,7 @@ public interface IClassInterface
 {
     #region User Story: List Class
     Task<List<Class>> GetAllClasses();
+    Task<List<Class>> GetAllActiveClasses();
     Task<List<Class>> GetClassById(string id);
     Task<Class> GetOne(string id);
     Task<Response> BookClass(Booking request);
