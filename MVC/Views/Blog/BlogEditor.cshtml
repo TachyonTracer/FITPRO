@@ -17,11 +17,11 @@
         }
 
         /* Increase the total width */
-     .container-fluid {
+        .container-fluid {
             width: 95%;
             max-width: 1800px;
             margin: 0 auto;
-        } 
+        }
 
         .demo-section.wide {
             width: 100%;
@@ -321,7 +321,7 @@
         }
 
         .input-error {
-         
+
             background-color: rgba(255, 107, 107, 0.05);
         }
 
@@ -472,7 +472,7 @@
             <div class="text-center mt-4">
                 <h1 style="color: #facc15; font-weight: 700; font-size: 2.5rem;">Blog Editor</h1>
             </div>
-            
+
             <div class="demo-section wide">
                 <!-- Blog Source Url-->
                 <input id="blog_source_url" type="text" class="form-control" hidden>
@@ -524,7 +524,7 @@
                                 </button>
                             </div>
                             <div id="tagsContainer" class="tags-container"></div>
-                                <span id="tagsError" class="error-message"></span>
+                            <span id="tagsError" class="error-message"></span>
                             <div class="text-end mt-1">
                                 <small><span id="tagCounter">0</span>/5</small>
                             </div>
@@ -666,8 +666,8 @@
                                                     img.alt = "Uploaded Image";
 
                                                     // Style the image
-                                                    img.style.maxWidth = "950px";
-                                                    img.style.maxHeight = "750px";
+                                                    img.style.maxWidth = "700px";
+                                                    img.style.maxHeight = "650px";
                                                     img.style.width = "auto";
                                                     img.style.height = "auto";
                                                     img.style.objectFit = "contain";
@@ -921,7 +921,7 @@
 
                             // Don't add duplicate tags
                             if (tags.includes(tagText.trim())) return;
-                            
+
                             // Limit to 5 tags maximum
                             if (tags.length >= 5) {
                                 alert("Maximum 5 labels allowed.");
@@ -930,11 +930,11 @@
 
                             // Limit each tag to 20 characters
                             const trimmedTag = tagText.trim().substring(0, 20);
-                            
+
                             tags.push(trimmedTag);
                             renderTags();
                             $("#blogLabels").val('');
-                            
+
                             // Update tag counter
                             $("#tagCounter").text(tags.length);
                         }
@@ -952,10 +952,10 @@
                                     </span>
                                 `);
                             });
-                            
+
                             // Update tag counter
                             $("#tagCounter").text(tags.length);
-                            
+
                             // Disable input if reached max tags
                             if (tags.length >= 5) {
                                 $("#blogLabels").prop("disabled", true).attr("placeholder", "Maximum labels reached");
@@ -1005,7 +1005,7 @@
                             const tagIndex = $(this).parent().data("index");
                             tags.splice(tagIndex, 1);
                             renderTags();
-                            
+
                             // Re-enable input if below max tags
                             if (tags.length < 5) {
                                 $("#blogLabels").prop("disabled", false).attr("placeholder", "Type and press Enter to add tag");
@@ -1100,7 +1100,8 @@
                                     img.alt = "Dropped Image";
 
                                     // Style the image
-                                    img.style.maxWidth = "950px";
+                                    img.style.maxWidth = "700px";
+                                    img.style.maxHeight = "650px";
                                     img.style.width = "auto";
                                     img.style.height = "auto";
                                     img.style.objectFit = "contain";
@@ -1208,19 +1209,19 @@
                                         $(btnId).prop('disabled', true).text(afterApiText);
 
                                         alert(`Blog ${statusText} successfully!`);
-                                        
+
                                         // Set a timeout to allow the user to see the success state before redirecting
-                                       
-                                            // Check if the opener window exists and is the BlogList page
-                                            if (window.opener && !window.opener.closed && window.opener.location.href.includes("BlogList")) {
-                                                // Refresh the parent/opener window to show updated blog list
-                                                window.opener.location.reload();
-                                                // Close the editor window
-                                                window.close();
-                                            } else {
-                                                // Navigate back to the blog list page
-                                                window.location.href = "/instructor";
-                                            }
+
+                                        // Check if the opener window exists and is the BlogList page
+                                        if (window.opener && !window.opener.closed && window.opener.location.href.includes("BlogList")) {
+                                            // Refresh the parent/opener window to show updated blog list
+                                            window.opener.location.reload();
+                                            // Close the editor window
+                                            window.close();
+                                        } else {
+                                            // Navigate back to the blog list page
+                                            window.location.href = "/instructor";
+                                        }
 
 
                                     } else {
@@ -1413,30 +1414,30 @@
         });
 
         // Add a tooltip to show instructions when hovering over parts of the interface
-        $(document).ready(function() {
+        $(document).ready(function () {
             // Add a slight pulse animation to the thumbnail upload icon
-            setInterval(function() {
+            setInterval(function () {
                 $(".thumbnail-placeholder .fas").animate({ opacity: 0.7 }, 800).animate({ opacity: 1 }, 800);
             }, 1600);
 
             // Add visual feedback when adding tags
-            $("#addTagBtn").click(function() {
+            $("#addTagBtn").click(function () {
                 if ($("#blogLabels").val().trim() !== '') {
                     $(this).html('<i class="fas fa-check"></i>');
-                    setTimeout(function() {
+                    setTimeout(function () {
                         $("#addTagBtn").html('<i class="fas fa-plus"></i>');
                     }, 1000);
                 }
             });
 
             // Add title field animation when focused
-            $("#blogTitle").focus(function() {
+            $("#blogTitle").focus(function () {
                 $(this).parent().find(".fas").addClass("fa-bounce");
-                setTimeout(function() {
+                setTimeout(function () {
                     $(".fa-heading").removeClass("fa-bounce");
                 }, 1000);
             });
-            
+
             // Add a tooltip for the title field
             $("#blogTitle").attr("title", "Enter a compelling title for your blog post");
         });

@@ -600,6 +600,23 @@ public class BlogRepo : IBlogInterface
                             }
                         }
                     }
+
+                    if (blog.c_blog_id > 0)
+                    {
+                        // Increment view count
+                        string updateQuery = @"UPDATE t_blogpost 
+                                            SET c_views = c_views + 1 
+                                            WHERE c_blog_id = @c_blog_id";
+                        using (var updateCmd = new NpgsqlCommand(updateQuery, _conn))
+                        {
+                            updateCmd.Parameters.AddWithValue("@c_blog_id", blog.c_blog_id);
+                            await updateCmd.ExecuteNonQueryAsync();
+                        }
+
+                        // Reflect the incremented view count in the returned object
+                        blog.c_views += 1;
+                    }
+
                     await _conn.CloseAsync();
                     return blog;
                 } 
