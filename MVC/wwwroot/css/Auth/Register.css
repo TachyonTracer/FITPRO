@@ -22,6 +22,14 @@
   float: right;
 }
 
+.landing-page-btn-container {
+  position: fixed;
+  bottom: 2rem;
+  left: 2rem;
+  display: flex;
+  gap: 10px;
+}
+
 /* Role Selection Styles */
 .role-selection-bottom {
   position: fixed;
@@ -793,7 +801,7 @@ h1 {
     font-size: 2.5rem;
   }
 
-  .theme-btn-container {
+ .landing-page-btn-container{
     bottom: 1rem;
     left: 1rem;
   }
@@ -888,10 +896,9 @@ h1 {
     width: 100%;
   }
 
-  .theme-btn-container {
-    bottom: 0.5rem;
-    left: 0.5rem;
-    gap: 5px;
+ .landing-page-btn-container{
+    bottom: 1rem;
+    left: 1rem;
   }
 
   .theme-btn {

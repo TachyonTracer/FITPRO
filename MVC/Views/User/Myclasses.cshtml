@@ -31,6 +31,17 @@
     <div class="page-title">📚 My Classes</div>
 
     <div class="class-grid">
+        <!-- Initial loading state that will be replaced by JavaScript -->
+        <div id="loading-classes" class="no-classes-message loading-state">
+            <div class="spinner-container">
+                <div class="spinner"></div>
+            </div>
+            <h3>Loading Your Classes</h3>
+            <p>Please wait while we fetch your booked classes...</p>
+        </div>
+    </div>
+
+    <div class="class-grid">
         <!-- Class Card Example: Upcoming -->
 
     </div>
@@ -60,15 +71,15 @@
     </div>
 
 
-    
-   
-       <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.0/signalr.min.js"></script>
+
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.0/signalr.min.js"></script>
     <script src="@Url.Content("~/js/User/Myclasses.js")" asp-append-version="true"></script>
-     @*<script>
+    @*<script>
         document.querySelector('.profile-img').addEventListener('click', function () {
             document.querySelector('.profile-dropdown').style.display =
                 document.querySelector('.profile-dropdown').style.display === 'block' ? 'block' : 'block';
         });
     </script> *@
-    
+
 </body>

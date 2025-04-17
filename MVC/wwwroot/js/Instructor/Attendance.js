@@ -14,38 +14,45 @@ let editableDate = new Date().toISOString().split('T')[0];
 
 async function fetchAttendanceData(classId) {
 	try {
-		const response = await fetch(`http://localhost:8080/api/Attendance/GetAttendanceByClassId?classId=${classId}`, {
-			method: 'GET',
-			headers: {
-				'Content-Type': 'application/json',
-				'Authorization': `Bearer ${localStorage.getItem('authToken')}`
-			}
+		return new Promise((resolve, reject) => {
+			$.ajax({
+				url: `http://localhost:8080/api/Attendance/GetAttendanceByClassId?classId=${classId}`,
+				method: 'GET',
+				headers: {
+					'Content-Type': 'application/json',
+					'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+				},
+				success: function (result) {
+					console.log("Attendance API Response:", result);
+
+					if (result.success) {
+						if (result.data && result.data.length > 0) {
+							attendanceData = result.data.map(record => ({
+								c_attendanceid: record.attendanceId,
+								c_classid: record.classId,
+								c_attendancedate: record.attendanceDate.split('T')[0],
+								c_presentstudents: record.presentStudents || [],
+								c_absentstudents: record.absentStudents || []
+							}));
+							console.log("Formatted Attendance Data:", attendanceData);
+						} else {
+							console.log("No attendance records found for this class");
+							attendanceData = [];
+						}
+						resolve(true);
+					} else {
+						console.error('Failed to fetch attendance data:', result.message);
+						resolve(false);
+					}
+				},
+				error: function (xhr, status, error) {
+					console.error('Error fetching attendance data:', error);
+					resolve(false);
+				}
+			});
 		});
-
-		const result = await response.json();
-		console.log("Attendance API Response:", result);
-
-		if (result.success) {
-			if (result.data && result.data.length > 0) {
-				attendanceData = result.data.map(record => ({
-					c_attendanceid: record.attendanceId,
-					c_classid: record.classId,
-					c_attendancedate: record.attendanceDate.split('T')[0],
-					c_presentstudents: record.presentStudents || [],
-					c_absentstudents: record.absentStudents || []
-				}));
-				console.log("Formatted Attendance Data:", attendanceData);
-			} else {
-				console.log("No attendance records found for this class");
-				attendanceData = [];
-			}
-			return true;
-		} else {
-			console.error('Failed to fetch attendance data:', result.message);
-			return false;
-		}
 	} catch (error) {
-		console.error('Error fetching attendance data:', error);
+		console.error('Error in fetchAttendanceData:', error);
 		return false;
 	}
 }
@@ -175,6 +182,12 @@ function updateEditableStatus(classId) {
 			const isFutureDate = dateObj > today;
 
 			console.log("Checking date:", dateObj.toDateString(), "Editable:", isEditable, "Future:", isFutureDate);
+
+			// Store these variables BEFORE potentially removing the element from the DOM
+			const $parent = $(this).parent();
+			const userId = $(this).data('userid');
+			const dateAttr = $(this).data('date');
+			const checked = $(this).is(':checked');
 
 			// If it's a future date, make it completely uneditable
 			if (isFutureDate) {
@@ -330,54 +343,55 @@ function formatDate(date) {
 async function fetchClassData() {
 	try {
 		const instructorId = getUserIdFromToken();
-		const response = await fetch(`http://localhost:8080/api/Class/GetClassesByInstructorId?id=${instructorId}`, {
-			method: 'GET',
-			headers: {
-				'Content-Type': 'application/json',
-				'Authorization': `Bearer ${localStorage.getItem('authToken')}`
-			}
+
+		return new Promise((resolve, reject) => {
+			$.ajax({
+				url: `http://localhost:8080/api/Class/GetClassesByInstructorId?id=${instructorId}`,
+				method: 'GET',
+				dataType: 'json',
+				headers: {
+					'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+				},
+				success: function (result) {
+					console.log("Class API Response:", result);
+
+					const now = new Date();
+					if (result.sucess || result.success) {
+						classesData = result.data
+							.filter(cls => new Date(cls.startDate) <= now)
+							.map(cls => {
+								// Format dates
+								const startDateTime = new Date(cls.startDate);
+								const endDateTime = new Date(cls.endDate);
+								const startlocalDate = startDateTime.toISOString().split('T')[0];
+								const endlocalDate = endDateTime.toISOString().split('T')[0];
+
+								return {
+									classId: cls.classId,
+									className: cls.className,
+									type: cls.type,
+									startDate: startlocalDate,
+									endDate: endlocalDate,
+									startDateTime: startDateTime,
+									endDateTime: endDateTime
+								};
+							});
+						console.log("Formatted Classes Data:", classesData);
+						populateClassTypes();
+						resolve(classesData);
+					} else {
+						console.error('Failed to fetch classes:', result.message);
+						resolve([]);
+					}
+				},
+				error: function (xhr, status, error) {
+					console.error('Error fetching classes:', error);
+					resolve([]);
+				}
+			});
 		});
-
-		const result = await response.json();
-		console.log("Class API Response:", result);
-
-		const now = new Date();
-		if (result.sucess || result.success) {
-			classesData = result.data
-				.filter(cls => new Date(cls.startDate) <= now)
-				.map(cls => {
-
-					const startDateTime = new Date(cls.startDate);
-					const endDateTime = new Date(cls.endDate);
-					const startlocalDate = startDateTime.getFullYear() + '-' +
-						String(startDateTime.getMonth() + 1).padStart(2, '0') + '-' +
-						String(startDateTime.getDate()).padStart(2, '0');
-
-					const endlocalDate = endDateTime.getFullYear() + '-' +
-						String(endDateTime.getMonth() + 1).padStart(2, '0') + '-' +
-						String(endDateTime.getDate()).padStart(2, '0')
-
-
-					return {
-						classId: cls.classId,
-						className: cls.className,
-						type: cls.type,
-						// Store both date-only format and full DateTime objects
-						startDate: startlocalDate,
-						endDate: endlocalDate,
-						startDateTime: startDateTime,
-						endDateTime: endDateTime
-					};
-				});
-			console.log("Formatted Classes Data:", classesData);
-			populateClassTypes();
-			return classesData;
-		} else {
-			console.error('Failed to fetch classes:', result.message);
-			return [];
-		}
 	} catch (error) {
-		console.error('Error fetching classes:', error);
+		console.error('Error in fetchClassData:', error);
 		return [];
 	}
 }
@@ -385,31 +399,40 @@ async function fetchClassData() {
 async function fetchUsersForClass(classId) {
 	try {
 		userData = [];
-		const response = await fetch(`http://localhost:8080/api/User/GetAllUsersByClassId/${classId}`, {
-			method: 'GET',
-			headers: {
-				'Content-Type': 'application/json',
-				'Authorization': `Bearer ${localStorage.getItem('authToken')}`
-			}
-		});
 
-		const result = await response.json();
-		if (result.success) {
-			userData = [];
-			attendanceData = [];
-			userData = result.data.map(user => ({
-				userId: user.userId,
-				username: user.userName
-			}));
-			console.log("Fetched User Data:", userData);
-			return true;
-		} else {
-			console.error('Failed to fetch users:', result.message);
-			userData = []; // Ensure userData is empty
-			return false;
-		}
+		return new Promise((resolve, reject) => {
+			$.ajax({
+				url: `http://localhost:8080/api/User/GetAllUsersByClassId/${classId}`,
+				method: 'GET',
+				headers: {
+					'Content-Type': 'application/json',
+					'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+				},
+				success: function (result) {
+					if (result.success) {
+						userData = [];
+						attendanceData = [];
+						userData = result.data.map(user => ({
+							userId: user.userId,
+							username: user.userName
+						}));
+						console.log("Fetched User Data:", userData);
+						resolve(true);
+					} else {
+						console.error('Failed to fetch users:', result.message);
+						userData = []; // Ensure userData is empty
+						resolve(false);
+					}
+				},
+				error: function (xhr, status, error) {
+					console.error('Error fetching users:', error);
+					userData = []; // Ensure userData is empty
+					resolve(false);
+				}
+			});
+		});
 	} catch (error) {
-		console.error('Error fetching users:', error);
+		console.error('Error in fetchUsersForClass:', error);
 		userData = []; // Ensure userData is empty
 		return false;
 	}
@@ -694,7 +717,7 @@ $("#markAllAbsent").click(function () {
 	});
 });
 
-$("#saveAttendance").click(async function () {
+$("#saveAttendance").click(function () {
 	const classId = parseInt($("#classSelect").val());
 	const presentStudents = [];
 	const absentStudents = [];
@@ -718,62 +741,78 @@ $("#saveAttendance").click(async function () {
 		attendanceId: 0
 	};
 
-	try {
-		const checkResponse = await fetch(`http://localhost:8080/api/Attendance/CheckIfExists?classId=${classId}&date=${editableDate}`, {
-			method: 'GET',
-			headers: {
-				'Content-Type': 'application/json',
-				'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+	// First check if attendance record exists
+	$.ajax({
+		url: `http://localhost:8080/api/Attendance/CheckIfExists?classId=${classId}&date=${editableDate}`,
+		method: 'GET',
+		headers: {
+			'Content-Type': 'application/json',
+			'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+		},
+		success: function (checkResult) {
+			let apiUrl = 'http://localhost:8080/api/Attendance/AddAttendance';
+			let method = 'POST';
+
+			if (checkResult.exists) {
+				apiUrl = 'http://localhost:8080/api/Attendance/UpdateAttendance';
+				method = 'PUT';
+				attendanceData.attendanceId = checkResult.attendanceId;
 			}
-		});
 
-		const checkResult = await checkResponse.json();
-		let apiUrl = 'http://localhost:8080/api/Attendance/AddAttendance';
-		let method = 'POST';
+			// Now save/update the attendance
+			$.ajax({
+				url: apiUrl,
+				method: method,
+				headers: {
+					'Content-Type': 'application/json',
+					'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+				},
+				data: JSON.stringify(attendanceData),
+				dataType: 'json',
+				success: function (result) {
+					if (result.success) {
+						Swal.fire({
+							icon: 'success',
+							title: 'Success!',
+							text: 'Attendance saved successfully',
+							background: '#1a1a1a',
+							color: '#ffffff',
+							confirmButtonColor: '#facc15'
+						});
 
-		if (checkResult.exists) {
-			apiUrl = 'http://localhost:8080/api/Attendance/UpdateAttendance';
-			method = 'PUT';
-			attendanceData.attendanceId = checkResult.attendanceId;
-		}
-
-		const response = await fetch(apiUrl, {
-			method,
-			headers: {
-				'Content-Type': 'application/json',
-				'Authorization': `Bearer ${localStorage.getItem('authToken')}`
-			},
-			body: JSON.stringify(attendanceData)
-		});
-
-		const result = await response.json();
-
-		if (result.success) {
+						// Refresh attendance data
+						fetchAttendanceData(classId).then(() => {
+							populateTable(classId);
+						});
+					} else {
+						throw new Error(result.message || 'Failed to save attendance');
+					}
+				},
+				error: function (xhr, status, error) {
+					console.error('Error saving attendance:', error);
+					Swal.fire({
+						icon: 'error',
+						title: 'Error!',
+						text: 'Failed to save attendance. Please try again.',
+						background: '#1a1a1a',
+						color: '#ffffff',
+						confirmButtonColor: '#dc3545'
+					});
+				}
+			});
+		},
+		error: function (xhr, status, error) {
+			console.error('Error checking if attendance exists:', error);
 			Swal.fire({
-				icon: 'success',
-				title: 'Success!',
-				text: 'Attendance saved successfully',
+				icon: 'error',
+				title: 'Error!',
+				text: 'Failed to check existing attendance. Please try again.',
 				background: '#1a1a1a',
 				color: '#ffffff',
-				confirmButtonColor: '#facc15'
+				confirmButtonColor: '#dc3545'
 			});
-
-			await fetchAttendanceData(classId);
-			populateTable(classId);
-		} else {
-			throw new Error(result.message || 'Failed to save attendance');
 		}
-	} catch (error) {
-		console.error('Error saving attendance:', error);
-		Swal.fire({
-			icon: 'error',
-			title: 'Error!',
-			text: 'Failed to save attendance. Please try again.',
-			background: '#1a1a1a',
-			color: '#ffffff',
-			confirmButtonColor: '#dc3545'
-		});
-	}
+	});
 });
 
 $("#exportAttendance").click(function () {
