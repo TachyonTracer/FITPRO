@@ -772,27 +772,25 @@
 
             // Function to render blog post with provided data
             function renderBlogPost(blogData) {
+                // ... (existing content decoding, date formatting, read time calculation, profile pic URL formatting) ...
                 let contentHtml = blogData.c_content;
-                if (contentHtml && contentHtml.indexOf('<') === -1) {
-                    try {
-                        contentHtml = atob(contentHtml);
-                    } catch (e) {
-                        console.error('Error decoding content:', e);
-                    }
-                }
-
+                if (contentHtml && contentHtml.indexOf('<') === -1) { try { contentHtml = atob(contentHtml); } catch (e) { console.error('Error decoding content:', e); } }
                 const publishDate = new Date(blogData.c_published_at * 1000);
-                const formattedDate = publishDate.toLocaleDateString('en-US', {
-                    month: 'long',
-                    day: 'numeric',
-                    year: 'numeric'
-                });
-
+                const formattedDate = publishDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
                 const wordCount = (contentHtml || '').split(' ').length;
                 const readMinutes = Math.max(1, Math.round(wordCount / 200));
                 let profilePicUrl = blogData.c_profilePicture;
-                if (profilePicUrl && !profilePicUrl.startsWith('http')) {
-                    profilePicUrl = `http://localhost:8081/Instructor_Images/${profilePicUrl}`;
+                if (profilePicUrl && !profilePicUrl.startsWith('http')) { profilePicUrl = `http://localhost:8081/Instructor_Images/${profilePicUrl}`; }
+
+                // --- Create HTML for the Inline Action Bar ---
+                // Conditionally add bookmark button based on user role
+                let bookmarkButtonHtml = '';
+                if (USER_ROLE !== 'instructor') {
+                    bookmarkButtonHtml = `
+                        <button class="action-button bookmark-btn action-bar-bookmark-btn">
+                            <i class="fa-${IS_BOOKMARKED ? 'solid' : 'regular'} fa-bookmark"></i>
+                        </button>
+                    `;
                 }
 
                 const inlineActionBarHtml = `
@@ -812,13 +810,13 @@
                             </div>
                         </div>
                         <div class="action-group-right">
-                            <button class="action-button bookmark-btn action-bar-bookmark-btn">
-                                <i class="fa-${IS_BOOKMARKED ? 'solid' : 'regular'} fa-bookmark"></i>
-                            </button>
+                            ${bookmarkButtonHtml}
+                            <!-- Add other right-side actions here if needed -->
                         </div>
                     </div>
                 `;
 
+                // Create HTML for the main blog content
                 const blogHtml = `
                     <!-- Error message display -->
                     <div class="error-message" id="error-message"></div>
@@ -870,13 +868,21 @@
 
                 document.getElementById('blog-container').innerHTML = blogHtml;
 
+                // Initial UI updates
                 updateLikeStateUI(blogData.c_likes || 0);
-                updateBookmarkStateUI();
+                if (USER_ROLE !== 'instructor') { // Only update bookmark UI if not instructor
+                    updateBookmarkStateUI();
+                }
                 updateCommentsCounterUI(blogData.c_comments || 0);
 
-                document.querySelectorAll('.action-bar-bookmark-btn').forEach(button => {
-                    button.addEventListener('click', handleBookmarkAction);
-                });
+                // --- Event Listeners (Using Class Selectors) ---
+
+                // Only attach bookmark listener if not instructor
+                if (USER_ROLE !== 'instructor') {
+                    document.querySelectorAll('.action-bar-bookmark-btn').forEach(button => {
+                        button.addEventListener('click', handleBookmarkAction);
+                    });
+                }
 
                 document.querySelectorAll('.action-bar-like-btn').forEach(button => {
                     button.addEventListener('click', handleLikeAction);
@@ -891,9 +897,11 @@
                     });
                 });
 
+                // Comment submission listener remains the same
                 const mainCommentFormSubmit = document.querySelector('.comment-form .comment-submit');
                 if (mainCommentFormSubmit) {
-                    mainCommentFormSubmit.addEventListener('click', function () {
+                    // ... (existing comment submit listener code) ...
+                     mainCommentFormSubmit.addEventListener('click', function () {
                         if (!USER_ID) {
                             showError("Please Log in First to comment.");
                             return;
@@ -913,6 +921,9 @@
             // --- Action Handlers ---
 
             function handleBookmarkAction() {
+                // Double check role, although listener shouldn't be attached for instructors
+                if (USER_ROLE === 'instructor') return;
+
                 if (!USER_ID) {
                     showError("Please Log in First to bookmark.");
                     return;
@@ -941,6 +952,9 @@
             // --- UI Update Functions ---
 
             function updateBookmarkStateUI() {
+                // Check role before trying to update
+                if (USER_ROLE === 'instructor') return;
+
                 const isBookmarked = IS_BOOKMARKED;
                 document.querySelectorAll('.action-bar-bookmark-btn').forEach(button => {
                     button.innerHTML = `<i class="fa-${isBookmarked ? 'solid' : 'regular'} fa-bookmark"></i>`;

@@ -849,5 +849,143 @@ public class BlogRepo : IBlogInterface
             }
 
         #endregion
+
+
+        #region RegisterBookmark
+            public async Task<int> RegisterBookmark(vm_RegisterBookmark bookmark_req)
+            {
+                int result = 0;
+
+                if (_conn.State == System.Data.ConnectionState.Closed)
+                {
+                    await _conn.OpenAsync();
+                }
+
+                try
+                {
+                    // Check if the user already bookmarked/unbookmarked the blog
+                    string checkQuery = @"
+                        SELECT c_bookmarked FROM t_blog_bookmark 
+                        WHERE c_blog_id = @blogId AND c_user_id = @userId AND c_user_role = @userRole";
+
+                    bool? existingBookmark = null;
+
+                    using (var checkCmd = new NpgsqlCommand(checkQuery, _conn))
+                    {
+                        checkCmd.Parameters.AddWithValue("@blogId", bookmark_req.blogId);
+                        checkCmd.Parameters.AddWithValue("@userId", bookmark_req.userId);
+                        checkCmd.Parameters.AddWithValue("@userRole", bookmark_req.userRole);
+                        var existing = await checkCmd.ExecuteScalarAsync();
+                        if (existing != null && existing != DBNull.Value)
+                        {
+                            existingBookmark = Convert.ToBoolean(existing);
+                        }
+                    }
+
+                    // Upsert the bookmark
+                    string upsertQuery = @"
+                        INSERT INTO t_blog_bookmark (
+                            c_blog_id, c_user_id, c_bookmarked, c_bookmarked_at, c_user_role
+                        ) VALUES (
+                            @c_blog_id, @c_user_id, @c_bookmarked, @c_bookmarked_at, @c_user_role
+                        )
+                        ON CONFLICT (c_blog_id, c_user_id, c_user_role)
+                        DO UPDATE SET 
+                            c_bookmarked = EXCLUDED.c_bookmarked,
+                            c_bookmarked_at = EXCLUDED.c_bookmarked_at
+                        RETURNING c_bookmark_id;";
+
+                    using (var upsertCmd = new NpgsqlCommand(upsertQuery, _conn))
+                    {
+                        upsertCmd.Parameters.AddWithValue("@c_blog_id", bookmark_req.blogId);
+                        upsertCmd.Parameters.AddWithValue("@c_user_id", bookmark_req.userId);
+                        upsertCmd.Parameters.AddWithValue("@c_bookmarked", bookmark_req.bookmarked);
+                        upsertCmd.Parameters.AddWithValue("@c_bookmarked_at", DateTimeOffset.UtcNow.ToUnixTimeSeconds());
+                        upsertCmd.Parameters.AddWithValue("@c_user_role", bookmark_req.userRole);
+
+                        var insertedId = await upsertCmd.ExecuteScalarAsync();
+
+                        if (insertedId != null)
+                        {
+                            result = 1;
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("Error saving bookmark --> " + ex.Message);
+                    result = 0;
+                }
+                finally
+                {
+                    if (_conn.State == System.Data.ConnectionState.Open)
+                    {
+                        await _conn.CloseAsync();
+                    }
+                }
+
+                return result;
+            }
+        #endregion
+
+        #region FetchBookmarkStatusForBlog
+            public async Task<vm_RegisterBookmark> FetchBookmarkStatusForBlog(vm_RegisterBookmark bookmark_info)
+            {
+                vm_RegisterBookmark bookmark_info_ = new vm_RegisterBookmark();
+                bookmark_info_.bookmarkId = -1;
+
+                if (_conn.State == System.Data.ConnectionState.Closed)
+                {
+                    await _conn.OpenAsync();
+                }
+
+                try
+                {
+                    string checkQuery = @"
+                        SELECT * FROM t_blog_bookmark 
+                        WHERE c_blog_id = @blogId AND c_user_id = @userId AND c_user_role = @userRole";
+
+                    using (var checkCmd = new NpgsqlCommand(checkQuery, _conn))
+                    {
+                        checkCmd.Parameters.AddWithValue("@blogId", bookmark_info.blogId);
+                        checkCmd.Parameters.AddWithValue("@userId", bookmark_info.userId);
+                        checkCmd.Parameters.AddWithValue("@userRole", bookmark_info.userRole);
+
+                        using (var reader = await checkCmd.ExecuteReaderAsync())
+                        {
+                            while (await reader.ReadAsync())
+                            {
+                                vm_RegisterBookmark bookmark_info__ = new vm_RegisterBookmark
+                                {
+                                    bookmarkId = reader.GetInt32(reader.GetOrdinal("c_bookmark_id")),
+                                    blogId = reader.GetInt32(reader.GetOrdinal("c_blog_id")),
+                                    userId = reader.GetInt32(reader.GetOrdinal("c_user_id")),
+                                    bookmarked = reader.GetBoolean(reader.GetOrdinal("c_bookmarked")),
+                                    bookmarkedAt = reader.GetInt32(reader.GetOrdinal("c_bookmarked_at")),
+                                    userRole = reader.GetString(reader.GetOrdinal("c_user_role")),
+                                };
+                                bookmark_info_ = bookmark_info__;
+                            }
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("Error fetching bookmark --> " + ex.Message);
+                    return bookmark_info_;
+                }
+                finally
+                {
+                    if (_conn.State == System.Data.ConnectionState.Open)
+                    {
+                        await _conn.CloseAsync();
+                    }
+                }
+
+                return bookmark_info_;
+            }
+
+        #endregion
+
     #endregion
 }

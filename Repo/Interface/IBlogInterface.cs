@@ -20,6 +20,8 @@ public interface IBlogInterface
         Task<int> DeleteBlog(int blogId);
         Task<int> RegisterLike(vm_RegisterLike like_req);
         Task<vm_RegisterLike> fetchLikeStatusForBlog(vm_RegisterLike like_info);
+        Task<int> RegisterBookmark(vm_RegisterBookmark bookmark_req);
+        Task<vm_RegisterBookmark> FetchBookmarkStatusForBlog(vm_RegisterBookmark bookmark_info);
 
     #endregion
 }
