@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>FitPro - My Blogs</title>
+    <link rel="stylesheet" href="style.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet" />
+    @* <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" /> *@
+</head>
+<style>
+    body {
+        background: url("gym1.jpg") no-repeat center center fixed;
+        background-size: cover;
+        background-color: #0d0d0d;
+        font-family: "Poppins", sans-serif;
+        margin: 0;
+        padding: 0;
+        min-height: 100vh;
+        /* Ensure body takes at least full viewport height */
+        display: flex;
+        flex-direction: column;
+    }
+
+    /* Class Cards Grid */
+    .class-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+        gap: 30px;
+        padding: 50px 40px;
+    }
+
+    /* Class Card */
+    .class-card {
+        background: #1a1a1a;
+        border: 1px solid #333;
+        border-radius: 16px;
+        overflow: hidden;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .class-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 0 15px rgba(255, 255, 0, 0.1);
+    }
+
+    .class-card img {
+        width: 100%;
+        height: 220px;
+        object-fit: cover;
+    }
+
+    .card-content {
+        padding: 20px;
+    }
+
+    .card-content h2 {
+        font-size: 22px;
+        color: #fde047;
+        margin-bottom: 10px;
+    }
+
+    .card-content p {
+        font-size: 15px;
+        margin-bottom: 12px;
+        color: #e7e7e7;
+    }
+
+    .card-content button {
+        background-color: #facc15;
+        color: #111;
+        padding: 10px 18px;
+        border: none;
+        border-radius: 6px;
+        font-size: 14px;
+        cursor: pointer;
+        font-weight: bold;
+        transition: background-color 0.3s ease, transform 0.2s;
+    }
+
+    .card-content button:hover {
+        background-color: #ffe347;
+        transform: scale(1.05);
+    }
+
+    /* Filter Section */
+    .filter-section {
+        background: rgba(26, 26, 26, 0.8);
+        padding: 20px 40px;
+        border-radius: 20px;
+        margin: 20px 40px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 15px;
+    }
+
+    .search-box {
+        display: flex;
+        background: #222;
+        border-radius: 30px;
+        padding: 8px 15px;
+        width: 300px;
+    }
+
+    .search-box input {
+        background: transparent;
+        border: none;
+        outline: none;
+        color: #eaeaea;
+        flex-grow: 1;
+        padding: 0 10px;
+        font-size: 15px;
+    }
+
+    .search-box button {
+        background: transparent;
+        border: none;
+        color: #facc15;
+        cursor: pointer;
+    }
+
+    .sort-options {
+        display: flex;
+        gap: 15px;
+        align-items: center;
+    }
+
+    .sort-btn {
+        background: #222;
+        color: #eaeaea;
+        border: 1px solid #333;
+        border-radius: 6px;
+        padding: 8px 15px;
+        cursor: pointer;
+        font-size: 14px;
+        transition: all 0.3s ease;
+    }
+
+    .sort-btn.active {
+        background: #facc15;
+        color: #111;
+    }
+
+    .sort-btn:hover {
+        background: #333;
+    }
+
+    /* Create blog button */
+    .create-blog-btn {
+        background-color: #2563eb;
+        /* Blue color */
+        color: white;
+        padding: 10px 18px;
+        border: none;
+        border-radius: 6px;
+        font-size: 14px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .create-blog-btn:hover {
+        background-color: #1d4ed8;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+    }
+
+    /* Filter actions wrapper to group search and create button */
+    .filter-actions {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    /* Blog List Styling */
+    .blog-list {
+        padding: 20px 40px;
+        flex-grow: 1;
+        /* Allow the blog list to grow and fill available space */
+        overflow: visible;
+        /* Prevent scrollbar on the container itself */
+    }
+
+    .blog-card {
+        display: flex;
+        background: #1a1a1a;
+        border: 1px solid #333;
+        border-radius: 10px;
+        overflow: hidden;
+        margin-bottom: 20px;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        width: 100%;
+        /* Ensure each card takes full width of container */
+        max-width: 100%;
+        /* Prevent cards from exceeding container width */
+    }
+
+    .blog-thumbnail {
+        width: 200px;
+        height: 150px;
+        object-fit: cover;
+    }
+
+    .blog-details {
+        padding: 15px 20px;
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        overflow: hidden;
+        /* Prevent content overflow */
+        width: calc(100% - 200px);
+        /* Account for thumbnail width */
+    }
+
+    .blog-title {
+        color: #fde047;
+        font-size: 18px;
+        margin-bottom: 8px;
+    }
+
+    .blog-description {
+        color: #e7e7e7;
+        font-size: 14px;
+        margin-bottom: 15px;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .blog-stats {
+        display: flex;
+        gap: 15px;
+        flex-wrap: wrap;
+        /* Allow stats to wrap on smaller screens */
+        align-items: center;
+    }
+
+    .stat {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        color: #ccc;
+        font-size: 14px;
+    }
+
+    .blog-actions {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-left: auto;
+    }
+
+    .edit-btn,
+    .delete-btn {
+        padding: 8px 15px;
+        border-radius: 6px;
+        font-size: 14px;
+        cursor: pointer;
+        transition: all 0.2s;
+        border: none;
+    }
+
+    .edit-btn {
+        background-color: #facc15;
+        color: #111;
+    }
+
+    .edit-btn:hover {
+        background-color: #ffe347;
+    }
+
+    .delete-btn {
+        background-color: #555;
+        color: white;
+    }
+
+    .delete-btn:hover {
+        background-color: #ff3333;
+    }
+
+    .no-blogs {
+        text-align: center;
+        color: #eaeaea;
+        padding: 40px;
+        font-size: 18px;
+    }
+
+    .loader {
+        text-align: center;
+        padding: 40px;
+    }
+
+    .loader i {
+        color: #facc15;
+        font-size: 40px;
+        animation: spin 1s infinite linear;
+    }
+
+
+    .blog-card {
+        position: relative;
+        border-radius: 12px;
+        overflow: hidden;
+        transition: transform 0.25s ease, box-shadow 0.25s ease;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+
+    .blog-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    .blog-open-icon {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        z-index: 10;
+        @* background-color: rgba(255, 255, 255, 0.85); *@
+        background-color: #facc15;
+        padding: 5px 7px;
+        border-radius: 50%;
+        cursor: pointer;
+        transition: background-color 0.2s;
+    }
+
+    .blog-open-icon:hover {
+        @* background-color: #facc15; *@
+        background-color: rgba(255, 255, 255, 0.85);
+    }
+
+    .copy-link {
+        margin-left: 2px;
+        cursor: pointer;
+        color: #888;
+        transition: color 0.2s ease;
+    }
+
+    .copy-link:hover {
+        @* color: #333; *@
+        color: #facc15;
+    }
+
+    @@keyframes spin {
+        from {
+            transform: rotate(0deg);
+        }
+
+        to {
+            transform: rotate(360deg);
+
+        }
+    }
+
+    @@media (max-width: 768px) {
+
+        /* Responsive adjustments */
+        .blog-card {
+            flex-direction: column;
+        }
+
+        .blog-thumbnail {
+            width: 100%;
+            height: 180px;
+        }
+
+        .blog-details {
+            width: 100%;
+        }
+
+        .filter-section {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .filter-actions {
+            flex-direction: column;
+            width: 100%;
+        }
+
+        .search-box {
+            width: 100%;
+        }
+
+        .create-blog-btn {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .sort-options {
+            justify-content: center;
+            margin-top: 10px;
+        }
+    }
+</style>
+
+<body>
+
+
+
+    <!-- Filter Section -->
+    <section class="filter-section">
+        <div class="filter-actions">
+            <div class="search-box">
+                <input type="text" id="search-input" placeholder="Search blogs...">
+                <button id="search-btn"><i class="fas fa-search"></i></button>
+            </div>
+            <button id="createBlogBtn" class="create-blog-btn">
+                <i class="fas fa-plus-circle"></i> Create New Blog
+            </button>
+        </div>
+        <div class="sort-options">
+            <span style="color: #fff;">Sort by:</span>
+            <button class="sort-btn active" data-sort="latest">Latest</button>
+            <button class="sort-btn" data-sort="oldest">Oldest</button>
+            <button class="sort-btn" data-sort="popular">Most Popular</button>
+        </div>
+    </section>
+
+    <!-- Blog List Section -->
+    <section class="blog-list" id="blog-list">
+        <div class="loader">
+            <i class="fas fa-spinner"></i>
+        </div>
+        <!-- Blog cards will be loaded here -->
+    </section>
+
+    <!-- Scripts -->
+    @* <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> *@
+    <script>
+        // Remove the profile dropdown event listeners as they refer to elements that don't exist
+
+        // Variables
+        let allBlogs = [];
+        let filteredBlogs = [];
+        let currentSort = 'latest';
+        let token = "";
+
+        let USER_OBJECT = null;
+        let USER_ROLE = "instructor"; // by default set to "instructor"
+        let USER_ID = getUserIdFromToken();
+
+        if(!USER_ID) {
+            console.warn("No Authentication");
+        } else {
+            console.log(USER_OBJECT);
+            console.log(USER_ID);
+            console.log(USER_ROLE);
+        }
+
+        @* Utility Functions *@
+        function parseJwt(token) {
+            try {
+                const base64Url = token.split(".")[1];
+                const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+                return JSON.parse(atob(base64));
+            } catch (error) {
+                console.error("Invalid token:", error);
+                return null;
+            }
+        }
+        function getUserIdFromToken() {
+            const token = localStorage.getItem("authToken");
+            if (!token) {
+                console.warn("No auth token found in localStorage.");
+                return null;
+            }
+            const jwt_decoded = parseJwt(token);
+            if (jwt_decoded) {
+                USER_OBJECT = JSON.parse(jwt_decoded.UserObject);
+                if (USER_OBJECT.instructorId) {
+                    USER_ROLE = "instructor";
+                    return USER_OBJECT.instructorId;
+                } else {
+                    USER_ROLE = "user";
+                    return USER_OBJECT.userId;
+                }
+            }
+            console.warn("Invalid or malformed token.");
+            return null;
+        }
+
+        // Sample blog data for fallback
+        const sampleBlogs = [
+            @* {
+                id: 1,
+                title: "10 Essential Stretches for After Your Workout",
+                description: "Discover the most effective stretches to help your muscles recover and prevent injury after intense training sessions.",
+                content: "<h2>10 Essential Stretches for After Your Workout</h2><p>Stretching after your workout is crucial for muscle recovery and flexibility. Here are the top 10 stretches you should incorporate:</p><ul><li>Hamstring stretch</li><li>Quad stretch</li><li>Child's pose</li><li>Triceps stretch</li><li>Cat-cow stretch</li><li>Butterfly stretch</li><li>Shoulder stretch</li><li>Hip flexor stretch</li><li>Calf stretch</li><li>Spine twist</li></ul><p>Perform each stretch for 20-30 seconds for optimal benefits.</p>",
+                thumbnailUrl: "https://images.unsplash.com/photo-1599447421416-3414500d18a5?ixlib=rb-4.0.3",
+                views: 1245,
+                likes: 89,
+                comments: 23,
+                is_completed: 1,
+                createdAt: "2023-06-15T14:22:00Z"
+            },
+            {
+                id: 2,
+                title: "Nutrition Tips for Muscle Building",
+                description: "Learn how to fuel your body correctly to maximize muscle growth and recovery with these evidence-based nutrition strategies.",
+                content: "<h2>Nutrition Tips for Muscle Building</h2><p>Building muscle requires more than just lifting weights - proper nutrition is essential.</p><h3>Key Principles:</h3><ol><li>Maintain a caloric surplus</li><li>Consume adequate protein (1.6-2.2g per kg of bodyweight)</li><li>Time your carbohydrates around workouts</li><li>Don't neglect healthy fats</li><li>Stay hydrated</li></ol>",
+                thumbnailUrl: "https://images.unsplash.com/photo-1490645935967-10de6ba17061?ixlib=rb-4.0.3",
+                views: 2150,
+                likes: 167,
+                comments: 42,
+                is_completed: 1,
+                createdAt: "2023-05-20T09:15:00Z"
+            },
+            {
+                id: 3,
+                title: "The Ultimate HIIT Workout Guide",
+                description: "High-Intensity Interval Training explained: benefits, sample workouts, and how to incorporate it into your fitness routine.",
+                content: "<h2>The Ultimate HIIT Workout Guide</h2><p>High-Intensity Interval Training (HIIT) has revolutionized the fitness world with its efficient, results-driven approach.</p><h3>Sample 20-Minute HIIT Workout:</h3><ol><li>30 seconds burpees, 30 seconds rest</li><li>30 seconds mountain climbers, 30 seconds rest</li><li>30 seconds jump squats, 30 seconds rest</li><li>30 seconds high knees, 30 seconds rest</li></ol><p>Repeat this circuit 5 times.</p>",
+                thumbnailUrl: "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?ixlib=rb-4.0.3",
+                views: 3542,
+                likes: 245,
+                comments: 58,
+                is_completed: 1,
+                createdAt: "2023-07-03T16:40:00Z"
+            },
+            {
+                id: 4,
+                title: "Mindfulness and Fitness: The Perfect Combination",
+                description: "How incorporating mindfulness practices into your fitness routine can enhance performance and overall wellbeing.",
+                thumbnailUrl: "https://images.unsplash.com/photo-1593810450967-f9c42742e3b5?ixlib=rb-4.0.3",
+                views: 987,
+                likes: 76,
+                comments: 19,
+                is_completed: 0,
+                createdAt: "2023-07-10T11:30:00Z"
+            } *@
+        ];
+
+        // Fetch blogs on page load
+        $(document).ready(function () {
+            token = localStorage.getItem('authToken');
+
+            // Try to fetch actual data first
+            $.ajax({
+                url: `http://localhost:8080/api/Blog/GetInstructorBlogsById?instructor_id=${USER_ID}`,
+                type: 'POST',
+                headers: {
+                    'Authorization': token ? `Bearer ${token}` : '',
+                    'Content-Type': 'application/json'
+                },
+                success: function (data) {
+                    if (data && data.success && data.data && data.data.entries.length > 0) {
+                        allBlogs = data.data.entries.map(entry => ({
+                            id: entry.c_blog_id,
+                            authorId: entry.c_blog_author_id,
+                            title: entry.c_title,
+                            description: entry.c_desc,
+                            content: entry.c_content,
+                            @* thumbnailUrl: 'http://localhost:8081/blogImages/Thumbnails/' + entry.c_blog_id + '/' + entry.c_thumbnail || 'http://localhost:8081/blogImages/Thumbnails/default.png', *@
+                            thumbnailUrl: !entry.c_thumbnail || entry.c_thumbnail.includes('default')
+                                            ? 'http://localhost:8081/blogImages/Thumbnails/default.png'
+                                            : `http://localhost:8081/blogImages/Thumbnails/${entry.c_blog_id}/${entry.c_thumbnail}`,
+                            tags: entry.c_tags ? entry.c_tags.split(",") : [],
+                            views: entry.c_views || 0,
+                            likes: entry.c_likes || 0,
+                            comments: entry.c_comments || 0,
+                            is_completed: entry.c_is_published || 0,
+                            createdAt: entry.c_created_at,
+                            sourceUrl: 'http://localhost:8081/Blog/blogpost/' + entry.c_source_url
+                        }));
+                        filteredBlogs = [...allBlogs];
+                        sortBlogs(currentSort);
+                        renderBlogs();
+                    } else {
+                        useSampleData();
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.error('Error fetching blogs:', error);
+                    // On error, fall back to sample data
+                    useSampleData();
+                },
+                timeout: 5000 // 5 second timeout
+            });
+        });
+
+        function useSampleData() {
+            console.log('Using sample blog data');
+            allBlogs = sampleBlogs;
+            filteredBlogs = [...allBlogs];
+            
+            if (filteredBlogs.length === 0) {
+                $("#blog-list").html('<div class="no-blogs">You haven\'t published any blog yet.</div>');
+            } else {
+                sortBlogs(currentSort);
+                renderBlogs();
+            }
+        }
+
+        function showError(message) {
+            $("#blog-list").html(`<div class="no-blogs">${message}</div>`);
+        }
+
+        function renderBlogs() {
+            const blogListElement = $("#blog-list");
+            blogListElement.empty();
+
+            if (filteredBlogs.length === 0) {
+                blogListElement.html('<div class="no-blogs">No blogs found. Create your first blog post!</div>');
+                return;
+            }
+
+            filteredBlogs.forEach(blog => {
+
+                const blogCard = $('<div>')
+                    .addClass('blog-card')
+                    .css('position', 'relative');
+
+                // Determine button text based on is_completed status
+                const buttonText = blog.is_completed ? "Edit" : "Edit Draft";
+                const buttonIcon = "fa-edit";
+
+                blogCard.html(`
+                    ${blog.is_completed ? `
+                    <div class="blog-open-icon" title="Open Blog">
+                        <i class="fas fa-external-link-alt"></i>
+                    </div>` : ''}
+                    <img src="${blog.thumbnailUrl || '/images/default-blog.jpg'}" alt="${blog.title}" class="blog-thumbnail">
+                    <div class="blog-details">
+                        <div>
+                            <h3 class="blog-title">${blog.title}</h3>
+                            <p class="blog-description">${blog.description || 'No description provided'}</p>
+                        </div>
+                        <div class="blog-stats">
+                            <span class="stat"><i class="fas fa-eye"></i> ${blog.views || 0}</span>
+                            <span class="stat"><i class="fas fa-heart"></i> ${blog.likes || 0}</span>
+                            <span class="stat"><i class="fas fa-comment"></i> ${blog.comments || 0}</span>
+                            <span class="stat">
+                                <i class="fas fa-calendar"></i> ${new Date(blog.createdAt * 1000).toLocaleDateString()}
+                            </span>
+                            ${blog.is_completed ? `
+                            <span class="stat copy-link" title="Copy Link" data-url="${blog.sourceUrl}">
+                                <i class="fas fa-link"></i>
+                            </span>` : ''}
+                            ${!blog.is_completed ? '<span class="stat" style="color:#ff9800"><i class="fas fa-exclamation-circle"></i> Draft</span>' : ''}
+                            <div class="blog-actions">
+                                <button class="edit-btn" onclick="editBlog(${blog.id})"><i class="fas fa-edit"></i> ${buttonText}</button>
+                                <button class="delete-btn" onclick="deleteBlog(${blog.id})"><i class="fas fa-trash"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                `);
+
+                blogListElement.append(blogCard);
+            });
+        }
+
+        // Open blog when clicking the open icon
+        $(document).on('click', '.blog-open-icon', function (e) {
+            e.stopPropagation();
+            const blogUrl = $(this).closest('.blog-card').find('.copy-link').data('url');
+            window.open(blogUrl, '_blank');
+        });
+
+        // Copy blog URL
+        $(document).on('click', '.copy-link', function (e) {
+            e.stopPropagation();
+            const url = $(this).data('url');
+            navigator.clipboard.writeText(url).then(() => {
+                $(this).attr('title', 'Copied!').tooltip('show');
+                setTimeout(() => $(this).attr('title', 'Copy Link'), 1000);
+            });
+        });
+
+        function formatDate(dateString) {
+            if (!dateString) return 'Unknown date';
+            const date = new Date(dateString);
+            return date.toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric'
+            });
+        }
+
+        function sortBlogs(sortType) {
+            currentSort = sortType;
+
+            // Update active button
+            $('.sort-btn').removeClass('active');
+            $(`.sort-btn[data-sort="${sortType}"]`).addClass('active');
+
+            switch (sortType) {
+                case 'latest':
+                    filteredBlogs.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+                    break;
+                case 'oldest':
+                    filteredBlogs.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+                    break;
+                case 'popular':
+                    filteredBlogs.sort((a, b) => (b.views || 0) - (a.views || 0));
+                    break;
+            }
+            renderBlogs();
+        }
+
+        function filterBlogs(searchTerm) {
+            if (!searchTerm.trim()) {
+                filteredBlogs = [...allBlogs];
+            } else {
+                searchTerm = searchTerm.toLowerCase();
+                filteredBlogs = allBlogs.filter(blog =>
+                    blog.title.toLowerCase().includes(searchTerm) ||
+                    (blog.description && blog.description.toLowerCase().includes(searchTerm))
+                );
+            }
+            sortBlogs(currentSort);
+        }
+
+        // Event listeners for search and sort
+        $(document).on('click', '#search-btn', function () {
+            const searchTerm = $('#search-input').val();
+            filterBlogs(searchTerm);
+        });
+
+        $(document).on('keyup', '#search-input', function (event) {
+            if (event.key === 'Enter') {
+                const searchTerm = $(this).val();
+                filterBlogs(searchTerm);
+            }
+        });
+
+        $(document).on('click', '.sort-btn', function () {
+            sortBlogs($(this).data('sort'));
+        });
+
+        // Create New Blog button click handler
+        $(document).on('click', '#createBlogBtn', function () {
+            @* window.location.href = "/Blog/BlogEditor"; *@
+            window.open("http://localhost:8081/Blog/BlogEditor", '_blank');
+        });
+
+        // Edit and Delete functions
+        function editBlog(blogId) {
+            window.open(`/Blog/BlogEditor?id=${blogId}`, '_blank');
+        }
+
+        function deleteBlog(blogId) {
+            Swal.fire({
+                title: 'Are you sure?',
+                text: 'You won’t be able to undo this action!',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, delete it!',
+                cancelButtonText: 'Cancel'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: `http://localhost:8080/api/Blog/delete-blog/${blogId}`,
+                        type: 'DELETE',
+                        headers: {
+                            'Authorization': token ? `Bearer ${token}` : ''
+                        },
+                        success: function (response) {
+                            // Remove from UI arrays
+                            allBlogs = allBlogs.filter(blog => blog.id !== blogId);
+                            filteredBlogs = filteredBlogs.filter(blog => blog.id !== blogId);
+                            renderBlogs();
+                            Swal.fire({
+                                title: 'Deleted!',
+                                text: response.message || 'Blog deleted successfully.',
+                                icon: 'success',
+                                confirmButtonText: 'OK'
+                            });
+                        },
+                        error: function (xhr) {
+                            if (xhr.status === 404) {
+                                Swal.fire({
+                                    title: 'Error',
+                                    text: 'Blog not found.',
+                                    icon: 'error',
+                                    confirmButtonText: 'OK'
+                                });
+                            } else {
+                                const errMsg = xhr.responseJSON && xhr.responseJSON.message ? xhr.responseJSON.message : xhr.statusText;
+                                Swal.fire({
+                                    title: 'Error',
+                                    text: 'Error deleting blog: ' + errMsg,
+                                    icon: 'error',
+                                    confirmButtonText: 'OK'
+                                });
+                            }
+                        }
+                    });
+                }
+            });
+        }
+    </script>
+</body>
+
+</html>

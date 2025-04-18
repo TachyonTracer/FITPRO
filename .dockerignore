@@ -1,0 +1,33 @@
+# Exclude everything first
+*
+
+# Include necessary files
+!marketplace/
+!marketplace/**
+!marketplace/package.json
+!marketplace/Backend/
+!marketplace/Backend/**
+!marketplace/Backend/package.json
+
+# Include .NET files
+!FitPro.sln
+!API/
+!API/**
+!MVC/
+!MVC/**
+!Repo/
+!Repo/**
+!AI/
+!AI/**
+
+# Exclude node_modules and build artifacts
+**/node_modules/
+**/.next/
+**/dist/
+**/build/
+**/.env*
+**/*.log
+
+# Exclude test files
+**/*.Tests/
+**/TestResults/

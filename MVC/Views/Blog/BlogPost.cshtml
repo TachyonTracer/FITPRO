@@ -1,0 +1,1351 @@
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Add Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Inter', 'Georgia', sans-serif;
+            background-color: #121212;
+            color: #ffffff;
+            /* Add line-height for better readability */
+            line-height: 1.6;
+            /* padding-bottom: 80px; */ /* Removed padding for fixed bar */
+        }
+
+        .blog-container {
+            max-width: 800px;
+            /* Explicitly set max width for content */
+            margin-left: auto;
+            /* Center the container horizontally */
+            margin-right: auto;
+            /* Center the container horizontally */
+            padding: 40px 20px;
+            /* Keep padding for spacing */
+            box-sizing: border-box;
+            /* Include padding in width calculation */
+            overflow-wrap: break-word; /* Ensure long words break and wrap */
+            word-wrap: break-word; /* Legacy support for word wrapping */
+        }
+
+        /* Fix content overflow in all text elements */
+        .blog-title, .blog-subtitle, .blog-content, .blog-content p, .comment-body {
+            overflow-wrap: break-word;
+            word-wrap: break-word;
+            word-break: break-word; /* Break words when necessary */
+            max-width: 100%; /* Ensure no element exceeds container width */
+        }
+
+        /* Ensure all images stay within container bounds */
+        .blog-content img {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .blog-title {
+            font-size: 42px;
+            font-weight: 800;
+            margin-bottom: 15px;
+            color: #ffffff;
+        }
+
+        .blog-subtitle {
+            font-size: 24px;
+            font-weight: 400;
+            color: #cccccc;
+            margin-bottom: 30px;
+        }
+
+        .author-section {
+            display: flex;
+            align-items: center;
+            margin-bottom: 5px;
+            padding-bottom: 20px;
+            @* border-bottom: 1px solid #333; *@
+        }
+
+        .author-image {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            overflow: hidden;
+            margin-right: 15px;
+        }
+
+        .author-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .author-info {
+            flex-grow: 1;
+        }
+
+        .author-name {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .publication-info {
+            display: flex;
+            font-size: 14px;
+            color: #aaaaaa;
+        }
+
+        .publication-info span {
+            margin-right: 10px;
+        }
+
+        .follow-btn {
+            background-color: #FFD700;
+            /* Yellow */
+            color: #000000;
+            padding: 5px 15px;
+            border: none;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .follow-btn:hover {
+            background-color: #E6C200;
+        }
+
+        .blog-content {
+            line-height: 1.8;
+            font-size: 18px;
+            margin-bottom: 40px;
+        }
+
+        .blog-content p {
+            margin-bottom: 25px;
+        }
+
+        /* Ensure images within the blog content don't overflow */
+        .blog-content img {
+
+
+            /* Limit image width to container width */
+            height: auto;
+            /* Maintain aspect ratio */
+            display: block;
+            /* Prevent extra space below image */
+            margin: 20px auto;
+            /* Add some vertical spacing and center block images */
+            border-radius: 8px;
+            /* Optional: Add rounded corners */
+        }
+
+        .reaction-section {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 50px;
+            padding-top: 20px;
+            border-top: 1px solid #333;
+        }
+
+        .reactions-left {
+            display: flex;
+            align-items: center;
+        }
+
+        .reaction-btn {
+            background: none;
+            border: none;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            margin-right: 20px;
+            cursor: pointer;
+        }
+
+        .reaction-btn i {
+            margin-right: 5px;
+            color: #FFD700;
+            /* Yellow */
+            font-size: 20px;
+            /* Increased icon size */
+        }
+
+        .highlight {
+            color: #FFD700;
+            /* Yellow for highlights */
+        }
+
+        /* Comment section styles */
+        .comments-section {
+            margin-top: 50px;
+            border-top: 1px solid #333;
+            padding-top: 30px;
+        }
+
+        .comments-header {
+            font-size: 24px;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        .comment-form {
+            margin-bottom: 30px;
+        }
+
+        .comment-input {
+            width: 100%;
+            background-color: #1e1e1e;
+            border: 1px solid #333;
+            border-radius: 5px;
+            padding: 15px;
+            color: #ffffff;
+            font-size: 16px;
+            resize: vertical;
+            min-height: 80px;
+            margin-bottom: 15px;
+        }
+
+        .comment-submit {
+            background-color: #FFD700;
+            color: #000000;
+            padding: 8px 20px;
+            border: none;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .comment-submit:hover {
+            background-color: #E6C200;
+        }
+
+        .comments-list {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .comment {
+            background-color: #1e1e1e;
+            border-radius: 10px;
+            padding: 15px;
+        }
+
+        .comment-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .commenter-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 10px;
+            overflow: hidden;
+        }
+
+        .commenter-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .commenter-name {
+            font-weight: 600;
+            margin-right: 10px;
+        }
+
+        .comment-date {
+            color: #aaaaaa;
+            font-size: 12px;
+        }
+
+        .comment-body {
+            margin-bottom: 10px;
+            line-height: 1.5;
+        }
+
+        .comment-actions {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+            /* Add space below actions */
+        }
+
+        .comment-action {
+            color: #aaaaaa;
+            font-size: 14px;
+            cursor: pointer;
+            background: none;
+            border: none;
+            display: flex;
+            align-items: center;
+        }
+
+        .comment-action i {
+            margin-right: 5px;
+            font-size: 16px;
+        }
+
+        .comment-action:hover {
+            color: #FFD700;
+        }
+
+        .nested-comments {
+            margin-left: 50px;
+            margin-top: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .reply-form {
+            margin: 10px 0 15px 0;
+            /* Better vertical spacing */
+            display: none;
+            border-radius: 8px;
+            overflow: hidden;
+            /* Ensure rounded corners work with child elements */
+        }
+
+        .reply-form.active {
+            display: block;
+        }
+
+        .reply-form .comment-input {
+            border-radius: 8px;
+            resize: none;
+            /* Prevent manual resizing */
+            min-height: 60px;
+            /* Shorter height for replies */
+            margin-bottom: 10px;
+            width: 100%;
+            box-sizing: border-box;
+            /* Ensure padding doesn't break width */
+            padding: 10px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+            /* Subtle shadow */
+        }
+
+        .reply-form .comment-submit {
+            display: inline-block;
+            float: right;
+            /* Position on the right */
+            margin-bottom: 5px;
+            /* Space below button */
+        }
+
+        /* Clear float after the button */
+        .reply-form:after {
+            content: "";
+            display: table;
+            clear: both;
+        }
+
+        @@media (max-width: 768px) {
+            .blog-title {
+                font-size: 32px;
+            }
+
+            .blog-subtitle {
+                font-size: 20px;
+            }
+
+            .author-section {
+                flex-wrap: wrap;
+            }
+
+            .nested-comments {
+                margin-left: 20px;
+            }
+
+            /* Adjust action bar layout on smaller screens */
+            .inline-action-bar {
+                flex-wrap: wrap; /* Allow wrapping */
+                justify-content: flex-start; /* Align items to start */
+                padding: 10px 0;
+            }
+            .inline-action-bar .action-separator {
+                 display: none; /* Hide separators on wrap */
+            }
+            .inline-action-bar .action-group-right {
+                margin-left: 0; /* Remove left margin */
+                margin-top: 10px; /* Add top margin when wrapped */
+                width: 100%; /* Take full width when wrapped */
+                justify-content: flex-start;
+            }
+             .inline-action-bar .views-stats {
+                 margin-left: 0; /* Remove margin */
+                 margin-right: auto; /* Push bookmark to the right */
+             }
+        }
+
+        /* Remove Top Bookmark button styles */
+        /* .bookmark-btn { ... } */
+        /* .bookmark-btn:hover { ... } */
+        /* .bookmark-btn.active { ... } */
+        /* .bookmark-btn:not(.active) { ... } */
+
+        /* Remove Blog stats section styles */
+        /* .blog-stats { ... } */
+
+        /* Remove Floating Action Bar Styles */
+        /* .floating-action-bar { ... } */
+        /* .action-bar-content { ... } */
+        /* .action-btn { ... } */
+        /* .action-btn i { ... } */
+        /* .action-btn:hover { ... } */
+        /* .action-btn.like-btn.active i, */
+        /* .action-btn.bookmark-btn.active i { ... } */
+        /* .action-btn.like-btn.active, */
+        /* .action-btn.bookmark-btn.active { ... } */
+        /* .action-btn .count { ... } */
+
+        /* Remove Style for the like button in the author section */
+        /* .like-blog-btn { ... } */
+        /* .like-blog-btn i { ... } */
+        /* .like-blog-btn:hover { ... } */
+        /* .like-blog-btn.active { ... } */
+        /* .like-blog-btn.active i { ... } */
+
+
+        /* New Inline Action Bar Styles */
+        .inline-action-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            margin: 20px 0; /* Add vertical margin */
+            border-top: 1px solid #333;
+            border-bottom: 1px solid #333;
+            color: #aaaaaa; /* Default text color for the bar */
+        }
+
+        .inline-action-bar .action-group-left,
+        .inline-action-bar .action-group-right {
+            display: flex;
+            align-items: center;
+            gap: 20px; /* Spacing between buttons */
+        }
+
+         .inline-action-bar .action-button {
+            background: none;
+            border: none;
+            color: #aaaaaa; /* Default icon/text color */
+            font-size: 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            padding: 5px; /* Minimal padding */
+            border-radius: 4px;
+            transition: color 0.2s ease, background-color 0.2s ease;
+        }
+
+        .inline-action-bar .action-button i {
+            font-size: 20px; /* Icon size */
+            margin-right: 6px;
+        }
+
+         .inline-action-bar .action-button .count {
+            font-size: 14px;
+            margin-left: 4px;
+        }
+
+        .inline-action-bar .action-button:hover {
+            color: #ffffff; /* Brighter on hover */
+            background-color: rgba(255, 255, 255, 0.08); /* Subtle background */
+        }
+
+        /* Active state for Like and Bookmark */
+        .inline-action-bar .action-button.like-btn.active,
+        .inline-action-bar .action-button.bookmark-btn.active {
+            color: #FFD700; /* Yellow when active */
+        }
+
+        .inline-action-bar .action-separator {
+            height: 20px;
+            width: 1px;
+            background-color: #444;
+            margin: 0 15px; /* Space around separator */
+        }
+
+        .inline-action-bar .views-stats {
+            display: flex;
+            align-items: center;
+            font-size: 14px;
+            margin-left: auto; /* Push views to the right within the left group */
+            padding-right: 15px; /* Space before the separator */
+        }
+         .inline-action-bar .views-stats i {
+             margin-right: 6px;
+             font-size: 16px;
+         }
+
+        /* Ensure content doesn't get hidden */
+        body {
+             padding-bottom: 20px; /* Reset or adjust as needed */
+        }
+
+        /* Fixed addNewReply function bug */
+        .error-message {
+            background-color: #ffdddd;
+            color: #ff0000;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            display: none;
+            text-align: center; /* Center the text */
+            position: sticky; /* Make it sticky */
+            top: 10px; /* Position near the top */
+            z-index: 1001; /* Ensure it's above other content */
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .author-comment {
+            @* border-left: 4px solid #007BFF; *@
+            @* background-color: #f0f8ff; *@
+        }
+
+        .author-badge {
+            background-color: #007BFF;
+            color: white;
+            padding: 2px 6px;
+            font-size: 12px;
+            border-radius: 4px;
+            margin-left: 8px;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Blog Content -->
+    <div class="blog-container" id="blog-container">
+        <!-- Content will be loaded dynamically -->
+        <div id="loading-indicator" style="text-align: center; padding: 50px;">
+            <i class="fa-solid fa-spinner fa-spin fa-2xl"></i>
+            <p>Loading blog content...</p>
+        </div>
+        <!-- Action Bars will be appended here by JS -->
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+    <script>
+
+        document.addEventListener('DOMContentLoaded', function () {
+
+            // Define commentsData globally within this scope
+            let commentsData = [];
+            let BLOG_ID = -1;
+            let USER_OBJECT = null;
+            let USER_ROLE = "user"; // by default set to "user"
+            let USER_ID = getUserIdFromToken();
+            let IS_LIKED = false; // Track like status
+            let IS_BOOKMARKED = false; // Track bookmark status
+            let BLOG_AUTHOR_ID = -1;
+
+            if (!USER_ID) {
+                console.warn("No Authentication");
+            } else {
+                console.log("User ID:", USER_ID);
+                console.log("User Role:", USER_ROLE);
+            }
+
+            // Start of Flow
+            loadBlogData();
+
+            // Utility Functions
+            function parseJwt(token) {
+                try {
+                    const base64Url = token.split(".")[1];
+                    const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+                    return JSON.parse(atob(base64));
+                } catch (error) {
+                    console.error("Invalid token:", error);
+                    return null;
+                }
+            }
+            function getUserIdFromToken() {
+                const token = localStorage.getItem("authToken");
+                if (!token) {
+                    console.warn("No auth token found in localStorage.");
+                    return null;
+                }
+                const jwt_decoded = parseJwt(token);
+                if (jwt_decoded) {
+                    USER_OBJECT = JSON.parse(jwt_decoded.UserObject);
+                    if (USER_OBJECT.instructorId) {
+                        USER_ROLE = "instructor";
+                        return USER_OBJECT.instructorId;
+                    } else {
+                        USER_ROLE = "user";
+                        return USER_OBJECT.userId;
+                    }
+                }
+                console.warn("Invalid or malformed token.");
+                return null;
+            }
+
+            // Extract the blog post ID from the URL
+            function getBlogPostIdFromUrl() {
+                const urlParts = window.location.pathname.split('/');
+                return urlParts[urlParts.length - 1];
+            }
+
+            // Function to fetch blog data
+            function loadBlogData() {
+                const blogPostId = getBlogPostIdFromUrl();
+                const url = `http://localhost:8080/api/Blog/fetchBlogByUri?source_uri=${blogPostId}`;
+
+                $.ajax({
+                    url: url,
+                    method: 'POST',
+                    dataType: 'json',
+                    success: function (response) {
+                        if (response.success) {
+                            const blogData = response.data;
+                            BLOG_ID = response.data.c_blog_id;
+                            fetchAuthorInfo(blogData); // Fetch author info first
+                            if (USER_ID) {
+                                fetchLikeStatus(BLOG_ID, USER_ID, USER_ROLE);
+                                // Fetch bookmark status only if user is not an instructor
+                                if (USER_ROLE !== 'instructor') {
+                                    fetchBookmarkStatus(BLOG_ID, USER_ID, USER_ROLE);
+                                } else {
+                                    // For instructors, bookmarking isn't applicable, ensure UI reflects this
+                                    IS_BOOKMARKED = false;
+                                    updateBookmarkStateUI();
+                                }
+                            } else {
+                                // If no user, ensure bookmark state is false
+                                IS_BOOKMARKED = false;
+                                updateBookmarkStateUI();
+                            }
+                        } else {
+                            console.error('Error fetching blog data:', response.message);
+                            renderBlogPost(getSampleBlogData());
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        console.error('Error fetching blog data:', error);
+                        renderBlogPost(getSampleBlogData());
+                    }
+                });
+            }
+
+            // Function to fetch author info
+            function fetchAuthorInfo(blogData) {
+                BLOG_AUTHOR_ID = blogData.c_blog_author_id;
+                const authorId = blogData.c_blog_author_id;
+                const url = `http://localhost:8080/api/Blog/fetchBlogAuthorById?author_id=${authorId}`;
+
+                $.ajax({
+                    url: url,
+                    method: 'POST',
+                    dataType: 'json',
+                    success: function (response) {
+                        if (response.success) {
+                            const authorData = response.data;
+                            const combinedData = {
+                                ...blogData,
+                                c_authorname: authorData.instructorName,
+                                c_authorspecification: authorData.specialization,
+                                c_profilePicture: authorData.profileImage,
+                            };
+
+                            renderBlogPost(combinedData);
+                            fetchComments(blogData.c_blog_id);
+                        } else {
+                            console.error('Error fetching author data:', response.message);
+                            renderBlogPost(blogData);
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        console.error('Error fetching author data:', error);
+                        renderBlogPost(blogData);
+                    }
+                });
+            }
+
+            // Function to fetch like status for the current user
+            function fetchLikeStatus(blogId, userId, userRole) {
+                const payload = {
+                    likeId: -1,
+                    userId: userId,
+                    blogId: blogId,
+                    liked: false,
+                    likedAt: Math.floor(Date.now() / 1000),
+                    userRole: userRole
+                };
+
+                $.ajax({
+                    url: 'http://localhost:8080/api/Blog/fetchLikeStatusForBlog',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(payload),
+                    success: function (response) {
+                        if (response.success && response.data) {
+                            IS_LIKED = response.data.liked;
+                            console.log("Fetched Like Status:", IS_LIKED);
+                            updateLikeStateUI();
+                        } else {
+                            IS_LIKED = false;
+                            console.warn('Could not fetch like status or no existing record:', response.message);
+                            updateLikeStateUI();
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        console.error('Error fetching like status:', error);
+                        IS_LIKED = false;
+                        updateLikeStateUI();
+                    }
+                });
+            }
+
+            // Function to fetch bookmark status for the current user
+            function fetchBookmarkStatus(blogId, userId, userRole) {
+                // Only proceed if the user is not an instructor
+                if (userRole === 'instructor') {
+                    IS_BOOKMARKED = false;
+                    updateBookmarkStateUI();
+                    return;
+                }
+
+                const payload = {
+                    bookmarkId: -1, // Not needed for fetching status, but included for consistency
+                    userId: userId,
+                    blogId: blogId,
+                    bookmarked: false, // Default value, API will return actual status
+                    bookmarkedAt: Math.floor(Date.now() / 1000), // Not strictly needed for fetch
+                    userRole: userRole
+                };
+
+                $.ajax({
+                    url: 'http://localhost:8080/api/Blog/fetchBookmarkStatusForBlog',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(payload),
+                    success: function (response) {
+                        if (response.success && response.data) {
+                            IS_BOOKMARKED = response.data.bookmarked;
+                            console.log("Fetched Bookmark Status:", IS_BOOKMARKED);
+                        } else {
+                            IS_BOOKMARKED = false; // Default to false if fetch fails or no record
+                            console.warn('Could not fetch bookmark status or no existing record:', response.message);
+                        }
+                        updateBookmarkStateUI(); // Update UI after fetching
+                    },
+                    error: function (xhr, status, error) {
+                        console.error('Error fetching bookmark status:', error);
+                        IS_BOOKMARKED = false; // Default to false on error
+                        updateBookmarkStateUI(); // Update UI even on error
+                    }
+                });
+            }
+
+            // Function to fetch comments
+            function fetchComments(blogId) {
+                const url = `http://localhost:8080/api/Blog/fetchBlogComments?blogId_=${blogId}`;
+
+                $.ajax({
+                    url: url,
+                    method: 'POST',
+                    dataType: 'json',
+                    success: function (response) {
+                        if (response.success) {
+                            const formattedComments = processComments(response.data.entries);
+                            commentsData = formattedComments;
+                            loadComments(formattedComments);
+                        } else {
+                            console.error('Error fetching comments:', response.message);
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        console.error('Error fetching comments:', error);
+                    }
+                });
+            }
+
+            // Process comments from API format to our format
+            function processComments(apiComments) {
+                return apiComments.map(comment => {
+                    const commentDate = new Date(comment.commentedAt * 1000);
+                    const formattedDate = formatDateTime(commentDate);
+                    @* console.log(comment.userId); *@
+                    @* console.log("this is comment: "+JSON.parse(comment)); *@
+
+                    return {
+                        id: comment.commentId.toString(),
+                        parent_id: comment.parentCommentId === -1 ? null : comment.parentCommentId.toString(),
+                        author: comment.authorName,
+                        avatar: "http://localhost:8081/" + 
+                                (comment.userRole === "user" ? "user_images/" : "instructor_images/") + 
+                                comment.authorProfilePicture,
+                        date: formattedDate,
+                        text: comment.commentContent,
+                        isAuthorComment: (comment.userRole == "instructor" && comment.userId == BLOG_AUTHOR_ID)
+                    };
+                });
+            }
+
+            // Format date and time for displaying
+            function formatDateTime(date) {
+                return date.toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+            }
+
+            function formatDateTimeFromUnix(unixTimestamp) {
+                const date = new Date(unixTimestamp * 1000);
+                return date.toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+            }
+
+            // Sample blog data for fallback
+            function getSampleBlogData() {
+                return {
+                    c_title: "The Art of Fitness: Finding Your Perfect Workout Routine",
+                    c_desc: "Discover how personalized fitness can transform your health journey",
+                    c_authorname: "Alex Johnson",
+                    c_profilePicture: "https://media.istockphoto.com/id/1300845620/vector/user-icon-flat-isolated-on-white-background-user-symbol-vector-illustration.jpg?s=612x612&w=0&k=20&c=yBeyba0hUkh14_jgv1OKqIH0CCSWU_4ckRkAoy2p73o=",
+                    c_authorspecification: "Fitness Coach & Nutritionist",
+                    c_published_at: 1686841200,
+                    c_content: `<p>
+                        The journey to fitness is deeply personal. What works for one person might not work for another.
+                        This is why understanding your body's unique needs is the first step toward achieving your fitness goals.
+                        </p>`,
+                    c_likes: 128,
+                    c_comments: 24,
+                    c_views: 1563,
+                    isBookmarked: false
+                };
+            }
+
+            // Function to render blog post with provided data
+            function renderBlogPost(blogData) {
+                // ... (existing content decoding, date formatting, read time calculation, profile pic URL formatting) ...
+                let contentHtml = blogData.c_content;
+                if (contentHtml && contentHtml.indexOf('<') === -1) { try { contentHtml = atob(contentHtml); } catch (e) { console.error('Error decoding content:', e); } }
+                const publishDate = new Date(blogData.c_published_at * 1000);
+                const formattedDate = publishDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+                const wordCount = (contentHtml || '').split(' ').length;
+                const readMinutes = Math.max(1, Math.round(wordCount / 200));
+                let profilePicUrl = blogData.c_profilePicture;
+                if (profilePicUrl && !profilePicUrl.startsWith('http')) { profilePicUrl = `http://localhost:8081/Instructor_Images/${profilePicUrl}`; }
+
+                // --- Create HTML for the Inline Action Bar ---
+                // Conditionally add bookmark button based on user role
+                let bookmarkButtonHtml = '';
+                if (USER_ROLE !== 'instructor') {
+                    bookmarkButtonHtml = `
+                        <button class="action-button bookmark-btn action-bar-bookmark-btn">
+                            <i class="fa-${IS_BOOKMARKED ? 'solid' : 'regular'} fa-bookmark"></i>
+                        </button>
+                    `;
+                }
+
+                const inlineActionBarHtml = `
+                    <div class="inline-action-bar">
+                        <div class="action-group-left">
+                            <button class="action-button like-btn action-bar-like-btn">
+                                <i class="fa-regular fa-heart"></i>
+                                <span class="count like-count">${blogData.c_likes || 0}</span>
+                            </button>
+                            <button class="action-button comment-btn action-bar-comment-btn">
+                                <i class="fa-regular fa-comment"></i>
+                                <span class="count comment-count">${blogData.c_comments || 0}</span>
+                            </button>
+                             <div class="views-stats">
+                                <i class="fa-solid fa-eye"></i>
+                                <span class="views-count">&nbsp${blogData.c_views || 0}</span>&nbspviews
+                            </div>
+                        </div>
+                        <div class="action-group-right">
+                            ${bookmarkButtonHtml}
+                            <!-- Add other right-side actions here if needed -->
+                        </div>
+                    </div>
+                `;
+
+                // Create HTML for the main blog content
+                const blogHtml = `
+                    <!-- Error message display -->
+                    <div class="error-message" id="error-message"></div>
+
+                    <h1 class="blog-title">${blogData.c_title}</h1>
+                    <h2 class="blog-subtitle">${blogData.c_desc}</h2>
+
+                    <div class="author-section">
+                        <div class="author-image">
+                            <img src="${profilePicUrl || 'default-avatar.png'}" alt="Author profile" onerror="this.src='https://media.istockphoto.com/id/1300845620/vector/user-icon-flat-isolated-on-white-background-user-symbol-vector-illustration.jpg?s=612x612&w=0&k=20&c=yBeyba0hUkh14_jgv1OKqIH0CCSWU_4ckRkAoy2p73o='">
+                        </div>
+                        <div class="author-info">
+                            <div class="author-name">${blogData.c_authorname || 'Author Name'}</div>
+                            <div class="publication-info">
+                                <span>${blogData.c_authorspecification || 'Author'}</span>
+                                <span>•</span>
+                                <span>${readMinutes} min read</span>
+                                <span>•</span>
+                                <span>${formattedDate}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Inject First Action Bar -->
+                    ${inlineActionBarHtml}
+
+                    <div class="blog-content">
+                        ${contentHtml || '<p>Content not available.</p>'}
+                    </div>
+
+                    <!-- Inject Second Action Bar -->
+                    ${inlineActionBarHtml}
+
+                    <!-- Comments Section -->
+                    <div class="comments-section" id="comments-section">
+                        <h3 class="comments-header">Comments (<span class="comment-count">${blogData.c_comments || 0}</span>)</h3>
+
+                        <!-- Comment Form -->
+                        <div class="comment-form">
+                            <textarea class="comment-input" placeholder="Add a comment..."></textarea>
+                            <button class="comment-submit">Comment</button>
+                        </div>
+
+                        <!-- Comments List -->
+                        <div class="comments-list">
+                        </div>
+                    </div>
+                `;
+
+                document.getElementById('blog-container').innerHTML = blogHtml;
+
+                // Initial UI updates
+                updateLikeStateUI(blogData.c_likes || 0);
+                if (USER_ROLE !== 'instructor') { // Only update bookmark UI if not instructor
+                    updateBookmarkStateUI();
+                }
+                updateCommentsCounterUI(blogData.c_comments || 0);
+
+                // --- Event Listeners (Using Class Selectors) ---
+
+                // Only attach bookmark listener if not instructor
+                if (USER_ROLE !== 'instructor') {
+                    document.querySelectorAll('.action-bar-bookmark-btn').forEach(button => {
+                        button.addEventListener('click', handleBookmarkAction);
+                    });
+                }
+
+                document.querySelectorAll('.action-bar-like-btn').forEach(button => {
+                    button.addEventListener('click', handleLikeAction);
+                });
+
+                document.querySelectorAll('.action-bar-comment-btn').forEach(button => {
+                    button.addEventListener('click', function () {
+                        const commentsSection = document.getElementById('comments-section');
+                        if (commentsSection) {
+                            commentsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        }
+                    });
+                });
+
+                // Comment submission listener remains the same
+                const mainCommentFormSubmit = document.querySelector('.comment-form .comment-submit');
+                if (mainCommentFormSubmit) {
+                    // ... (existing comment submit listener code) ...
+                     mainCommentFormSubmit.addEventListener('click', function () {
+                        if (!USER_ID) {
+                            showError("Please Log in First to comment.");
+                            return;
+                        }
+                        const commentInput = this.previousElementSibling;
+                        const commentText = commentInput.value.trim();
+                        if (commentText) {
+                            addNewComment(commentText);
+                            commentInput.value = '';
+                        } else {
+                            showError("Comment cannot be empty.");
+                        }
+                    });
+                }
+            }
+
+            // --- Action Handlers ---
+
+            function handleBookmarkAction() {
+                // Double check role, although listener shouldn't be attached for instructors
+                if (USER_ROLE === 'instructor') return;
+
+                if (!USER_ID) {
+                    showError("Please Log in First to bookmark.");
+                    return;
+                }
+                IS_BOOKMARKED = !IS_BOOKMARKED;
+                updateBookmarkStateUI();
+                sendBookmarkToServer(IS_BOOKMARKED);
+            }
+
+            function handleLikeAction() {
+                if (!USER_ID) {
+                    showError("Please Log in First to like.");
+                    return;
+                }
+                const currentlyLiked = IS_LIKED;
+                const likeCountElement = document.querySelector('.inline-action-bar .like-count');
+                let currentLikeCount = parseInt(likeCountElement ? likeCountElement.textContent : '0');
+
+                IS_LIKED = !currentlyLiked;
+                currentLikeCount = IS_LIKED ? currentLikeCount + 1 : Math.max(0, currentLikeCount - 1);
+
+                updateLikeStateUI(currentLikeCount);
+                sendLikeToServer(IS_LIKED, currentLikeCount);
+            }
+
+            // --- UI Update Functions ---
+
+            function updateBookmarkStateUI() {
+                // Check role before trying to update
+                if (USER_ROLE === 'instructor') return;
+
+                const isBookmarked = IS_BOOKMARKED;
+                document.querySelectorAll('.action-bar-bookmark-btn').forEach(button => {
+                    button.innerHTML = `<i class="fa-${isBookmarked ? 'solid' : 'regular'} fa-bookmark"></i>`;
+                    button.classList.toggle('active', isBookmarked);
+                });
+            }
+
+            function updateLikeStateUI(currentLikeCount = null) {
+                const isLiked = IS_LIKED;
+                let countToDisplay = currentLikeCount;
+
+                if (countToDisplay === null) {
+                     const likeCountElement = document.querySelector('.inline-action-bar .like-count');
+                     countToDisplay = parseInt(likeCountElement ? likeCountElement.textContent : '0');
+                }
+
+                document.querySelectorAll('.action-bar-like-btn').forEach(button => {
+                    button.innerHTML = `<i class="fa-${isLiked ? 'solid' : 'regular'} fa-heart"></i> <span class="count like-count">${countToDisplay}</span>`;
+                    button.classList.toggle('active', isLiked);
+                });
+            }
+
+            function updateCommentsCounterUI(newCount) {
+                document.querySelectorAll('.action-bar-comment-btn .comment-count').forEach(span => {
+                    span.textContent = newCount;
+                });
+
+                const commentsHeaderCount = document.querySelector('.comments-header .comment-count');
+                if (commentsHeaderCount) {
+                    commentsHeaderCount.textContent = newCount;
+                }
+            }
+
+            // --- Server Communication ---
+
+            function sendBookmarkToServer(bookmarked) {
+                // Construct the payload for the RegisterBookmark API
+                const payload = {
+                    bookmarkId: -1, // API likely ignores this on insert/update but required by structure
+                    userId: USER_ID,
+                    blogId: BLOG_ID,
+                    bookmarked: bookmarked,
+                    bookmarkedAt: Math.floor(Date.now() / 1000),
+                    userRole: USER_ROLE
+                };
+
+                $.ajax({
+                    url: 'http://localhost:8080/api/Blog/RegisterBookmark', // Updated API endpoint
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(payload), // Send the new payload structure
+                    success: function (response) {
+                        if (!response.success) {
+                            showError("Failed to update bookmark status: " + response.message);
+                            // Revert UI state on failure
+                            IS_BOOKMARKED = !bookmarked;
+                            updateBookmarkStateUI();
+                        } else {
+                            console.log("Bookmark status updated successfully.");
+                            // UI was already updated optimistically, no change needed here
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        showError("Error updating bookmark status: " + error);
+                        // Revert UI state on error
+                        IS_BOOKMARKED = !bookmarked;
+                        updateBookmarkStateUI();
+                    }
+                });
+            }
+
+            function sendLikeToServer(liked, optimisticLikeCount) {
+                const payload = {
+                    likeId: -1,
+                    userId: USER_ID,
+                    blogId: BLOG_ID,
+                    liked: liked,
+                    likedAt: Math.floor(Date.now() / 1000),
+                    userRole: USER_ROLE
+                };
+
+                $.ajax({
+                    url: 'http://localhost:8080/api/Blog/RegisterLike',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(payload),
+                    success: function (response) {
+                        if (!response.success) {
+                            showError("Failed to update like status: " + response.message);
+                            IS_LIKED = !liked;
+                            const revertedCount = IS_LIKED ? optimisticLikeCount + 1 : Math.max(0, optimisticLikeCount - 1);
+                            updateLikeStateUI(revertedCount);
+                        } else {
+                            console.log("Like status updated successfully.");
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        showError("Error updating like status: " + error);
+                        IS_LIKED = !liked;
+                        const revertedCount = IS_LIKED ? optimisticLikeCount + 1 : Math.max(0, optimisticLikeCount - 1);
+                        updateLikeStateUI(revertedCount);
+                    }
+                });
+            }
+
+            // Functions to handle comments
+            function loadComments(comments) {
+                const commentsList = document.querySelector('.comments-list');
+                if (!commentsList) return;
+
+                commentsList.innerHTML = '';
+
+                const topLevelComments = comments.filter(comment => comment.parent_id === null);
+
+                topLevelComments.forEach(comment => {
+                    const commentElement = createCommentElement(comment);
+                    const repliesContainer = commentElement.querySelector(`.nested-comments`);
+                    appendReplies(repliesContainer, comment.id, comments);
+                    commentsList.appendChild(commentElement);
+                });
+
+                attachCommentEventListeners();
+            }
+
+            function appendReplies(container, parentId, allComments) {
+                const replies = allComments.filter(comment => comment.parent_id === parentId);
+
+                replies.forEach(reply => {
+                    const replyElement = createCommentElement(reply);
+                    const nestedContainer = replyElement.querySelector('.nested-comments');
+                    appendReplies(nestedContainer, reply.id, allComments);
+                    container.appendChild(replyElement);
+                });
+            }
+
+            function createCommentElement(comment) {
+                let avatarUrl = comment.avatar;
+                if (avatarUrl && !avatarUrl.startsWith('http')) {
+                    avatarUrl = `http://localhost:8081/User_Images/${avatarUrl}`;
+                }
+
+                const commentElement = document.createElement('div');
+                commentElement.className = `comment${comment.isAuthorComment ? ' author-comment' : ''}`;
+                commentElement.id = `comment-${comment.id}`;
+
+                commentElement.innerHTML = `
+                    <div class="comment-header">
+                        <div class="commenter-avatar">
+                            <img src="${avatarUrl}" alt="${comment.author}" 
+                                onerror="this.src='https://media.istockphoto.com/id/1300845620/vector/user-icon-flat-isolated-on-white-background-user-symbol-vector-illustration.jpg?s=612x612&w=0&k=20&c=yBeyba0hUkh14_jgv1OKqIH0CCSWU_4ckRkAoy2p73o='">
+                        </div>
+                        <div class="commenter-name">
+                            ${comment.author}
+                            ${comment.isAuthorComment ? '<span class="author-badge">Author</span>' : ''}
+                        </div>
+                        <div class="comment-date">${comment.date}</div>
+                    </div>
+                    <div class="comment-body">
+                        ${comment.text}
+                    </div>
+                    <div class="comment-actions">
+                        <button class="comment-action reply-action" data-comment-id="${comment.id}">
+                            <i class="fa-solid fa-reply"></i>&nbsp Reply
+                        </button>
+                    </div>
+                    <div class="reply-form" id="reply-form-${comment.id}">
+                        <textarea class="comment-input" placeholder="Write your reply..."></textarea>
+                        <button class="comment-submit" data-parent-id="${comment.id}">&nbsp Reply</button>
+                    </div>
+                    <div class="nested-comments" id="nested-comments-${comment.id}"> &nbsp </div>
+                `;
+
+                return commentElement;
+            }
+
+            function addNewComment(text, parentCommentId = null) {
+                if (!USER_ID) {
+                    showError("Please Log in First to comment.");
+                    return;
+                }
+
+                try {
+                    const now = new Date();
+                    const commentedAt = Math.floor(now.getTime() / 1000);
+
+                    const payload = {
+                        commentId: -1,
+                        blogId: BLOG_ID,
+                        userId: USER_ID,
+                        commentedAt: commentedAt,
+                        commentContent: text,
+                        parentCommentId: parentCommentId === null ? -1 : parseInt(parentCommentId),
+                        userRole: USER_ROLE,
+                        authorName: USER_OBJECT?.userName || USER_OBJECT?.instructorName || "User",
+                        authorProfilePicture: USER_OBJECT?.profileImage || USER_OBJECT?.userProfileImage || "default.png"
+                    };
+
+                    $.ajax({
+                        url: 'http://localhost:8080/api/Blog/AddNewComment',
+                        type: 'POST',
+                        contentType: 'application/json',
+                        data: JSON.stringify(payload),
+                        success: function (response) {
+                            if (response.success && response.comment) {
+                                const newCommentId = response.comment.commentId.toString();
+                                const newComment = {
+                                    id: newCommentId,
+                                    parent_id: response.comment.parentCommentId === -1 ? null : response.comment.parentCommentId.toString(),
+                                    author: response.comment.authorName,
+                                    @* avatar: "http://localhost:8081/instructor_images/"+response.comment.authorProfilePicture, *@
+                                    avatar: "http://localhost:8081/" + 
+                                        (response.comment.userRole === "user" ? "user_images/" : "instructor_images/") + 
+                                        response.comment.authorProfilePicture,
+                                    date: formatDateTimeFromUnix(response.comment.commentedAt),
+                                    text: response.comment.commentContent,
+                                    isAuthorComment: (response.comment.userRole === "instructor" && response.comment.blogId === BLOG_ID)
+                                };
+
+                                commentsData.push(newComment);
+
+                                const commentElement = createCommentElement(newComment);
+                                if (newComment.parent_id === null) {
+                                    const commentsList = document.querySelector('.comments-list');
+                                    if (commentsList) { commentsList.insertBefore(commentElement, commentsList.firstChild); }
+                                } else {
+                                    const nestedContainer = document.getElementById(`nested-comments-${newComment.parent_id}`);
+                                    if (nestedContainer) {
+                                        if (nestedContainer.firstChild) { nestedContainer.insertBefore(commentElement, nestedContainer.firstChild); }
+                                        else { nestedContainer.appendChild(commentElement); }
+                                        const parentReplyForm = document.getElementById(`reply-form-${newComment.parent_id}`);
+                                        if (parentReplyForm) parentReplyForm.classList.remove('active');
+                                    }
+                                }
+
+                                const commentsHeaderCount = document.querySelector('.comments-header .comment-count');
+                                const currentCount = parseInt(commentsHeaderCount ? commentsHeaderCount.textContent : '0');
+                                updateCommentsCounterUI(currentCount + 1);
+
+                                attachCommentEventListeners();
+                                console.log(`Added new comment with ID: ${newCommentId}, parent_id: ${newComment.parent_id}`);
+                            } else {
+                                showError("Failed to add comment: " + (response.message || "Unknown error"));
+                            }
+                        },
+                        error: function (xhr, status, error) {
+                            showError("Error adding comment: " + error);
+                        }
+                    });
+
+                } catch (error) {
+                    showError("Error preparing comment: " + error.message);
+                }
+            }
+
+            function attachCommentEventListeners() {
+                document.querySelectorAll('.reply-action').forEach(button => {
+                    const newButton = button.cloneNode(true);
+                    button.parentNode.replaceChild(newButton, button);
+
+                    newButton.addEventListener('click', function () {
+                        const commentId = this.getAttribute('data-comment-id');
+                        const replyForm = document.getElementById(`reply-form-${commentId}`);
+
+                        const isCurrentlyActive = replyForm.classList.contains('active');
+
+                        document.querySelectorAll('.reply-form.active').forEach(form => {
+                            form.classList.remove('active');
+                        });
+
+                        if (!isCurrentlyActive && replyForm) {
+                            replyForm.classList.add('active');
+                            replyForm.querySelector('textarea').focus();
+                        }
+                    });
+                });
+
+                document.querySelectorAll('.reply-form .comment-submit').forEach(button => {
+                    const newButton = button.cloneNode(true);
+                    button.parentNode.replaceChild(newButton, button);
+
+                    newButton.addEventListener('click', function () {
+                        const replyInput = this.previousElementSibling;
+                        const replyText = replyInput.value.trim();
+                        const parentId = this.getAttribute('data-parent-id');
+
+                        if (replyText) {
+                            addNewComment(replyText, parentId);
+                            replyInput.value = '';
+                            document.getElementById(`reply-form-${parentId}`).classList.remove('active');
+                        }
+                    });
+                });
+            }
+
+            function showError(message) {
+                const errorMessageElement = document.getElementById('error-message');
+                if (errorMessageElement) {
+                    errorMessageElement.textContent = message;
+                    errorMessageElement.style.opacity = '1';
+                    errorMessageElement.style.display = 'block';
+
+                    setTimeout(() => {
+                        errorMessageElement.style.transition = 'opacity 0.5s ease-out';
+                        errorMessageElement.style.opacity = '0';
+                        setTimeout(() => {
+                            errorMessageElement.style.display = 'none';
+                            errorMessageElement.style.opacity = '1';
+                            errorMessageElement.style.transition = '';
+                        }, 500);
+                    }, 4500);
+                } 
+                @* else {
+                    console.error("Error display element not found. Message:", message);
+                    alert(message);
+                } *@
+            }
+        });
+
+    </script>
+</body>
+
+</html>

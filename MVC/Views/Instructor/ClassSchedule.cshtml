@@ -1,0 +1,903 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Class Schedule Calendar with Attendance</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&family=Bebas+Neue&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+
+    <!-- Include jQuery -->
+    @* <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script> *@
+
+    <!-- Include FullCalendar CSS and JS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.10.2/fullcalendar.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.10.2/fullcalendar.min.js"></script>
+
+    <style>
+        :root {
+            --background: #1a1a2e;
+            --color: #ffffff;
+            --primary-color: rgb(242, 195, 67);
+            --primary-color-transparent: rgba(242, 195, 67, 0.15);
+            --glass-color: rgba(255, 255, 255, 0.05);
+            --event-card-bg: rgba(30, 30, 50, 0.8);
+            --card-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            --border-radius: 8px;
+        }
+
+        /* Basic styles */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background: url("gym1.jpg") no-repeat center center fixed;
+            background-size: cover;
+            background-color: #0d0d0d;
+            font-family: "Poppins", sans-serif;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            color: var(--color);
+            letter-spacing: 1px;
+            position: relative;
+            overflow-x: hidden;
+            padding: 60px 20px 20px 20px;
+        }
+
+        a {
+            text-decoration: none;
+            color: var(--color);
+            transition: color 0.3s ease;
+        }
+
+        a:hover {
+            color: var(--primary-color);
+        }
+
+        h1, h2 {
+            font-family: "Bebas Neue", sans-serif;
+            font-size: 2.8rem;
+            text-align: center;
+            margin-bottom: 0.5rem;
+            letter-spacing: 2px;
+            color: var(--color);
+        }
+
+        .tagline {
+            font-size: 0.9rem;
+            text-align: center;
+            margin-bottom: 2rem;
+            font-style: italic;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        /* Calendar container */
+        #calendar-container {
+            width: 95%;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        #calendar {
+            margin: 20px auto;
+            background: var(--glass-color);
+            border: 1px solid rgba(242, 195, 67, 0.3);
+            box-shadow: var(--card-shadow);
+            border-radius: var(--border-radius);
+            backdrop-filter: blur(15px);
+            padding: 25px;
+            z-index: 1;
+            position: relative;
+            animation: fadeIn 1s ease-out;
+            width: 100%;
+            height: auto;
+        }
+
+        /* Event styling */
+        .fc-time-grid .fc-event {
+            border-radius: 0 !important;
+            overflow: hidden !important;
+            border: none !important;
+            background-color: #3a87ad !important; /* Changed to requested color */
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2) !important;
+            transition: all 0.3s ease !important;
+            margin: 0 !important;
+            padding: 0 !important; 
+            border-left-width: 4px !important;
+            border-left-color: #3a87ad !important; /* Changed to match */
+        }
+
+        .fc-time-grid .fc-event .fc-time {
+            display: none !important;
+        }
+
+        .fc-time-grid .fc-event:hover {
+            background-color: #2e7799 !important; /* Slightly darker shade */
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3) !important;
+        }
+
+        .fc-time-grid .fc-event .fc-content {
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            padding: 6px 8px !important;
+            height: 100% !important;
+        }
+
+        .fc-time-grid .fc-event .fc-title {
+            font-weight: 500 !important;
+            letter-spacing: 0.5px !important;
+            white-space: normal !important;
+            line-height: 1.2 !important;
+            text-align: center !important;
+            overflow: hidden !important;
+            display: -webkit-box !important;
+            -webkit-line-clamp: 2 !important;
+            -webkit-box-orient: vertical !important;
+            font-size: 0.85rem !important;
+        }
+
+        .fc-time-grid .fc-event-container {
+            position: relative !important;
+        }
+
+        /* Class type colors */
+        .yoga-class, .pilates-class, .dance-class, 
+        .cardio-class, .boxing-class, .zumba-class {
+            border-left-color: #3a87ad !important; /* Changed to requested color */
+        }
+
+        /* Fix month view events */
+        .fc-day-grid-event {
+            background-color: #3a87ad !important;
+            border-color: #3a87ad !important;
+        }
+
+        /* Calendar header and toolbar */
+        .fc-header-toolbar {
+            margin-bottom: 1.5rem !important;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .fc-toolbar .fc-left, 
+        .fc-toolbar .fc-right {
+            display: flex;
+            align-items: center;
+            gap: 5px; /* Reduced from 15px */
+            flex: 0 0 auto;
+        }
+
+        .fc-toolbar .fc-center {
+            flex: 1 0 100%;
+            text-align: right;
+            order: -1;
+            margin-bottom: 15px;
+            padding-top: 25px; /* This already has good top padding */
+            padding-right: 60px; /* Increased from 45px to 60px to move date further from border */
+        }
+
+        .fc-center h2 {
+            font-size: 1.8rem !important;
+            color: #ffffff !important; /* Changed to white */
+            margin: 0;
+            font-weight: 500;
+            text-align: right;
+        }
+
+        /* Button styling */
+        .fc-button-group {
+            display: flex !important;
+            gap: 5px !important; /* Reduced from 15px */
+        }
+
+        .fc-button-group > .fc-button,
+        .fc-button-group > .fc-button:first-child,
+        .fc-button-group > .fc-button:last-child {
+            border-radius: var(--border-radius) !important;
+            margin: 0 !important;
+        }
+
+        .fc-state-default.fc-corner-left,
+        .fc-state-default.fc-corner-right {
+            border-radius: var(--border-radius) !important;
+        }
+
+        .fc button.calendar-button {
+            background-color: var(--primary-color-transparent) !important;
+            color: var(--primary-color) !important;
+            border: 1px solid rgba(242, 195, 67, 0.3) !important;
+            padding: 8px 15px !important;
+            border-radius: var(--border-radius) !important;
+            font-weight: 500 !important;
+            letter-spacing: 0.5px !important;
+            transition: none !important;
+            text-shadow: none !important;
+            box-shadow: none !important;
+            font-size: 0.9rem !important;
+            height: auto !important;
+            margin: 0 3px !important; /* Reduced from 8px */
+            outline: none !important;
+        }
+
+        /* Remove all button styles and hover effects */
+        .fc button {
+            background-color: var(--primary-color-transparent) !important;
+            color: var(--primary-color) !important;
+            border: 1px solid rgba(242, 195, 67, 0.3) !important;
+            border-radius: var(--border-radius) !important;
+            margin: 0 3px !important; /* Reduced from 8px */
+            /* Remove transitions completely */
+            transition: none !important;
+            text-shadow: none !important;
+            box-shadow: none !important;
+        }
+
+        /* Target all possible hover/focus states and override them */
+        .fc button:hover,
+        .fc button:focus,
+        .fc button:active,
+        .fc button.fc-state-hover,
+        .fc button.fc-state-down,
+        .fc button.fc-state-active:hover,
+        .fc-state-hover,
+        .fc-state-down,
+        .fc-state-active:hover,
+        .fc-state-disabled {
+            background-color: var(--primary-color-transparent) !important;
+            color: var(--primary-color) !important;
+            border-color: rgba(242, 195, 67, 0.3) !important;
+            opacity: 1 !important;
+            filter: none !important;
+            transform: none !important;
+            box-shadow: none !important;
+            background-image: none !important;
+        }
+
+        /* Only active state should look different */
+        .fc button.fc-state-active {
+            background-color: var(--primary-color) !important;
+            color: var(--background) !important;
+            border-color: var(--primary-color) !important;
+        }
+
+        /* Disable all button hover effects */
+        .fc button.calendar-button:hover,
+        .fc-state-hover,
+        .fc-state-down,
+        .fc-state-disabled {
+            background-color: var(--primary-color-transparent) !important;
+            color: var(--primary-color) !important;
+            border-color: rgba(242, 195, 67, 0.3) !important;
+            opacity: 1 !important;
+            filter: none !important;
+            transform: none !important;
+            box-shadow: none !important;
+        }
+
+        .fc button.calendar-button.fc-state-active {
+            background-color: var(--primary-color) !important;
+            color: var(--background) !important;
+            border-color: var(--primary-color) !important;
+        }
+
+        /* Day header and grid styling */
+        .fc-day-header {
+            padding: 12px !important;
+            background-color: rgba(30, 30, 50, 0.6) !important;
+            color: var(--primary-color) !important;
+            font-family: "Poppins", sans-serif !important;
+            letter-spacing: 0.5px !important;
+            font-size: 1rem !important;
+            font-weight: 500;
+            text-transform: uppercase;
+            border: none !important;
+        }
+
+        .fc-axis {
+            padding: 8px !important;
+            color: rgba(255, 255, 255, 0.6) !important;
+            font-weight: 500 !important;
+            font-size: 0.85rem !important;
+            background-color: rgba(30, 30, 50, 0.3) !important;
+        }
+
+        .fc-day {
+            background-color: rgba(255, 255, 255, 0.03) !important;
+            border: 1px solid rgba(255, 255, 255, 0.05) !important;
+            padding: 8px !important; /* Added padding to create more space in each day cell */
+        }
+
+        .fc-today {
+            background-color: rgba(242, 195, 67, 0.08) !important;
+        }
+
+        .fc-day-number {
+            padding: 8px 10px !important;
+            font-weight: 500 !important;
+            color: #ffffff !important;
+            font-size: 0.9rem !important;
+            text-align: right !important;
+        }
+
+        /* Time grid styling */
+        .fc-time-grid .fc-slats td {
+            height: 2.5em !important;
+        }
+
+        .fc-time-grid .fc-slats .fc-minor td {
+            border-top-style: dotted !important;
+            border-top-color: rgba(255, 255, 255, 0.05) !important;
+        }
+
+        .fc-time-grid-container {
+            height: 650px !important;
+        }
+
+        .fc-agenda-view .fc-axis {
+            width: 60px !important;
+        }
+
+        .fc-time-grid .fc-now-indicator-line {
+            border-color: var(--primary-color) !important;
+            border-width: 2px !important;
+        }
+
+        /* Modal styling */
+        .custom-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: var(--background);
+            border: 2px solid var(--primary-color); /* Changed back to original yellow */
+            border-radius: var(--border-radius);
+            padding: 20px;
+            box-shadow: var(--card-shadow);
+            max-width: 500px;
+            width: 90%;
+            color: white !important; /* Keep text white */
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 10px;
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            color: var(--primary-color); /* Changed back to original yellow */
+            font-weight: 600;
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            color: var(--color);
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        .modal-body {
+            margin-bottom: 20px;
+            color: white !important; /* Ensure text is white */
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 8px 15px;
+            border-radius: var(--border-radius);
+            border: none;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color); /* Keep yellow for buttons */
+            color: var(--background);
+        }
+
+        .btn-secondary {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: var(--color);
+        }
+
+        /* Background elements */
+        .circle {
+            width: 8rem;
+            height: 8rem;
+            background: var(--primary-color);
+            border-radius: 50%;
+            position: absolute;
+            opacity: 0.1;
+            z-index: 0;
+            filter: blur(30px);
+        }
+
+        .circle-one {
+            top: 5%;
+            left: 5%;
+            transform: translate(-50%, -50%);
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .circle-two {
+            bottom: 5%;
+            right: 5%;
+            transform: translate(50%, 50%);
+            animation: float 6s ease-in-out infinite reverse;
+        }
+
+        /* Define different colors for multiple classes on same day */
+        .color-1 { background-color: #3a87ad !important; border-left-color: #3a87ad !important; }
+        .color-2 { background-color: #5cb85c !important; border-left-color: #5cb85c !important; }
+        .color-3 { background-color: #f0ad4e !important; border-left-color: #f0ad4e !important; }
+        .color-4 { background-color: #d9534f !important; border-left-color: #d9534f !important; }
+        .color-5 { background-color: #9966cc !important; border-left-color: #9966cc !important; }
+
+        /* New class for the header section with logo */
+        .calendar-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-top: 15px;
+        }
+
+        .calendar-header-logo {
+            width: 40px;
+            height: 40px;
+            margin-right: 15px;
+            background-color: var(--primary-color);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .calendar-header-logo i {
+            color: var(--background);
+            font-size: 20px;
+        }
+
+        .calendar-header-title {
+            font-family: "Bebas Neue", sans-serif;
+            font-size: 2.2rem;
+            color: var(--primary-color);
+            letter-spacing: 1.5px;
+        }
+
+        /* Animations */
+        @@keyframes float {
+            0% {
+                transform: translate(-50%, -50%) translateY(0);
+            }
+            50% {
+                transform: translate(-50%, -50%) translateY(-15px);
+            }
+            100% {
+                transform: translate(-50%, -50%) translateY(0);
+            }
+        }
+
+        @@keyframes fadeIn {
+            0% {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Responsive Design */
+        @@media (max-width: 992px) {
+            #calendar {
+                padding: 20px 15px;
+            }
+            
+            .fc-toolbar .fc-center {
+                order: -1;
+                margin-bottom: 15px;
+                text-align: center;
+            }
+            
+            .fc-center h2 {
+                font-size: 1.5rem !important;
+                text-align: center;
+            }
+            
+            .fc-toolbar .fc-left, .fc-toolbar .fc-right {
+                justify-content: center;
+                width: 100%;
+                gap: 10px;
+            }
+
+            .fc-time-grid-container {
+                height: 550px !important;
+            }
+        }
+
+        @@media (max-width: 768px) {
+            body {
+                padding: 50px 15px 15px 15px;
+            }
+            
+            h2 {
+                font-size: 2.2rem;
+            }
+            
+            #calendar {
+                padding: 15px 10px;
+            }
+            
+            .fc button.calendar-button {
+                padding: 6px 12px !important;
+                font-size: 0.85rem !important;
+                margin-right: 10px !important;
+            }
+            
+            .fc-day-header {
+                padding: 8px !important;
+                font-size: 0.9rem !important;
+            }
+            
+            .fc-event {
+                padding: 4px 8px !important;
+                font-size: 0.85rem !important;
+            }
+
+            .fc-time-grid-container {
+                height: 450px !important;
+            }
+        }
+
+        @@media (max-width: 576px) {
+            body {
+                padding: 40px 10px 10px 10px;
+            }
+            
+            h2 {
+                font-size: 1.8rem;
+            }
+            
+            .tagline {
+                font-size: 0.8rem;
+                margin-bottom: 1.5rem;
+            }
+            
+            #calendar {
+                padding: 10px 5px;
+            }
+            
+            .fc button.calendar-button {
+                padding: 5px 10px !important;
+                font-size: 0.8rem !important;
+                margin-right: 8px !important;
+            }
+            
+            .fc-day-header {
+                padding: 6px !important;
+                font-size: 0.8rem !important;
+            }
+            
+            .fc-event {
+                padding: 3px 6px !important;
+                font-size: 0.8rem !important;
+            }
+            
+            .circle {
+                width: 6rem;
+                height: 6rem;
+            }
+
+            .fc-time-grid-container {
+                height: 400px !important;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Background elements -->
+    <div class="circle circle-one"></div>
+    <div class="circle circle-two"></div>
+    
+    <div id="calendar-container">
+        <!-- Add this new header section before the calendar -->
+        <div class="calendar-header">
+            <div class="calendar-header-logo">
+                <i class="fas fa-calendar-alt"></i>
+            </div>
+            <div class="calendar-header-title">Your Classes</div>
+        </div>
+        <div id="calendar"></div>
+    </div>
+
+    <!-- Custom Modal for Event Details -->
+    <div class="custom-modal" id="eventModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title" id="modalTitle">Class Details</div>
+                <button class="close-modal" id="closeModal">&times;</button>
+            </div>
+            <div class="modal-body" id="modalBody">
+                <!-- Content will be populated dynamically -->
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="closeModalBtn">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        instructorId = getInstructorIdFromToken();
+        
+        function getInstructorIdFromToken() {
+            const token = localStorage.getItem("authToken");
+            if (!token) {
+                console.warn("No auth token found in localStorage.");
+                return null;
+            }
+            const decoded = parseJwt(token);
+            if (decoded) {
+                let instructorId = JSON.parse(decoded.UserObject).instructorId;
+                return instructorId;
+            }
+            console.warn("Invalid or malformed token.");
+            return null;
+        }
+
+        function parseJwt(token) {
+            try {
+                const base64Url = token.split('.')[1];
+                const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+                return JSON.parse(atob(base64));
+            } catch (error) {
+                console.error("Invalid token:", error);
+                return null;
+            }
+        }
+        
+        $(document).ready(function () {
+            // Initialize FullCalendar
+            $('#calendar').fullCalendar({
+                header: {
+                    left: 'prev next', // Space instead of comma to prevent grouping
+                    center: 'title',
+                    right: 'month agendaWeek agendaDay' // Spaces instead of commas
+                },
+                // Force the buttons to be separate
+                themeButtonIcons: false,
+                bootstrapGlyphicons: false,
+                defaultView: 'agendaWeek',
+                navLinks: true,
+                editable: false,
+                eventLimit: true,
+                slotDuration: '00:30:00', // 30-minute slots
+                snapDuration: '00:15:00', // 15-minute snapping
+                minTime: '06:00:00',
+                maxTime: '22:00:00',
+                slotLabelFormat: 'h(:mm)a',
+                nowIndicator: true,
+                contentHeight: 'auto',
+                
+                // Proper time grid rendering
+                slotEventOverlap: false, // Prevent event overlap (side-by-side instead)
+                
+                // Custom event rendering - simplified without icons
+                eventRender: function(event, element) {
+                    // Hide the time display
+                    element.find('.fc-time').hide();
+                    
+                    // No icons, just the class name
+                    
+                    // Add tooltip with time information
+                    element.attr('title', 
+                        `${event.title}\n` +
+                        `${event.start.format('h:mm A')} - ${event.end.format('h:mm A')}\n` 
+                    );
+                    
+                    // Apply specific styling for better half-hour positioning
+                    if (event.start.minutes() === 30) {
+                        element.css('margin-top', '1px');
+                    }
+                },
+                
+                events: function (start, end, timezone, callback) {
+                    $.ajax({
+                        url: `http://localhost:8080/api/Class/GetClassesByInstructorId?id=${instructorId}`,
+                        type: 'GET',
+                        dataType: 'json',
+                        success: function (response) {
+                            if (response.sucess) {
+                                var events = generateRecurringEvents(response.data);
+                                callback(events);
+                            } else {
+                                console.error('Failed to fetch classes:', response.message);
+                                callback([]);
+                            }
+                        },
+                        error: function (xhr, status, error) {
+                            console.error('Error fetching data:', error);
+                            callback([]);
+                        }
+                    });
+                },
+                
+                eventClick: function (event) {
+                    // Show custom modal with event details
+                    showEventModal(event);
+                }
+            });
+
+            // Apply fixes after calendar is rendered
+            setTimeout(function() {
+                // Force remove all hover classes and states
+                $('.fc button').removeClass('fc-state-hover');
+                $('.fc button').hover(
+                    function() {
+                        // On hover in: prevent hover class from being added
+                        $(this).removeClass('fc-state-hover');
+                    },
+                    function() {
+                        // On hover out: make sure it's still gone
+                        $(this).removeClass('fc-state-hover');
+                    }
+                );
+            }, 100);
+            
+            // Also run this when changing views
+            $('#calendar').on('viewRender', function() {
+                setTimeout(function() {
+                    // Force remove all hover classes and states
+                    $('.fc button').removeClass('fc-state-hover');
+                    $('.fc button').hover(
+                        function() {
+                            // On hover in: prevent hover class from being added
+                            $(this).removeClass('fc-state-hover');
+                        },
+                        function() {
+                            // On hover out: make sure it's still gone
+                            $(this).removeClass('fc-state-hover');
+                        }
+                    );
+                }, 100);
+            });
+
+            // Custom modal functionality
+            function showEventModal(event) {
+                $('#modalTitle').text(event.title);
+                
+                // Use class type directly from data
+                let classTypeName = event.classType || 'Fitness';
+                
+                // Create modal content with white text
+                const modalContent = `
+                    <div style="margin-bottom: 15px; color: white;">
+                        <div style="margin-bottom: 10px;">
+                            <span style="font-weight: 500; color: white;">${classTypeName}</span>
+                        </div>
+                    </div>
+                    <div style="margin-bottom: 15px; color: white;">
+                        <div style="color: rgba(255,255,255,0.9); font-size: 0.9rem; margin-bottom: 3px;">Date & Time</div>
+                        <div style="font-weight: 500; color: white;">
+                            ${event.start.format('dddd, MMMM D, YYYY')}<br>
+                            ${event.start.format('h:mm A')} - ${event.end.format('h:mm A')}
+                        </div>
+                    </div>
+                `;
+                
+                $('#modalBody').html(modalContent);
+                $('#eventModal').fadeIn(300);
+            }
+            
+            // Close modal
+            $('#closeModal, #closeModalBtn').on('click', function() {
+                $('#eventModal').fadeOut(200);
+            });
+            
+            
+            // Function to generate recurring events from API data
+            function generateRecurringEvents(classData) {
+                var events = [];
+
+                $.each(classData, function (i, classItem) {
+                    var startDate = moment(classItem.startDate);
+                    var endDate = moment(classItem.endDate);
+                    var startTime = classItem.startTime;
+                    var endTime = classItem.endTime;
+
+                    // Get class type directly from data
+                    var classType = (classItem.type || '').toLowerCase();
+                    
+                    // Create className for styling
+                    var className = classType + '-class';
+                    
+                    // Handle missing class types
+                    if (!classType || classType === '') {
+                        className = 'dance-class'; // Default fallback
+                    }
+
+                    // Generate events for each day between startDate and endDate
+                    for (var date = moment(startDate); date.isSameOrBefore(endDate); date.add(1, 'days')) {
+                        // Parse the time properly to ensure exact positioning
+                        var eventStart = moment(date.format('YYYY-MM-DD') + ' ' + startTime);
+                        var eventEnd = moment(date.format('YYYY-MM-DD') + ' ' + endTime);
+
+                        // Parse description safely
+                        let description = 'No description available';
+                        try {
+                            if (classItem.description) {
+                                if (typeof classItem.description === 'string') {
+                                    try {
+                                        let descObj = JSON.parse(classItem.description);
+                                        description = descObj.purpose + (descObj.benefits ? ' - ' + descObj.benefits : '');
+                                    } catch {
+                                        description = classItem.description;
+                                    }
+                                } else if (typeof classItem.description === 'object') {
+                                    description = classItem.description.purpose + 
+                                        (classItem.description.benefits ? ' - ' + classItem.description.benefits : '');
+                                }
+                            }
+                        } catch (e) {
+                            console.error('Error parsing description:', e);
+                        }
+
+                        events.push({
+                            id: classItem.classId + '-' + date.format('YYYYMMDD'),
+                            title: classItem.className,
+                            start: eventStart,
+                            end: eventEnd,
+                            className: className,
+                            description: description,
+                            classType: classItem.type || 'Fitness', // Store the original class type
+                            allDay: false
+                        });
+                    }
+                });
+
+                return events;
+            }
+        });
+    </script>
+</body>
+
+</html>

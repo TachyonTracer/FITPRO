@@ -1,0 +1,1571 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <style>
+        html {
+            font-size: 14px;
+            font-family: Arial, Helvetica, sans-serif;
+            color: #fff;
+            background-color: #121212;
+        }
+
+        body {
+            background-color: #121212;
+            color: #fff;
+        }
+
+        /* Increase the total width */
+        .container-fluid {
+            width: 95%;
+            max-width: 1800px;
+            margin: 0 auto;
+        }
+
+        .demo-section.wide {
+            width: 100%;
+            padding: 20px 0;
+            background-color: #121212;
+        }
+
+        /* Blog creation styles */
+        .input-section {
+            margin-bottom: 20px;
+        }
+
+        .page-layout {
+            display: flex;
+            flex-direction: row;
+            gap: 20px;
+        }
+
+        .editor-container {
+            flex: 3;
+            position: relative;
+        }
+
+        .sidebar {
+            flex: 1;
+            padding: 20px;
+            background-color: #1e1e1e;
+            border-radius: 8px;
+            height: fit-content;
+            color: #fff;
+            border: 1px solid #333;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .button-section {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .form-label {
+            color: #fff;
+            margin-bottom: 10px;
+            font-weight: 700;
+            font-size: 1.1rem;
+            letter-spacing: 0.5px;
+        }
+
+        .form-control {
+            background-color: #2d2d2d;
+            border: 1px solid #444;
+            color: #fff;
+            font-weight: 500;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+            padding: 12px;
+            font-size: 1rem;
+        }
+
+        .form-control:focus {
+            background-color: #3d3d3d;
+            color: #fff;
+            border-color: #007bff;
+            box-shadow: 0 0 0 0.25rem rgba(0, 123, 255, 0.25);
+            outline: none;
+        }
+
+        /* Override specific inputs to have white text on dark background */
+        #blogTitle,
+        #blogDescription,
+        #blogLabels {
+            color: #fff;
+            background-color: #2d2d2d;
+            border: 1px solid #444;
+        }
+
+        /* Keep placeholder color light but visible on dark background */
+        #blogTitle::placeholder,
+        #blogDescription::placeholder,
+        #blogLabels::placeholder {
+            color: #aaa;
+            font-weight: 400;
+        }
+
+        .form-control::placeholder {
+            color: #aaa;
+        }
+
+        .tags-container {
+            margin-top: 10px;
+            min-height: 40px;
+            padding: 8px;
+            border: 1px solid #444;
+            border-radius: 4px;
+            background-color: #2d2d2d;
+        }
+
+        .tag {
+            display: inline-block;
+            background-color: #1e1e1e;
+            color: #fff;
+            padding: 5px 10px;
+            border-radius: 20px;
+            margin-right: 8px;
+            margin-bottom: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            border: 1px solid #444;
+            transition: all 0.2s ease;
+        }
+
+        .tag:hover {
+            background-color: #333;
+            border-color: #555;
+        }
+
+        .tag .remove-tag {
+            margin-left: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            color: #ccc;
+        }
+
+        .tag .remove-tag:hover {
+            color: #ff6b6b;
+        }
+
+        .custom-file-upload {
+            display: block;
+            padding: 10px;
+            border: 1px solid #444;
+            border-radius: 4px;
+            background-color: #2d2d2d;
+            text-align: center;
+            cursor: pointer;
+            margin-top: 15px;
+            color: #fff;
+        }
+
+        .custom-file-upload:hover {
+            background-color: #3d3d3d;
+        }
+
+        /* Thumbnail styling updates */
+        .thumbnail-preview {
+            width: 100%;
+            height: 150px;
+            margin-top: 10px;
+            border-radius: 8px;
+            border: 1px solid #444;
+            background-color: #2d2d2d;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .thumbnail-preview:hover {
+            border-color: #007bff;
+            background-color: #333;
+        }
+
+        .thumbnail-preview img {
+            max-width: 100%;
+            max-height: 150px;
+            object-fit: contain;
+        }
+
+        .thumbnail-placeholder {
+            color: #aaa;
+            font-size: 36px;
+            /* Larger + sign */
+            font-weight: lighter;
+        }
+
+        /* Drag and drop styles */
+        .drag-over {
+            border: 2px dashed #007bff !important;
+            background-color: rgba(0, 123, 255, 0.15);
+        }
+
+        .editor-container {
+            flex: 3;
+            position: relative;
+        }
+
+        .drop-zone {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            color: white;
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        /* Kendo Editor customization for dark theme */
+        .k-editor {
+            background-color: #2d2d2d;
+            color: #fff;
+            border-color: #444;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid #444 !important;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .k-editor-toolbar {
+            background-color: #1e1e1e;
+            border-color: #444;
+            padding: 8px !important;
+        }
+
+        .k-toolbar .k-button,
+        .k-toolbar .k-button-group {
+            background-color: #333;
+            color: #fff;
+            border-color: #555;
+            border-radius: 4px;
+            margin: 0 2px;
+        }
+
+        .k-toolbar .k-button:hover,
+        .k-toolbar .k-button.k-state-hover {
+            background-color: #444;
+            color: #fff;
+        }
+
+        /* Custom styles to display icons properly */
+        .k-editor .k-tool-text {
+            display: none;
+        }
+
+        .k-editor .k-tool-icon.k-icon {
+            display: inline-block;
+            color: #fff;
+        }
+
+        /* Set specific icon for imageInsert */
+        .k-editor .k-tool[title="Insert Image"] .k-tool-icon:before,
+        .k-editor .k-tool[data-tool="imageInsert"] .k-tool-icon:before {
+            content: "\e13a";
+            /* Kendo UI icon code for image */
+            font-family: "WebComponentsIcons";
+            color: #fff;
+        }
+
+        .k-tool-icon.k-image-insert::before {
+            content: "\f03e";
+            font-family: "Font Awesome 5 Free";
+            font-weight: 900;
+            font-size: 16px;
+            color: #fff;
+        }
+
+        .k-editor-content {
+            background-color: #2d2d2d;
+            color: #fff;
+        }
+
+        .k-content,
+        .k-editable-area,
+        .k-editor iframe {
+            background-color: #2d2d2d;
+            height: 70vh;
+            color: #fff;
+        }
+
+        .k-editor iframe body {
+            background-color: #2d2d2d;
+            color: #fff;
+        }
+
+        .demo-section {
+            background-color: #121212;
+            color: #fff;
+            padding: 20px;
+        }
+
+        /* Error message styling */
+        .error-message {
+            color: #ff6b6b;
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+            display: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .input-error {
+
+            background-color: rgba(255, 107, 107, 0.05);
+        }
+
+        .input-error:focus {
+
+            box-shadow: none;
+        }
+
+        /* Button styling */
+        .btn-warning {
+            background-color: #ffc107;
+            color: #fff;
+            font-weight: 600;
+            border-radius: 4px;
+            padding: 12px 20px;
+            transition: all 0.3s ease;
+            border: none;
+            font-size: 1.05rem;
+            text-shadow: 0px 1px 2px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-warning:hover {
+            background-color: #e0a800;
+
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-success {
+            background-color: #28a745;
+            color: #fff;
+            font-weight: 600;
+            border-radius: 4px;
+            padding: 12px 20px;
+            transition: all 0.3s ease;
+            border: none;
+            font-size: 1.05rem;
+            text-shadow: 0px 1px 2px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-success:hover {
+            background-color: #218838;
+
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-outline-secondary {
+            color: #fff;
+            border: 1px solid #6c757d;
+            background-color: #444;
+            font-weight: 500;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+            padding: 8px 16px;
+        }
+
+        .btn-outline-secondary:hover {
+            background-color: #6c757d;
+            color: #fff;
+            transform: translateY(-1px);
+        }
+
+        /* Text styling for stronger appearance */
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6 {
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .text-muted {
+            color: #bbb !important;
+        }
+
+        /* Additional Kendo Editor iframe styling */
+        .k-editor iframe html,
+        .k-editor iframe body {
+            background-color: #2d2d2d !important;
+            color: #fff !important;
+        }
+
+        /* Input group styling */
+        .input-group {
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .input-group .form-control {
+            border-right: none;
+        }
+
+        .input-group .btn {
+            border-top-left-radius: 0;
+            border-bottom-left-radius: 0;
+        }
+
+
+        /*SweetAlert css*/
+        .swal2-popup {
+            background: rgba(255, 255, 255, 0.029) !important; /* Glass color */
+            backdrop-filter: blur(20px) !important;
+            border: 1px solid hsla(0, 0%, 65%, 0.2) !important;
+            border-radius: 15px !important;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3) !important;
+            color: #ffffff !important; /* White color */
+        }
+
+        .swal2-title {
+            color: #ffffff !important; /* White color */
+            font-family: "Poppins", sans-serif !important;
+            letter-spacing: 1px !important;
+        }
+
+        .swal2-content {
+            color: #ffffff !important; /* White color */
+            font-family: "Poppins", sans-serif !important;
+        }
+
+        /* Confirm Button */
+        .swal2-confirm {
+            background-color: rgb(242, 195, 67) !important; /* Primary color */
+            color: #ffffff !important; /* White color */
+            border: none !important;
+            border-radius: 8px !important;
+            font-family: "Poppins", sans-serif !important;
+            transition: all 0.3s ease !important;
+        }
+
+        .swal2-confirm:hover {
+            background-color: rgb(242, 195, 67) !important; /* Primary color */
+            transform: scale(1.03) !important;
+        }
+
+        /* Cancel Button */
+        .swal2-cancel {
+            background-color: rgba(255, 255, 255, 0.1) !important;
+            color: #ffffff !important; /* White color */
+            border: 1px solid rgba(255, 255, 255, 0.2) !important;
+            border-radius: 8px !important;
+            font-family: "Poppins", sans-serif !important;
+            transition: all 0.3s ease !important;
+        }
+
+        .swal2-cancel:hover {
+            background-color: rgba(255, 255, 255, 0.2) !important;
+            transform: scale(1.03) !important;
+        }
+
+        /* Warning Icon */
+        .swal2-icon.swal2-warning {
+            color: rgb(242, 195, 67) !important; /* Primary color */
+            border-color: rgb(242, 195, 67) !important; /* Primary color */
+        }
+
+        /* Success Icon */
+        .swal2-icon.swal2-success {
+            border-color: #28a745 !important; /* Green border */
+            color: #28a745 !important; /* Green checkmark */
+        }
+
+        .swal2-icon.swal2-success .swal2-success-ring {
+            border-color: #28a745 !important; /* Outer circle */
+        }
+
+        .swal2-icon.swal2-success [class^='swal2-success-line'] {
+            background-color: #28a745 !important; /* Check lines */
+        }
+
+        .swal2-icon.swal2-success .swal2-success-circular-line-left,
+        .swal2-icon.swal2-success .swal2-success-circular-line-right,
+        .swal2-icon.swal2-success .swal2-success-fix {
+            display: none !important;
+        }
+
+        /* Error Icon */
+        .swal2-icon.swal2-error {
+            border-color: rgb(244, 70, 70) !important; /* Error color */
+            color: rgb(244, 70, 70) !important; /* Error color */
+        }
+
+        .swal2-error [class^=swal2-x-mark-line] {
+            background-color: rgb(244, 70, 70) !important; /* Error color */
+        }
+    </style>
+    <title>Blog Editor</title>
+    <link href="https://kendo.cdn.telerik.com/themes/10.2.0/default/default-main.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://kendo.cdn.telerik.com/2023.2.829/js/kendo.all.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <style>
+        /* Additional styles for the header */
+        .blog-editor-header {
+            background-color: #1e1e1e;
+            padding: 15px 0;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #333;
+        }
+
+        .blog-editor-header h1 {
+            font-size: 24px;
+            margin: 0;
+            color: #fff;
+            font-weight: 700;
+        }
+
+        .blog-editor-header .breadcrumb {
+            background: transparent;
+            margin-bottom: 0;
+            padding: 0;
+        }
+
+        .blog-header-actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        /* Override Bootstrap dark theme */
+        .breadcrumb-item,
+        .breadcrumb-item.active,
+        .breadcrumb-item+.breadcrumb-item::before {
+            color: #fff;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="example" style="background-color: #121212">
+        <div class="container-fluid">
+            <!-- Added Blog Editor Header -->
+            <div class="text-center mt-4">
+                <h1 style="color: #facc15; font-weight: 700; font-size: 2.5rem;">Blog Editor</h1>
+            </div>
+
+            <div class="demo-section wide">
+                <!-- Blog Source Url-->
+                <input id="blog_source_url" type="text" class="form-control" hidden>
+
+                <!-- Blog Title Input -->
+                <div class="input-section">
+                    <label for="blogTitle" class="form-label">
+                        <i class="fas fa-heading me-2 text-primary"></i>Title:
+                    </label>
+                    <input id="blogTitle" type="text" class="form-control" placeholder="Enter your blog title">
+                    <div id="titleError" class="error-message"></div>
+                </div>
+
+                <!-- Page Layout with Editor and Sidebar -->
+                <div class="page-layout">
+                    <!-- Editor Column -->
+                    <div class="editor-container">
+                        <textarea id="editor" aria-label="editor">
+                        </textarea>
+                        <div class="drop-zone">Drop image here</div>
+                        <div id="contentError" class="error-message"></div>
+                    </div>
+
+                    <!-- Sidebar Column -->
+                    <div class="sidebar">
+                        <!-- Description Input for Blog Listing -->
+                        <div class="input-section">
+                            <label for="blogDescription" class="form-label">
+                                <i class="fas fa-info-circle me-2 text-info"></i>Description:
+                            </label>
+                            <textarea id="blogDescription" class="form-control" rows="3"
+                                placeholder="Brief description for blog listings" maxlength="200"></textarea>
+                            <span id="descriptionError" class="error-message"></span>
+                            <div class="text-end mt-1">
+                                <small><span id="descCharCounter">0</span>/200</small>
+                            </div>
+                        </div>
+
+                        <!-- Labels Input -->
+                        <div class="input-section">
+                            <label for="blogLabels" class="form-label">
+                                <i class="fas fa-tags me-2 text-warning"></i>Labels:
+                            </label>
+                            <div class="input-group">
+                                <input id="blogLabels" type="text" class="form-control" maxlength="20"
+                                    placeholder="Type and press Enter to add tag">
+                                <button id="addTagBtn" class="btn btn-outline-secondary">
+                                    <i class="fas fa-plus"></i>
+                                </button>
+                            </div>
+                            <div id="tagsContainer" class="tags-container"></div>
+                            <span id="tagsError" class="error-message"></span>
+                            <div class="text-end mt-1">
+                                <small><span id="tagCounter">0</span>/5</small>
+                            </div>
+                        </div>
+
+                        <!-- Thumbnail Upload -->
+                        <div class="input-section">
+                            <label class="form-label">
+                                <i class="fas fa-image me-2 text-primary"></i>Thumbnail:
+                            </label>
+                            <input type="file" id="thumbnailUpload" style="display: none;" accept="image/*">
+                            <div class="thumbnail-preview" id="thumbnailPreview"
+                                onclick="document.getElementById('thumbnailUpload').click();">
+                                <span class="thumbnail-placeholder">
+                                    <i class="fas fa-cloud-upload-alt" style="font-size: 2rem;"></i>
+                                    <div style="font-size: 0.8rem; margin-top: 10px;">Click to upload</div>
+                                </span>
+                            </div>
+                            <div id="thumbnailError" class="error-message"></div>
+                        </div>
+
+                        <!-- Buttons for Save Draft and Save -->
+                        <div class="button-section">
+                            <button id="saveDraftButton" class="btn btn-warning">
+                                <i class="far fa-save me-2"></i>Save Draft
+                            </button>
+                            <button id="saveButton" class="btn btn-success">
+                                <i class="fas fa-paper-plane me-2"></i>Publish
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <script>
+
+                    @* Utility Functions *@
+                        function parseJwt(token) {
+                            try {
+                                const base64Url = token.split(".")[1];
+                                const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+                                return JSON.parse(atob(base64));
+                            } catch (error) {
+                                console.error("Invalid token:", error);
+                                return null;
+                            }
+                        }
+                    function getUserIdFromToken() {
+                        const token = localStorage.getItem("authToken");
+                        if (!token) {
+                            console.warn("No auth token found in localStorage.");
+                            return null;
+                        }
+                        const decoded = parseJwt(token);
+                        if (decoded) {
+                            console.log("decoded:" + JSON.parse(decoded.UserObject).instructorName);
+                            return JSON.parse(decoded.UserObject).instructorId; // Updated to return instructorId from decoded token
+                        }
+                        console.warn("Invalid or malformed token.");
+                        return null;
+                    }
+
+
+                    $("#editor").kendoEditor({
+                        tools: [
+                            "undo",
+                            "redo",
+                            "print",
+                            "cleanFormatting",
+                            "copyFormat",
+                            "applyFormat",
+
+                            "fontName",
+                            "fontSize",
+                            "bold",
+                            "italic",
+                            "underline",
+                            "strikethrough",
+                            "subscript",
+                            "superscript",
+                            "backColor",
+                            "foreColor",
+
+                            "insertOrderedList",
+                            "insertUnorderedList",
+                            "indent",
+                            "outdent",
+                            "justifyLeft",
+                            "justifyCenter",
+                            "justifyRight",
+                            "justifyFull",
+                            "lineHeight",
+                            "formattingMarks",
+
+                            "formatting",
+
+                            "createLink",
+                            "unlink",
+                            {
+                                name: "imageInsert",
+                                tooltip: "Insert Image",
+                                className: "k-tool-icon k-image-insert",
+                                icon: "image",
+
+                                exec: function (e) {
+                                    const editor_ = $("#editor").data("kendoEditor");
+
+                                    // Create a file input element
+                                    var fileInput = $('<input type="file" accept="image/*" style="display:none">');
+
+                                    // Append it to the body and trigger click
+                                    $('body').append(fileInput);
+                                    fileInput.click();
+
+                                    // Handle file selection
+                                    fileInput.on('change', function (e) {
+                                        if (this.files && this.files[0]) {
+
+                                            var imageFile = this.files[0];
+
+                                            // Create FormData and append the file
+                                            var formData = new FormData();
+                                            formData.append("BlogImageFile", imageFile); // "imageFile" is your backend parameter name
+
+                                            // AJAX call to upload the file
+                                            $.ajax({
+                                                url: 'http://localhost:8080/api/Blog/SaveImage',
+                                                type: 'POST',
+                                                data: formData,
+                                                processData: false,
+                                                contentType: false,
+                                                success: function (response) {
+
+                                                    // Assuming response returns { imageUrl: "/uploads/xyz.jpg" }
+                                                    var imageUrl = response.path;
+
+                                                    // Create the image element with the returned URL
+                                                    var img = editor_.document.createElement("img");
+                                                    img.src = imageUrl;
+                                                    img.alt = "Uploaded Image";
+
+                                                    // Style the image
+                                                    img.style.maxWidth = "700px";
+                                                    img.style.maxHeight = "650px";
+                                                    img.style.width = "auto";
+                                                    img.style.height = "auto";
+                                                    img.style.objectFit = "contain";
+
+                                                    // Insert the image into the editor
+                                                    editor_.paste(img.outerHTML);
+                                                },
+                                                error: function (xhr, status, error) {
+                                                    Swal.fire({
+                                                        title: 'Error',
+                                                        text: 'Image upload failed: ' + error,
+                                                        icon: 'error',
+                                                        confirmButtonText: 'OK'
+                                                    });
+                                                }
+                                            });
+                                        }
+
+                                        // Remove file input from DOM after use
+                                        fileInput.remove();
+                                    });
+                                }
+
+                            },
+                            "imageBrowser",
+                            "insertFile",
+                            "viewHtml",
+
+                            "insertUpperRomanList",
+                            "insertLowerRomanList",
+                            "tableWizard",
+                            "createTable",
+                            "addRowAbove",
+                            "addRowBelow",
+                            "addColumnLeft",
+                            "addColumnRight",
+                            "deleteRow",
+                            "deleteColumn",
+                            "mergeCellsHorizontally",
+                            "mergeCellsVertically",
+                            "splitCellHorizontally",
+                            "splitCellVertically",
+                            "tableAlignLeft",
+                            "tableAlignCenter",
+                            "tableAlignRight"
+                        ]
+                    });
+
+                    // Blog save functionality
+                    $(document).ready(function () {
+                        // Character counter for description
+                        $("#blogDescription").on("input", function () {
+                            const charCount = $(this).val().length;
+                            $("#descCharCounter").text(charCount);
+                        });
+
+                        // Setup drag and drop for editor
+                        setupDragAndDrop();
+
+                        // Tags functionality
+                        let tags = [];
+                        let thumbnailData = null;
+                        let editMode = false;
+                        let currentBlogId = null;
+
+                        // Check if we're in edit mode by looking for blog ID in URL
+                        const urlParams = new URLSearchParams(window.location.search);
+                        if (urlParams.has('id')) {
+                            const blogId = urlParams.get('id');
+                            currentBlogId = blogId;
+                            editMode = true;
+                            loadBlogData(blogId);
+                        }
+
+                        // Function to load blog data for editing
+                        function loadBlogData(blogId) {
+                            // First try to load from API
+                            const token = localStorage.getItem('authToken');
+
+                            $.ajax({
+                                url: `http://localhost:8080/api/Blog/GetBlogById?blog_id=${blogId}`,
+                                type: 'POST',
+                                headers: {
+                                    'Authorization': token ? `Bearer ${token}` : '',
+                                    'Content-Type': 'application/json'
+                                },
+                                success: function (response) {
+                                    // Check if response is successful and contains data
+                                    if (response.success && response.data && response.data.entries) {
+                                        const blog = response.data.entries;
+
+                                        // Decode base64 content if it's encoded
+                                        if (blog.c_content && typeof blog.c_content === 'string') {
+                                            try {
+                                                // Check if it's base64 encoded
+                                                if (/^[A-Za-z0-9+/=]+$/.test(blog.c_content)) {
+                                                    blog.content = atob(blog.c_content);
+                                                } else {
+                                                    blog.content = blog.c_content;
+                                                }
+                                            } catch (e) {
+                                                console.error('Error decoding content:', e);
+                                                blog.content = blog.c_content;
+                                            }
+                                        }
+
+                                        // Map API response fields to expected format
+                                        const mappedBlog = {
+                                            id: blog.c_blog_id,
+                                            title: blog.c_title,
+                                            description: blog.c_desc,
+                                            content: blog.content || blog.c_content,
+                                            thumbnailUrl: blog.c_thumbnail ? blog.c_thumbnail : 'default.png',
+                                            views: blog.c_views,
+                                            likes: blog.c_likes,
+                                            comments: blog.c_comments,
+                                            is_published: blog.c_is_published ? 1 : 0,
+                                            createdAt: blog.c_created_at,
+                                            labels: blog.c_tags,
+                                            source_url: blog.c_source_url
+                                        };
+
+                                        populateEditorWithBlogData(mappedBlog);
+                                    } else {
+                                        console.error('Invalid response format:', response);
+                                        Swal.fire({
+                                            title: 'Error',
+                                            text: 'Could not load blog data. Starting with a new blog.',
+                                            icon: 'error',
+                                            confirmButtonText: 'OK'
+                                        });
+                                    }
+                                },
+                                error: function (xhr, status, error) {
+                                    console.error('Error fetching blog data:', error);
+                                    // If API fails, try to find blog in sample data
+                                    loadSampleBlogData(blogId);
+                                },
+                                timeout: 5000
+                            });
+                        }
+
+                        // Load blog data from sample data if API fails
+                        function loadSampleBlogData(blogId) {
+                            // Sample blog data matching the data structure in BlogList.cshtml
+                            const sampleBlogs = [
+                                {
+                                    id: 1,
+                                    title: "10 Essential Stretches for After Your Workout",
+                                    description: "Discover the most effective stretches to help your muscles recover and prevent injury after intense training sessions.",
+                                    content: "<h2>10 Essential Stretches for After Your Workout</h2><p>Stretching after your workout is crucial for muscle recovery and flexibility. Here are the top 10 stretches you should incorporate:</p><ul><li>Hamstring stretch</li><li>Quad stretch</li><li>Child's pose</li><li>Triceps stretch</li><li>Cat-cow stretch</li><li>Butterfly stretch</li><li>Shoulder stretch</li><li>Hip flexor stretch</li><li>Calf stretch</li><li>Spine twist</li></ul><p>Perform each stretch for 20-30 seconds for optimal benefits.</p>",
+                                    thumbnailUrl: "https://images.unsplash.com/photo-1599447421416-3414500d18a5?ixlib=rb-4.0.3",
+                                    views: 1245,
+                                    likes: 89,
+                                    comments: 23,
+                                    is_published: 1,
+                                    createdAt: "2023-06-15T14:22:00Z",
+                                    labels: "stretching,recovery,flexibility,post-workout"
+                                },
+                                {
+                                    id: 2,
+                                    title: "Nutrition Tips for Muscle Building",
+                                    description: "Learn how to fuel your body correctly to maximize muscle growth and recovery with these evidence-based nutrition strategies.",
+                                    content: "<h2>Nutrition Tips for Muscle Building</h2><p>Building muscle requires more than just lifting weights - proper nutrition is essential.</p><h3>Key Principles:</h3><ol><li>Maintain a caloric surplus</li><li>Consume adequate protein (1.6-2.2g per kg of bodyweight)</li><li>Time your carbohydrates around workouts</li><li>Don't neglect healthy fats</li><li>Stay hydrated</li></ol>",
+                                    thumbnailUrl: "https://images.unsplash.com/photo-1490645935967-10de6ba17061?ixlib=rb-4.0.3",
+                                    views: 2150,
+                                    likes: 167,
+                                    comments: 42,
+                                    is_published: 1,
+                                    createdAt: "2023-05-20T09:15:00Z",
+                                    labels: "nutrition,muscle,protein,diet"
+                                },
+                                {
+                                    id: 3,
+                                    title: "The Ultimate HIIT Workout Guide",
+                                    description: "High-Intensity Interval Training explained: benefits, sample workouts, and how to incorporate it into your fitness routine.",
+                                    content: "<h2>The Ultimate HIIT Workout Guide</h2><p>High-Intensity Interval Training (HIIT) has revolutionized the fitness world with its efficient, results-driven approach.</p><h3>Sample 20-Minute HIIT Workout:</h3><ol><li>30 seconds burpees, 30 seconds rest</li><li>30 seconds mountain climbers, 30 seconds rest</li><li>30 seconds jump squats, 30 seconds rest</li><li>30 seconds high knees, 30 seconds rest</li></ol><p>Repeat this circuit 5 times.</p>",
+                                    thumbnailUrl: "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?ixlib=rb-4.0.3",
+                                    views: 3542,
+                                    likes: 245,
+                                    comments: 58,
+                                    is_published: 1,
+                                    createdAt: "2023-07-03T16:40:00Z",
+                                    labels: "HIIT,cardio,workout,fitness"
+                                },
+                                {
+                                    id: 4,
+                                    title: "Mindfulness and Fitness: The Perfect Combination",
+                                    description: "How incorporating mindfulness practices into your fitness routine can enhance performance and overall wellbeing.",
+                                    content: "<h2>Mindfulness and Fitness: Draft</h2><p>This article is still being written...</p>",
+                                    thumbnailUrl: "https://images.unsplash.com/photo-1593810450967-f9c42742e3b5?ixlib=rb-4.0.3",
+                                    views: 987,
+                                    likes: 76,
+                                    comments: 19,
+                                    is_published: 0,
+                                    createdAt: "2023-07-10T11:30:00Z",
+                                    labels: "mindfulness,mental health,workout,meditation"
+                                }
+                            ];
+
+                            // Find the blog in sample data
+                            const blog = sampleBlogs.find(blog => blog.id == blogId);
+
+                            if (blog) {
+                                populateEditorWithBlogData(blog);
+                            } else {
+                                console.error('Blog not found');
+                                Swal.fire({
+                                    title: 'Error',
+                                    text: 'Could not find the blog you want to edit. Starting with a new blog.',
+                                    icon: 'error',
+                                    confirmButtonText: 'OK'
+                                });
+                            }
+                        }
+
+                        // Populate the editor with blog data
+                        function populateEditorWithBlogData(blog) {
+                            // Set the title
+                            $("#blogTitle").val(blog.title);
+                            $("#blog_source_url").val(blog.source_url);
+
+                            // Set the content in the Kendo editor
+                            const editor = $("#editor").data("kendoEditor");
+                            editor.value(blog.content);
+
+                            // Set the description
+                            $("#blogDescription").val(blog.description);
+                            // Update the character counter for the description
+                            $("#descCharCounter").text(blog.description ? blog.description.length : 0);
+
+                            // Set the tags/labels if available
+                            if (blog.labels) {
+                                if (typeof blog.labels === 'string') {
+                                    // Split the comma-separated string
+                                    tags = blog.labels.split(',').map(tag => tag.trim());
+                                } else if (Array.isArray(blog.labels)) {
+                                    tags = [...blog.labels];
+                                }
+                                renderTags();
+                            }
+
+                            // Set the thumbnail preview if available
+                            if (blog.thumbnailUrl) {
+                                thumbnailData = blog.thumbnailUrl; // Store URL for reference
+                                $("#thumbnailPreview").html(`<img src="http://localhost:8081/BlogImages/Thumbnails/${blog.id}/${blog.thumbnailUrl}" alt="Thumbnail">`);
+                            }
+
+                            // Update button text based on publish status
+                            if (blog.is_published === 0) {
+                                $("#saveButton").text("Publish Blog");
+                                $("#saveDraftButton").text("Update Draft");
+                            } else {
+                                $("#saveButton").text("Update & Publish");
+                                @* $("#saveDraftButton").text("Save as Draft"); *@
+                                    $("#saveDraftButton").hide();
+                            }
+
+                            // Update page title to show we're editing
+                            document.title = `Editing: ${blog.title} | FitPro`;
+                        }
+
+                        // Function to add a new tag
+                        function addTag(tagText) {
+                            if (tagText.trim() === '') return;
+
+                            // Don't add duplicate tags
+                            if (tags.includes(tagText.trim())) return;
+
+                            // Limit to 5 tags maximum
+                            if (tags.length >= 5) {
+                                Swal.fire({
+                                    title: 'Error',
+                                    text: 'Maximum 5 labels allowed.',
+                                    icon: 'error',
+                                    confirmButtonText: 'OK'
+                                });
+                                return;
+                            }
+
+                            // Limit each tag to 20 characters
+                            const trimmedTag = tagText.trim().substring(0, 20);
+
+                            tags.push(trimmedTag);
+                            renderTags();
+                            $("#blogLabels").val('');
+
+                            // Update tag counter
+                            $("#tagCounter").text(tags.length);
+                        }
+
+                        // Function to render tags in the container
+                        function renderTags() {
+                            const tagsContainer = $("#tagsContainer");
+                            tagsContainer.empty();
+
+                            tags.forEach(function (tag, index) {
+                                tagsContainer.append(`
+                                    <span class="tag" data-index="${index}">
+                                        ${tag}
+                                        <span class="remove-tag">&times;</span>
+                                    </span>
+                                `);
+                            });
+
+                            // Update tag counter
+                            $("#tagCounter").text(tags.length);
+
+                            // Disable input if reached max tags
+                            if (tags.length >= 5) {
+                                $("#blogLabels").prop("disabled", true).attr("placeholder", "Maximum labels reached");
+                                $("#addTagBtn").prop("disabled", true);
+                            } else {
+                                $("#blogLabels").prop("disabled", false).attr("placeholder", "Type and press Enter to add tag");
+                                $("#addTagBtn").prop("disabled", false);
+                            }
+                        }
+
+                        // Add tag when button is clicked
+                        $("#addTagBtn").click(function () {
+                            const tagText = $("#blogLabels").val().trim();
+
+                            // Handle hashtags format
+                            if (tagText.includes('#')) {
+                                const hashTags = tagText.split(/\s+/)
+                                    .filter(word => word.startsWith('#') && word.length > 1)
+                                    .map(word => word.substring(1));
+
+                                hashTags.forEach(tag => addTag(tag));
+                            }
+                            // Handle comma format
+                            else if (tagText.includes(',')) {
+                                const commaTags = tagText.split(',')
+                                    .map(tag => tag.trim())
+                                    .filter(tag => tag.length > 0);
+
+                                commaTags.forEach(tag => addTag(tag));
+                            }
+                            // Handle single tag
+                            else if (tagText.length > 0) {
+                                addTag(tagText);
+                            }
+                        });
+
+                        // Add tag when Enter key is pressed
+                        $("#blogLabels").keypress(function (e) {
+                            if (e.which === 13) { // Enter key
+                                e.preventDefault();
+                                $("#addTagBtn").click();
+                            }
+                        });
+
+                        // Remove tag when clicking the X
+                        $(document).on("click", ".remove-tag", function () {
+                            const tagIndex = $(this).parent().data("index");
+                            tags.splice(tagIndex, 1);
+                            renderTags();
+
+                            // Re-enable input if below max tags
+                            if (tags.length < 5) {
+                                $("#blogLabels").prop("disabled", false).attr("placeholder", "Type and press Enter to add tag");
+                                $("#addTagBtn").prop("disabled", false);
+                            }
+                        });
+
+                        // Thumbnail upload handling
+                        $("#thumbnailUpload").change(function () {
+                            const file = this.files[0];
+                            if (file) {
+                                const reader = new FileReader();
+                                reader.onload = function (e) {
+                                    thumbnailData = e.target.result;
+                                    $("#thumbnailPreview").html(`<img src="${thumbnailData}" alt="Thumbnail">`);
+                                };
+                                reader.readAsDataURL(file);
+                            }
+                        });
+
+                        // Setup drag and drop functionality
+                        function setupDragAndDrop() {
+                            // Create a drop zone overlay for visual feedback
+                            const dropZone = $('<div class="drop-zone">Drop image here</div>');
+                            $(".editor-container").append(dropZone);
+
+                            const editor = $("#editor").data("kendoEditor");
+                            const editorElement = $(editor.body);
+
+                            // Handle drag enter
+                            editorElement.on('dragenter', function (e) {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                dropZone.show();
+                            });
+
+                            // Handle drag over
+                            dropZone.on('dragover', function (e) {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                $(this).addClass('drag-over');
+                            });
+
+                            // Handle drag leave
+                            dropZone.on('dragleave', function (e) {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                $(this).removeClass('drag-over');
+                                if (e.target === dropZone[0]) {
+                                    dropZone.hide();
+                                }
+                            });
+
+                            // Handle drop
+                            dropZone.on('drop', function (e) {
+                                e.preventDefault();
+                                e.stopPropagation();
+
+                                $(this).removeClass('drag-over');
+                                dropZone.hide();
+
+                                const dt = e.originalEvent.dataTransfer;
+                                if (dt.files && dt.files.length) {
+                                    const file = dt.files[0];
+                                    if (file.type.startsWith('image/')) {
+                                        // Upload the dropped image
+                                        uploadImageToServer(file, editor);
+                                    }
+                                }
+                            });
+                        }
+
+                        // Function to upload image to server
+                        function uploadImageToServer(imageFile, editor) {
+                            // Create FormData and append the file
+                            var formData = new FormData();
+                            formData.append("BlogImageFile", imageFile);
+
+                            // AJAX call to upload the file
+                            $.ajax({
+                                url: 'http://localhost:8080/api/Blog/SaveImage',
+                                type: 'POST',
+                                data: formData,
+                                processData: false,
+                                contentType: false,
+                                success: function (response) {
+                                    var imageUrl = response.path;
+
+                                    // Create the image element with the returned URL
+                                    var img = editor.document.createElement("img");
+                                    img.src = imageUrl;
+                                    img.alt = "Dropped Image";
+
+                                    // Style the image
+                                    img.style.maxWidth = "700px";
+                                    img.style.maxHeight = "650px";
+                                    img.style.width = "auto";
+                                    img.style.height = "auto";
+                                    img.style.objectFit = "contain";
+
+                                    // Insert the image into the editor
+                                    editor.paste(img.outerHTML);
+                                },
+                                error: function (xhr, status, error) {
+                                    Swal.fire({
+                                        title: 'Error',
+                                        text: 'Image upload failed: ' + error,
+                                        icon: 'error',
+                                        confirmButtonText: 'OK'
+                                    });
+                                }
+                            });
+                        }
+
+                        // Save Draft button click handler
+                        $("#saveDraftButton").click(function () {
+                            saveContent(0, 'http://localhost:8080/api/Blog/SaveDraft');
+                        });
+
+                        // Save button click handler
+                        $("#saveButton").click(function () {
+                            saveContent(1, 'http://localhost:8080/api/Blog/PublishBlog');
+                        });
+
+                        // Function to save content with is_published status
+                        function saveContent(publish_, endpoint) {
+                            const c_title = $("#blogTitle").val();
+                            const c_source_url = $("#blog_source_url").val();
+                            const c_desc = $("#editor").data("kendoEditor").value()
+                                .replace(/<[^>]*>/g, '') // Strip HTML tags for description
+                                .substring(0, 200);  // Limit to 200 chars for description
+                            const c_content = $("#editor").data("kendoEditor").value();
+                            const c_tags = tags.join(',');
+
+                            // Create FormData object
+                            const formData = new FormData();
+
+                            formData.append("c_blog_author_id", getUserIdFromToken().toString());
+                            formData.append("c_tags", c_tags);
+                            formData.append("c_title", c_title);
+                            formData.append("c_desc", $("#blogDescription").val().substring(0, 200)); // Add the description input value
+                            formData.append("c_content", c_content);
+                            formData.append("c_created_at", 0000000001);
+                            formData.append("c_published_at", 0000000001);
+                            formData.append("c_is_published", false);
+                            formData.append("c_views", -1);
+                            formData.append("c_likes", -1);
+                            formData.append("c_comments", -1);
+                            formData.append("c_source_url", "http://localhost:8081/blog/default_blog_page");
+                            @* formData.append("is_published", false); *@
+
+                            // If we're editing an existing blog, include the ID
+                            if (editMode && currentBlogId) {
+                                formData.append("c_blog_id", currentBlogId);
+                                formData.append("c_source_url", c_source_url);
+
+                            } else {
+                                formData.append("c_blog_id", -1);
+                                formData.append("c_source_url", "http://localhost:8081/blog/default_blog_page");
+                            }
+
+                            // Add thumbnail file if selected
+                            const thumbnailFile = $("#thumbnailUpload")[0].files[0];
+                            if (thumbnailFile) {
+                                formData.append("ThumbnailFile", thumbnailFile);
+                                formData.append("c_thumbnail", "http://localhost:8081/BlogImages/Thumbnails/default.png");
+                            } else if (thumbnailData) {
+                                // If we have a URL for the thumbnail and no new file was selected
+                                formData.append("c_thumbnail", thumbnailData);
+                            }
+
+                            // Validate before submission
+                            const validationResult = validateBlogContent(publish_);
+                            if (!validationResult.isValid) {
+                                showValidationErrors(validationResult.errors);
+                                return;
+                            }
+
+                            // Show loading state
+                            const btnId = publish_ ? "#saveButton" : "#saveDraftButton";
+                            const originalText = $(btnId).text();
+                            const savingText = publish_ ? "Publishing..." : "Saving...";
+                            const afterApiText = publish_ ? "Published" : "Saved";
+                            $(btnId).prop('disabled', true).text(savingText);
+
+                            // Send AJAX request
+                            $.ajax({
+                                url: endpoint,
+                                type: 'POST',
+                                data: formData,
+                                processData: false,
+                                contentType: false,
+                                success: function (response) {
+                                    // Restore button state (if needed for non-success cases)
+                                    $(btnId).prop('disabled', false).text(originalText);
+
+                                    if (response.success) {
+                                        const statusText = publish_ ? "published" : "Saved as draft";
+                                        if (publish_ === 1) {
+                                            $("#saveDraftButton").hide();
+                                        } else {
+                                            currentBlogId = response.blog_id;
+                                            editMode = true;
+                                        }
+                                        // Disable the save button and prevent redirection
+                                        $(btnId).prop('disabled', true).text(afterApiText);
+
+                                        Swal.fire({
+                                            title: 'Success',
+                                            text: `Blog ${statusText} successfully!`,
+                                            icon: 'success',
+                                            confirmButtonText: 'OK'
+                                        }).then(() => {
+                                            // Redirect after the user clicks "OK"
+                                            if (window.opener && !window.opener.closed && window.opener.location.href.includes("BlogList")) {
+                                                window.opener.location.reload(); // Refresh parent window
+                                                window.close(); // Close the current window
+                                            } else {
+                                                window.location.href = "/instructor"; // Redirect to the instructor page
+                                            }
+                                        });
+
+
+                                    } else {
+                                        Swal.fire({
+                                            title: 'Error',
+                                            text: `Error: ${response.message || 'Unknown error occurred'}`,
+                                            icon: 'error',
+                                            confirmButtonText: 'OK'
+                                        });
+                                    }
+                                },
+                                error: function (xhr, status, error) {
+                                    // Restore button state
+                                    $(btnId).prop('disabled', false).text(originalText);
+
+                                    console.error('Error saving blog:', error);
+                                    Swal.fire({
+                                        title: 'Error',
+                                        text: 'Failed to save blog. Please try again later.',
+                                        icon: 'error',
+                                        confirmButtonText: 'OK'
+                                    });
+                                }
+                            });
+                        }
+
+                        // Function to validate blog content before submission
+                        function validateBlogContent(publish_) {
+                            const title = $("#blogTitle").val().trim();
+                            const content = $("#editor").data("kendoEditor").value().trim();
+                            const description = $("#blogDescription").val().trim();
+                            const tags = $("#tagsContainer .tag").length;
+                            const thumbnail = $("#thumbnailPreview img").length;
+
+                            const errors = [];
+
+                            if (title === '') {
+                                errors.push({ field: 'title', message: "Title cannot be empty." });
+                            }
+
+                            if (content === '' || content.length < 50) {
+                                errors.push({ field: 'content', message: "Content cannot be empty and must be at least 50 characters long." });
+                            }
+
+                            if (description === '' || description.length < 20) {
+                                errors.push({ field: 'description', message: "Description cannot be empty and must be at least 20 characters long." });
+                            }
+
+                            if (tags === 0) {
+                                errors.push({ field: 'tags', message: "At least one tag must be added." });
+                            }
+
+                            if (thumbnail === 0) {
+                                errors.push({ field: 'thumbnail', message: "Thumbnail must be uploaded." });
+                            }
+
+                            return { isValid: errors.length === 0, errors };
+                        }
+
+                        // Function to display validation errors
+                        function showValidationErrors(errors) {
+                            // Clear all previous errors
+                            $(".error-message").hide().text("");
+                            $(".form-control").removeClass("input-error");
+                            $(".editor-container iframe").css("border-color", "");
+
+                            // If no errors, return
+                            if (!errors || errors.length === 0) return;
+
+                            // Display each error under the correct field
+                            errors.forEach(error => {
+                                const { field, message } = error;
+                                $(`#${field}Error`).text(message).show();
+
+                                // Add error styling to the input
+                                if (field === 'content') {
+                                    $(".editor-container iframe").css("border-color", "#dc3545");
+                                } else if (field === 'tags') {
+                                    $("#tagsContainer").addClass("input-error");
+                                } else if (field === 'thumbnail') {
+                                    $("#thumbnailPreview").addClass("input-error");
+                                } else {
+                                    $(`#blog${field.charAt(0).toUpperCase() + field.slice(1)}`).addClass("input-error");
+                                }
+                            });
+                        }
+
+                        // Function to clear all validation errors
+                        function clearValidationErrors() {
+                            $(".error-message").hide().text("");
+                            $(".form-control").removeClass("input-error");
+                            $(".editor-container iframe").css("border-color", "");
+                            $("#tagsContainer").removeClass("input-error");
+                            $("#thumbnailPreview").removeClass("input-error");
+                        }
+                    });
+
+                    // Add event listeners to clear validation errors as they're fixed
+                    $(document).ready(function () {
+                        // Clear title error when title is entered
+                        $("#blogTitle").on("input", function () {
+                            if ($(this).val().trim().length > 0) {
+                                $(this).removeClass("input-error");
+                                $("#titleError").hide().text("");
+                            }
+                        });
+
+                        // Clear content error when content changes
+                        $("#editor").data("kendoEditor").bind("change", function () {
+                            const content = this.value().trim();
+                            if (content.length >= 50) {
+                                $(".editor-container iframe").css("border-color", "");
+                                $("#contentError").hide().text("");
+                            }
+                        });
+
+                        // Clear description error when description is entered
+                        $("#blogDescription").on("input", function () {
+                            if ($(this).val().trim().length > 0) {
+                                $(this).removeClass("input-error");
+                                $("#descriptionError").hide().text("");
+                            }
+                        });
+
+                        // Clear tags error when a tag is added
+                        $(document).on("click", "#addTagBtn", function () {
+                            if ($("#tagsContainer .tag").length > 0) {
+                                $("#tagsContainer").removeClass("input-error");
+                                $("#tagsError").hide().text("");
+                            }
+                        });
+
+                        // Clear thumbnail error when image is selected
+                        $("#thumbnailUpload").on("change", function () {
+                            if (this.files.length > 0) {
+                                $("#thumbnailPreview").removeClass("input-error");
+                                $("#thumbnailError").hide().text("");
+                            }
+                        });
+
+                        // Also call validation on focus out to provide immediate feedback
+                        $("#blogTitle, #blogDescription").on("blur", function () {
+                            const field = $(this).attr("id").replace("blog", "").toLowerCase();
+                            const value = $(this).val().trim();
+
+                            if (value === '') {
+                                $(this).addClass("input-error");
+                                $(`#${field}Error`).text(`${field.charAt(0).toUpperCase() + field.slice(1)} cannot be empty.`).show();
+                            } else if (field === 'title' && value.length < 5) {
+                                $(this).addClass("input-error");
+                                $("#titleError").text("Title must be at least 5 characters long.").show();
+                            }
+                        });
+
+                        // Validate content on focus out
+                        $("#editor").data("kendoEditor").bind("blur", function () {
+                            const content = this.value().trim();
+                            const contentTextOnly = content.replace(/<[^>]*>/g, '').trim();
+
+                            if (content === '' || contentTextOnly.length < 50) {
+                                $(".editor-container iframe").css("border-color", "#dc3545");
+                                $("#contentError").text("Content must be at least 50 characters long.").show();
+                            }
+                        });
+                    });
+                </script>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Add script to fix the Kendo Editor iframe body background
+        $(document).ready(function () {
+            setTimeout(function () {
+                try {
+                    const editorFrame = $("#editor").data("kendoEditor").body;
+                    if (editorFrame) {
+                        $(editorFrame).css({
+                            'background-color': '#2d2d2d',
+                            'color': '#fff'
+                        });
+
+                        // Try to inject styles into the iframe
+                        const style = editorFrame.ownerDocument.createElement('style');
+                        style.textContent = `
+                            body { 
+                                background-color: #2d2d2d !important; 
+                                color: #fff !important; 
+                            }
+                            p { color: #fff !important; }
+                            h1, h2, h3, h4, h5, h6 { color: #fff !important; font-weight: 700 !important; }
+                            a { color: #007bff !important; }
+                        `;
+                        editorFrame.ownerDocument.head.appendChild(style);
+                    }
+                } catch (e) {
+                    console.error('Error styling editor iframe:', e);
+                }
+            }, 1000);
+        });
+
+        // Add a tooltip to show instructions when hovering over parts of the interface
+        $(document).ready(function () {
+            // Add a slight pulse animation to the thumbnail upload icon
+            setInterval(function () {
+                $(".thumbnail-placeholder .fas").animate({ opacity: 0.7 }, 800).animate({ opacity: 1 }, 800);
+            }, 1600);
+
+            // Add visual feedback when adding tags
+            $("#addTagBtn").click(function () {
+                if ($("#blogLabels").val().trim() !== '') {
+                    $(this).html('<i class="fas fa-check"></i>');
+                    setTimeout(function () {
+                        $("#addTagBtn").html('<i class="fas fa-plus"></i>');
+                    }, 1000);
+                }
+            });
+
+            // Add title field animation when focused
+            $("#blogTitle").focus(function () {
+                $(this).parent().find(".fas").addClass("fa-bounce");
+                setTimeout(function () {
+                    $(".fa-heading").removeClass("fa-bounce");
+                }, 1000);
+            });
+
+            // Add a tooltip for the title field
+            $("#blogTitle").attr("title", "Enter a compelling title for your blog post");
+        });
+    </script>
+</body>
+
+</html>

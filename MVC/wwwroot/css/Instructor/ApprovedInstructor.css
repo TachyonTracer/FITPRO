@@ -1,0 +1,655 @@
+:root {
+    --background: #0d0d0d;
+    --color: #ffffff;
+    --primary-color: #facc15;
+    --glass-color: rgba(255, 255, 255, 0.1);
+    --card-bg: rgba(26, 26, 46, 0.8);
+    --border-color: rgba(255, 255, 255, 0.1);
+  }
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: "Poppins", sans-serif;
+    background: var(--background);
+    color: var(--color);
+    letter-spacing: 1px;
+    transition: background 0.3s ease;
+    min-height: 100vh;
+    position: relative;
+    overflow-x: hidden;
+}
+
+a {
+    text-decoration: none;
+    color: var(--color);
+    transition: color 0.3s ease;
+}
+
+a:hover {
+    color: var(--primary-color);
+}
+
+h1 {
+    font-family: "Bebas Neue", sans-serif;
+    font-size: 3rem;
+    text-align: center;
+    margin-bottom: 0.5rem;
+    letter-spacing: 2px;
+}
+
+
+/* Main Content (from first CSS) */
+.main-content {
+  
+    /* Adjust based on navbar height */
+    padding: 1rem;
+    position: relative;
+    z-index: 1;
+    min-height: calc(100vh - 70px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Gym Background (from first CSS) */
+.gym-background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+}
+
+.gym-icon {
+    position: absolute;
+    width: 50px;
+    height: 50px;
+    background-size: contain;
+    background-repeat: no-repeat;
+    opacity: 0.4;
+    animation: float-icon 6s ease-in-out infinite;
+}
+
+/* Dumbbell Icon (from first CSS) */
+.dumbbell-icon-1,
+.dumbbell-icon-2 {
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><rect x="2" y="9" width="4" height="6" /><rect x="18" y="9" width="4" height="6" /><line x1="6" y1="12" x2="18" y2="12" /></svg>');
+}
+
+.dumbbell-icon-1 {
+    top: 10%;
+    left: 15%;
+    animation-delay: 0s;
+}
+
+.dumbbell-icon-2 {
+    bottom: 20%;
+    right: 10%;
+    animation-delay: 1s;
+}
+
+/* Barbell Icon (from first CSS) */
+.barbell-icon-1,
+.barbell-icon-2 {
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><rect x="1" y="7" width="4" height="10" /><rect x="19" y="7" width="4" height="10" /><rect x="7" y="9" width="4" height="6" /><rect x="13" y="9" width="4" height="6" /><line x1="5" y1="12" x2="19" y2="12" /></svg>');
+}
+
+.barbell-icon-1 {
+    top: 20%;
+    right: 20%;
+    animation-delay: 0.5s;
+}
+
+.barbell-icon-2 {
+    bottom: 15%;
+    left: 20%;
+    animation-delay: 1.5s;
+}
+
+/* Kettlebell Icon (from first CSS) */
+.kettlebell-icon-1,
+.kettlebell-icon-2 {
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M9 3h6v3h-6z" /><path d="M12 6c-3 0-5 2-5 5v6h10v-6c0-3-2-5-5-5z" /></svg>');
+}
+
+.kettlebell-icon-1 {
+    top: 30%;
+    left: 10%;
+    animation-delay: 1s;
+}
+
+.kettlebell-icon-2 {
+    bottom: 25%;
+    right: 15%;
+    animation-delay: 2s;
+}
+
+/* Names List (Updated from first CSS) */
+.instructor-section .names-list {
+    max-height: 70vh;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--primary-color) var(--glass-color);
+}
+
+.instructor-section .names-list::-webkit-scrollbar {
+    width: 8px;
+}
+
+.instructor-section .names-list::-webkit-scrollbar-track {
+    background: var(--glass-color);
+    border-radius: 10px;
+}
+
+.instructor-section .names-list::-webkit-scrollbar-thumb {
+    background: var(--primary-color);
+    border-radius: 10px;
+}
+
+.instructor-section .names-list::-webkit-scrollbar-thumb:hover {
+    background: #e04343;
+}
+
+.instructor-section .names-list .list-group-item {
+    cursor: pointer;
+    transition: background-color 0.3s ease, border-left-color 0.3s ease;
+    border-left: 3px solid transparent;
+    background: var(--glass-color);
+    color: var(--color);
+    backdrop-filter: blur(5px);
+    border-radius: 8px;
+    margin-bottom: 5px;
+    padding: 14px;
+    font-weight: 500;
+    letter-spacing: 0.8px;
+    font-size: 16px;
+}
+
+.instructor-section .names-list .list-group-item:hover,
+.instructor-section .names-list .list-group-item.active {
+    background-color: rgba(255, 255, 255, 0.2);
+    border-left-color: var(--primary-color);
+    font-weight: 600;
+    transform: scale(1.02);
+}
+
+/* Details Card (Updated from first CSS) */
+.instructor-section .details-card {
+    background: var(--glass-color);
+    border-radius: 15px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    padding: 25px;
+    transition: box-shadow 0.3s ease;
+    backdrop-filter: blur(15px);
+    border: 1px solid hsla(0, 0%, 65%, 0.2);
+    animation: fadeIn 1s ease-out;
+}
+
+.instructor-section .details-card:hover {
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
+    /* transform: scale(1.01); */
+}
+
+.instructor-section .details-section {
+    margin-bottom: 20px;
+}
+
+.instructor-section .details-section h5 {
+    border-bottom: 2px solid var(--primary-color);
+    padding-bottom: 10px;
+    margin-bottom: 15px;
+    color: var(--primary-color);
+    font-size: 1.25rem;
+    font-family: "Bebas Neue", sans-serif;
+    letter-spacing: 2px;
+}
+
+.instructor-section .detail-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.instructor-section .detail-item strong {
+    width: 150px;
+    color: rgba(255, 255, 255, 0.7);
+    margin-right: 15px;
+    font-weight: 500;
+}
+
+.instructor-section .detail-item span {
+    flex: 1;
+    font-weight: 400;
+}
+
+/* Documents Grid (from second CSS) */
+.instructor-section .documents-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 15px;
+}
+
+.instructor-section .document-card {
+    background-color: var(--glass-color);
+    border-radius: 8px;
+    padding: 15px;
+    text-align: center;
+    cursor: pointer;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    backdrop-filter: blur(5px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color:white;
+}
+
+.instructor-section .document-card:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+    transform: scale(1.05);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.instructor-section .document-card i {
+    font-size: 2.5rem;
+    color: var(--primary-color);
+    margin-bottom: 10px;
+}
+
+
+
+#approved-pdf-preview-modal .modal-dialog {
+    max-width: 90%;
+    height: 90vh;
+}
+
+#approved-pdf-preview-modal .modal-content {
+    height: 100%;
+    background: var(--glass-color);
+    backdrop-filter: blur(15px);
+    border: 1px solid hsla(0, 0%, 65%, 0.2);
+    color: var(--color);
+    border-radius: 15px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    overflow: hidden;
+    z-index: 5000; 
+}
+
+.modal-backdrop {
+    z-index: 5000; /* Ensure the backdrop is below the modal but above other elements */
+}
+
+#approved-pdf-preview-modal {
+    height: calc(100% - 60px);
+}
+
+/* Buttons (Updated from first CSS) */
+.instructor-section .btn-success {
+    background-color: var(--success-color);
+    border: none;
+    padding: 14px;
+    border-radius: 8px;
+    font-size: 18px;
+    letter-spacing: 1.5px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.instructor-section .btn-success:hover {
+    background-color: #218838;
+    transform: scale(1.03);
+    box-shadow: 0 0 12px rgba(0, 0, 0, 0.2);
+}
+
+.instructor-section .btn-danger {
+    background-color: var(--danger-color);
+    border: none;
+    padding: 14px;
+    border-radius: 8px;
+    font-size: 18px;
+    letter-spacing: 1.5px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.instructor-section .btn-danger:hover {
+    background-color: #c82333;
+    transform: scale(1.03);
+    box-shadow: 0 0 12px rgba(0, 0, 0, 0.2);
+}
+
+/* Background Light (Updated from first CSS) */
+.instructor-section .bg-light {
+    background: var(--glass-color) !important;
+    backdrop-filter: blur(15px);
+    border: 1px solid hsla(0, 0%, 65%, 0.2);
+    border-radius: 15px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+.instructor-section .text-primary {
+    color: var(--primary-color) !important;
+    font-family: "Bebas Neue", sans-serif;
+    letter-spacing: 2px;
+}
+
+.instructor-section .text-muted {
+    color: rgba(255, 255, 255, 0.7) !important;
+}
+
+.instructor-section .text-secondary {
+    color: rgba(255, 255, 255, 0.5) !important;
+    font-style: italic;
+}
+
+/* SweetAlert2 Styles (Updated from first CSS) */
+.swal2-popup {
+    background: var(--glass-color) !important;
+    backdrop-filter: blur(15px) !important;
+    border: 1px solid hsla(0, 0%, 65%, 0.2) !important;
+    border-radius: 15px !important;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3) !important;
+    color: var(--color) !important;
+}
+
+.swal2-title {
+    color: var(--color) !important;
+    font-family: "Poppins", sans-serif !important;
+    letter-spacing: 1px !important;
+}
+
+.swal2-content {
+    color: rgba(255, 255, 255, 0.8) !important;
+    font-family: "Poppins", sans-serif !important;
+}
+
+.swal2-confirm {
+    background-color: var(--success-color) !important;
+    color: var(--color) !important;
+    border: none !important;
+    border-radius: 8px !important;
+    font-family: "Poppins", sans-serif !important;
+    transition: all 0.3s ease !important;
+}
+
+.swal2-confirm:hover {
+    background-color: #218838 !important;
+    transform: scale(1.03) !important;
+}
+
+.swal2-cancel {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+    color: var(--color) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    border-radius: 8px !important;
+    font-family: "Poppins", sans-serif !important;
+    transition: all 0.3s ease !important;
+}
+
+.swal2-cancel:hover {
+    background-color: rgba(255, 255, 255, 0.2) !important;
+    transform: scale(1.03) !important;
+}
+
+.swal2-icon.swal2-warning {
+    color: var(--primary-color) !important;
+    border-color: var(--primary-color) !important;
+}
+
+.swal2-icon.swal2-success {
+    border-color: var(--success-color) !important;
+    background: none !important;
+}
+
+.swal2-icon.swal2-success .swal2-success-ring {
+    border-color: var(--success-color) !important;
+    background: none !important;
+    display: block !important;
+}
+
+.swal2-icon.swal2-success .swal2-success-circular-line-left,
+.swal2-icon.swal2-success .swal2-success-circular-line-right,
+.swal2-icon.swal2-success .swal2-success-fix {
+    display: none !important;
+}
+
+.swal2-icon.swal2-success .swal2-success-ring::before,
+.swal2-icon.swal2-success .swal2-success-ring::after {
+    display: none !important;
+    background: transparent !important;
+}
+
+.swal2-icon.swal2-success::before,
+.swal2-icon.swal2-success::after {
+    display: none !important;
+    background: transparent !important;
+}
+
+.swal2-icon.swal2-success [class^='swal2-success-line'] {
+    background-color: var(--success-color) !important;
+}
+
+/* .container-fluid  {
+    margin-top: 40px !important;
+    margin: 30px; 
+} */
+
+
+/* Profile Image Styling (Updated from first CSS) */
+.instructor-section .profile-image-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+}
+
+.instructor-section .profile-image {
+    width: 150px;
+    height: 150px;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 4px solid var(--primary-color);
+    transition: all 0.3s ease;
+    animation: lift 2s ease-in-out infinite;
+}
+
+.instructor-section .profile-image:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+}
+
+.instructor-section .personal-info-row {
+    display: flex;
+    align-items: center;
+    min-height: 180px;
+}
+
+.instructor-section .personal-info-details {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.instructor-section .personal-info-column {
+    flex: 1;
+    min-width: 200px;
+}
+
+/* Floating Circles (from first CSS) */
+.circle {
+    width: 8rem;
+    height: 8rem;
+    background: var(--primary-color);
+    border-radius: 50%;
+    position: absolute;
+    opacity: 0.8;
+}
+
+.circle-one {
+    top: 0;
+    left: 0;
+    z-index: -1;
+    transform: translate(-45%, -45%);
+    animation: float 4s ease-in-out infinite;
+}
+
+.circle-two {
+    bottom: 0;
+    right: 0;
+    z-index: -1;
+    transform: translate(45%, 45%);
+    animation: float-two 4s ease-in-out infinite;
+    animation-delay: 0.5s;
+}
+
+/* Animations (Updated from first CSS with fixed syntax) */
+@keyframes float {
+    0% {
+        transform: translate(-45%, -45%) translateY(0);
+    }
+
+    50% {
+        transform: translate(-45%, -45%) translateY(-15px);
+    }
+
+    100% {
+        transform: translate(-45%, -45%) translateY(0);
+    }
+}
+
+        @keyframes float-two {
+    0% {
+        transform: translate(45%, 45%) translateY(0);
+    }
+
+    50% {
+        transform: translate(45%, 45%) translateY(-15px);
+    }
+
+    100% {
+        transform: translate(45%, 45%) translateY(0);
+    }
+}
+
+        @keyframes fadeIn {
+    0% {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+        @keyframes lift {
+
+    0%,
+    100% {
+        transform: translateY(0) rotate(0deg);
+    }
+
+    50% {
+        transform: translateY(-10px) rotate(2deg);
+    }
+}
+
+        @keyframes float-icon {
+
+    0%,
+    100% {
+        transform: translateY(0);
+        opacity: 0.1;
+    }
+
+    50% {
+        transform: translateY(-20px);
+        opacity: 0.2;
+    }
+}
+
+/* Responsive Design (Updated from first CSS with fixed syntax) */
+        @media (max-width: 768px) {
+    .profile-image {
+        width: 120px;
+        height: 120px;
+    }
+
+    .details-section h5 {
+        font-size: 1.1rem;
+    }
+
+    .detail-item strong {
+        width: 120px;
+    }
+
+    .names-list {
+        max-height: 50vh;
+    }
+
+    .gym-icon {
+        width: 40px;
+        height: 40px;
+    }
+}
+
+        @media (max-width: 480px) {
+    .profile-image {
+        width: 100px;
+        height: 100px;
+    }
+
+    .details-section h5 {
+        font-size: 1rem;
+    }
+
+    .detail-item strong {
+        width: 100px;
+    }
+
+    .names-list {
+        max-height: 40vh;
+    }
+
+    .gym-icon {
+        width: 30px;
+        height: 30px;
+    }
+
+    .btn-success,
+    .btn-danger,
+    .btn-warning {
+        font-size: 16px;
+        padding: 10px;
+    }
+}
+
+.modal-backdrop {
+    --bs-backdrop-zindex: 0;
+    --bs-backdrop-bg: #000;
+    --bs-backdrop-opacity: 0.5;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: var(--bs-backdrop-zindex);
+    width: 100vw;
+    height: 100vh;
+    background-color: var(--bs-backdrop-bg);
+}
+
+.detail-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+    color:white
+  }

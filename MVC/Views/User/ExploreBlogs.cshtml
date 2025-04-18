@@ -1,0 +1,1194 @@
+@{
+    Layout = "../Shared/_UserLayout.cshtml";
+    ViewData["Title"] = "Explore Blogs";
+}
+
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>FitPro - My Blogs</title>
+    <link rel="stylesheet" href="style.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet" />
+    <script src="https://code.jquery.com/jquery-3.7.1.js"
+        integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
+</head>
+<style>
+      
+   .swal2-popup {
+          background: var(--glass-color) !important;
+          backdrop-filter: blur(15px) !important;
+          border: 1px solid hsla(0, 0%, 65%, 0.2) !important;
+          border-radius: 15px !important;
+          box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3) !important;
+          color:  #ffffff!important;
+      }
+
+      .swal2-title {
+          color: #ffffff;
+          font-family: "Poppins", sans-serif !important;
+          letter-spacing: 1px !important;
+      }
+
+      .swal2-content {
+          color: rgba(255, 255, 255, 0.8) !important;
+          font-family: "Poppins", sans-serif !important;
+      }
+
+      .swal2-confirm {
+          background-color:#437d51;
+          color:  #ffffff;
+          border: none !important;
+          border-radius: 8px !important;
+          font-family: "Poppins", sans-serif !important;
+          transition: all 0.3s ease !important;
+      }
+
+      .swal2-confirm:hover {
+          background-color: #218838 !important;
+          transform: scale(1.03) !important;
+      }
+
+      .swal2-cancel {
+          background-color: rgba(255, 255, 255, 0.1) !important;
+          color: var(--color) !important;
+          border: 1px solid rgba(255, 255, 255, 0.2) !important;
+          border-radius: 8px !important;
+          font-family: "Poppins", sans-serif !important;
+          transition: all 0.3s ease !important;
+      }
+
+      .swal2-cancel:hover {
+          background-color: rgba(244, 18, 18, 0.2) !important;
+          transform: scale(1.03) !important;
+      }
+
+      .swal2-icon.swal2-warning {
+          color: var(--primary-color) !important;
+          border-color: var(--primary-color) !important;
+      }
+
+      .swal2-icon.swal2-success {
+          border-color: var(--success-color) !important;
+          background: none !important;
+      }
+
+      .swal2-icon.swal2-success .swal2-success-ring {
+          border-color: var(--success-color) !important;
+          background: none !important;
+          display: block !important;
+      }
+
+      .swal2-icon.swal2-success .swal2-success-circular-line-left,
+      .swal2-icon.swal2-success .swal2-success-circular-line-right,
+      .swal2-icon.swal2-success .swal2-success-fix {
+          display: none !important;
+      }
+
+      .swal2-icon.swal2-success .swal2-success-ring::before,
+      .swal2-icon.swal2-success .swal2-success-ring::after {
+          display: none !important;
+          background: transparent !important;
+      }
+
+      .swal2-icon.swal2-success::before,
+      .swal2-icon.swal2-success::after {
+          display: none !important;
+          background: transparent !important;
+      }
+
+      .swal2-icon.swal2-success [class^='swal2-success-line'] {
+          background-color: #218838 !important;
+      }
+    body {
+        background: url("gym1.jpg") no-repeat center center fixed;
+        background-size: cover;
+        background-color: #0a0a0a;
+        /* Slightly darker background */
+        font-family: "Poppins", sans-serif;
+        margin: 0;
+        padding: 0;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        color: #e0e0e0;
+        /* Default text color */
+    }
+
+    /* Class Cards Grid - Assuming this is for another section, keeping as is */
+    /* ...existing .class-grid styles... */
+
+    /* Class Card - Assuming this is for another section, keeping as is */
+    /* ...existing .class-card styles... */
+
+    /* Filter Section */
+    .filter-section {
+        background: rgba(20, 20, 20, 0.85);
+        /* Darker, slightly more opaque */
+        backdrop-filter: blur(5px);
+        /* Add blur effect */
+        padding: 25px 40px;
+        /* Increased padding */
+        border-radius: 15px;
+        /* Slightly smaller radius */
+        margin: 30px 40px;
+        /* Increased margin */
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 20px;
+        /* Increased gap */
+        border: 1px solid #2a2a2a;
+        /* Subtle border */
+    }
+
+    .search-box {
+        display: flex;
+        background: #252525;
+        /* Darker search box */
+        border-radius: 30px;
+        padding: 10px 18px;
+        /* Increased padding */
+        width: 320px;
+        /* Slightly wider */
+        border: 1px solid #333;
+        transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .search-box:focus-within {
+        /* Highlight when focused */
+        border-color: #facc15;
+        box-shadow: 0 0 0 2px rgba(250, 204, 21, 0.3);
+    }
+
+    .search-box input {
+        background: transparent;
+        border: none;
+        outline: none;
+        color: #eaeaea;
+        flex-grow: 1;
+        padding: 0 10px;
+        font-size: 15px;
+    }
+
+    .search-box button {
+        background: transparent;
+        border: none;
+        color: #facc15;
+        cursor: pointer;
+        padding: 0 5px;
+        /* Add some padding */
+        transition: color 0.3s ease;
+    }
+
+    .search-box button:hover {
+        color: #ffe347;
+        /* Brighter yellow on hover */
+    }
+
+
+    .sort-options {
+        display: flex;
+        gap: 15px;
+        align-items: center;
+    }
+
+    .sort-options span {
+        color: #aaa;
+        /* Lighter text for label */
+        font-size: 14px;
+    }
+
+    .sort-btn,
+    .view-btn {
+        background: #282828;
+        /* Darker button */
+        color: #bbb;
+        /* Lighter text */
+        border: 1px solid #444;
+        /* Slightly more visible border */
+        border-radius: 20px;
+        /* Pill shape */
+        padding: 8px 18px;
+        /* Adjust padding */
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: 500;
+        /* Medium weight */
+        transition: all 0.3s ease;
+    }
+
+    .sort-btn.active,
+    .view-btn.active {
+        background: #facc15;
+        color: #111;
+        border-color: #facc15;
+        font-weight: 700;
+        /* Bold active */
+    }
+
+    .sort-btn:hover:not(.active),
+    .view-btn:hover:not(.active) {
+        /* Hover effect for non-active buttons */
+        background: #383838;
+        border-color: #555;
+        color: #fff;
+    }
+
+    .sort-divider {
+        color: #555;
+        font-size: 14px;
+        margin: 0 5px;
+    }
+
+    /* Create blog button - Removed from HTML, keeping style for reference if needed */
+    /* ...existing .create-blog-btn styles... */
+
+    /* Filter actions wrapper */
+    .filter-actions {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    /* Blog List Styling */
+    .blog-list {
+        padding: 0 40px 40px;
+        /* Adjust padding */
+        flex-grow: 1;
+        overflow: visible;
+    }
+
+    .blog-card {
+        display: flex;
+        background: linear-gradient(145deg, #1e1e1e, #161616);
+        /* Subtle gradient */
+        border: 1px solid #2f2f2f;
+        /* Slightly lighter border */
+        border-radius: 12px;
+        /* Consistent radius */
+        overflow: hidden;
+        margin-bottom: 25px;
+        /* Increased spacing */
+        transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+        width: 100%;
+        max-width: 100%;
+        cursor: pointer;
+        /* Make whole card feel clickable */
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        /* Base shadow */
+    }
+
+    .blog-card:hover {
+        transform: translateY(-5px) scale(1.01);
+        /* Lift and slightly scale */
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+        /* Enhanced shadow */
+        border-color: #444;
+        /* Highlight border */
+    }
+
+    .blog-thumbnail {
+        width: 220px;
+        /* Slightly larger thumbnail */
+        height: 160px;
+        /* Adjust height */
+        object-fit: cover;
+        transition: transform 0.3s ease;
+        /* Add transition for zoom */
+        flex-shrink: 0;
+        /* Prevent shrinking */
+    }
+
+    .blog-card:hover .blog-thumbnail {
+        transform: scale(1.05);
+        /* Zoom effect on hover */
+    }
+
+
+    .blog-details {
+        padding: 2px 20px 2px;
+        /* Adjust padding */
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        overflow: hidden;
+        width: calc(100% - 220px);
+        /* Adjust width calculation */
+    }
+
+    .blog-title {
+
+        font-size: 20px;
+        /* Slightly larger title */
+        margin-top: 18px;
+        margin-bottom: 10px;
+        /* Increased margin */
+        font-weight: 600;
+        /* Semi-bold */
+    }
+
+    .blog-description {
+        color: #b0b0b0;
+        /* Lighter description */
+        font-size: 14px;
+        line-height: 1.5;
+        /* Improve readability */
+        margin-bottom: 18px;
+        /* Increased margin */
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .blog-stats {
+        display: flex;
+        gap: 18px;
+        /* Increased gap */
+        flex-wrap: wrap;
+        align-items: center;
+        margin-top: auto;
+        padding-bottom: 15px;
+        /* Push stats to the bottom */
+    }
+
+    .stat {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        /* Increased gap */
+        color: #999;
+        /* Lighter stats text */
+        font-size: 13px;
+        /* Slightly smaller */
+    }
+
+    .stat i {
+        @* color: #facc15; *@
+        /* Yellow icons */
+        font-size: 14px;
+        /* Slightly larger icons */
+    }
+
+
+    .blog-actions {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-left: auto;
+        /* Pushes actions to the right */
+    }
+
+    .read-btn {
+        background: linear-gradient(45deg, #facc15, #fde047);
+        /* Yellow gradient */
+        color: #1a1a1a;
+        /* Dark text */
+        padding: 9px 18px;
+        /* Adjust padding */
+        border-radius: 20px;
+        /* Pill shape */
+        font-size: 14px;
+        font-weight: 600;
+        /* Semi-bold */
+        cursor: pointer;
+        transition: all 0.3s ease;
+        border: none;
+        display: inline-flex;
+        /* Align icon and text */
+        align-items: center;
+        gap: 8px;
+        /* Space between icon and text */
+        box-shadow: 0 2px 5px rgba(250, 204, 21, 0.2);
+        /* Subtle shadow */
+    }
+
+    .read-btn i {
+        transition: transform 0.3s ease;
+    }
+
+    .read-btn:hover {
+        background: linear-gradient(45deg, #fde047, #facc15);
+        /* Invert gradient on hover */
+        transform: translateY(-2px) scale(1.03);
+        /* Lift effect */
+        box-shadow: 0 4px 10px rgba(250, 204, 21, 0.3);
+        /* Enhanced shadow */
+    }
+
+    .read-btn:hover i {
+        transform: translateX(3px);
+        /* Move icon slightly on hover */
+    }
+
+
+    /* Bookmark button - Keeping style for reference if needed */
+    /* ...existing .bookmark-btn styles... */
+
+    .no-blogs {
+        text-align: center;
+        color: #aaa;
+        /* Lighter text */
+        padding: 60px 40px;
+        /* More padding */
+        font-size: 18px;
+        background: rgba(20, 20, 20, 0.7);
+        /* Subtle background */
+        border-radius: 10px;
+    }
+
+    .loader {
+        text-align: center;
+        padding: 60px;
+    }
+
+    .loader i {
+        color: #facc15;
+        font-size: 45px;
+        /* Larger spinner */
+        animation: spin 1s infinite linear;
+    }
+
+
+    /* Blog Open Icon - Removed from HTML, keeping style for reference */
+    /* ...existing .blog-open-icon styles... */
+
+    .copy-link {
+        margin-left: 2px;
+        cursor: pointer;
+        color: #888;
+        transition: color 0.2s ease, transform 0.2s ease;
+        display: inline-flex;
+        /* Align icon properly */
+        align-items: center;
+    }
+
+    .copy-link i {
+        font-size: 16px;
+        /* Adjust icon size */
+        color: #888;
+    }
+
+    .copy-link i:hover {
+        font-size: 16px;
+        /* Adjust icon size */
+        color: #facc15;
+    }
+
+    .copy-link:hover {
+        color: #facc15;
+        /* Yellow on hover */
+        transform: scale(1.1);
+        /* Slight scale effect */
+    }
+
+    @@keyframes spin {
+        from {
+            transform: rotate(0deg);
+        }
+
+        to {
+            transform: rotate(360deg);
+        }
+    }
+
+    @@media (max-width: 768px) {
+
+        /* Responsive adjustments */
+        .blog-card {
+            flex-direction: column;
+            max-width: 400px;
+            /* Limit width on mobile */
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .blog-thumbnail {
+            width: 100%;
+            height: 180px;
+        }
+
+        .blog-details {
+            width: 100%;
+            /* Take full width in column layout */
+            padding: 15px 20px;
+            /* Adjust padding for mobile */
+        }
+
+        .blog-title {
+            font-size: 18px;
+            /* Adjust title size */
+        }
+
+        .blog-description {
+            font-size: 13px;
+            /* Adjust description size */
+            margin-bottom: 15px;
+        }
+
+        .blog-stats {
+            gap: 12px;
+            /* Adjust gap */
+        }
+
+        .stat {
+            font-size: 12px;
+        }
+
+        .stat i {
+            font-size: 13px;
+        }
+
+        .read-btn {
+            padding: 8px 15px;
+            font-size: 13px;
+        }
+
+
+        .filter-section {
+            flex-direction: column;
+            align-items: stretch;
+            margin: 20px;
+            /* Adjust margin */
+            padding: 20px;
+            /* Adjust padding */
+        }
+
+        .filter-actions {
+            flex-direction: column;
+            width: 100%;
+            gap: 10px;
+            /* Adjust gap */
+        }
+
+        .search-box {
+            width: 100%;
+        }
+
+        /* Removed create button */
+
+        .sort-options {
+            justify-content: center;
+            margin-top: 15px;
+            /* Increased margin */
+            flex-wrap: wrap;
+            /* Allow wrapping */
+            gap: 10px;
+            /* Adjust gap */
+        }
+
+        .sort-btn,
+        .view-btn {
+            padding: 7px 15px;
+            font-size: 13px;
+        }
+    }
+    
+
+    /* Instructor info - Keeping style for reference if needed */
+    /* ...existing .instructor-info styles... */
+
+    /* Blog Header - Keeping style for reference if needed */
+    /* ...existing .blog-header styles... */
+
+    /* Instructor Header Info - Keeping style for reference if needed */
+    /* ...existing .instructor-header-info styles... */
+</style>
+
+<body>
+    <!-- Filter Section -->
+    <section class="filter-section">
+        <div class="filter-actions">
+            <div class="search-box">
+                <input type="text" id="search-input" placeholder="Search blogs by title or description...">
+                <button id="search-btn" title="Search"><i class="fas fa-search"></i></button>
+            </div>
+            <!-- Removed "Create New Blog" button -->
+        </div>
+        <div class="sort-options">
+            <span>View:</span>
+            <button class="view-btn active" data-view="all">All</button>
+            <button class="view-btn" data-view="bookmarked">Bookmarked</button>
+            <span class="sort-divider">|</span>
+            <span>Sort by:</span>
+            <button class="sort-btn active" data-sort="latest">Latest</button>
+            <button class="sort-btn" data-sort="oldest">Oldest</button>
+            <button class="sort-btn" data-sort="popular">Most Popular</button>
+        </div>
+    </section>
+
+    <!-- Blog List Section -->
+    <section class="blog-list" id="blog-list">
+        <div class="loader">
+            <i class="fas fa-spinner"></i>
+        </div>
+        <!-- Blog cards will be loaded here -->
+    </section>
+
+    <!-- Scripts -->
+    
+    <script>
+        function viewClassDetails(classId) {
+  // Redirect to the class details page with the class ID
+  window.location.href = `/User/Classdetails/${classId}`;
+}
+
+function myclasses() {
+  // Redirect to the class details page with the class ID
+  window.location.href = `/User/MyClasses`;
+}
+
+function Schedule() {
+  // Redirect to the class details page with the class ID
+  window.location.href = `/User/UserClassSchedule`;
+}
+
+function ExploreBlogs() {
+    // Redirect to the class details page with the class ID
+    window.location.href = `/User/ExploreBlogs`;
+}
+
+function home() {
+  // Redirect to the class details page with the class ID
+  window.location.href = `/User/home`;
+}
+function classes() {
+  // Redirect to the class details page with the class ID
+  window.location.href = `/User/index`;
+}
+
+
+function performLogout() {
+  Swal.fire({
+    title: "Logging Out",
+    text: "Please wait...",
+    timer: 1000,
+    timerProgressBar: true,
+    didOpen: () => {
+      Swal.showLoading();
+      // Clear the authentication token
+      localStorage.removeItem("authToken");
+    },
+  }).then(() => {
+    // Redirect to login page
+    window.location.href = "/Auth/Login";
+  });
+}
+
+// Add a showLogoutConfirmation function
+function showLogoutConfirmation() {
+  Swal.fire({
+    title: "Logout Confirmation",
+    text: "Are you sure you want to logout?",
+    icon: "question",
+    showCancelButton: true,
+    confirmButtonColor: "#ff4d4d",
+    cancelButtonColor: "#6c757d",
+    confirmButtonText: "Yes, Logout",
+    cancelButtonText: "Cancel",
+  }).then((result) => {
+    if (result.isConfirmed) {
+      performLogout();
+    }
+  });
+}
+
+
+
+        // Variables
+        let allBlogs = [];
+        let filteredBlogs = [];
+        let currentSort = 'latest';
+        let currentView = 'all';
+        let token = "";
+        let isBookmarkedView = false;
+
+        let USER_OBJECT = null;
+        let USER_ROLE = "instructor"; // by default set to "instructor"
+        let USER_ID = getUserIdFromToken();
+
+
+        if (!USER_ID) {
+            console.warn("No Authentication");
+        } else {
+            console.log(USER_OBJECT);
+            console.log(USER_ID);
+            console.log(USER_ROLE);
+        }
+
+        @* Utility Functions *@
+            function parseJwt(token) {
+                try {
+                    const base64Url = token.split(".")[1];
+                    const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+                    return JSON.parse(atob(base64));
+                } catch (error) {
+                    console.error("Invalid token:", error);
+                    return null;
+                }
+            }
+        function getUserIdFromToken() {
+            const token = localStorage.getItem("authToken");
+            if (!token) {
+                console.warn("No auth token found in localStorage.");
+                return null;
+            }
+            const jwt_decoded = parseJwt(token);
+            if (jwt_decoded) {
+                USER_OBJECT = JSON.parse(jwt_decoded.UserObject);
+                if (USER_OBJECT.instructorId) {
+                    USER_ROLE = "instructor";
+                    return USER_OBJECT.instructorId;
+                } else {
+                    USER_ROLE = "user";
+                    return USER_OBJECT.userId;
+                }
+            }
+            console.warn("Invalid or malformed token.");
+            return null;
+        }
+
+
+        // Sample blog data for fallback
+        const sampleBlogs = [
+            {
+                id: 1,
+                title: "10 Essential Stretches for After Your Workout",
+                description: "Discover the most effective stretches to help your muscles recover and prevent injury after intense training sessions.",
+                content: "<h2>10 Essential Stretches for After Your Workout</h2><p>Stretching after your workout is crucial for muscle recovery and flexibility. Here are the top 10 stretches you should incorporate:</p><ul><li>Hamstring stretch</li><li>Quad stretch</li><li>Child's pose</li><li>Triceps stretch</li><li>Cat-cow stretch</li><li>Butterfly stretch</li><li>Shoulder stretch</li><li>Hip flexor stretch</li><li>Calf stretch</li><li>Spine twist</li></ul><p>Perform each stretch for 20-30 seconds for optimal benefits.</p>",
+                thumbnailUrl: "https://images.unsplash.com/photo-1599447421416-3414500d18a5?ixlib=rb-4.0.3",
+                views: 1245,
+                likes: 89,
+                comments: 23,
+                is_completed: 1,
+                createdAt: "2023-06-15T14:22:00Z"
+            },
+            {
+                id: 2,
+                title: "Nutrition Tips for Muscle Building",
+                description: "Learn how to fuel your body correctly to maximize muscle growth and recovery with these evidence-based nutrition strategies.",
+                content: "<h2>Nutrition Tips for Muscle Building</h2><p>Building muscle requires more than just lifting weights - proper nutrition is essential.</p><h3>Key Principles:</h3><ol><li>Maintain a caloric surplus</li><li>Consume adequate protein (1.6-2.2g per kg of bodyweight)</li><li>Time your carbohydrates around workouts</li><li>Don't neglect healthy fats</li><li>Stay hydrated</li></ol>",
+                thumbnailUrl: "https://images.unsplash.com/photo-1490645935967-10de6ba17061?ixlib=rb-4.0.3",
+                views: 2150,
+                likes: 167,
+                comments: 42,
+                is_completed: 1,
+                createdAt: "2023-05-20T09:15:00Z"
+            },
+            {
+                id: 3,
+                title: "The Ultimate HIIT Workout Guide",
+                description: "High-Intensity Interval Training explained: benefits, sample workouts, and how to incorporate it into your fitness routine.",
+                content: "<h2>The Ultimate HIIT Workout Guide</h2><p>High-Intensity Interval Training (HIIT) has revolutionized the fitness world with its efficient, results-driven approach.</p><h3>Sample 20-Minute HIIT Workout:</h3><ol><li>30 seconds burpees, 30 seconds rest</li><li>30 seconds mountain climbers, 30 seconds rest</li><li>30 seconds jump squats, 30 seconds rest</li><li>30 seconds high knees, 30 seconds rest</li></ol><p>Repeat this circuit 5 times.</p>",
+                thumbnailUrl: "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?ixlib=rb-4.0.3",
+                views: 3542,
+                likes: 245,
+                comments: 58,
+                is_completed: 1,
+                createdAt: "2023-07-03T16:40:00Z"
+            },
+            {
+                id: 4,
+                title: "Mindfulness and Fitness: The Perfect Combination",
+                description: "How incorporating mindfulness practices into your fitness routine can enhance performance and overall wellbeing.",
+                thumbnailUrl: "https://images.unsplash.com/photo-1593810450967-f9c42742e3b5?ixlib=rb-4.0.3",
+                views: 987,
+                likes: 76,
+                comments: 19,
+                is_completed: 1,
+                createdAt: "2023-07-10T11:30:00Z"
+            }
+        ];
+
+        // Utility Functions
+        function parseJwt(token) {
+            try {
+                const base64Url = token.split(".")[1];
+                const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+                return JSON.parse(atob(base64));
+            } catch (error) {
+                console.error("Invalid token:", error);
+                return null;
+            }
+        }
+
+        function getUserIdFromToken() {
+            token = localStorage.getItem("authToken");
+            if (!token) {
+                console.warn("No auth token found in localStorage.");
+                return null;
+            }
+            const decoded = parseJwt(token);
+            if (decoded) {
+                console.log("decoded:" + JSON.parse(decoded.UserObject).instructorName);
+                return JSON.parse(decoded.UserObject).instructorId; // Updated to return instructorId from decoded token
+            }
+            console.warn("Invalid or malformed token.");
+            return null;
+        }
+
+        // Fetch blogs on page load
+        $(document).ready(function () {
+            function getUserIdFromToken() {
+                const token = localStorage.getItem("authToken");
+                if (!token) {
+                    console.warn("No auth token found in localStorage.");
+                    return null;
+                }
+                const jwt_decoded = parseJwt(token);
+                if (jwt_decoded) {
+                    USER_OBJECT = JSON.parse(jwt_decoded.UserObject);
+                    if (USER_OBJECT.instructorId) {
+                        USER_ROLE = "instructor";
+                        return USER_OBJECT.instructorId;
+                    } else {
+                        USER_ROLE = "user";
+                        return USER_OBJECT.userId;
+                    }
+                }
+                console.warn("Invalid or malformed token.");
+                return null;
+            }
+            token = localStorage.getItem('authToken');
+            USER_ID = getUserIdFromToken();
+            console.log(USER_ID);
+
+            // Try to fetch actual data first
+            fetchAllBlogs();
+        });
+
+        function fetchAllBlogs() {
+            $.ajax({
+                url: `http://localhost:8080/api/Blog/GetBlogsForUser`,
+                type: 'GET',
+                headers: {
+                    'Authorization': token ? `Bearer ${token}` : '',
+                    'Content-Type': 'application/json'
+                },
+                success: function (data) {
+                    if (data && data.success && data.data && data.data.entries.length > 0) {
+                        allBlogs = data.data.entries.map(entry => ({
+                            id: entry.c_blog_id,
+                            authorId: entry.c_blog_author_id,
+                            title: entry.c_title,
+                            description: entry.c_desc,
+                            content: entry.c_content,
+                            thumbnailUrl: !entry.c_thumbnail || entry.c_thumbnail.includes('default')
+                                ? 'http://localhost:8081/blogImages/Thumbnails/default.png'
+                                : `http://localhost:8081/blogImages/Thumbnails/${entry.c_blog_id}/${entry.c_thumbnail}`,
+                            tags: entry.c_tags ? entry.c_tags.split(",") : [],
+                            views: entry.c_views || 0,
+                            likes: entry.c_likes || 0,
+                            comments: entry.c_comments || 0,
+                            is_completed: entry.c_is_published || 0,
+                            createdAt: entry.c_created_at,
+                            sourceUrl: 'http://localhost:8081/Blog/blogpost/' + entry.c_source_url
+                        }));
+                        filteredBlogs = [...allBlogs];
+                        sortBlogs(currentSort);
+                        renderBlogs();
+                    } else {
+                        useSampleData();
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.error('Error fetching blogs:', error);
+                    // On error, fall back to sample data
+                    useSampleData();
+                },
+                timeout: 5000 // 5 second timeout
+            });
+        }
+
+        function fetchBookmarkedBlogs() {
+            if (!USER_ID) {
+                showError("Please log in to view your bookmarked blogs.");
+                return;
+            }
+
+            $("#blog-list").html('<div class="loader"><i class="fas fa-spinner"></i></div>');
+
+            $.ajax({
+                url: `http://localhost:8080/api/Blog/fetchBookmarkedBlogsForUser?user_id=${USER_ID}`,
+                type: 'POST',
+                headers: {
+                    'Authorization': token ? `Bearer ${token}` : '',
+                    'Content-Type': 'application/json'
+                },
+                success: function (data) {
+                    if (data && data.success && data.data && data.data.entries.length > 0) {
+                        const bookmarkedBlogs = data.data.entries.map(entry => ({
+                            id: entry.c_blog_id,
+                            authorId: entry.c_blog_author_id,
+                            title: entry.c_title,
+                            description: entry.c_desc,
+                            content: entry.c_content,
+                            thumbnailUrl: !entry.c_thumbnail || entry.c_thumbnail.includes('default')
+                                ? 'http://localhost:8081/blogImages/Thumbnails/default.png'
+                                : `http://localhost:8081/blogImages/Thumbnails/${entry.c_blog_id}/${entry.c_thumbnail}`,
+                            tags: entry.c_tags ? entry.c_tags.split(",") : [],
+                            views: entry.c_views || 0,
+                            likes: entry.c_likes || 0,
+                            comments: entry.c_comments || 0,
+                            is_completed: entry.c_is_published || 0,
+                            createdAt: entry.c_created_at,
+                            sourceUrl: 'http://localhost:8081/Blog/blogpost/' + entry.c_source_url
+                        }));
+
+                        filteredBlogs = bookmarkedBlogs;
+                        renderBlogs();
+                    } else {
+                        $("#blog-list").html('<div class="no-blogs">You have no bookmarked blogs.</div>');
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.error('Error fetching bookmarked blogs:', error);
+                    showError("Failed to load bookmarked blogs. Please try again later.");
+                }
+            });
+        }
+
+        function useSampleData() {
+            console.log('Using sample blog data');
+            allBlogs = sampleBlogs;
+            filteredBlogs = [...allBlogs];
+            sortBlogs(currentSort);
+            renderBlogs();
+        }
+
+        function showError(message) {
+            $("#blog-list").html(`<div class="no-blogs">${message}</div>`);
+        }
+
+        function renderBlogs() {
+            const blogListElement = $("#blog-list");
+            blogListElement.empty();
+
+            if (filteredBlogs.length === 0) {
+                // Use the updated no-blogs style
+                blogListElement.html('<div class="no-blogs">No blogs found matching your criteria.</div>');
+                return;
+            }
+
+            filteredBlogs.forEach(blog => {
+                // Only show published blogs to users
+                if (blog.is_completed) {
+                    const blogCard = $('<div>')
+                        .addClass('blog-card')
+                        // Add data attribute for URL to make card clickable
+                        .attr('data-url', blog.sourceUrl);
+
+                    blogCard.html(`
+                        <img src="${blog.thumbnailUrl || '/images/default-blog.jpg'}" alt="${blog.title}" class="blog-thumbnail">
+                        <div class="blog-details">
+                            <div>
+                                <h3 class="blog-title">${blog.title}</h3>
+                                <p class="blog-description">${blog.description || 'No description provided.'}</p>
+                            </div>
+                            <div class="blog-stats">
+                                <span class="stat" title="Views"><i class="fas fa-eye"></i> ${blog.views || 0}</span>
+                                <span class="stat" title="Likes"><i class="fas fa-heart"></i> ${blog.likes || 0}</span>
+                                <span class="stat" title="Comments"><i class="fas fa-comment"></i> ${blog.comments || 0}</span>
+                                <span class="stat" title="Published Date">
+                                    <i class="fas fa-calendar-alt"></i> ${formatDate(blog.createdAt)}
+                                </span>
+                                <span class="stat copy-link" title="Copy Link" data-url="${blog.sourceUrl}">
+                                    <i class="fas fa-link"></i>
+                                </span>
+                                <div class="blog-actions">
+                                    <button class="read-btn" onclick="openBlog('${blog.sourceUrl}', event)">
+                                        <i class="fas fa-book-open"></i> Read Article
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    `);
+
+                    blogListElement.append(blogCard);
+                }
+            });
+
+            // If all blogs were filtered out because they were drafts
+            if (blogListElement.children().length === 0 && allBlogs.length > 0) {
+                blogListElement.html('<div class="no-blogs">No published blogs available at the moment. Check back later!</div>');
+            } else if (blogListElement.children().length === 0) {
+                // Handle case where initial fetch returned no blogs at all
+                blogListElement.html('<div class="no-blogs">No blogs have been created yet.</div>');
+            }
+        }
+
+        // Open blog when clicking the open icon or read button
+        function openBlog(url, event) {
+            if (event) {
+                event.stopPropagation();
+            }
+            window.open(url, '_blank');
+        }
+
+        // Copy blog URL
+        $(document).on('click', '.copy-link', function (e) {
+            e.stopPropagation();
+            const url = $(this).data('url');
+            navigator.clipboard.writeText(url).then(() => {
+                $(this).attr('title', 'Copied!').tooltip('show');
+                setTimeout(() => $(this).attr('title', 'Copy Link'), 1000);
+            });
+        });
+
+        function formatDate(dateString) {
+            if (!dateString) return 'Unknown date';
+            const date = new Date(dateString * 1000);
+            return date.toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric'
+            });
+        }
+
+        function sortBlogs(sortType) {
+            currentSort = sortType;
+
+            // Update active button
+            $('.sort-btn').removeClass('active');
+            $(`.sort-btn[data-sort="${sortType}"]`).addClass('active');
+
+            // Don't refetch if we're just changing sort order
+            // We'll sort the current filtered blogs instead
+
+            switch (sortType) {
+                case 'latest':
+                    filteredBlogs.sort((a, b) => new Date(b.createdAt * 1000) - new Date(a.createdAt * 1000));
+                    break;
+                case 'oldest':
+                    filteredBlogs.sort((a, b) => new Date(a.createdAt * 1000) - new Date(b.createdAt * 1000));
+                    break;
+                case 'popular':
+                    filteredBlogs.sort((a, b) => (b.views || 0) - (a.views || 0));
+                    break;
+            }
+            renderBlogs();
+        }
+
+        function setView(viewType) {
+            currentView = viewType;
+
+            // Update active button
+            $('.view-btn').removeClass('active');
+            $(`.view-btn[data-view="${viewType}"]`).addClass('active');
+
+            if (viewType === 'bookmarked') {
+                isBookmarkedView = true;
+                fetchBookmarkedBlogs();
+                return;
+            }
+
+            isBookmarkedView = false;
+
+            // If switching back to all blogs, reset to all blogs
+            filteredBlogs = [...allBlogs];
+
+            // Apply search filter if any
+            const searchTerm = $('#search-input').val().trim();
+            if (searchTerm) {
+                searchFilter(searchTerm);
+            } else {
+                // Just apply current sorting
+                sortBlogs(currentSort);
+            }
+        }
+
+        function searchFilter(searchTerm) {
+            if (!searchTerm.trim()) {
+                // If no search term, just reset to current view
+                if (currentView === 'bookmarked') {
+                    fetchBookmarkedBlogs();
+                } else {
+                    filteredBlogs = [...allBlogs];
+                    sortBlogs(currentSort);
+                }
+                return;
+            }
+
+            // If in bookmarked view and searching, filter bookmarked blogs locally
+            // We don't want to lose the bookmarked state
+            searchTerm = searchTerm.toLowerCase();
+
+            if (currentView === 'all') {
+                filteredBlogs = allBlogs.filter(blog =>
+                    blog.title.toLowerCase().includes(searchTerm) ||
+                    (blog.description && blog.description.toLowerCase().includes(searchTerm))
+                );
+            } else {
+                // We're already in bookmarked view, so filter the current filtered blogs
+                filteredBlogs = filteredBlogs.filter(blog =>
+                    blog.title.toLowerCase().includes(searchTerm) ||
+                    (blog.description && blog.description.toLowerCase().includes(searchTerm))
+                );
+            }
+
+            // Apply current sort to filtered results
+            sortBlogs(currentSort);
+        }
+
+        function filterBlogs(searchTerm) {
+            // Just call searchFilter with the search term
+            searchFilter(searchTerm);
+        }
+
+        // Event listeners for search and sort
+        $(document).on('click', '#search-btn', function () {
+            const searchTerm = $('#search-input').val();
+            filterBlogs(searchTerm);
+        });
+
+        $(document).on('keyup', '#search-input', function (event) {
+            if (event.key === 'Enter') {
+                const searchTerm = $(this).val();
+                filterBlogs(searchTerm);
+            }
+        });
+
+        $(document).on('click', '.sort-btn', function () {
+            sortBlogs($(this).data('sort'));
+        });
+
+        $(document).on('click', '.view-btn', function () {
+            setView($(this).data('view'));
+        });
+
+        // Make entire blog card clickable to open the blog
+        @* $(document).on('click', '.blog-card', function (e) {
+            // Prevent click action if clicking on interactive elements like copy or read button
+            if (!$(e.target).closest('.copy-link, .read-btn').length) {
+                const url = $(this).data('url');
+                if (url) {
+                    openBlog(url); // Call openBlog without event to avoid stopPropagation
+                }
+            }
+        }); *@
+
+            // Ensure openBlog doesn't need the event if called directly
+            @* function openBlog(url, event) {
+            if (event) {
+                event.stopPropagation(); // Stop propagation only if called from button click
+            }
+            if (url) {
+                window.open(url, '_blank');
+            }
+        } *@
+
+        // ... rest of existing script ...
+    </script>
+    <script src='@Url.Content("~/js/User/Main.js")' asp-append-version="true"></script>
+
+</body>
+
+</html>

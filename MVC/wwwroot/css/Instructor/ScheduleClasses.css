@@ -1,0 +1,324 @@
+:root {
+    --background: #0d0d0d;
+    --color: #ffffff;
+    --primary-color: #facc15;
+    --glass-color: rgba(255, 255, 255, 0.1);
+    --card-bg: rgba(26, 26, 46, 0.8);
+    --border-color: rgba(255, 255, 255, 0.1);
+  }
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    overflow: auto;
+    font-family: "Poppins", sans-serif;
+    background: var(--background);
+    color: var(--color);
+    letter-spacing: 1px;
+    min-height: 100vh;
+    position: relative;
+}
+
+.header {
+    background-color: rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(10px);
+    padding: 15px 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--border-color);
+    position: fixed;
+    width: 100%;
+    top: 0;
+    z-index: 1000;
+}
+
+.logo-container {
+    display: flex;
+    align-items: center;
+}
+
+.logo {
+    font-family: "Poppins", sans-serif;
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--primary-color);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+}
+
+.logo img {
+    height: 40px;
+    margin-right: 10px;
+}
+
+.user-profile-container {
+    position: relative;
+}
+
+.user-profile {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+}
+
+.user-name {
+    font-size: 0.9rem;
+}
+
+.profile-dropdown {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(10px);
+    min-width: 200px;
+    box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+    z-index: 1;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid var(--border-color);
+}
+
+.profile-dropdown a {
+    color: var(--color);
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+    transition: background-color 0.3s;
+}
+
+.profile-dropdown a:hover {
+    background-color: var(--primary-color);
+}
+
+.user-profile-container:hover .profile-dropdown {
+    display: block;
+}
+
+#mainTabstrip {
+    position: fixed;
+    top: 70px;
+    width: 100%;
+    z-index: 999;
+    height: calc(100vh - 70px);
+    overflow: auto;
+}
+
+#mainTabstrip .k-content {
+    padding: 20px 30px;
+    margin-top: 40px;
+    height: auto;
+    min-height: calc(100% - 60px);
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+#mainTabstrip .k-tabstrip-items {
+    background-color: rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--border-color);
+    padding: 0 30px;
+}
+
+.content-area {
+    margin-top: 20px;
+    padding: 20px;
+    height: auto;
+    overflow-y: auto;
+}
+
+.container {
+    padding: 2rem;
+    padding-top: 2px;
+    position: relative;
+    z-index: 1;
+    max-width: 100%;
+}
+
+h2 {
+    font-family: "Poppins", sans-serif;
+    font-weight: 600;
+    letter-spacing: 1px;
+    color: var(--color);
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    margin-bottom: 20px;
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    backdrop-filter: blur(10px);
+    color: var(--color);
+    border-radius: 15px;
+    max-width: 100%;
+    overflow: hidden;
+}
+
+.card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3);
+}
+
+.carousel {
+    width: 100%;
+    height: 200px;
+}
+
+.carousel-inner {
+    height: 100%;
+}
+
+.carousel-item img {
+    height: 200px;
+    object-fit: cover;
+    width: 100%;
+}
+
+.carousel-control-prev-icon,
+.carousel-control-next-icon {
+    background-color: rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    padding: 10px;
+    background-size: 60%;
+    transition: all 0.3s ease;
+}
+
+.carousel-control-prev-icon:hover,
+.carousel-control-next-icon:hover {
+    background-color: var(--primary-color);
+}
+
+.k-tabstrip-items .k-item {
+    padding: 10px 20px;
+    background: transparent;
+    color: var(--color);
+    border-bottom: 2px solid transparent;
+    transition: all 0.3s ease;
+}
+
+.k-tabstrip-items .k-item.k-active {
+    color: var(--primary-color);
+    border-bottom-color: var(--primary-color);
+}
+
+.k-tabstrip-items .k-item:hover:not(.k-active) {
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.k-tabstrip > .k-content {
+    padding: 20px 0;
+    background: transparent;
+    border: none;
+}
+
+.class-detail {
+    margin-bottom: 8px;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.class-detail strong {
+    display: inline-block;
+    width: 100px;
+    color: var(--color);
+}
+
+.form-control {
+    background-color: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: var(--color);
+    transition: all 0.3s ease;
+}
+
+.form-control:focus {
+    background-color: rgba(255, 255, 255, 0.2);
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.25rem rgba(255, 77, 77, 0.25);
+    color: var(--color);
+}
+
+.btn-primary {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+    transition: all 0.3s ease;
+    color: black;
+}
+
+.btn-primary:hover {
+    background-color:  #d3b94d;
+    border-color:  #b6950f;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(255, 77, 77, 0.3);
+}
+
+.alert {
+    background-color: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: var(--color);
+    backdrop-filter: blur(10px);
+}
+
+.alert-warning {
+    background-color: rgba(255, 193, 7, 0.1);
+    border-color: rgba(255, 193, 7, 0.3);
+}
+
+.transparent-select {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    color: var(--color) !important;
+    backdrop-filter: blur(5px);
+    transition: all 0.3s ease;
+}
+
+.transparent-select:focus {
+    background-color: rgba(255, 255, 255, 0.2) !important;
+    border-color: var(--primary-color) !important;
+    box-shadow: 0 0 0 0.25rem rgba(255, 77, 77, 0.25) !important;
+    color: var(--color) !important;
+}
+
+.transparent-select option {
+    background-color: var(--background);
+    color: var(--color);
+}
+
+.transparent-select {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3e%3cpath d='M7 10l5 5 5-5z'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    background-size: 16px 12px;
+}
+
+#searchText::placeholder {
+    color: white;
+    opacity: 1;
+}
+
+#userImage {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid var(--border-color);
+    margin-right: 10px;
+    background-color: var(--card-bg);
+}
+
+.form-control[readonly] {
+    background-color: rgba(255, 255, 255, 0.05) !important; /* Slightly transparent white for a glass effect */
+    border: 1px solid rgba(255, 255, 255, 0.1) !important; /* Subtle border */
+    color: rgba(255, 255, 255, 0.7) !important; /* Slightly dimmed text color to indicate readonly */
+    opacity: 1; /* Ensure the field is fully visible */
+    cursor: not-allowed; /* Show a "not-allowed" cursor to indicate it's non-editable */
+}

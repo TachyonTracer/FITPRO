@@ -1,0 +1,13 @@
+**/obj/
+**/bin/
+.vscode/
+obj
+bin
+.git/
+.DS_Store
+/obj/
+/bin/
+.git/
+# **/appsettings*.json
+# .env
+__pycache__/

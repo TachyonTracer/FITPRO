@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registration - FitFro</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700&family=Bebas+Neue&display=swap"
+        rel="stylesheet">
+    <link href="https://kendo.cdn.telerik.com/themes/6.7.0/default/default-main.css" rel="stylesheet">
+    <script src="https://kendo.cdn.telerik.com/2023.2.718/js/jquery.min.js"></script>
+    <script src="https://kendo.cdn.telerik.com/2023.2.718/js/kendo.all.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.17.2/dist/sweetalert2.all.min.js" \></script>
+    <link rel="stylesheet" href="@Url.Content("~/css/Auth/Register.css")" asp-append-version="true">
+</head>
+
+<body>
+    <section class="container">
+        <div class="gym-background">
+            <div class="logo">
+                <a href="/">
+                    <img src="~/Assets/LOGO 1.png" alt="FITPRO Logo">
+                </a> 
+            </div>
+            <div class="gym-icon dumbbell-icon-1"></div>
+            <div class="gym-icon dumbbell-icon-2"></div>
+            <div class="gym-icon barbell-icon-1"></div>
+            <div class="gym-icon barbell-icon-2"></div>
+            <div class="gym-icon kettlebell-icon-1"></div>
+            <div class="gym-icon kettlebell-icon-2"></div>
+        </div>
+        <div class="registration-container">
+            <div class="circle circle-one"></div>
+            <div class="form-container">
+                <h1 class="opacity">Registration</h1>
+                <p class="tagline opacity">Power Up Your Fitness Journey!</p>
+                <div id="wizard"></div>
+                <div class="register-forget opacity">
+                    <a href="Login" aria-label="Go back to login">BACK TO LOGIN</a>
+                </div>
+            </div>
+            <div class="circle circle-two"></div>
+        </div>
+        <div  class="landing-page-btn-container">
+            <a href="/" aria-label="Back to landing page">BACK TO LANDING PAGE</a>
+        </div>
+        
+        <!-- Add this right before </section> -->
+        <div class="role-selection-bottom">
+            <div class="role-option user-role selected" data-role="user">
+                <img src="~/Assets/user.png" alt="User Role" class="role-image">
+                <span class="role-name">User</span>
+            </div>
+            <div class="role-option instructor-role" data-role="instructor">
+                <img src="~/Assets/admin.png" alt="Instructor Role" class="role-image">
+                <span class="role-name">Instructor</span>
+            </div>
+        </div>
+    </section>
+    <script src="@Url.Content("~/js/Auth/Register.js")" asp-append-version="true"></script>
+</body>
+
+</html>
