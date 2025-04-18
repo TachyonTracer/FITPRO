@@ -58,9 +58,8 @@ function formatDuration(hours) {
   if (remainingMinutes === 0) {
     return `${wholeHours} hour${wholeHours !== 1 ? "s" : ""}`;
   }
-  return `${wholeHours} hour${
-    wholeHours !== 1 ? "s" : ""
-  } ${remainingMinutes} minute${remainingMinutes !== 1 ? "s" : ""}`;
+  return `${wholeHours} hour${wholeHours !== 1 ? "s" : ""
+    } ${remainingMinutes} minute${remainingMinutes !== 1 ? "s" : ""}`;
 }
 
 function populateTypeDropdown(data) {
@@ -70,8 +69,7 @@ function populateTypeDropdown(data) {
   typeSelect.append('<option value="">All Types</option>');
   types.forEach((type) => {
     typeSelect.append(
-      `<option value="${type}">${
-        type.charAt(0).toUpperCase() + type.slice(1)
+      `<option value="${type}">${type.charAt(0).toUpperCase() + type.slice(1)
       }</option>`
     );
   });
@@ -92,8 +90,7 @@ function populateEditTypeDropdown(selectedType) {
   types.forEach((type) => {
     const isSelected = type === selectedType ? "selected" : "";
     typeSelect.append(
-      `<option value="${type}" ${isSelected}>${
-        type.charAt(0).toUpperCase() + type.slice(1)
+      `<option value="${type}" ${isSelected}>${type.charAt(0).toUpperCase() + type.slice(1)
       }</option>`
     );
   });
@@ -108,41 +105,36 @@ function renderClasses(data) {
     data.forEach(function (c) {
       html += `<div class="col-md-4 mb-4">
                       <div class="card h-100">
-                          <div id="carousel-${
-                            c.classId
-                          }" class="carousel slide" data-bs-ride="carousel">
+                          <div id="carousel-${c.classId
+        }" class="carousel slide" data-bs-ride="carousel">
                               <div class="carousel-inner">
-                                  ${
-                                    Object.entries(c.assets || {})
-                                      .filter(([key]) =>
-                                        key.startsWith("picture")
-                                      )
-                                      .map(
-                                        ([key, value], index) => `
-                                                  <div class="carousel-item ${
-                                                    index === 0 ? "active" : ""
-                                                  }">
+                                  ${Object.entries(c.assets || {})
+          .filter(([key]) =>
+            key.startsWith("picture")
+          )
+          .map(
+            ([key, value], index) => `
+                                                  <div class="carousel-item ${index === 0 ? "active" : ""
+              }">
                                                       <img src="../ClassAssets/${value}" style="height: 200px; object-fit: cover;" onerror="this.src='@Url.Content("~/images/fallback.jpg")';">
                                                   </div>
                                               `
-                                      )
-                                      .join("") ||
-                                    `
+          )
+          .join("") ||
+        `
                                                   <div class="carousel-item active">
                                                       <img src="@Url.Content("~/images/fallback.jpg")" style="height: 200px; object-fit: cover;">
                                                   </div>
                                               `
-                                  }
+        }
                               </div>
-                              <button class="carousel-control-prev" type="button" data-bs-target="#carousel-${
-                                c.classId
-                              }" data-bs-slide="prev">
+                              <button class="carousel-control-prev" type="button" data-bs-target="#carousel-${c.classId
+        }" data-bs-slide="prev">
                                   <span class="carousel-control-prev-icon" aria-hidden="true"></span>
                                   <span class="visually-hidden">Previous</span>
                               </button>
-                              <button class="carousel-control-next" type="button" data-bs-target="#carousel-${
-                                c.classId
-                              }" data-bs-slide="next">
+                              <button class="carousel-control-next" type="button" data-bs-target="#carousel-${c.classId
+        }" data-bs-slide="next">
                                   <span class="carousel-control-next-icon" aria-hidden="true"></span>
                                   <span class="visually-hidden">Next</span>
                               </button>
@@ -150,37 +142,33 @@ function renderClasses(data) {
                           <div class="card-body">
                               <h5 class="card-title">${c.className}</h5>
                               <div class="mb-2">
-                                  <span class="badge badge-level me-1">${
-                                    c.type
-                                  }</span>
-                                  <span class="badge ${
-                                    c.status === "Active"
-                                      ? "bg-success"
-                                      : "bg-warning"
-                                  }">${c.status}</span>
+                                  <span class="badge badge-level me-1">${c.type
+        }</span>
+                                  <span class="badge ${c.status === "Active"
+          ? "bg-success"
+          : "bg-warning"
+        }">${c.status}</span>
                               </div>
-                              <p class="card-text"><strong>Purpose:</strong> ${
-                                c.description?.purpose || "N/A"
-                              }</p>
-                              <p class="card-text"><strong>Benefits:</strong> ${
-                                c.description?.benefits || "N/A"
-                              }</p>
+                              <p class="card-text"><strong>Purpose:</strong> ${c.description?.purpose || "N/A"
+        }</p>
+                              <p class="card-text"><strong>Benefits:</strong> ${c.description?.benefits || "N/A"
+        }</p>
                               <div class="class-detail">
                                   <strong>Start:</strong> ${formatDateTime(
-                                    c.startDate,
-                                    c.startTime
-                                  )}
+          c.startDate,
+          c.startTime
+        )}
                               </div>
                               <div class="class-detail">
                                   <strong>End:</strong> ${formatDateTime(
-                                    c.endDate,
-                                    c.endTime
-                                  )}
+          c.endDate,
+          c.endTime
+        )}
                               </div>
                               <div class="class-detail">
                                   <strong>Duration:</strong> ${formatDuration(
-                                    c.duration
-                                  )}
+          c.duration
+        )}
                               </div>
                               <div class="class-detail">
                                   <strong>Location:</strong> ${c.city}
@@ -189,31 +177,26 @@ function renderClasses(data) {
                                   <strong>Address:</strong> ${c.address}
                               </div>
                               <div class="class-detail">
-                                  <strong>Max Capacity:</strong> ${
-                                    c.maxCapacity
-                                  }
+                                  <strong>Max Capacity:</strong> ${c.maxCapacity
+        }
                               </div>
                               <div class="class-detail">
-                                  <strong>Available Seats:</strong> ${
-                                    c.availableCapacity
-                                  }
+                                  <strong>Available Seats:</strong> ${c.availableCapacity
+        }
                               </div>
                               <div class="class-detail">
-                                  <strong>Equipment:</strong> ${
-                                    c.requiredEquipments || "None"
-                                  }
+                                  <strong>Equipment:</strong> ${c.requiredEquipments || "None"
+        }
                               </div>
                               <div class="class-detail">
                                   <strong>Price:</strong> $${c.fee.toFixed(2)}
                               </div>
                           </div>
                           <div class="card-footer bg-transparent d-flex gap-2">
-                              <button class="btn btn-primary w-50 edit-btn" data-id="${
-                                c.classId
-                              }">Edit Class</button>
-                              <button class="btn btn-danger w-50 delete-btn" data-id="${
-                                c.classId
-                              }">Delete Class</button>
+                              <button class="btn btn-primary w-50 edit-btn" data-id="${c.classId
+        }">Edit Class</button>
+                              <button class="btn btn-danger w-50 delete-btn" data-id="${c.classId
+        }">Delete Class</button>
                           </div>
                       </div>
                   </div>`;
@@ -371,6 +354,173 @@ const equipmentByClassType = {
 
 // Updated loadClasses to recalculate duration
 function loadClasses() {
+  // Show loader animation while data is being fetched
+  $("#classList").html(`
+    <style>
+      :root {
+        --brand-gold: #facc15;
+        --text-light: rgba(255, 255, 255, 0.8);
+        --text-muted: rgba(255, 255, 255, 0.5);
+        --bg-dark: #222222;
+      }
+
+      .loader-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 40px 20px;
+        width: 100%;
+        min-height: 300px;
+        background-color: var(--bg-dark);
+        border-radius: 10px;
+      }
+
+      .loader-ring {
+        position: relative;
+        width: 120px;
+        height: 120px;
+        margin-bottom: 30px;
+      }
+
+      .outer-ring,
+      .inner-ring,
+      .progress-ring,
+      .inner-progress {
+        position: absolute;
+        border-radius: 50%;
+      }
+
+      .outer-ring {
+        width: 100%;
+        height: 100%;
+        border: 4px solid rgba(255, 255, 255, 0.1);
+      }
+
+      .inner-ring {
+        width: 80%;
+        height: 80%;
+        top: 10%;
+        left: 10%;
+        border: 3px solid transparent;
+      }
+
+      .progress-ring,
+      .inner-progress {
+        border: 4px solid transparent;
+        border-top-color: var(--brand-gold);
+        animation: spin 2s ease-in-out infinite;
+      }
+
+      .progress-ring {
+        width: 100%;
+        height: 100%;
+      }
+
+      .inner-progress {
+        width: 80%;
+        height: 80%;
+        top: 10%;
+        left: 10%;
+        border-width: 3px;
+        animation-direction: reverse;
+      }
+
+      .center-icon {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 28px;
+        color: var(--brand-gold);
+        filter: drop-shadow(0 0 6px var(--brand-gold));
+        animation: pulse 2s ease-in-out infinite;
+      }
+
+      .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      }
+
+      .loading-text {
+        font-size: 14px;
+        font-weight: 300;
+        letter-spacing: 5px;
+        text-transform: uppercase;
+        color: var(--text-light);
+        font-family: 'Montserrat', sans-serif;
+      }
+
+      .dot-animation {
+        display: inline-block;
+        position: relative;
+        width: 24px;
+        height: 10px;
+        margin-left: 5px;
+      }
+
+      .dot {
+        position: absolute;
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background-color: var(--brand-gold);
+        opacity: 0;
+        animation: dots 1.5s ease-in-out infinite;
+      }
+
+      .dot:nth-child(1) { left: 0; animation-delay: 0s; }
+      .dot:nth-child(2) { left: 9px; animation-delay: 0.4s; }
+      .dot:nth-child(3) { left: 18px; animation-delay: 0.8s; }
+
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+
+      @keyframes pulse {
+        0%, 100% {
+          transform: translate(-50%, -50%) scale(1);
+          filter: drop-shadow(0 0 6px var(--brand-gold));
+        }
+        50% {
+          transform: translate(-50%, -50%) scale(1.2);
+          filter: drop-shadow(0 0 10px var(--brand-gold));
+        }
+      }
+
+      @keyframes dots {
+        0%, 100% {
+          opacity: 0;
+          transform: translateY(0);
+        }
+        50% {
+          opacity: 1;
+          transform: translateY(-5px);
+        }
+      }
+    </style>
+    
+    <!-- Gym Loader Animation with exercise icon -->
+    <div class="loader-container">
+      <div class="loader-ring">
+        <div class="outer-ring"></div>
+        <div class="inner-ring"></div>
+        <div class="progress-ring"></div>
+        <div class="inner-progress"></div>
+        <span class="material-symbols-outlined center-icon">exercise</span>
+      </div>
+
+      <div class="loading-text">
+        LOADING
+        <span class="dot-animation">
+          <span class="dot"></span>
+          <span class="dot"></span>
+          <span class="dot"></span>
+        </span>
+      </div>
+    </div>
+  `);
+
   $.ajax({
     url: `${uri}/api/Class/GetClassesByInstructorId?id=${instructorId}`,
     type: "GET",
@@ -394,7 +544,7 @@ function loadClasses() {
       $("#classList").html(
         '<div class="col-12"><div class="alert alert-warning text-center">Error loading classes.</div></div>'
       );
-    },
+    }
   });
 }
 
@@ -451,9 +601,8 @@ function showEditClassForm(classData) {
           <form id="editClassForm" novalidate>
               <div class="mb-3">
                   <label for="editClassName">Class Name</label>
-                  <input type="text" id="editClassName" class="form-control" value="${
-                    classData.className
-                  }" placeholder="Class Name" required>
+                  <input type="text" id="editClassName" class="form-control" value="${classData.className
+      }" placeholder="Class Name" required>
                   <div class="invalid-feedback">Class name is required and must be at least 3 characters.</div>
               </div>
               
@@ -467,31 +616,27 @@ function showEditClassForm(classData) {
               
               <div class="mb-3">
                   <label for="editCity">City</label>
-                  <input type="text" id="editCity" class="form-control" value="${
-                    classData.city
-                  }" readonly>
+                  <input type="text" id="editCity" class="form-control" value="${classData.city
+      }" readonly>
               </div>
               
               <div class="mb-3">
                   <label for="editAddress">Address</label>
-                  <input type="text" id="editAddress" class="form-control" value="${
-                    classData.address
-                  }" readonly>
+                  <input type="text" id="editAddress" class="form-control" value="${classData.address
+      }" readonly>
               </div>
               
               <div class="row">
                   <div class="col-md-6 mb-3">
                       <label for="editStartDate">Start Date</label>
-                      <input type="date" id="editStartDate" class="form-control" value="${
-                        classData.startDate.split("T")[0]
-                      }" required>
+                      <input type="date" id="editStartDate" class="form-control" value="${classData.startDate.split("T")[0]
+      }" required>
                       <div class="invalid-feedback">Start date is required.</div>
                   </div>
                   <div class="col-md-6 mb-3">
                       <label for="editStartTime">Start Time</label>
-                      <input type="time" id="editStartTime" class="form-control" value="${
-                        classData.startTime
-                      }" required>
+                      <input type="time" id="editStartTime" class="form-control" value="${classData.startTime
+      }" required>
                       <div class="invalid-feedback">Start time is required.</div>
                   </div>
               </div>
@@ -499,41 +644,36 @@ function showEditClassForm(classData) {
               <div class="row">
                   <div class="col-md-6 mb-3">
                       <label for="editEndDate">End Date</label>
-                      <input type="date" id="editEndDate" class="form-control" value="${
-                        classData.endDate.split("T")[0]
-                      }" required>
+                      <input type="date" id="editEndDate" class="form-control" value="${classData.endDate.split("T")[0]
+      }" required>
                       <div class="invalid-feedback">End date must be on or after the start date.</div>
                   </div>
                   <div class="col-md-6 mb-3">
                       <label for="editEndTime">End Time</label>
-                      <input type="time" id="editEndTime" class="form-control" value="${
-                        classData.endTime
-                      }" required>
+                      <input type="time" id="editEndTime" class="form-control" value="${classData.endTime
+      }" required>
                       <div class="invalid-feedback">End time is required.</div>
                   </div>
               </div>
               
               <div class="mb-3">
                   <label for="editMaxCapacity">Max Capacity</label>
-                  <input type="number" id="editMaxCapacity" class="form-control" value="${
-                    classData.maxCapacity
-                  }" placeholder="Max Capacity" min="1" required>
+                  <input type="number" id="editMaxCapacity" class="form-control" value="${classData.maxCapacity
+      }" placeholder="Max Capacity" min="1" required>
                   <div class="invalid-feedback">Max capacity must be at least 1.</div>
               </div>
               
               <div class="mb-3">
                   <label for="editAvailableCapacity">Available Seats</label>
-                  <input type="number" id="editAvailableCapacity" class="form-control" value="${
-                    classData.availableCapacity
-                  }" placeholder="Available Seats" min="0" required>
+                  <input type="number" id="editAvailableCapacity" class="form-control" value="${classData.availableCapacity
+      }" placeholder="Available Seats" min="0" required>
                   <div class="invalid-feedback">Available seats cannot be negative or exceed max capacity.</div>
               </div>
               
               <div class="mb-3">
                   <label for="editFee">Fee</label>
-                  <input type="number" id="editFee" class="form-control" value="${
-                    classData.fee
-                  }" placeholder="Fee" step="0.01" min="0" required>
+                  <input type="number" id="editFee" class="form-control" value="${classData.fee
+      }" placeholder="Fee" step="0.01" min="0" required>
                   <div class="invalid-feedback">Fee must be a positive number.</div>
               </div>
               
@@ -551,28 +691,24 @@ function showEditClassForm(classData) {
               <div class="mb-3">
                   <label for="editStatus">Status</label>
                   <select id="editStatus" class="form-control transparent-select" required>
-                      <option value="Active" ${
-                        classData.status === "Active" ? "selected" : ""
-                      }>Active</option>
-                      <option value="Inactive" ${
-                        classData.status === "Inactive" ? "selected" : ""
-                      }>Inactive</option>
+                      <option value="Active" ${classData.status === "Active" ? "selected" : ""
+      }>Active</option>
+                      <option value="Inactive" ${classData.status === "Inactive" ? "selected" : ""
+      }>Inactive</option>
                   </select>
                   <div class="invalid-feedback">Please select a status.</div>
               </div>
               
               <div class="mb-3">
                   <label for="editPurpose">Purpose</label>
-                  <textarea id="editPurpose" class="form-control" placeholder="Class Purpose">${
-                    desc.purpose || ""
-                  }</textarea>
+                  <textarea id="editPurpose" class="form-control" placeholder="Class Purpose">${desc.purpose || ""
+      }</textarea>
               </div>
               
               <div class="mb-3">
                   <label for="editBenefits">Benefits</label>
-                  <textarea id="editBenefits" class="form-control" placeholder="Class Benefits">${
-                    desc.benefits || ""
-                  }</textarea>
+                  <textarea id="editBenefits" class="form-control" placeholder="Class Benefits">${desc.benefits || ""
+      }</textarea>
               </div>
               
               <div class="mb-3">
@@ -680,7 +816,7 @@ function showEditClassForm(classData) {
       updateClass(result.value);
     }
   });
-  
+
 }
 
 function validateField($field) {
@@ -841,7 +977,7 @@ function updateClass(formData) {
       Swal.fire(
         "Error",
         "Failed to update class: " +
-          (error.responseJSON?.message || "Unknown error"),
+        (error.responseJSON?.message || "Unknown error"),
         "error"
       );
       console.log(error);
