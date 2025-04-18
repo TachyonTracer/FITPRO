@@ -32,6 +32,22 @@
             /* Keep padding for spacing */
             box-sizing: border-box;
             /* Include padding in width calculation */
+            overflow-wrap: break-word; /* Ensure long words break and wrap */
+            word-wrap: break-word; /* Legacy support for word wrapping */
+        }
+
+        /* Fix content overflow in all text elements */
+        .blog-title, .blog-subtitle, .blog-content, .blog-content p, .comment-body {
+            overflow-wrap: break-word;
+            word-wrap: break-word;
+            word-break: break-word; /* Break words when necessary */
+            max-width: 100%; /* Ensure no element exceeds container width */
+        }
+
+        /* Ensure all images stay within container bounds */
+        .blog-content img {
+            max-width: 100%;
+            height: auto;
         }
 
         .blog-title {
@@ -538,6 +554,7 @@
             let USER_ID = getUserIdFromToken();
             let IS_LIKED = false; // Track like status
             let IS_BOOKMARKED = false; // Track bookmark status
+            let BLOG_AUTHOR_ID = -1;
 
             if (!USER_ID) {
                 console.warn("No Authentication");
@@ -630,6 +647,7 @@
 
             // Function to fetch author info
             function fetchAuthorInfo(blogData) {
+                BLOG_AUTHOR_ID = blogData.c_blog_author_id;
                 const authorId = blogData.c_blog_author_id;
                 const url = `http://localhost:8080/api/Blog/fetchBlogAuthorById?author_id=${authorId}`;
 
@@ -765,15 +783,19 @@
                 return apiComments.map(comment => {
                     const commentDate = new Date(comment.commentedAt * 1000);
                     const formattedDate = formatDateTime(commentDate);
+                    @* console.log(comment.userId); *@
+                    @* console.log("this is comment: "+JSON.parse(comment)); *@
 
                     return {
                         id: comment.commentId.toString(),
                         parent_id: comment.parentCommentId === -1 ? null : comment.parentCommentId.toString(),
                         author: comment.authorName,
-                        avatar: comment.authorProfilePicture,
+                        avatar: "http://localhost:8081/" + 
+                                (comment.userRole === "user" ? "user_images/" : "instructor_images/") + 
+                                comment.authorProfilePicture,
                         date: formattedDate,
                         text: comment.commentContent,
-                        isAuthorComment: (comment.userRole == "instructor" && comment.blogId == BLOG_ID)
+                        isAuthorComment: (comment.userRole == "instructor" && comment.userId == BLOG_AUTHOR_ID)
                     };
                 });
             }
@@ -1167,14 +1189,14 @@
                     </div>
                     <div class="comment-actions">
                         <button class="comment-action reply-action" data-comment-id="${comment.id}">
-                            <i class="fa-solid fa-reply"></i>Reply
+                            <i class="fa-solid fa-reply"></i>&nbsp Reply
                         </button>
                     </div>
                     <div class="reply-form" id="reply-form-${comment.id}">
                         <textarea class="comment-input" placeholder="Write your reply..."></textarea>
-                        <button class="comment-submit" data-parent-id="${comment.id}">Reply</button>
+                        <button class="comment-submit" data-parent-id="${comment.id}">&nbsp Reply</button>
                     </div>
-                    <div class="nested-comments" id="nested-comments-${comment.id}"></div>
+                    <div class="nested-comments" id="nested-comments-${comment.id}"> &nbsp </div>
                 `;
 
                 return commentElement;
@@ -1214,7 +1236,10 @@
                                     id: newCommentId,
                                     parent_id: response.comment.parentCommentId === -1 ? null : response.comment.parentCommentId.toString(),
                                     author: response.comment.authorName,
-                                    avatar: response.comment.authorProfilePicture,
+                                    @* avatar: "http://localhost:8081/instructor_images/"+response.comment.authorProfilePicture, *@
+                                    avatar: "http://localhost:8081/" + 
+                                        (response.comment.userRole === "user" ? "user_images/" : "instructor_images/") + 
+                                        response.comment.authorProfilePicture,
                                     date: formatDateTimeFromUnix(response.comment.commentedAt),
                                     text: response.comment.commentContent,
                                     isAuthorComment: (response.comment.userRole === "instructor" && response.comment.blogId === BLOG_ID)

@@ -489,7 +489,7 @@
 
         // Sample blog data for fallback
         const sampleBlogs = [
-            {
+            @* {
                 id: 1,
                 title: "10 Essential Stretches for After Your Workout",
                 description: "Discover the most effective stretches to help your muscles recover and prevent injury after intense training sessions.",
@@ -535,7 +535,7 @@
                 comments: 19,
                 is_completed: 0,
                 createdAt: "2023-07-10T11:30:00Z"
-            }
+            } *@
         ];
 
         // Fetch blogs on page load
@@ -590,8 +590,13 @@
             console.log('Using sample blog data');
             allBlogs = sampleBlogs;
             filteredBlogs = [...allBlogs];
-            sortBlogs(currentSort);
-            renderBlogs();
+            
+            if (filteredBlogs.length === 0) {
+                $("#blog-list").html('<div class="no-blogs">You haven\'t published any blog yet.</div>');
+            } else {
+                sortBlogs(currentSort);
+                renderBlogs();
+            }
         }
 
         function showError(message) {
