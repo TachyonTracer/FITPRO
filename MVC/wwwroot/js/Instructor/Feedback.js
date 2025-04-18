@@ -34,7 +34,7 @@ async function loadFeedbacks() {
     
     try {
         // Get instructor ID and validate
-        const instructorId = getUserIdFromToken() || 1;
+        const instructorId = getInstructorIdFromToken() || 1;
         if (!instructorId) {
             throw new Error('Invalid instructor ID');
         }
@@ -136,21 +136,19 @@ async function loadFeedbacks() {
     }
 }
 
-function getUserIdFromToken() {
-    const token = localStorage.getItem('authToken');
-    console.log('Token:', token);
-    if (!token) return null;
-
-    try {
-        const base64Url = token.split('.')[1];
-        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-        const payload = JSON.parse(atob(base64));
-        console.log('Token Payload:', payload);
-        return payload.instructorId || null;
-    } catch (error) {
-        console.error('Error parsing token:', error);
+function getInstructorIdFromToken() {
+    const token = localStorage.getItem("authToken");
+    if (!token) {
+        console.warn("No auth token found in localStorage.");
         return null;
     }
+    const decoded = parseJwt(token);
+    if (decoded) {
+        let instructorId = JSON.parse(decoded.UserObject).instructorId;
+        return instructorId;
+    }
+    console.warn("Invalid or malformed token.");
+    return null;
 }
 
 function filterFeedbacks(select) {

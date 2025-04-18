@@ -29,6 +29,8 @@ services:
       - Smtp__Password=${SMTP_PASSWORD}
       - Smtp__EnableSsl=${SMTP_ENABLE_SSL}
       - Smtp__tcpClient=${SMTP_TCP_CLIENT}
+      - Stripe__SecretKey=${STRIPE_SECRET_KEY}
+      - Stripe__PublishableKey=${STRIPE_PUBLISHABLE_KEY}
     networks:
       - FitPro-network
     depends_on:
@@ -69,6 +71,8 @@ services:
       - Smtp__Password=${SMTP_PASSWORD}
       - Smtp__EnableSsl=${SMTP_ENABLE_SSL}
       - Smtp__tcpClient=${SMTP_TCP_CLIENT}
+      - Stripe__SecretKey=${STRIPE_SECRET_KEY}
+      - Stripe__PublishableKey=${STRIPE_PUBLISHABLE_KEY}
     networks:
       - FitPro-network
     depends_on:

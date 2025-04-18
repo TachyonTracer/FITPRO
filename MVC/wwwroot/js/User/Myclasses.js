@@ -1,5 +1,5 @@
-let drawer;
-let uri = "http://localhost:8080";
+// drawer;
+uri = "http://localhost:8080";
 $("document").ready(function () {
     const userId = getUserIdFromToken();
     loadBookedClasses(userId);
@@ -178,7 +178,7 @@ function parseJwt(token) {
         return null;
     }
 }
-const waitlistData = {
+ waitlistData = {
     "SpinRide": 10,
     "Power Yoga": 0
 };
@@ -217,8 +217,7 @@ document.querySelectorAll(".class-card").forEach(card => {
         };
     }
 });
-
-let selectedRating = 0;
+selectedRating = 0;
 
 // Replace your openFeedback function with this:
 function openFeedback(classId, className, instructorName) {
@@ -458,6 +457,7 @@ function loadBookedClasses(userId) {
         method: 'GET',
         success: function (response) {
             if (response.success && response.data) {
+                console.log('Booked classes:', response.data);
                 displayClasses(response.data);
             } else {
                 console.error('Failed to load classes:', response.message);
@@ -513,9 +513,44 @@ function displayClasses(classes) {
         return;
     }
 
-    // Original code for displaying classes
     classes.forEach(classItem => {
-        // Your existing code to display class cards
+        const startDate = new Date(classItem.startDate);
+        const endDate = new Date(classItem.endDate);
+        const status = getClassStatus(startDate, endDate);
+
+
+        // Add different styling for live status
+        const statusStyle = status === 'live' ?
+            'background-color: #FF6363 ; color: #000000;' :
+            (status === 'completed' ? 'background-color:rgb(114, 215, 67) ; color: #0f0f0f;' : '');
+
+        const classCard = `
+            <div class="class-card" data-status="${status}" data-class-id="${classItem.classId}">
+            <img src="/ClassAssets/${classItem.assets.banner}" alt="${classItem.className}" class="class-img" />
+            <div class="class-info">
+                <h3>${classItem.className}</h3>
+                <p><strong>Instructor:</strong> ${classItem.instructorName}</p>
+                <p><strong>Schedule:</strong> ${formatDate(startDate)} - ${formatDate(endDate)} | ${classItem.startTime.substring(0, 5)} - ${classItem.endTime.substring(0, 5)}</p>
+                <span class="status-tag" style="${statusStyle}">${status.charAt(0).toUpperCase() + status.slice(1)}</span>
+                ${classItem.waitList != 0 && status != 'completed' && status != 'live' ?
+            `<div class="waitlist-box">WL: ${classItem.waitList}</div>` : ''}
+            </div>
+            ${status === 'completed' ?
+            `<button class="cancel-btn" style="background-color: #facc15; color: #0f0f0f; border: none;" 
+                onclick="openFeedback('${classItem.classId}', '${classItem.className}', '${classItem.instructorName}')">
+                Give Feedback
+            </button>` :
+                status === 'live' ?
+                `<button class="cancel-btn" disabled style="  cursor: not-allowed;">
+                Cancel Booking
+                </button>` :
+                `<button class="cancel-btn" onclick="cancelBooking('${classItem.classId}', '${classItem.className}')">
+                Cancel Booking
+                </button>`
+            }
+            </div>
+        `;
+        classGrid.innerHTML += classCard;
     });
 }
 
@@ -607,7 +642,7 @@ $(document).on("click", "#cancelProfileBtn", function () {
     drawer.hide();
     $(".profile-dropdown").hide();
 });
-
+$(document).ready(function() {
 // Live validation for userName
 $("#userName").on("input blur", function () {
     let value = $(this).val().trim();
@@ -633,44 +668,101 @@ $("#phone").on("input blur", function () {
 });
 
 // Live validation for height
-$("#height").data("kendoNumericTextBox").bind("change", function () {
-    let value = this.value();
-    if (value === null || isNaN(value)) {
-        $("#heightError").text("Please enter your height.");
-    } else {
-        $("#heightError").text("");
-    }
-});
+// $("#height").data("kendoNumericTextBox").bind("change", function () {
+//     let value = this.value();
+//     if (value === null || isNaN(value)) {
+//         $("#heightError").text("Please enter your height.");
+//     } else {
+//         $("#heightError").text("");
+//     }
+// });
 
-// Live validation for weight
-$("#weight").data("kendoNumericTextBox").bind("change", function () {
-    let value = this.value();
-    if (value === null || isNaN(value)) {
-        $("#weightError").text("Please enter your weight.");
-    } else {
-        $("#weightError").text("");
-    }
-});
+// // Live validation for weight
+// $("#weight").data("kendoNumericTextBox").bind("change", function () {
+//     let value = this.value();
+//     if (value === null || isNaN(value)) {
+//         $("#weightError").text("Please enter your weight.");
+//     } else {
+//         $("#weightError").text("");
+//     }
+// });
 
-// Live validation for goal
-$("#goal").data("kendoMultiSelect").bind("change", function () {
-    let value = this.value();
-    if (!value.length) {
-        $("#goalError").text("Select at least one goal.");
-    } else {
-        $("#goalError").text("");
-    }
-});
+// // Live validation for goal
+// $("#goal").data("kendoMultiSelect").bind("change", function () {
+//     let value = this.value();
+//     if (!value.length) {
+//         $("#goalError").text("Select at least one goal.");
+//     } else {
+//         $("#goalError").text("");
+//     }
+// });
 
-// Live validation for medical condition
-$("#medicalCondition").data("kendoMultiSelect").bind("change", function () {
-    let value = this.value();
-    if (!value.length) {
-        $("#medicalError").text("Select at least one medical condition.");
-    } else {
-        $("#medicalError").text("");
+// // Live validation for medical condition
+// $("#medicalCondition").data("kendoMultiSelect").bind("change", function () {
+//     let value = this.value();
+//     if (!value.length) {
+//         $("#medicalError").text("Select at least one medical condition.");
+//     } else {
+//         $("#medicalError").text("");
+//     }
+// });
+
+// Wait for components to be initialized before adding validation bindings
+setTimeout(() => {
+    // Height validation
+    const heightWidget = $("#height").data("kendoNumericTextBox");
+    if (heightWidget) {
+        heightWidget.bind("change", function() {
+            let value = this.value();
+            if (value === null || isNaN(value)) {
+                $("#heightError").text("Please enter your height.");
+            } else {
+                $("#heightError").text("");
+            }
+        });
     }
-});
+
+    // Weight validation
+    const weightWidget = $("#weight").data("kendoNumericTextBox");
+    if (weightWidget) {
+        weightWidget.bind("change", function() {
+            let value = this.value();
+            if (value === null || isNaN(value)) {
+                $("#weightError").text("Please enter your weight.");
+            } else {
+                $("#weightError").text("");
+            }
+        });
+    }
+
+    // Goal validation
+    const goalWidget = $("#goal").data("kendoMultiSelect");
+    if (goalWidget) {
+        goalWidget.bind("change", function() {
+            let value = this.value();
+            if (!value.length) {
+                $("#goalError").text("Select at least one goal.");
+            } else {
+                $("#goalError").text("");
+            }
+        });
+    }
+
+    // Medical condition validation
+    const medicalWidget = $("#medicalCondition").data("kendoMultiSelect");
+    if (medicalWidget) {
+        medicalWidget.bind("change", function() {
+            let value = this.value();
+            if (!value.length) {
+                $("#medicalError").text("Select at least one medical condition.");
+            } else {
+                $("#medicalError").text("");
+            }
+        });
+    }
+}, 100); // Small delay to ensure components are initialized
+
+// ...rest of your existing code...
 
 // Form Submission with Validation
 $(document).on("submit", "#profileForm", function (e) {
@@ -760,7 +852,7 @@ $(document).on("submit", "#profileForm", function (e) {
     });
 
 });
-
+});
 
 
 /* Do Not Remove */
@@ -791,8 +883,7 @@ function timeAgo(timestamp) {
     if (timeDiff < 86400) return `${Math.floor(timeDiff / 3600)} hours ago`;
     return `${Math.floor(timeDiff / 86400)} days ago`;
 }
-
-const connection = new signalR.HubConnectionBuilder()
+ connection = new signalR.HubConnectionBuilder()
     .withUrl(
         `${uri}/notificationHub?userId=${userId}&role=${role}`
     )
