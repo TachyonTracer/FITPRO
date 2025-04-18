@@ -3,7 +3,16 @@
     ViewData["Title"] = "Class Schedule";
 }
 <link rel="stylesheet" href="@Url.Content("~/css/User/UserClassSchedule.css")" asp-append-version="true">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
 <div id="userScheduleCalendarContainer">
+    <!-- Add this calendar header section here -->
+    <div class="calendar-header">
+        <div class="calendar-header-logo">
+            <i class="fas fa-calendar-alt"></i>
+        </div>
+        <div class="calendar-header-title">Your Classes</div>
+    </div>
     <div id="userScheduleCalendar"></div>
 </div>
 <div id="profileDrawer"></div>

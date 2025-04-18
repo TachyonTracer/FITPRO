@@ -14,6 +14,7 @@ let editableDate = new Date().toISOString().split('T')[0];
 
 async function fetchAttendanceData(classId) {
 	try {
+
 		return new Promise((resolve, reject) => {
 			$.ajax({
 				url: `http://localhost:8080/api/Attendance/GetAttendanceByClassId?classId=${classId}`,
@@ -377,7 +378,6 @@ async function fetchClassData() {
 								};
 							});
 						console.log("Formatted Classes Data:", classesData);
-						populateClassTypes();
 						resolve(classesData);
 					} else {
 						console.error('Failed to fetch classes:', result.message);
@@ -417,16 +417,35 @@ async function fetchUsersForClass(classId) {
 							username: user.userName
 						}));
 						console.log("Fetched User Data:", userData);
+
+						// Restore the table element after successful data fetch
+						$("#attendance-table-wrapper").html(`
+							<table class="table table-bordered table-hover" id="attendanceTable">
+								<thead>
+									<tr>
+										<th style="width: 200px; text-align: left;">Username</th>
+										<!-- Date headers will be dynamically added here -->
+										<th style="width: 100px;">Attendance %</th>
+									</tr>
+								</thead>
+								<tbody>
+									<!-- Attendance data will be populated here -->
+								</tbody>
+							</table>
+						`);
+
 						resolve(true);
 					} else {
 						console.error('Failed to fetch users:', result.message);
 						userData = []; // Ensure userData is empty
+						$("#attendance-table-wrapper").html('<div class="alert alert-warning">No users available for this class.</div>');
 						resolve(false);
 					}
 				},
 				error: function (xhr, status, error) {
 					console.error('Error fetching users:', error);
 					userData = []; // Ensure userData is empty
+					$("#attendance-table-wrapper").html('<div class="alert alert-danger">Failed to fetch users. Please try again later.</div>');
 					resolve(false);
 				}
 			});
@@ -434,6 +453,7 @@ async function fetchUsersForClass(classId) {
 	} catch (error) {
 		console.error('Error in fetchUsersForClass:', error);
 		userData = []; // Ensure userData is empty
+		$("#attendance-table-wrapper").html('<div class="alert alert-danger">An error occurred while fetching users.</div>');
 		return false;
 	}
 }
@@ -482,7 +502,6 @@ function updateNavigationButtons(classId) {
 
 async function initializeAttendance() {
 	try {
-
 		classesData = await fetchClassData();
 
 		if (!classesData || classesData.length === 0) {
@@ -525,20 +544,182 @@ async function initializeAttendance() {
 			today.setHours(0, 0, 0, 0);
 
 			// Calculate the appropriate date to show
-			// If today is within the class date range, show today
 			if (today >= classStartDate && today <= classEndDate) {
 				currentDate = new Date(today);
-			}
-			// If class is in the future, show the first day of the class
-			else if (today < classStartDate) {
+			} else if (today < classStartDate) {
 				currentDate = new Date(classStartDate);
-			}
-			else {
+			} else {
 				currentDate = new Date(classEndDate);
 			}
 
-			console.log(`Setting current date to ${currentDate.toDateString()} for class period ${classStartDate.toDateString()} - ${classEndDate.toDateString()}`);
+			// Inline loader with complete CSS included directly
+			$("#attendance-table-wrapper").html(`
+				<style>
+					:root {
+					  --brand-gold: #facc15;
+					  --text-light: rgba(255, 255, 255, 0.8);
+					  --text-muted: rgba(255, 255, 255, 0.5);
+					  --bg-dark: #222222;
+					}
 
+					.loader-container {
+					  display: flex;
+					  flex-direction: column;
+					  align-items: center;
+					  justify-content: center;
+					  padding: 40px 20px;
+					  width: 100%;
+					  min-height: 300px;
+					  background-color: var(--bg-dark);
+					  border-radius: 10px;
+					}
+
+					.loader-ring {
+					  position: relative;
+					  width: 120px;
+					  height: 120px;
+					  margin-bottom: 30px;
+					}
+
+					.outer-ring,
+					.inner-ring,
+					.progress-ring,
+					.inner-progress {
+					  position: absolute;
+					  border-radius: 50%;
+					}
+
+					.outer-ring {
+					  width: 100%;
+					  height: 100%;
+					  border: 4px solid rgba(255, 255, 255, 0.1);
+					}
+
+					.inner-ring {
+					  width: 80%;
+					  height: 80%;
+					  top: 10%;
+					  left: 10%;
+					  border: 3px solid transparent;
+					}
+
+					.progress-ring,
+					.inner-progress {
+					  border: 4px solid transparent;
+					  border-top-color: var(--brand-gold);
+					  animation: spin 2s ease-in-out infinite;
+					}
+
+					.progress-ring {
+					  width: 100%;
+					  height: 100%;
+					}
+
+					.inner-progress {
+					  width: 80%;
+					  height: 80%;
+					  top: 10%;
+					  left: 10%;
+					  border-width: 3px;
+					  animation-direction: reverse;
+					}
+
+					.center-icon {
+					  position: absolute;
+					  top: 50%;
+					  left: 50%;
+					  transform: translate(-50%, -50%);
+					  font-size: 28px;
+					  color: var(--brand-gold);
+					  filter: drop-shadow(0 0 6px var(--brand-gold));
+					  animation: pulse 2s ease-in-out infinite;
+					}
+
+					.material-symbols-outlined {
+					  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+					}
+
+					.loading-text {
+					  font-size: 14px;
+					  font-weight: 300;
+					  letter-spacing: 5px;
+					  text-transform: uppercase;
+					  color: var(--text-light);
+					  font-family: 'Montserrat', sans-serif;
+					}
+
+					.dot-animation {
+					  display: inline-block;
+					  position: relative;
+					  width: 24px;
+					  height: 10px;
+					  margin-left: 5px;
+					}
+
+					.dot {
+					  position: absolute;
+					  width: 6px;
+					  height: 6px;
+					  border-radius: 50%;
+					  background-color: var(--brand-gold);
+					  opacity: 0;
+					  animation: dots 1.5s ease-in-out infinite;
+					}
+
+					.dot:nth-child(1) { left: 0; animation-delay: 0s; }
+					.dot:nth-child(2) { left: 9px; animation-delay: 0.4s; }
+					.dot:nth-child(3) { left: 18px; animation-delay: 0.8s; }
+
+					@keyframes spin {
+					  0% { transform: rotate(0deg); }
+					  100% { transform: rotate(360deg); }
+					}
+
+					@keyframes pulse {
+					  0%, 100% {
+						transform: translate(-50%, -50%) scale(1);
+						filter: drop-shadow(0 0 6px var(--brand-gold));
+					  }
+					  50% {
+						transform: translate(-50%, -50%) scale(1.2);
+						filter: drop-shadow(0 0 10px var(--brand-gold));
+					  }
+					}
+
+					@keyframes dots {
+					  0%, 100% {
+						opacity: 0;
+						transform: translateY(0);
+					  }
+					  50% {
+						opacity: 1;
+						transform: translateY(-5px);
+					  }
+					}
+				</style>
+				
+				<!-- Gym Loader Animation with exercise icon -->
+				<div class="loader-container">
+				  <div class="loader-ring">
+					<div class="outer-ring"></div>
+					<div class="inner-ring"></div>
+					<div class="progress-ring"></div>
+					<div class="inner-progress"></div>
+					<span class="material-symbols-outlined center-icon">exercise</span>
+				  </div>
+
+				  <div class="loading-text">
+					LOADING
+					<span class="dot-animation">
+					  <span class="dot"></span>
+					  <span class="dot"></span>
+					  <span class="dot"></span>
+					</span>
+				  </div>
+				</div>
+			`);
+
+			// Continue with data loading
 			await fetchUsersForClass(selectedClassId);
 			await fetchAttendanceData(selectedClassId);
 			setupTableHeaders(selectedClassId);
@@ -903,110 +1084,6 @@ function formatDateLocal(date) {
 	const day = String(date.getDate()).padStart(2, '0');
 	return `${year}-${month}-${day}`;
 }
-
-
-// Populate class type select
-function populateClassTypes() {
-	const uniqueTypes = [...new Set(classesData.map(c => c.type).filter(t => t))];
-	const typeSelect = $("#classTypeSelect");
-	typeSelect.find('option:not(:first)').remove();
-
-	uniqueTypes.forEach(type => {
-		typeSelect.append(`<option value="${type}">${type}</option>`);
-	});
-}
-
-// Filter by class type
-$("#classTypeSelect").change(function () {
-	const selectedType = $(this).val();
-	const classSelect = $("#classSelect");
-
-	// Clear current selection and data
-	classSelect.empty();
-	classSelect.append('<option value="">Select a class</option>');
-
-	// Reset all data to prevent showing previous class users
-	userData = [];
-	attendanceData = [];
-
-	// Clear the table
-	$("#attendance-table-wrapper").html('<div class="alert alert-info">Please select a class.</div>');
-	$("#classPeriodInfo").text("Please select a class to view period details");
-
-	if (selectedType) {
-		// Find classes matching the selected type
-		$.ajax({
-			url: `/api/Class/GetClassesByType?type=${selectedType}`,
-			method: 'GET',
-			headers: {
-				'Content-Type': 'application/json',
-				'Authorization': `Bearer ${localStorage.getItem('authToken')}`
-			},
-			success: function (response) {
-				if (response.success) {
-					const filteredClasses = response.data;
-					filteredClasses.forEach(classItem => {
-						classSelect.append(`<option value="${classItem.classId}">${classItem.className}</option>`);
-					});
-
-					if (filteredClasses.length === 0) {
-						$("#attendance-table-wrapper").html('<div class="alert alert-info">No classes found for this type.</div>');
-					} else {
-						const selectedClassId = filteredClasses[0]?.classId;
-						if (selectedClassId) {
-							$.ajax({
-								url: `/api/User/GetAllUsersByClassId/${selectedClassId}`,
-								method: 'GET',
-								headers: {
-									'Content-Type': 'application/json',
-									'Authorization': `Bearer ${localStorage.getItem('authToken')}`
-								},
-								success: function (userResponse) {
-									if (userResponse.success && userResponse.data.length > 0) {
-										userData = userResponse.data;
-										populateTable(selectedClassId);
-									} else {
-										$("#attendance-table-wrapper").html('<div class="alert alert-warning">No users available for the selected class type.</div>');
-									}
-								},
-								error: function () {
-									$("#attendance-table-wrapper").html('<div class="alert alert-danger">Failed to fetch users for the selected class type.</div>');
-								}
-							});
-						}
-					}
-				} else {
-					$("#attendance-table-wrapper").html('<div class="alert alert-danger">Failed to fetch classes for the selected type.</div>');
-				}
-			},
-			error: function () {
-				$("#attendance-table-wrapper").html('<div class="alert alert-danger">Error fetching classes for the selected type.</div>');
-			}
-		});
-	} else {
-		// Show all classes
-		$.ajax({
-			url: '/api/Class/GetAllClasses',
-			method: 'GET',
-			headers: {
-				'Content-Type': 'application/json',
-				'Authorization': `Bearer ${localStorage.getItem('authToken')}`
-			},
-			success: function (response) {
-				if (response.success) {
-					response.data.forEach(classItem => {
-						classSelect.append(`<option value="${classItem.classId}">${classItem.className}</option>`);
-					});
-				} else {
-					$("#attendance-table-wrapper").html('<div class="alert alert-danger">Failed to fetch all classes.</div>');
-				}
-			},
-			error: function () {
-				$("#attendance-table-wrapper").html('<div class="alert alert-danger">Error fetching all classes.</div>');
-			}
-		});
-	}
-});
 
 // Show/hide students based on attendance
 $("#show-absent").click(function () {

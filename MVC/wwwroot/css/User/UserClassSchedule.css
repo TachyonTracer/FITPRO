@@ -1,4 +1,4 @@
- /* Calendar container */
+/* Calendar container */
  #userScheduleCalendarContainer {
     width: 95%;
     max-width: 1400px;
@@ -193,9 +193,20 @@
     background-color: rgba(30, 30, 50, 0.3) !important;
 }
 
+/* Day cell padding */
 #userScheduleCalendarContainer .fc-day {
     background-color: rgba(255, 255, 255, 0.03) !important;
     border: 1px solid rgba(255, 255, 255, 0.05) !important;
+    padding: 8px !important; /* Added padding to create more space in each day cell */
+}
+
+/* Day number styling and padding */
+#userScheduleCalendarContainer .fc-day-number {
+    padding: 8px 10px !important;
+    font-weight: 500 !important;
+    color: #ffffff !important;
+    font-size: 0.9rem !important;
+    text-align: right !important;
 }
 
 #userScheduleCalendarContainer .fc-today {
@@ -319,6 +330,37 @@
 #userScheduleCalendarContainer .color-3 { background-color: #f0ad4e !important; border-left-color: #f0ad4e !important; }
 #userScheduleCalendarContainer .color-4 { background-color: #d9534f !important; border-left-color: #d9534f !important; }
 #userScheduleCalendarContainer .color-5 { background-color: #9966cc !important; border-left-color: #9966cc !important; }
+
+/* Calendar header with logo */
+#userScheduleCalendarContainer .calendar-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-top: 15px;
+}
+
+#userScheduleCalendarContainer .calendar-header-logo {
+    width: 40px;
+    height: 40px;
+    margin-right: 15px;
+    background-color: rgb(242, 195, 67);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#userScheduleCalendarContainer .calendar-header-logo i {
+    color: #1a1a2e;
+    font-size: 20px;
+}
+
+#userScheduleCalendarContainer .calendar-header-title {
+    font-family: "Bebas Neue", sans-serif;
+    font-size: 2.2rem;
+    color: rgb(242, 195, 67);
+    letter-spacing: 1.5px;
+}
 
 /* Animations */
 @keyframes userScheduleFloat {

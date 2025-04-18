@@ -311,6 +311,76 @@ namespace API
             }
         }
 
+        [HttpGet]
+        [Route("GetBlogsForUser")]
+
+        public async Task<IActionResult> GetBlogsForUser()
+        {
+            try
+            {
+                var blog_list = await _blogRepo.GetBlogsForUser();
+
+                if (blog_list.Count == 0)
+                {
+                    return BadRequest(new { success = false, message = "No blogs found.", data = blog_list });
+                }
+                return Ok(new
+                {
+                    success = true,
+                    message = "Fetched All blogs.",
+                    data = new
+                    {
+                        count = blog_list.Count,
+                        entries = blog_list
+                    }
+                });
+
+            }
+            catch
+            {
+                return StatusCode(500, new { success = false, message = "Something went wrong fetching your blogs, please try again later." });
+            }
+        }
+
+        [HttpPost]
+        [Route("fetchBookmarkedBlogsForUser")]
+
+        public async Task<IActionResult> FetchBookmarkedBlogsForUser(string user_id)
+        {
+            if (Convert.ToInt32(user_id) != null)
+            {
+                try
+                {
+                    var blog_list = await _blogRepo.FetchBookmarkedBlogsForUser(Convert.ToInt32(user_id), "user");
+
+                    if (blog_list.Count == 0)
+                    {
+                        return BadRequest(new { success = false, message = "You Haven't added any blog to you bookmark list.", data = blog_list });
+                    }
+                    return Ok(new
+                    {
+                        success = true,
+                        message = "Fetched All blogs.",
+                        data = new
+                        {
+                            count = blog_list.Count,
+                            entries = blog_list
+                        }
+                    });
+
+                }
+                catch
+                {
+                    return StatusCode(500, new { success = false, message = "Something went wrong fetching your blogs, please try again later." });
+                }
+            }
+            else
+            {
+                return BadRequest(new { success = false, message = "Instructor Id is required" });
+            }
+        }
+
+
 
         [HttpPost]
         [Route("GetBlogById")]
@@ -487,6 +557,33 @@ namespace API
             }
         }
 
+        [HttpPost]
+        [Route("RegisterLike")]
+        public async Task<IActionResult> RegisterLike([FromBody] vm_RegisterLike like_req)
+        {
+            if(like_req.blogId != null && like_req.userId != null && like_req.liked != null) {
+                try {
+
+                    var result = await _blogRepo.RegisterLike(like_req);
+
+                    if (result <= 0)
+                    {
+                        return BadRequest(new { success = false, message = "Unable to register your like at this moment, Please try again later."});
+                    }
+                    return Ok(new
+                    {
+                        success = true,
+                        message = "Like Preference Updated.",
+                    });
+
+                } catch {
+                    return StatusCode(500, new { success=false, message="Something went wrong, please try again later."});
+                }
+            } else {
+                return BadRequest(new {success=false, message="Invalid Data Provided."});
+            }
+        }
+        #endregion
 
         [HttpPost]
         [Route("fetchLikeStatusForBlog")]
@@ -517,31 +614,94 @@ namespace API
         }
 
         [HttpPost]
-        [Route("RegisterLike")]
-        public async Task<IActionResult> RegisterLike([FromBody] vm_RegisterLike like_req)
+        [Route("RegisterBookmark")]
+        public async Task<IActionResult> RegisterBookmark([FromBody] vm_RegisterBookmark bookmark_req)
         {
-            if(like_req.blogId != null && like_req.userId != null && like_req.liked != null) {
-                try {
-
-                    var result = await _blogRepo.RegisterLike(like_req);
+            if (bookmark_req.blogId != 0 && bookmark_req.userId != 0)
+            {
+                try
+                {
+                    var result = await _blogRepo.RegisterBookmark(bookmark_req);
 
                     if (result <= 0)
                     {
-                        return BadRequest(new { success = false, message = "Unable to register your like at this moment, Please try again later."});
+                        return BadRequest(new
+                        {
+                            success = false,
+                            message = "Unable to register your bookmark at this moment. Please try again later."
+                        });
                     }
+
                     return Ok(new
                     {
                         success = true,
-                        message = "Like Preference Updated.",
+                        message = "Bookmark status updated."
                     });
-
-                } catch {
-                    return StatusCode(500, new { success=false, message="Something went wrong, please try again later."});
                 }
-            } else {
-                return BadRequest(new {success=false, message="Invalid Data Provided."});
+                catch
+                {
+                    return StatusCode(500, new
+                    {
+                        success = false,
+                        message = "Something went wrong, please try again later."
+                    });
+                }
+            }
+            else
+            {
+                return BadRequest(new
+                {
+                    success = false,
+                    message = "Invalid data provided."
+                });
             }
         }
-        #endregion
+
+        [HttpPost]
+        [Route("fetchBookmarkStatusForBlog")]
+        public async Task<IActionResult> FetchBookmarkStatusForBlog([FromBody] vm_RegisterBookmark bookmark_info)
+        {
+            if (bookmark_info.blogId != 0 && bookmark_info.userId != 0 && !string.IsNullOrEmpty(bookmark_info.userRole))
+            {
+                try
+                {
+                    var result = await _blogRepo.FetchBookmarkStatusForBlog(bookmark_info);
+
+                    if (result.bookmarkId < 0)
+                    {
+                        return BadRequest(new
+                        {
+                            success = false,
+                            message = "Unable to fetch bookmark status. Please try again later.",
+                            data = result
+                        });
+                    }
+
+                    return Ok(new
+                    {
+                        success = true,
+                        message = "Successfully fetched your bookmark status for this blog.",
+                        data = result
+                    });
+                }
+                catch
+                {
+                    return StatusCode(500, new
+                    {
+                        success = false,
+                        message = "Something went wrong, please try again later."
+                    });
+                }
+            }
+            else
+            {
+                return BadRequest(new
+                {
+                    success = false,
+                    message = "Invalid data provided."
+                });
+            }
+        }
+
     }
 }
