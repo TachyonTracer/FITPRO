@@ -8,6 +8,6 @@ bin
 /obj/
 /bin/
 .git/
-**/appsettings*.json
-.env
+# **/appsettings*.json
+# .env
 __pycache__/

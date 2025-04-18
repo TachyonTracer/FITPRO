@@ -521,32 +521,43 @@ input[type="date"]::-webkit-datetime-edit-year-field {
 
 /* PDF report styles */
 .pdf-btn {
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	background: #222;
-	border: 1px solid #333;
-	color: #eaeaea;
-	padding: 12px 15px;
-	border-radius: 6px;
+	background: linear-gradient(to bottom, #333, #1a1a1a);
+	color: #fff;
+	border: 1px solid #444;
+	border-radius: 8px;
+	padding: 10px 16px;
 	font-size: 14px;
-	font-weight: bold;
+	font-weight: 500;
 	cursor: pointer;
 	transition: all 0.3s ease;
-	flex: 1;
+	box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+	display: flex;
+	align-items: center;
 }
 
 .pdf-btn i {
+	color: #ef4444;
 	margin-right: 8px;
-	color: #facc15;
 	font-size: 16px;
+	transition: color 0.3s ease;
 }
 
 .pdf-btn:hover {
-	background: rgba(220, 38, 38, 0.2);
-	border-color: #ef4444;
+	background: linear-gradient(to bottom, #3a3a3a, #222);
+	border-color: #facc15;
+	/* Changed to yellow border on hover to match date picker */
 	transform: translateY(-2px);
-	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+	box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+}
+
+.pdf-btn:hover i {
+	color: #facc15;
+	/* Changed icon color on hover to yellow to match date picker */
+}
+
+.pdf-btn:active {
+	transform: translateY(0);
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
 }
 
 /* Responsive adjustments */
@@ -609,4 +620,198 @@ input[type="date"]::-webkit-datetime-edit-year-field {
 	right: 15px;
 	top: 12px;
 	pointer-events: none;
+}
+
+/* Loading Indicator Styles */
+.loading-indicator {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	padding: 40px 20px;
+	width: 100%;
+	min-height: 300px;
+}
+
+.loading-indicator .spinner {
+	color: #facc15;
+	font-size: 36px;
+	margin-bottom: 20px;
+	animation: spin 1.5s linear infinite;
+}
+
+.loading-indicator .message {
+	font-size: 20px;
+	font-weight: 600;
+	color: #ffffff;
+	text-align: center;
+	letter-spacing: 0.5px;
+	text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.loading-indicator .message span {
+	color: #facc15;
+}
+
+@keyframes spin {
+	0% {
+		transform: rotate(0deg);
+	}
+
+	100% {
+		transform: rotate(360deg);
+	}
+}
+
+.loading-indicator .dots {
+	display: inline-block;
+}
+
+.loading-indicator .dots::after {
+	content: "...";
+	animation: dots 1.5s infinite;
+	display: inline-block;
+	width: 20px;
+	text-align: left;
+}
+
+@keyframes dots {
+
+	0%,
+	20% {
+		content: ".";
+	}
+
+	40% {
+		content: "..";
+	}
+
+	60%,
+	100% {
+		content: "...";
+	}
+}
+
+/* Loading Overlay - Used when we need a fullscreen loading effect */
+.loading-overlay {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background: rgba(26, 26, 26, 0.9);
+	border-radius: 10px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	z-index: 100;
+	backdrop-filter: blur(4px);
+}
+
+/* Quick Mode Toggle Switch Styles */
+.quick-mode-container {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	background: #222;
+	border: 1px solid #333;
+	border-radius: 8px;
+	padding: 10px 15px;
+	margin-top: 15px;
+	transition: all 0.3s ease;
+}
+
+.quick-mode-container:hover {
+	border-color: #facc15;
+	box-shadow: 0 0 8px rgba(250, 204, 21, 0.3);
+}
+
+.quick-mode-label {
+	display: flex;
+	align-items: center;
+	color: #eaeaea;
+	font-weight: 500;
+	font-size: 14px;
+}
+
+.quick-mode-label i {
+	color: #facc15;
+	margin-right: 8px;
+	font-size: 16px;
+}
+
+.quick-mode-status {
+	color: #777;
+	font-size: 12px;
+	font-weight: 600;
+	transition: all 0.3s ease;
+}
+
+.quick-mode-status.active {
+	color: #facc15;
+}
+
+/* Toggle Switch */
+.switch {
+	position: relative;
+	display: inline-block;
+	width: 46px;
+	height: 24px;
+	margin: 0 10px;
+}
+
+.switch input {
+	opacity: 0;
+	width: 0;
+	height: 0;
+}
+
+.slider {
+	position: absolute;
+	cursor: pointer;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background-color: #333;
+	transition: .4s;
+	box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.2);
+}
+
+.slider:before {
+	position: absolute;
+	content: "";
+	height: 18px;
+	width: 18px;
+	left: 3px;
+	bottom: 3px;
+	background-color: white;
+	transition: .4s;
+}
+
+input:checked+.slider {
+	background-color: #facc15;
+}
+
+input:focus+.slider {
+	box-shadow: 0 0 1px #facc15;
+}
+
+input:checked+.slider:before {
+	transform: translateX(22px);
+}
+
+/* Rounded sliders */
+.slider.round {
+	border-radius: 34px;
+}
+
+.slider.round:before {
+	border-radius: 50%;
+}
+
+/* Row highlighting for Quick Mode */
+#attendanceTable tbody tr.quick-mode-hover {
+	background-color: rgba(250, 204, 21, 0.15);
+	cursor: pointer;
 }
