@@ -27,9 +27,13 @@ body {
 }
 
 .class-grid {
-    display: flex;
-    align-items: center;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); /* Creates 3 columns of equal width */
+    gap: 20px; /* Adds space between cards */
     width: 100%;
+    max-width: 1200px; /* Optional: limits maximum width */
+    margin: 0 auto; /* Centers the grid */
+    padding: 20px; /* Adds some padding around the grid */
 }
 
 .class-card {
