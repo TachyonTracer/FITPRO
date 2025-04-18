@@ -139,6 +139,49 @@ services:
       retries: 3
       start_period: 10s
 
+  marketplace:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        SERVICE: marketplace
+    networks:
+      - FitPro-network
+    ports:
+      - "3001:3000"
+    environment:
+      - NODE_ENV=production
+      - NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=${NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY}
+      - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY}
+      - NEXT_PUBLIC_SANITY_TOKEN=${NEXT_PUBLIC_SANITY_TOKEN}
+      - NEXT_PUBLIC_SANITY_PROJECT_ID=${NEXT_PUBLIC_SANITY_PROJECT_ID}
+      - NEXT_PUBLIC_SANITY_DATASET=${NEXT_PUBLIC_SANITY_DATASET}
+      - NEXT_PUBLIC_SANITY_STUDIO_URL=http://sanity:3333
+    depends_on:
+      - sanity
+      - api
+      - redis
+      - rabbitmq
+    restart: unless-stopped
+
+  sanity:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        SERVICE: sanity
+    ports:
+      - "3333:3333"
+    environment:
+      - NODE_ENV=production
+      - PORT=3333
+      - SANITY_STUDIO_API_PROJECT_ID=${NEXT_PUBLIC_SANITY_PROJECT_ID}
+      - SANITY_STUDIO_API_DATASET=${NEXT_PUBLIC_SANITY_DATASET}
+      - SANITY_STUDIO_PREVIEW_TOKEN=${NEXT_PUBLIC_SANITY_TOKEN}
+    networks:
+      - FitPro-network
+    restart: "no" # Change to "no" to prevent continuous restarts
+
 networks:
   FitPro-network:
     driver: bridge

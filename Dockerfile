@@ -18,7 +18,24 @@ COPY . .
 RUN dotnet publish API/API.csproj -c Release -o /app/publish/API
 RUN dotnet publish MVC/MVC.csproj -c Release -o /app/publish/MVC
 
-# Runtime stage with Python and .NET
+# Next.js build stage
+FROM node:18-alpine AS next-build
+WORKDIR /app/marketplace
+COPY marketplace/package*.json ./
+RUN npm install --legacy-peer-deps
+COPY marketplace/ .
+RUN npm run build
+
+# Sanity build stage
+FROM node:18-alpine AS sanity-build
+WORKDIR /app/sanity
+COPY ./marketplace/Backend/package*.json ./
+RUN npm install --legacy-peer-deps
+COPY ./marketplace/Backend/ .
+# Add the build step for Sanity
+RUN npm run build
+
+# Runtime stage
 FROM python:3.11-slim AS runtime
 
 # Install .NET Runtime
@@ -28,8 +45,15 @@ RUN apt-get update && apt-get install -y wget && \
     apt-get update && \
     apt-get install -y aspnetcore-runtime-8.0
 
+# Install Node.js
+RUN apt-get install -y curl && \
+    curl -fsSL https://deb.nodesource.com/setup_18.x | bash - && \
+    apt-get install -y nodejs
+
 WORKDIR /app
 COPY --from=build /app/publish .
+COPY --from=next-build /app/marketplace /app/marketplace
+COPY --from=sanity-build /app/sanity /app/sanity
 
 # Copy the wwwroot directory and AI project
 COPY MVC/wwwroot /app/MVC/wwwroot
@@ -55,6 +79,10 @@ RUN mkdir -p /root/.aspnet/DataProtection-Keys && \
 ENTRYPOINT ["/bin/bash", "-c", "\
     if [ \"$SERVICE\" = \"AI\" ]; then \
         cd /app/AI && python main.py; \
+    elif [ \"$SERVICE\" = \"marketplace\" ]; then \
+        cd /app/marketplace && npm start; \
+    elif [ \"$SERVICE\" = \"sanity\" ]; then \
+        cd /app/sanity && npm run start; \
     else \
         dotnet /app/$SERVICE/$SERVICE.dll; \
     fi"]

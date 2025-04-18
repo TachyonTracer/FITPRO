@@ -4,6 +4,22 @@ if (!window.jspdf) {
 	console.log("jsPDF loaded successfully:", window.jspdf);
 }
 
+// SignalR error handler
+const handleSignalRError = (error) => {
+	console.warn('SignalR connection error:', error);
+	// Prevent the error from showing in console as Uncaught
+	return Promise.resolve(); // This prevents the "Uncaught (in promise)" error
+};
+
+// If you have a SignalR connection, add the error handler
+if (window.connection) {
+	window.connection.onclose = handleSignalRError;
+	window.connection.onreconnecting = (error) => {
+		console.log("Reconnecting to SignalR hub...", error);
+		return Promise.resolve();
+	};
+}
+
 // Removed logo loading code
 
 let userData = [];
@@ -265,17 +281,31 @@ function calculateAttendancePercentages(classId) {
 	const classItem = classesData.find(c => c.classId == classId);
 	if (!classItem) return;
 
+	// Create Date objects for comparison with consistent time
 	const startDate = new Date(classItem.startDate);
 	const endDate = new Date(classItem.endDate);
 	const today = new Date();
-	const effectiveEndDate = endDate < today ? endDate : today;
-	const dates = [];
 
-	let currentDateIter = new Date(startDate);
-	while (currentDateIter <= effectiveEndDate) {
-		dates.push(new Date(currentDateIter));
-		currentDateIter.setDate(currentDateIter.getDate() + 1);
+	// Reset time components to midnight for proper date comparison
+	startDate.setHours(0, 0, 0, 0);
+	endDate.setHours(0, 0, 0, 0);
+	today.setHours(0, 0, 0, 0);
+
+	// Use the earlier of today or the end date
+	const effectiveEndDate = today > endDate ? endDate : today;
+
+	// Generate all dates in the range including the first day
+	const dates = [];
+	const currentDate = new Date(startDate);
+
+	// Loop includes both start and end dates
+	while (currentDate <= effectiveEndDate) {
+		dates.push(new Date(currentDate));
+		currentDate.setDate(currentDate.getDate() + 1);
 	}
+
+	console.log(`Class period: ${startDate.toISOString().split('T')[0]} to ${effectiveEndDate.toISOString().split('T')[0]}`);
+	console.log(`Total days for percentage: ${dates.length}`);
 
 	$("#attendanceTable tbody tr").each(function () {
 		const userId = parseInt($(this).find("td:first-child").data("userid"));
@@ -331,10 +361,6 @@ function updateAttendanceData(classId, userId, date, present) {
 	}
 
 	calculateAttendancePercentages(classId);
-}
-
-function formatDateHeader(date) {
-	return `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}`;
 }
 
 function formatDate(date) {
@@ -1083,6 +1109,16 @@ function formatDateLocal(date) {
 	const month = String(date.getMonth() + 1).padStart(2, '0');
 	const day = String(date.getDate()).padStart(2, '0');
 	return `${year}-${month}-${day}`;
+}
+
+/**
+ * Formats a date for display in the header
+ * @param {Date} date - The date to format
+ * @returns {string} The formatted date string for headers
+ */
+function formatDateHeader(date) {
+	const options = { weekday: 'short', month: 'short', day: 'numeric' };
+	return date.toLocaleDateString('en-US', options);
 }
 
 // Show/hide students based on attendance
