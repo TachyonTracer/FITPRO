@@ -20118,4 +20118,3 @@ const ho = ({ children: t, className: e = "", index: n }) => {
 Kg(document.getElementById("root")).render(
   w.jsx(P.StrictMode, { children: w.jsx(bw, { children: w.jsx(nk, {}) }) })
 );
-document.getElementById("product-button").onclick=window.location.href=`{window.location.protocol}//${window.location.hostname}:3001`
