@@ -513,9 +513,44 @@ function displayClasses(classes) {
         return;
     }
 
-    // Original code for displaying classes
     classes.forEach(classItem => {
-        // Your existing code to display class cards
+        const startDate = new Date(classItem.startDate);
+        const endDate = new Date(classItem.endDate);
+        const status = getClassStatus(startDate, endDate);
+
+
+        // Add different styling for live status
+        const statusStyle = status === 'live' ?
+            'background-color: #FF6363 ; color: #000000;' :
+            (status === 'completed' ? 'background-color:rgb(114, 215, 67) ; color: #0f0f0f;' : '');
+
+        const classCard = `
+            <div class="class-card" data-status="${status}" data-class-id="${classItem.classId}">
+            <img src="/ClassAssets/${classItem.assets.banner}" alt="${classItem.className}" class="class-img" />
+            <div class="class-info">
+                <h3>${classItem.className}</h3>
+                <p><strong>Instructor:</strong> ${classItem.instructorName}</p>
+                <p><strong>Schedule:</strong> ${formatDate(startDate)} - ${formatDate(endDate)} | ${classItem.startTime.substring(0, 5)} - ${classItem.endTime.substring(0, 5)}</p>
+                <span class="status-tag" style="${statusStyle}">${status.charAt(0).toUpperCase() + status.slice(1)}</span>
+                ${classItem.waitList != 0 && status != 'completed' && status != 'live' ?
+            `<div class="waitlist-box">WL: ${classItem.waitList}</div>` : ''}
+            </div>
+            ${status === 'completed' ?
+            `<button class="cancel-btn" style="background-color: #facc15; color: #0f0f0f; border: none;" 
+                onclick="openFeedback('${classItem.classId}', '${classItem.className}', '${classItem.instructorName}')">
+                Give Feedback
+            </button>` :
+                status === 'live' ?
+                `<button class="cancel-btn" disabled style="  cursor: not-allowed;">
+                Cancel Booking
+                </button>` :
+                `<button class="cancel-btn" onclick="cancelBooking('${classItem.classId}', '${classItem.className}')">
+                Cancel Booking
+                </button>`
+            }
+            </div>
+        `;
+        classGrid.innerHTML += classCard;
     });
 }
 
