@@ -924,7 +924,7 @@ function showLogoutConfirmation() {
                     'Content-Type': 'application/json'
                 },
                 success: function (data) {
-                    if (data && data.success && data.data && data.data.entries.length > 0) {
+                    if (data && data.success && data.data && data.data.entries && data.data.entries.length > 0) {
                         const bookmarkedBlogs = data.data.entries.map(entry => ({
                             id: entry.c_blog_id,
                             authorId: entry.c_blog_author_id,
@@ -946,12 +946,22 @@ function showLogoutConfirmation() {
                         filteredBlogs = bookmarkedBlogs;
                         renderBlogs();
                     } else {
-                        $("#blog-list").html('<div class="no-blogs">You have no bookmarked blogs.</div>');
+                        // Show the specific message from the API when there are no bookmarks
+                        const message = data.message || "You haven't added any blogs to your bookmark list.";
+                        $("#blog-list").html(`<div class="no-blogs">${message}</div>`);
                     }
                 },
                 error: function (xhr, status, error) {
-                    console.error('Error fetching bookmarked blogs:', error);
-                    showError("Failed to load bookmarked blogs. Please try again later.");
+                    console.log(xhr.responseJSON['message']);
+                     if (xhr.responseJSON['message']) 
+                       {
+                            showError(xhr.responseJSON['message']);
+                       }
+                       else{
+
+                    showError("Failed to fetch bookmarked blogs. Please try again later.");
+                       }
+
                 }
             });
         }
