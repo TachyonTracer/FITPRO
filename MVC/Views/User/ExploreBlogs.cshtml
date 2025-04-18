@@ -19,6 +19,92 @@
 
 </head>
 <style>
+      
+   .swal2-popup {
+          background: var(--glass-color) !important;
+          backdrop-filter: blur(15px) !important;
+          border: 1px solid hsla(0, 0%, 65%, 0.2) !important;
+          border-radius: 15px !important;
+          box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3) !important;
+          color:  #ffffff!important;
+      }
+
+      .swal2-title {
+          color: #ffffff;
+          font-family: "Poppins", sans-serif !important;
+          letter-spacing: 1px !important;
+      }
+
+      .swal2-content {
+          color: rgba(255, 255, 255, 0.8) !important;
+          font-family: "Poppins", sans-serif !important;
+      }
+
+      .swal2-confirm {
+          background-color:#437d51;
+          color:  #ffffff;
+          border: none !important;
+          border-radius: 8px !important;
+          font-family: "Poppins", sans-serif !important;
+          transition: all 0.3s ease !important;
+      }
+
+      .swal2-confirm:hover {
+          background-color: #218838 !important;
+          transform: scale(1.03) !important;
+      }
+
+      .swal2-cancel {
+          background-color: rgba(255, 255, 255, 0.1) !important;
+          color: var(--color) !important;
+          border: 1px solid rgba(255, 255, 255, 0.2) !important;
+          border-radius: 8px !important;
+          font-family: "Poppins", sans-serif !important;
+          transition: all 0.3s ease !important;
+      }
+
+      .swal2-cancel:hover {
+          background-color: rgba(244, 18, 18, 0.2) !important;
+          transform: scale(1.03) !important;
+      }
+
+      .swal2-icon.swal2-warning {
+          color: var(--primary-color) !important;
+          border-color: var(--primary-color) !important;
+      }
+
+      .swal2-icon.swal2-success {
+          border-color: var(--success-color) !important;
+          background: none !important;
+      }
+
+      .swal2-icon.swal2-success .swal2-success-ring {
+          border-color: var(--success-color) !important;
+          background: none !important;
+          display: block !important;
+      }
+
+      .swal2-icon.swal2-success .swal2-success-circular-line-left,
+      .swal2-icon.swal2-success .swal2-success-circular-line-right,
+      .swal2-icon.swal2-success .swal2-success-fix {
+          display: none !important;
+      }
+
+      .swal2-icon.swal2-success .swal2-success-ring::before,
+      .swal2-icon.swal2-success .swal2-success-ring::after {
+          display: none !important;
+          background: transparent !important;
+      }
+
+      .swal2-icon.swal2-success::before,
+      .swal2-icon.swal2-success::after {
+          display: none !important;
+          background: transparent !important;
+      }
+
+      .swal2-icon.swal2-success [class^='swal2-success-line'] {
+          background-color: #218838 !important;
+      }
     body {
         background: url("gym1.jpg") no-repeat center center fixed;
         background-size: cover;
@@ -505,6 +591,7 @@
             font-size: 13px;
         }
     }
+    
 
     /* Instructor info - Keeping style for reference if needed */
     /* ...existing .instructor-info styles... */
@@ -547,7 +634,75 @@
     </section>
 
     <!-- Scripts -->
+    
     <script>
+        function viewClassDetails(classId) {
+  // Redirect to the class details page with the class ID
+  window.location.href = `/User/Classdetails/${classId}`;
+}
+
+function myclasses() {
+  // Redirect to the class details page with the class ID
+  window.location.href = `/User/MyClasses`;
+}
+
+function Schedule() {
+  // Redirect to the class details page with the class ID
+  window.location.href = `/User/UserClassSchedule`;
+}
+
+function ExploreBlogs() {
+    // Redirect to the class details page with the class ID
+    window.location.href = `/User/ExploreBlogs`;
+}
+
+function home() {
+  // Redirect to the class details page with the class ID
+  window.location.href = `/User/home`;
+}
+function classes() {
+  // Redirect to the class details page with the class ID
+  window.location.href = `/User/index`;
+}
+
+
+function performLogout() {
+  Swal.fire({
+    title: "Logging Out",
+    text: "Please wait...",
+    timer: 1000,
+    timerProgressBar: true,
+    didOpen: () => {
+      Swal.showLoading();
+      // Clear the authentication token
+      localStorage.removeItem("authToken");
+    },
+  }).then(() => {
+    // Redirect to login page
+    window.location.href = "/Auth/Login";
+  });
+}
+
+// Add a showLogoutConfirmation function
+function showLogoutConfirmation() {
+  Swal.fire({
+    title: "Logout Confirmation",
+    text: "Are you sure you want to logout?",
+    icon: "question",
+    showCancelButton: true,
+    confirmButtonColor: "#ff4d4d",
+    cancelButtonColor: "#6c757d",
+    confirmButtonText: "Yes, Logout",
+    cancelButtonText: "Cancel",
+  }).then((result) => {
+    if (result.isConfirmed) {
+      performLogout();
+    }
+  });
+}
+
+
+
         // Variables
         let allBlogs = [];
         let filteredBlogs = [];

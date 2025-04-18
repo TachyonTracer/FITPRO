@@ -32,6 +32,10 @@ function showTab(tab) {
     }
 }
 
+function ExploreBlogs() {
+    // Redirect to the class details page with the class ID
+    window.location.href = `/User/ExploreBlogs`;
+}
 
 const images = document.querySelectorAll(".class-gallery img");
 let index = 0;
