@@ -60,6 +60,7 @@ public class ClassRepo : IClassInterface
 
 
     #region Book:Class
+
     public async Task<Response> BookClass(Booking req)
     {
         Response response = new Response();
@@ -83,113 +84,116 @@ public class ClassRepo : IClassInterface
                 }
             }
 
-            using (var transaction = await _conn.BeginTransactionAsync())
+            // Check class exists and capacity
+            int availableCapacity = 0;
+            int maxCapacity = 0;
+            int instructorId = 0;
+            string className = string.Empty;
+
+            using (var checkCmd = new NpgsqlCommand(
+                "SELECT c_availablecapacity, c_maxcapacity, c_instructorid, c_classname FROM t_Class WHERE c_classid = @classId",
+                _conn))
             {
-                try
+                checkCmd.Parameters.AddWithValue("@classId", req.classId);
+                using (var reader = await checkCmd.ExecuteReaderAsync())
                 {
-                    int availableCapacity = 0;
-                    int maxCapacity = 0;
-                    int instructorId = 0;
-                    string className = string.Empty;
-
-                    // Check class exists and capacity
-                    using (var checkCmd = new NpgsqlCommand(
-                        "SELECT c_availablecapacity, c_maxcapacity, c_instructorid, c_classname FROM t_Class WHERE c_classid = @classId FOR UPDATE",
-                        _conn, transaction))
+                    if (!await reader.ReadAsync())
                     {
-                        checkCmd.Parameters.AddWithValue("@classId", req.classId);
-                        using (var reader = await checkCmd.ExecuteReaderAsync())
-                        {
-                            if (!await reader.ReadAsync())
-                            {
-                                response.success = false;
-                                response.message = "Class not found";
-                                return response;
-                            }
-
-                            availableCapacity = Convert.ToInt32(reader["c_availablecapacity"]);
-                            maxCapacity = Convert.ToInt32(reader["c_maxcapacity"]);
-                            instructorId = Convert.ToInt32(reader["c_instructorid"]);
-                            className = Convert.ToString(reader["c_classname"]);
-                        }
+                        response.success = false;
+                        response.message = "Class not found";
+                        return response;
                     }
 
-                    if (availableCapacity <= 0)
-                    {
-                        // Get next waitlist number
-                        using (var waitlistCmd = new NpgsqlCommand(
-                            "SELECT COALESCE(MAX(c_waitlist), 0) + 1 FROM t_bookings WHERE c_classid = @classId AND c_waitlist > 0",
-                            _conn, transaction))
-                        {
-                            waitlistCmd.Parameters.AddWithValue("@classId", req.classId);
-                            int waitlistNumber = Convert.ToInt32(await waitlistCmd.ExecuteScalarAsync());
-
-                            // Add to waitlist
-                            using (var bookingCmd = new NpgsqlCommand(
-                                "INSERT INTO t_Bookings (c_bookingid, c_userid, c_classid, c_createdat, c_waitlist) " +
-                                "VALUES (DEFAULT, @userId, @classId, @createdAt, @waitlist) RETURNING c_bookingid",
-                                _conn, transaction))
-                            {
-                                bookingCmd.Parameters.AddWithValue("@userId", req.userId);
-                                bookingCmd.Parameters.AddWithValue("@classId", req.classId);
-                                bookingCmd.Parameters.AddWithValue("@createdAt", DateTime.UtcNow);
-                                bookingCmd.Parameters.AddWithValue("@waitlist", waitlistNumber);
-                                await bookingCmd.ExecuteScalarAsync();
-                            }
-
-                            await transaction.CommitAsync();
-                            response.success = true;
-                            response.message = $"Added to waitlist. Your position is {waitlistNumber}";
-                            return response;
-                        }
-                    }
-
-                    if (availableCapacity == 1)
-                    {
-                        _rabbitMQService.PublishNotification(instructorId.ToString(), "instructor",
-                            $"Class Full !!!::One of your class {className} is fully booked!::{DateTimeOffset.UtcNow.ToUnixTimeSeconds()}");
-                    }
-
-                    // Create regular booking
-                    using (var bookingCmd = new NpgsqlCommand(
-                        "INSERT INTO t_Bookings (c_bookingid, c_userid, c_classid, c_createdat, c_waitlist) " +
-                        "VALUES (DEFAULT, @userId, @classId, @createdAt, 0) RETURNING c_bookingid",
-                        _conn, transaction))
-                    {
-                        bookingCmd.Parameters.AddWithValue("@userId", req.userId);
-                        bookingCmd.Parameters.AddWithValue("@classId", req.classId);
-                        bookingCmd.Parameters.AddWithValue("@createdAt", DateTime.UtcNow);
-                        await bookingCmd.ExecuteScalarAsync();
-                    }
-
-                    // Update capacity
-                    using (var updateCmd = new NpgsqlCommand(
-                        "UPDATE t_Class SET c_availablecapacity = c_availablecapacity - 1 " +
-                        "WHERE c_classid = @classId AND c_availablecapacity > 0",
-                        _conn, transaction))
-                    {
-                        updateCmd.Parameters.AddWithValue("@classId", req.classId);
-                        int rowsAffected = await updateCmd.ExecuteNonQueryAsync();
-
-                        if (rowsAffected == 0) throw new Exception("Failed to update class capacity");
-                    }
-
-                    await transaction.CommitAsync();
-                    response.success = true;
-                    response.message = "Class booked successfully";
-                }
-                catch (Exception ex)
-                {
-                    await transaction.RollbackAsync();
-                    response.success = false;
-                    response.message = $"Booking failed: {ex.Message}";
+                    availableCapacity = Convert.ToInt32(reader["c_availablecapacity"]);
+                    maxCapacity = Convert.ToInt32(reader["c_maxcapacity"]);
+                    instructorId = Convert.ToInt32(reader["c_instructorid"]);
+                    className = Convert.ToString(reader["c_classname"]);
                 }
             }
+
+            if (availableCapacity <= 0)
+            {
+                // Get next waitlist number
+                int waitlistNumber = 0;
+                using (var waitlistCmd = new NpgsqlCommand(
+                    "SELECT COALESCE(MAX(c_waitlist), 0) + 1 FROM t_bookings WHERE c_classid = @classId AND c_waitlist > 0",
+                    _conn))
+                {
+                    waitlistCmd.Parameters.AddWithValue("@classId", req.classId);
+                    waitlistNumber = Convert.ToInt32(await waitlistCmd.ExecuteScalarAsync());
+                }
+
+                // Add to waitlist
+                using (var bookingCmd = new NpgsqlCommand(
+                    "INSERT INTO t_Bookings (c_bookingid, c_userid, c_classid, c_createdat, c_waitlist) " +
+                    "VALUES (DEFAULT, @userId, @classId, @createdAt, @waitlist) RETURNING c_bookingid",
+                    _conn))
+                {
+                    bookingCmd.Parameters.AddWithValue("@userId", req.userId);
+                    bookingCmd.Parameters.AddWithValue("@classId", req.classId);
+                    bookingCmd.Parameters.AddWithValue("@createdAt", DateTime.UtcNow);
+                    bookingCmd.Parameters.AddWithValue("@waitlist", waitlistNumber);
+                    await bookingCmd.ExecuteScalarAsync();
+                }
+
+                response.success = true;
+                response.message = $"Added to waitlist. Your position is {waitlistNumber}";
+                return response;
+            }
+
+            if (availableCapacity == 1)
+            {
+                _rabbitMQService.PublishNotification(instructorId.ToString(), "instructor",
+                    $"Class Full !!!::One of your class {className} is fully booked!::{DateTimeOffset.UtcNow.ToUnixTimeSeconds()}");
+            }
+
+            // Create regular booking
+            using (var bookingCmd = new NpgsqlCommand(
+                "INSERT INTO t_Bookings (c_bookingid, c_userid, c_classid, c_createdat, c_waitlist) " +
+                "VALUES (DEFAULT, @userId, @classId, @createdAt, 0) RETURNING c_bookingid",
+                _conn))
+            {
+                bookingCmd.Parameters.AddWithValue("@userId", req.userId);
+                bookingCmd.Parameters.AddWithValue("@classId", req.classId);
+                bookingCmd.Parameters.AddWithValue("@createdAt", DateTime.UtcNow);
+                await bookingCmd.ExecuteScalarAsync();
+            }
+
+            // Update capacity
+            using (var updateCmd = new NpgsqlCommand(
+                "UPDATE t_Class SET c_availablecapacity = c_availablecapacity - 1 " +
+                "WHERE c_classid = @classId AND c_availablecapacity > 0",
+                _conn))
+            {
+                updateCmd.Parameters.AddWithValue("@classId", req.classId);
+                int rowsAffected = await updateCmd.ExecuteNonQueryAsync();
+
+                if (rowsAffected == 0)
+                {
+                    // Attempt to delete the booking we just created since we couldn't update capacity
+                    using (var deleteBookingCmd = new NpgsqlCommand(
+                        "DELETE FROM t_Bookings WHERE c_userid = @userId AND c_classid = @classId",
+                        _conn))
+                    {
+                        deleteBookingCmd.Parameters.AddWithValue("@userId", req.userId);
+                        deleteBookingCmd.Parameters.AddWithValue("@classId", req.classId);
+                        await deleteBookingCmd.ExecuteNonQueryAsync();
+                    }
+
+                    response.success = false;
+                    response.message = "Failed to update class capacity";
+                    return response;
+                }
+            }
+
+            response.success = true;
+            response.message = "Class booked successfully";
         }
         catch (Exception ex)
         {
+            Console.WriteLine(ex);
             response.success = false;
-            response.message = $"Error connecting to database: {ex.Message}";
+            response.message = $"Error during booking: {ex.Message}";
         }
         finally
         {
@@ -257,7 +261,7 @@ public class ClassRepo : IClassInterface
     }
     #endregion
 
-     #region GetAllActiveClasess
+    #region GetAllActiveClasess
     public async Task<List<Class>> GetAllActiveClasses()
     {
         List<Class> classes = new List<Class>();

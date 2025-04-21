@@ -6,11 +6,12 @@ public interface IClassInterface
     Task<List<Class>> GetAllActiveClasses();
     Task<List<Class>> GetClassById(string id);
     Task<Class> GetOne(string id);
-    Task<Response> BookClass(Booking request);
+  
     Task<bool> SoftDeleteClass(int classId);
 
     Task<int> ScheduleClass( Class classData);
 
+ Task<Response> BookClass(Booking req);
    
     #endregion
     Task<List<Class>> GetBookedClassesByUserId(string userId);
