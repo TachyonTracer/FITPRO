@@ -59,5 +59,9 @@ namespace MVC
         public IActionResult ExploreBlogs(){
             return View();
         }
+
+        public IActionResult BMICalculator(){
+            return View();
+        }
     }
 }

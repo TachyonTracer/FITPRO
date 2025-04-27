@@ -1,0 +1,353 @@
+@{
+    ViewData["Title"] = "BMI Calculator";
+    Layout = "../Shared/_UserLayout.cshtml";
+}
+<style>
+    /* Main color scheme */
+    :root {
+        --primary-gold: #facc15;
+        --primary-black: #000000;
+        --primary-dark: #121212;
+        --text-light: #ffffff;
+        --hover-gold: #e9bc00;
+    }
+
+    /* Card styling */
+    .card {
+        background-color: var(--primary-black);
+        color: var(--text-light);
+        border: 1px solid var(--primary-gold);
+        border-radius: 8px;
+        overflow: hidden;
+    }
+    
+    .bmi-heading {
+        color: var(--primary-gold);
+        background-color: var(--primary-black);
+        font-weight: 600;
+    }
+    
+    /* Button styling */
+    .btn-calculate {
+        background-color: var(--primary-gold) !important;
+        border: none;
+        color: var(--primary-black) !important;
+        font-weight: bold;
+        padding: 10px 24px;
+        border-radius: 5px;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 6px rgba(250, 204, 21, 0.2);
+    }
+    
+    .btn-calculate:hover {
+        background-color: var(--hover-gold) !important;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 12px rgba(250, 204, 21, 0.3);
+    }
+    
+    .btn-calculate:active {
+        transform: translateY(0);
+    }
+    
+    /* Form control styling */
+    .form-control {
+        background-color: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(250, 204, 21, 0.3);
+        color: var(--text-light);
+    }
+    
+    .form-control:focus {
+        background-color: rgba(255, 255, 255, 0.15);
+        border-color: var(--primary-gold);
+        box-shadow: 0 0 0 0.2rem rgba(250, 204, 21, 0.25);
+        color: var(--text-light);
+    }
+    
+    /* Labels */
+    label {
+        color: var(--primary-gold);
+        font-weight: 500;
+        margin-bottom: 8px;
+    }
+    
+    /* BMI Result Card */
+    #bmiResult .card {
+        border: 2px solid var(--primary-gold);
+        transition: all 0.3s ease;
+    }
+    
+    #bmiResult .card-header {
+        background-color: var(--primary-gold);
+        color: var(--primary-black);
+        font-weight: bold;
+    }
+    
+    /* BMI Category Indicators */
+    .bmi-category-box {
+        padding: 10px;
+        border-radius: 5px;
+        margin-bottom: 5px;
+        font-weight: 500;
+    }
+    
+    .category-underweight {
+        background-color: #17a2b8;
+    }
+    
+    .category-normal {
+        background-color: #28a745;
+    }
+    
+    .category-overweight {
+        background-color: #ffc107;
+        color: #000;
+    }
+    
+    .category-obesity-1 {
+        background-color: #fd7e14;
+    }
+    
+    .category-obesity-2 {
+        background-color: #dc3545;
+    }
+    
+    .category-obesity-3 {
+        background-color: #343a40;
+    }
+    
+    /* Table styling */
+    .bmi-table {
+        color: var(--text-light);
+        background-color: rgba(0,0,0,0.5);
+    }
+    
+    .bmi-table th {
+        background-color: rgba(250, 204, 21, 0.8);
+        color: var(--primary-black);
+        border: none;
+    }
+    
+    .bmi-table td {
+        border-color: rgba(255,255,255,0.1);
+    }
+    
+    .bmi-table tr:hover {
+        background-color: rgba(250, 204, 21, 0.1);
+    }
+    
+    /* Pulse animation for calculate button */
+    @@keyframes pulse {
+        0% {
+            box-shadow: 0 0 0 0 rgba(250, 204, 21, 0.4);
+        }
+        70% {
+            box-shadow: 0 0 0 10px rgba(250, 204, 21, 0);
+        }
+        100% {
+            box-shadow: 0 0 0 0 rgba(250, 204, 21, 0);
+        }
+    }
+    
+    .pulse-animation {
+        animation: pulse 2s infinite;
+    }
+</style>
+
+<div class="container-fluid mt-4">
+    <div class="row">
+        <div class="col-md-8 mx-auto">
+            <div class="card bmi-heding shadow">
+                <div class="card-header bmi-heding  text-white">
+                    <h4 class="mb-0 bmi-heding ">BMI Calculator</h4>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-4">
+                        <div class="col-md-12">
+                            <p>Body Mass Index (BMI) is a measure of body fat based on height and weight. Use this calculator to check your BMI and understand what it means for your health.</p>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label for="height">Height (cm)</label>
+                                <input type="number" class="form-control" id="height" placeholder="Enter height in centimeters">
+                            </div>
+                            <div class="form-group mb-3">
+                                <label for="weight">Weight (kg)</label>
+                                <input type="number" class="form-control" id="weight" placeholder="Enter weight in kilograms">
+                            </div>
+                            <button type="button" id="calculateBMI" class="btn btn-calculate pulse-animation">Calculate BMI</button>
+                        </div>
+                        <div class="col-md-6">
+                            <div id="bmiResult" class="d-none">
+                                <div class="card">
+                                    <div class="card-header" id="bmiResultHeader">
+                                        <h5 class="mb-0" id="bmiValue"></h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <h5 class="card-title" id="bmiCategory"></h5>
+                                        <p class="card-text" id="bmiDescription"></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mt-4">
+                        <div class="col-md-12">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5 class="mb-0">BMI Categories</h5>
+                                </div>
+                                <div class="card-body p-0">
+                                    <table class="table bmi-table">
+                                        <thead>
+                                            <tr>
+                                                <th>BMI Range</th>
+                                                <th>Category</th>
+                                                <th>Health Risk</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>Below 18.5</td>
+                                                <td>Underweight</td>
+                                                <td>Minimal</td>
+                                            </tr>
+                                            <tr>
+                                                <td>18.5 - 24.9</td>
+                                                <td>Normal Weight</td>
+                                                <td>Minimal</td>
+                                            </tr>
+                                            <tr>
+                                                <td>25.0 - 29.9</td>
+                                                <td>Overweight</td>
+                                                <td>Increased</td>
+                                            </tr>
+                                            <tr>
+                                                <td>30.0 - 34.9</td>
+                                                <td>Obesity Class I</td>
+                                                <td>High</td>
+                                            </tr>
+                                            <tr>
+                                                <td>35.0 - 39.9</td>
+                                                <td>Obesity Class II</td>
+                                                <td>Very High</td>
+                                            </tr>
+                                            <tr>
+                                                <td>40.0 and above</td>
+                                                <td>Obesity Class III</td>
+                                                <td>Extremely High</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $('#calculateBMI').on('click', function () {
+                calculateBMI();
+            });
+
+            // Also calculate when Enter is pressed in the input fields
+            $('#height, #weight').keypress(function (e) {
+                if (e.which === 13) {
+                    calculateBMI();
+                }
+            });
+
+            function calculateBMI() {
+                const height = parseFloat($('#height').val());
+                const weight = parseFloat($('#weight').val());
+
+                // Validate inputs
+                if (!height || height <= 0 || !weight || weight <= 0) {
+                    toastr.error('Please enter valid height and weight values');
+                    return;
+                }
+
+                // Convert height from cm to m and calculate BMI
+                const heightInMeters = height / 100;
+                const bmi = weight / (heightInMeters * heightInMeters);
+                const roundedBMI = Math.round(bmi * 10) / 10;
+
+                // Show result section
+                $('#bmiResult').removeClass('d-none');
+                $('#bmiValue').text(`Your BMI: ${roundedBMI}`);
+
+                // Set category, description and color based on BMI value
+                let category, description, headerClass;
+                if (bmi < 18.5) {
+                    category = 'Underweight';
+                    description = 'You may need to gain some weight. Consider consulting with a nutritionist.';
+                    headerClass = 'bg-info text-white';
+                } else if (bmi < 25) {
+                    category = 'Normal Weight';
+                    description = 'You have a healthy weight. Maintain your current lifestyle with regular exercise.';
+                    headerClass = 'bg-success text-white';
+                } else if (bmi < 30) {
+                    category = 'Overweight';
+                    description = 'You may benefit from losing some weight through diet and exercise.';
+                    headerClass = 'bg-warning';
+                } else if (bmi < 35) {
+                    category = 'Obesity Class I';
+                    description = 'Health risks are increased. Consider a weight management program with professional guidance.';
+                    headerClass = 'bg-orange text-white';
+                } else if (bmi < 40) {
+                    category = 'Obesity Class II';
+                    description = 'Health risks are high. Consult with healthcare professionals for a weight management plan.';
+                    headerClass = 'bg-danger text-white';
+                } else {
+                    category = 'Obesity Class III';
+                    description = 'Health risks are extremely high. Immediate medical consultation is recommended.';
+                    headerClass = 'bg-dark text-white';
+                }
+
+                // Update the UI
+                $('#bmiCategory').text(category);
+                $('#bmiDescription').text(description);
+
+                // Remove all category classes first
+                $('#bmiResultHeader').removeClass('category-underweight category-normal category-overweight category-obesity-1 category-obesity-2 category-obesity-3');
+
+                // Add the appropriate category class based on BMI
+                if (bmi < 18.5) {
+                    $('#bmiResultHeader').addClass('category-underweight');
+                } else if (bmi < 25) {
+                    $('#bmiResultHeader').addClass('category-normal');
+                } else if (bmi < 30) {
+                    $('#bmiResultHeader').addClass('category-overweight');
+                } else if (bmi < 35) {
+                    $('#bmiResultHeader').addClass('category-obesity-1');
+                } else if (bmi < 40) {
+                    $('#bmiResultHeader').addClass('category-obesity-2');
+                } else {
+                    $('#bmiResultHeader').addClass('category-obesity-3');
+                }
+
+                // Track BMI calculation (optional, if you have analytics)
+                if (typeof trackEvent === 'function') {
+                    trackEvent('BMI', 'Calculate', category);
+                }
+
+                // You could also save the BMI to the user's profile if logged in
+                // saveUserBMI(roundedBMI);
+            }
+        });
+    </script>
+    <style>
+        .bg-orange {
+            background-color: #fd7e14;
+        }
+    </style>
+}
