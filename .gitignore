@@ -15,3 +15,7 @@ MVC/wwwroot.zip
 MVC/wwwroot/videos/*.mp4
 *.zip
 *.mp4
+# Environment files with secrets
+.env
+**/.env
+*.env
