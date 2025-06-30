@@ -10,7 +10,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>FitPro - My Blogs</title>
-    <link rel="stylesheet" href="style.css" />
+    
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet" />
     <script src="https://code.jquery.com/jquery-3.7.1.js"
         integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
@@ -633,8 +633,84 @@
     </section>
 
     <!-- Scripts -->
-    
     <script>
+        // Define the wallet balance function before it's called
+        function loadUserWalletBalance() {
+            const userId = getUserIdFromToken();
+            console.log("Fetching wallet balance for userId:", userId, "from ExploreBlogs");
+            if (!userId || isNaN(userId)) return;
+            
+            fetch(`http://localhost:8080/api/User/GetUserBalanceById/${userId}`)
+                .then((res) => res.json())
+                .then((response) => {
+                    if (response.success && response.data && typeof response.data.balance !== "undefined") {
+                        document.getElementById("userWalletBalance").textContent = `₹${response.data.balance}`;
+                    } else {
+                        document.getElementById("userWalletBalance").textContent = "₹0";
+                        console.warn("Failed to fetch wallet balance:", response.message);
+                    }
+                })
+                .catch((err) => {
+                    document.getElementById("userWalletBalance").textContent = "₹0";
+                    console.error("Error fetching wallet balance:", err);
+                });
+        }
+
+        // Robust implementation that works for all user types
+        function parseJwt(token) {
+            try {
+                const base64Url = token.split(".")[1];
+                const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+                return JSON.parse(atob(base64));
+            } catch (error) {
+                console.error("Invalid token:", error);
+                return null;
+            }
+        }
+
+        function getUserIdFromToken() {
+            try {
+                const token = localStorage.getItem("authToken");
+                if (!token) {
+                    console.warn("No auth token found in localStorage.");
+                    return null;
+                }
+                
+                const decoded = parseJwt(token);
+                if (!decoded || !decoded.UserObject) {
+                    console.warn("Token missing UserObject");
+                    return null;
+                }
+                
+                const userObj = JSON.parse(decoded.UserObject);
+                console.log("User object:", userObj);
+                
+                // Handle both user and instructor types
+                if (userObj.instructorId) {
+                    USER_ROLE = "instructor";
+                    return userObj.instructorId;
+                } else {
+                    USER_ROLE = "user";
+                    return userObj.userId;
+                }
+            } catch (error) {
+                console.error("Error getting user ID:", error);
+                return null;
+            }
+        }
+
+        // Call once page is fully loaded
+        document.addEventListener("DOMContentLoaded", function() {
+            console.log("Document ready, loading wallet balance...");
+            setTimeout(() => {
+                try {
+                    loadUserWalletBalance();
+                } catch (error) {
+                    console.error("Error in wallet balance loading:", error);
+                }
+            }, 500);
+        });
+
         function viewClassDetails(classId) {
   // Redirect to the class details page with the class ID
   window.location.href = `/User/Classdetails/${classId}`;
@@ -727,39 +803,6 @@ function showLogoutConfirmation() {
             console.log(USER_ROLE);
         }
 
-        @* Utility Functions *@
-            function parseJwt(token) {
-                try {
-                    const base64Url = token.split(".")[1];
-                    const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
-                    return JSON.parse(atob(base64));
-                } catch (error) {
-                    console.error("Invalid token:", error);
-                    return null;
-                }
-            }
-        function getUserIdFromToken() {
-            const token = localStorage.getItem("authToken");
-            if (!token) {
-                console.warn("No auth token found in localStorage.");
-                return null;
-            }
-            const jwt_decoded = parseJwt(token);
-            if (jwt_decoded) {
-                USER_OBJECT = JSON.parse(jwt_decoded.UserObject);
-                if (USER_OBJECT.instructorId) {
-                    USER_ROLE = "instructor";
-                    return USER_OBJECT.instructorId;
-                } else {
-                    USER_ROLE = "user";
-                    return USER_OBJECT.userId;
-                }
-            }
-            console.warn("Invalid or malformed token.");
-            return null;
-        }
-
-
         // Sample blog data for fallback
         const sampleBlogs = [
             {
@@ -811,55 +854,8 @@ function showLogoutConfirmation() {
             }
         ];
 
-        // Utility Functions
-        function parseJwt(token) {
-            try {
-                const base64Url = token.split(".")[1];
-                const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
-                return JSON.parse(atob(base64));
-            } catch (error) {
-                console.error("Invalid token:", error);
-                return null;
-            }
-        }
-
-        function getUserIdFromToken() {
-            token = localStorage.getItem("authToken");
-            if (!token) {
-                console.warn("No auth token found in localStorage.");
-                return null;
-            }
-            const decoded = parseJwt(token);
-            if (decoded) {
-                console.log("decoded:" + JSON.parse(decoded.UserObject).instructorName);
-                return JSON.parse(decoded.UserObject).instructorId; // Updated to return instructorId from decoded token
-            }
-            console.warn("Invalid or malformed token.");
-            return null;
-        }
-
         // Fetch blogs on page load
         $(document).ready(function () {
-            function getUserIdFromToken() {
-                const token = localStorage.getItem("authToken");
-                if (!token) {
-                    console.warn("No auth token found in localStorage.");
-                    return null;
-                }
-                const jwt_decoded = parseJwt(token);
-                if (jwt_decoded) {
-                    USER_OBJECT = JSON.parse(jwt_decoded.UserObject);
-                    if (USER_OBJECT.instructorId) {
-                        USER_ROLE = "instructor";
-                        return USER_OBJECT.instructorId;
-                    } else {
-                        USER_ROLE = "user";
-                        return USER_OBJECT.userId;
-                    }
-                }
-                console.warn("Invalid or malformed token.");
-                return null;
-            }
             token = localStorage.getItem('authToken');
             USER_ID = getUserIdFromToken();
             console.log(USER_ID);
@@ -1200,8 +1196,354 @@ function showLogoutConfirmation() {
 
         // ... rest of existing script ...
     </script>
-    <script src='@Url.Content("~/js/User/Main.js")' asp-append-version="true"></script>
+    <script>
+    // Initialize drawer for profile updates
+    let drawer = null;
 
+    $(document).ready(function() {
+        // Initialize profile drawer if it exists in the DOM
+        if ($("#profileDrawer").length) {
+            try {
+                drawer = $("#profileDrawer").kendoDrawer({
+                    template: `
+                    <div class="k-drawer-content">
+                        <div class="k-drawer-title">Update Profile</div>
+                        <form id="profileForm" class="profile-form">
+                            <div class="mb-2">
+                                <label for="userName" class="form-label">Name</label>
+                                <input id="userName"/>
+                                <span class="text-danger validation-message" id="nameError"></span>
+                            </div>
+                            <div class="mb-2">
+                                <label for="email" class="form-label">Email</label>
+                                <input type="email" class="form-control" id="email" disabled>
+                            </div>
+                            <div class="mb-2">
+                                <label for="phone" class="form-label">Phone</label>
+                                <input id="phone"/>
+                                <span class="text-danger validation-message" id="phoneError"></span>
+                            </div>
+                            <div class="mb-2">
+                                <label for="height" class="form-label">Height (cm)</label>
+                                <input id="height" />
+                                <span class="text-danger validation-message" id="heightError"></span>
+                            </div>
+                            <div class="mb-2">
+                                <label for="weight" class="form-label">Weight (kg)</label>
+                                <input id="weight"/>
+                                <span class="text-danger validation-message" id="weightError"></span>
+                            </div>
+                            <div class="mb-2">
+                                <label for="goal" class="form-label">Goal</label>
+                                <select id="goal" multiple ></select>
+                                <span class="text-danger validation-message" id="goalError"></span>
+                            </div>
+                            <div class="mb-2">
+                                <label for="medicalCondition" class="form-label">Medical Condition</label>
+                                <select id="medicalCondition" multiple ></select>
+                                <span class="text-danger validation-message" id="medicalError"></span>
+                            </div>
+                            <div class="mb-2">
+                                <label class="form-label me-2">Profile Image</label>
+                                <div class="d-flex align-items-center">
+                                    <img id="imagePreview" src="" alt="Preview" class="ms-2" style="width: 86px; height: 86px; margin-right: 14px; display: none; object-fit: cover;">
+                                    <input type="file" id="profileImage" class="form-control form-control-sm" accept="image/*" style="max-width: 70%;">
+                                </div>
+                                <span class="text-danger validation-message" id="imageError"></span>
+                            </div>
+                            <div class="d-flex justify-content-end">
+                                <button type="button" class="btn btn-secondary me-2" id="cancelProfileBtn">Cancel</button>
+                                <button type="submit" class="btn btn-primary">Save Changes</button>
+                            </div>
+                        </form>
+                    </div>
+                    `,
+                    position: "right",
+                    mode: "push",
+                    width: "400px",
+                    minHeight: "100vh",
+                    swipeToOpen: false,
+                    autoCollapse: false,
+                }).data("kendoDrawer");
+                
+                // Initialize Kendo UI Components
+                setTimeout(() => {
+                    initializeKendoComponents();
+                }, 500);
+                
+                console.log("Drawer initialized successfully");
+                
+                // Load profile image
+                loadUserProfileImage();
+            } catch (error) {
+                console.error("Failed to initialize drawer:", error);
+            }
+        } else {
+            console.warn("#profileDrawer element not found");
+        }
+    });
+
+    // Function to initialize Kendo components
+    function initializeKendoComponents() {
+        try {
+            $("#userName").kendoTextBox({
+                placeholder: "Enter your name",
+            });
+
+            $("#phone").kendoMaskedTextBox({
+                mask: "0000000000",
+                placeholder: "__________",
+            });
+
+            $("#height").kendoNumericTextBox({
+                min: 100,
+                max: 250,
+                step: 1,
+                format: "# cm",
+            });
+
+            $("#weight").kendoNumericTextBox({
+                min: 30,
+                max: 200,
+                step: 1,
+                format: "#.00 kg",
+            });
+
+            $("#goal").kendoMultiSelect({
+                dataSource: [
+                    "Weight Loss",
+                    "Muscle Gain",
+                    "General Fitness",
+                    "Endurance Training",
+                    "Flexibility Improvement",
+                    "Sports Specific",
+                    "Weight Management",
+                ],
+                placeholder: "Select goals...",
+            });
+
+            $("#medicalCondition").kendoMultiSelect({
+                dataSource: [
+                    "Diabetes",
+                    "High Blood Pressure",
+                    "Heart Disease",
+                    "Asthma",
+                    "Arthritis",
+                    "Back Pain",
+                    "None",
+                    "Hypertension",
+                ],
+                placeholder: "Select medical conditions...",
+            });
+            
+            // Handle image preview
+            $(document).on("change", "#profileImage", function() {
+                const file = this.files[0];
+                if (file && file.type.startsWith("image/")) {
+                    if (file.size <= 5 * 1024 * 1024) { // 5MB max
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            $("#imagePreview").attr("src", e.target.result).show();
+                        };
+                        reader.readAsDataURL(file);
+                        $("#imageError").text("");
+                    } else {
+                        $("#imageError").text("Image size should be less than 5MB.");
+                        this.value = "";
+                        $("#imagePreview").hide();
+                    }
+                } else if (file) {
+                    $("#imageError").text("Please select a valid image file.");
+                    this.value = "";
+                    $("#imagePreview").hide();
+                }
+            });
+            
+            // Handle cancel button
+            $(document).on("click", "#cancelProfileBtn", function() {
+                drawer.hide();
+            });
+        } catch (error) {
+            console.error("Error initializing Kendo components:", error);
+        }
+    }
+    
+    // Define showProfileDrawer function in this page's context
+    window.showProfileDrawer = function() {
+        if (!drawer) {
+            console.error("Profile drawer not initialized");
+            Swal.fire("Error", "Profile drawer failed to load. Please refresh the page.", "error");
+            return;
+        }
+        
+        const userId = getUserIdFromToken();
+        if (!userId) {
+            console.error("User ID not available");
+            Swal.fire("Error", "Unable to load profile. Please try again later.", "error");
+            return;
+        }
+        
+        drawer.show();
+        
+        // Show loading indicator
+        $("#profileForm").html('<div class="text-center my-4"><div class="spinner-border text-warning"></div><p class="mt-2">Loading your profile...</p></div>');
+        
+        // Fetch user data
+        $.ajax({
+            url: `http://localhost:8080/api/User/GetUserById/${userId}`,
+            type: "GET",
+            success: function(response) {
+                // Re-initialize the form content
+                initializeKendoComponents();
+                
+                // Restore form HTML
+                $("#profileForm").html(`
+                    <div class="mb-2">
+                        <label for="userName" class="form-label">Name</label>
+                        <input id="userName"/>
+                        <span class="text-danger validation-message" id="nameError"></span>
+                    </div>
+                    <div class="mb-2">
+                        <label for="email" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="email" disabled>
+                    </div>
+                    <div class="mb-2">
+                        <label for="phone" class="form-label">Phone</label>
+                        <input id="phone"/>
+                        <span class="text-danger validation-message" id="phoneError"></span>
+                    </div>
+                    <div class="mb-2">
+                        <label for="height" class="form-label">Height (cm)</label>
+                        <input id="height" />
+                        <span class="text-danger validation-message" id="heightError"></span>
+                    </div>
+                    <div class="mb-2">
+                        <label for="weight" class="form-label">Weight (kg)</label>
+                        <input id="weight"/>
+                        <span class="text-danger validation-message" id="weightError"></span>
+                    </div>
+                    <div class="mb-2">
+                        <label for="goal" class="form-label">Goal</label>
+                        <select id="goal" multiple ></select>
+                        <span class="text-danger validation-message" id="goalError"></span>
+                    </div>
+                    <div class="mb-2">
+                        <label for="medicalCondition" class="form-label">Medical Condition</label>
+                        <select id="medicalCondition" multiple ></select>
+                        <span class="text-danger validation-message" id="medicalError"></span>
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label me-2">Profile Image</label>
+                        <div class="d-flex align-items-center">
+                            <img id="imagePreview" src="" alt="Preview" class="ms-2" style="width: 86px; height: 86px; margin-right: 14px; display: none; object-fit: cover;">
+                            <input type="file" id="profileImage" class="form-control form-control-sm" accept="image/*" style="max-width: 70%;">
+                        </div>
+                        <span class="text-danger validation-message" id="imageError"></span>
+                    </div>
+                    <div class="d-flex justify-content-end">
+                        <button type="button" class="btn btn-secondary me-2" id="cancelProfileBtn">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                    </div>
+                `);
+                
+                // Re-initialize Kendo components
+                initializeKendoComponents();
+                
+                // Get user data (handle both response formats)
+                const userData = response.data || response;
+                
+                // Fill form with user data
+                setTimeout(() => {
+                    try {
+                        $("#userName").val(userData.userName || '');
+                        $("#email").val(userData.email || '');
+                        $("#phone").val(userData.mobile || '');
+                        
+                        // Set numeric values
+                        if ($("#height").data("kendoNumericTextBox")) {
+                            $("#height").data("kendoNumericTextBox").value(Number(userData.height) || null);
+                            $("#weight").data("kendoNumericTextBox").value(Number(userData.weight) || null);
+                        }
+                        
+                        // Set multiselect values if available
+                        if (userData.goal && $("#goal").data("kendoMultiSelect")) {
+                            const goalValues = userData.goal.split(",").map(g => g.trim());
+                            $("#goal").data("kendoMultiSelect").value(goalValues);
+                        }
+                        
+                        if (userData.medicalCondition && $("#medicalCondition").data("kendoMultiSelect")) {
+                            const medicalValues = userData.medicalCondition.split(",").map(m => m.trim());
+                            $("#medicalCondition").data("kendoMultiSelect").value(medicalValues);
+                        }
+                        
+                        // Set profile image preview if available
+                        if (userData.profileImage) {
+                            $("#imagePreview").attr("src", `../User_Images/${userData.profileImage}`).show();
+                        }
+                    } catch (error) {
+                        console.error("Error setting form values:", error);
+                    }
+                }, 500);
+            },
+            error: function(xhr) {
+                console.error("Error loading user data:", xhr);
+                Swal.fire("Error", "Failed to load your profile data.", "error");
+                drawer.hide();
+            }
+        });
+    };
+    
+    // Function to load user profile image
+    function loadUserProfileImage() {
+        const userId = getUserIdFromToken();
+        if (!userId) return;
+        
+        console.log("Loading profile image from ExploreBlogs for user ID:", userId);
+        
+        // Get profile image element
+        const profileImage = document.getElementById("navProfileImage");
+        if (!profileImage) {
+            console.error("Profile image element not found");
+            return;
+        }
+        
+        // Set placeholder while loading
+        profileImage.src = "/img/profile-placeholder.jpg";
+        
+        // Fetch profile image
+        $.ajax({
+            url: `http://localhost:8080/api/User/GetUserById/${userId}`,
+            type: "GET",
+            success: function(response) {
+                // Handle different response formats
+                if (response && response.success && response.data && response.data.profileImage) {
+                    profileImage.src = `/User_Images/${response.data.profileImage}`;
+                    console.log("Set profile image to:", profileImage.src);
+                } 
+                else if (response && response.profileImage) {
+                    profileImage.src = `/User_Images/${response.profileImage}`;
+                    console.log("Set profile image to:", profileImage.src);
+                } 
+                else {
+                    profileImage.src = "/img/default-user.jpg";
+                    console.log("No profile image found, using default");
+                }
+            },
+            error: function(xhr) {
+                console.error("Error loading profile image:", xhr);
+                profileImage.src = "/img/default-user.jpg";
+            }
+        });
+    }
+</script>
+
+<!-- Remove the redundant ExploreBlogs function as it's already in Main.js -->
+<script>
+    // Remove the duplicated ExploreBlogs function
+    // function ExploreBlogs() {
+    //     window.location.href = `/User/ExploreBlogs`;
+    // }
+</script>
 </body>
 
 </html>

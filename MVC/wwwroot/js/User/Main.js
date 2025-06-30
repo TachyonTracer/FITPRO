@@ -1,7 +1,7 @@
 let uri = "http://localhost:8080";
 // Function to format date and time
 var userId;
-let drawer;
+let drawer = null;
 
 function setUserName() {
   const token = localStorage.getItem("authToken");
@@ -15,16 +15,42 @@ function setUserName() {
   }
 }
 
+// Add this function to load user wallet balance
+function loadUserWalletBalance() {
+  const userId = getUserIdFromToken();
+  console.log("Fetching wallet balance for userId:", userId); // Debug log
+  if (!userId || isNaN(userId)) return;
+
+  fetch(`${uri}/api/User/GetUserBalanceById/${userId}`)
+    .then((res) => res.json())
+    .then((response) => {
+      if (
+        response.success &&
+        response.data &&
+        typeof response.data.balance !== "undefined"
+      ) {
+        document.getElementById(
+          "userWalletBalance"
+        ).textContent = `₹${response.data.balance}`;
+      } else {
+        document.getElementById("userWalletBalance").textContent = "₹0";
+        console.warn("Failed to fetch wallet balance:", response.message);
+      }
+    })
+    .catch((err) => {
+      document.getElementById("userWalletBalance").textContent = "₹0";
+      console.error("Error fetching wallet balance:", err);
+    });
+}
+
 // Call this function when page loads
-document.addEventListener("DOMContentLoaded", function () {
-  // Move your initialization code here
+window.onload = function () {
   setUserName();
-  userId =62;
-   getUserIdFromToken();
+  userId = getUserIdFromToken();
+  loadUserWalletBalance(); // Add this line to load wallet balance
+};
 
-  // Don't call loadDashboardData here - let individual pages decide
-});
-
+userId = getUserIdFromToken();
 function getUserIdFromToken() {
   const token = localStorage.getItem("authToken");
   if (!token) {
@@ -33,8 +59,16 @@ function getUserIdFromToken() {
   }
   const decoded = parseJwt(token);
   if (decoded) {
+    console.log("using parsing " + decoded + " " + decoded.UserObject);
+    console.log("using parsing " + JSON.parse(decoded.UserObject).userId);
+    console.log(
+      "using parsing printing its type " +
+        typeof JSON.parse(decoded.UserObject).userId
+    );
     let userId = JSON.parse(decoded.UserObject).userId;
-    return userId;
+    console.log("user id is +" + userId);
+
+    return JSON.parse(decoded.UserObject).userId;
   }
   console.warn("Invalid or malformed token.");
   return null;
@@ -167,11 +201,7 @@ async function getBookedClasses() {
 // Update the loadClasses function
 async function loadClasses() {
   const classGrid = document.getElementById("classes");
-  if (!classGrid) return; // Don't proceed if element doesn't exist
-  
   const loading = document.getElementById("loading");
-
-  showLoader(); // Show loader before API call
 
   try {
     const bookedClassIds = await getBookedClasses();
@@ -182,7 +212,6 @@ async function loadClasses() {
     const result = await response.json();
 
     loading.style.display = "none";
-    hideLoader(); // Hide loader after data loads
 
     if (!result.data || !Array.isArray(result.data)) {
       throw new Error("Invalid data format received from API");
@@ -235,7 +264,6 @@ async function loadClasses() {
   } catch (error) {
     loading.innerHTML = "Error loading classes. Please try again later.";
     loading.classList.add("error-message");
-    hideLoader(); // Hide loader on error
     console.error("Error:", error);
   }
 }
@@ -267,7 +295,7 @@ function BMI() {
 
 function home() {
   // Redirect to the class details page with the class ID
-  window.location.href = `/User/DashBoard`;
+  window.location.href = `/User/Dashboard`;
 }
 function classes() {
   // Redirect to the class details page with the class ID
@@ -341,12 +369,275 @@ document.querySelector(".profile-img").addEventListener("click", function () {
       : "block";
 });
 
-drawer = $("#profileDrawer")
-  .kendoDrawer({
-    template: `
-            <div class="k-drawer-content">
-                <div class="k-drawer-title">Update Profile</div>
-                <form id="profileForm" class="profile-form">
+// Initialize drawer variable but don't set it yet
+$(document).ready(function() {
+    // Load user profile image and wallet balance
+    loadUserProfileImage();
+    loadUserWalletBalance();
+    
+    // Initialize Kendo drawer if element exists
+    if ($("#profileDrawer").length) {
+        try {
+            drawer = $("#profileDrawer")
+                .kendoDrawer({
+                    template: `
+                    <div class="k-drawer-content">
+                        <div class="k-drawer-title">Update Profile</div>
+                        <form id="profileForm" class="profile-form">
+                            <div class="mb-2">
+                                <label for="userName" class="form-label">Name</label>
+                                <input id="userName"/>
+                                <span class="text-danger validation-message" id="nameError"></span>
+                            </div>
+                            <div class="mb-2">
+                                <label for="email" class="form-label">Email</label>
+                                <input type="email" class="form-control" id="email" disabled>
+                            </div>
+                            <div class="mb-2">
+                                <label for="phone" class="form-label">Phone</label>
+                                <input id="phone"/>
+                                <span class="text-danger validation-message" id="phoneError"></span>
+                            </div>
+                            <div class="mb-2">
+                                <label for="height" class="form-label">Height (cm)</label>
+                                <input id="height" />
+                                <span class="text-danger validation-message" id="heightError"></span>
+                            </div>
+                            <div class="mb-2">
+                                <label for="weight" class="form-label">Weight (kg)</label>
+                                <input id="weight"/>
+                                <span class="text-danger validation-message" id="weightError"></span>
+                            </div>
+                            <div class="mb-2">
+                                <label for="goal" class="form-label">Goal</label>
+                                <select id="goal" multiple ></select>
+                                <span class="text-danger validation-message" id="goalError"></span>
+                            </div>
+                            <div class="mb-2">
+                                <label for="medicalCondition" class="form-label">Medical Condition</label>
+                                <select id="medicalCondition" multiple ></select>
+                                <span class="text-danger validation-message" id="medicalError"></span>
+                            </div>
+                            <div class="mb-2">
+                                <label class="form-label me-2">Profile Image</label>
+                                <div class="d-flex align-items-center">
+                                    <img id="imagePreview" src="" alt="Preview" class="ms-2" style="width: 86px; height: 86px; margin-right: 14px; display: none; object-fit: cover;">
+                                    <input type="file" id="profileImage" class="form-control form-control-sm" accept="image/*" style="max-width: 70%;">
+                                </div>
+                                <span class="text-danger validation-message" id="imageError"></span>
+                            </div>
+                            <div class="d-flex justify-content-end">
+                                <button type="button" class="btn btn-secondary me-2" id="cancelProfileBtn">Cancel</button>
+                                <button type="submit" class="btn btn-primary">Save Changes</button>
+                            </div>
+                        </form>
+                    </div>
+                    `,
+                    position: "right",
+                    mode: "push",
+                    width: "400px",
+                    minHeight: "100vh",
+                    swipeToOpen: false,
+                    autoCollapse: false,
+                })
+                .data("kendoDrawer");
+            
+            // Initialize Kendo UI Components with Validations
+            $("#userName").kendoTextBox({
+                placeholder: "Enter your name",
+            });
+
+            $("#phone").kendoMaskedTextBox({
+                mask: "0000000000",
+                placeholder: "__________",
+            });
+
+            $("#height").kendoNumericTextBox({
+                min: 100,
+                max: 250,
+                step: 1,
+                format: "# cm",
+            });
+
+            $("#weight").kendoNumericTextBox({
+                min: 30,
+                max: 200,
+                step: 1,
+                format: "#.00 kg",
+            });
+
+            $("#goal").kendoMultiSelect({
+                dataSource: [
+                    "Weight Loss",
+                    "Muscle Gain",
+                    "General Fitness",
+                    "Endurance Training",
+                    "Flexibility Improvement",
+                    "Sports Specific",
+                    "Weight Management",
+                ],
+                placeholder: "Select goals...",
+            });
+
+            $("#medicalCondition").kendoMultiSelect({
+                dataSource: [
+                    "Diabetes",
+                    "High Blood Pressure",
+                    "Heart Disease",
+                    "Asthma",
+                    "Arthritis",
+                    "Back Pain",
+                    "None",
+                    "Hypertension",
+                ],
+                placeholder: "Select medical conditions...",
+            });
+            
+            console.log("Kendo Drawer successfully initialized");
+        } catch (error) {
+            console.error("Failed to initialize Kendo Drawer:", error);
+        }
+    } else {
+        console.warn("#profileDrawer element not found in the document");
+    }
+
+    // Add this after the drawer initialization in your document.ready function
+
+    // Initialize handlers for the profile form elements
+    $(document).on("change", "#profileImage", function() {
+        const file = this.files[0];
+        if (file && file.type.startsWith("image/")) {
+            if (file.size <= 5 * 1024 * 1024) { // 5MB max
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    $("#imagePreview").attr("src", e.target.result).show();
+                };
+                reader.readAsDataURL(file);
+                $("#imageError").text("");
+            } else {
+                $("#imageError").text("Image size should be less than 5MB.");
+                this.value = "";
+                $("#imagePreview").hide();
+            }
+        } else if (file) {
+            $("#imageError").text("Please select a valid image file.");
+            this.value = "";
+            $("#imagePreview").hide();
+        }
+    });
+
+    // Handle cancel button
+    $(document).on("click", "#cancelProfileBtn", function() {
+        drawer.hide();
+    });
+
+    // Ensure the form submission is handled
+    $("#profileForm").on("submit", function(e) {
+        e.preventDefault();
+        
+        // Create form data for submission
+        const formData = new FormData();
+        formData.append("userId", getUserIdFromToken());
+        formData.append("userName", $("#userName").val());
+        formData.append("mobile", $("#phone").val());
+        formData.append("height", $("#height").data("kendoNumericTextBox").value());
+        formData.append("weight", $("#weight").data("kendoNumericTextBox").value());
+        formData.append("goal", $("#goal").data("kendoMultiSelect").value().join(", "));
+        formData.append("medicalCondition", $("#medicalCondition").data("kendoMultiSelect").value().join(", "));
+        
+        // Add the profile image if selected
+        const imageFile = $("#profileImage")[0].files[0];
+        if (imageFile) {
+            formData.append("profileImageFile", imageFile);
+        }
+        
+        // Fix 1: Use a gender value that's 10 characters or less
+        formData.append("gender", "Other");  // "Other" is only 5 characters
+        
+        formData.append("email", $("#email").val());
+        formData.append("password", "Password@1234");
+        formData.append("confirmPassword", "Password@1234");
+        
+        // Fix 2: Add the required activationToken field
+        formData.append("activationToken", "token_12345");
+        
+        $.ajax({
+            url: `${uri}/api/User/UserUpdateProfile`,
+            type: "PUT",
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function() {
+                Swal.fire({
+                    title: "Success!",
+                    text: "Your profile has been updated successfully.",
+                    icon: "success"
+                });
+                drawer.hide();
+                
+                // Refresh profile image in navbar
+                setTimeout(loadUserProfileImage, 500);
+                
+                // Dispatch event that profile was updated
+                document.dispatchEvent(new Event("profileUpdated"));
+            },
+            error: function(xhr) {
+                // Enhanced error handling to show validation issues
+                let errorMessage = "Failed to update your profile. Please try again.";
+                
+                // Try to extract specific error messages from the response
+                if (xhr.responseJSON && xhr.responseJSON.errors) {
+                    errorMessage = Object.entries(xhr.responseJSON.errors)
+                        .map(([field, errors]) => `${field}: ${errors.join(', ')}`)
+                        .join('\n');
+                }
+                
+                Swal.fire({
+                    title: "Error",
+                    text: errorMessage,
+                    icon: "error"
+                });
+                console.error("Profile update failed:", xhr);
+            }
+        });
+    });
+});
+
+// Update the showProfileDrawer function to handle errors
+window.showProfileDrawer = function() {
+    const userId = getUserIdFromToken();
+    if (!userId) {
+        console.error("User ID not available");
+        Swal.fire("Error", "Unable to load profile. Please try again later.", "error");
+        return;
+    }
+    
+    // Check if drawer is initialized
+    if (!drawer) {
+        console.error("Kendo drawer not initialized");
+        Swal.fire("Error", "Profile drawer failed to load. Please refresh the page and try again.", "error");
+        return;
+    }
+    
+    try {
+        drawer.show();
+        
+        // Show loading indicator
+        const loadingHtml = '<div class="text-center"><div class="spinner-border text-primary" role="status"></div><p>Loading your profile data...</p></div>';
+        $("#profileForm").html(loadingHtml);
+        
+        // Fetch user profile data
+        $.ajax({
+            url: `${uri}/api/User/GetUserById/${userId}`,
+            type: "GET",
+            success: function(response) {
+                console.log("Profile data received:", response);
+                
+                // Check if the response has data
+                const userData = response.data || response;
+                
+                // Restore the form
+                $("#profileForm").html(`
                     <div class="mb-2">
                         <label for="userName" class="form-label">Name</label>
                         <input id="userName"/>
@@ -393,302 +684,108 @@ drawer = $("#profileDrawer")
                         <button type="button" class="btn btn-secondary me-2" id="cancelProfileBtn">Cancel</button>
                         <button type="submit" class="btn btn-primary">Save Changes</button>
                     </div>
-                </form>
-            </div>
-        `,
-    position: "right",
-    mode: "push",
-    width: "400px",
-    minHeight: "100vh",
-    swipeToOpen: false,
-    autoCollapse: false,
-  })
-  .data("kendoDrawer");
+                `);
+                
+                // Reinitialize Kendo widgets
+                $("#userName").kendoTextBox({
+                    placeholder: "Enter your name",
+                });
 
-// Initialize Kendo UI Components with Validations
-$("#userName").kendoTextBox({
-  placeholder: "Enter your name",
-});
+                $("#phone").kendoMaskedTextBox({
+                    mask: "0000000000",
+                    placeholder: "__________",
+                });
 
-$("#phone").kendoMaskedTextBox({
-  mask: "0000000000",
-  placeholder: "__________",
-});
+                $("#height").kendoNumericTextBox({
+                    min: 100,
+                    max: 250,
+                    step: 1,
+                    format: "# cm",
+                });
 
-$("#height").kendoNumericTextBox({
-  min: 100,
-  max: 250,
-  step: 1,
-  format: "# cm",
-});
+                $("#weight").kendoNumericTextBox({
+                    min: 30,
+                    max: 200,
+                    step: 1,
+                    format: "#.00 kg",
+                });
 
-$("#weight").kendoNumericTextBox({
-  min: 30,
-  max: 200,
-  step: 1,
-  format: "#.00 kg",
-});
+                $("#goal").kendoMultiSelect({
+                    dataSource: [
+                        "Weight Loss",
+                        "Muscle Gain",
+                        "General Fitness",
+                        "Endurance Training",
+                        "Flexibility Improvement",
+                        "Sports Specific",
+                        "Weight Management",
+                    ],
+                    placeholder: "Select goals...",
+                });
 
-$("#goal").kendoMultiSelect({
-  dataSource: [
-    "Weight Loss",
-    "Muscle Gain",
-    "General Fitness",
-    "Endurance Training",
-    "Flexibility Improvement",
-    "Sports Specific",
-    "Weight Management",
-  ],
-  placeholder: "Select goals...",
-});
-
-$("#medicalCondition").kendoMultiSelect({
-  dataSource: [
-    "Diabetes",
-    "High Blood Pressure",
-    "Heart Disease",
-    "Asthma",
-    "Arthritis",
-    "Back Pain",
-    "None",
-    "Hypertension",
-  ],
-  placeholder: "Select medical conditions...",
-});
-
-// Function to Show Profile Drawer and Fetch Data
-window.showProfileDrawer = function () {
-  if (userId) {
-    console.log("Extracted User ID:", userId);
-  }
-
-  drawer.show();
-
-  $.ajax({
-    url: `${uri}/api/User/GetUserById/${userId}`,
-    type: "GET",
-    success: function (response) {
-      $("#userName").val(response.userName);
-      $("#email").val(response.email);
-      $("#phone").val(response.mobile);
-      $("#height").data("kendoNumericTextBox").value(response.height);
-      $("#weight").data("kendoNumericTextBox").value(response.weight);
-
-      var goalValues = response.goal.split(", ").map((g) => g.trim());
-      $("#goal").data("kendoMultiSelect").value(goalValues);
-
-      var medicalValues = response.medicalCondition
-        .split(", ")
-        .map((mc) => mc.trim());
-      $("#medicalCondition").data("kendoMultiSelect").value(medicalValues);
-
-      if (response.profileImage) {
-        $("#imagePreview")
-          .attr("src", `../User_Images/${response.profileImage}`)
-          .show();
-      }
-    },
-    error: function (xhr) {
-      alert("Error fetching user details: " + xhr.responseText);
-    },
-  });
+                $("#medicalCondition").kendoMultiSelect({
+                    dataSource: [
+                        "Diabetes",
+                        "High Blood Pressure",
+                        "Heart Disease",
+                        "Asthma",
+                        "Arthritis",
+                        "Back Pain",
+                        "None",
+                        "Hypertension",
+                    ],
+                    placeholder: "Select medical conditions...",
+                });
+                
+                // Set form values from response data
+                $("#userName").val(userData.userName || '');
+                $("#email").val(userData.email || '');
+                $("#phone").val(userData.mobile || '');
+                
+                // Safely set numeric values
+                try {
+                    $("#height").data("kendoNumericTextBox").value(Number(userData.height) || null);
+                    $("#weight").data("kendoNumericTextBox").value(Number(userData.weight) || null);
+                } catch (e) {
+                    console.error("Error setting numeric values:", e);
+                }
+                
+                // Safely set multiselect values
+                try {
+                    if (userData.goal) {
+                        const goalValues = userData.goal.split(",").map(g => g.trim());
+                        $("#goal").data("kendoMultiSelect").value(goalValues);
+                    }
+                    
+                    if (userData.medicalCondition) {
+                        const medicalValues = userData.medicalCondition.split(",").map(mc => mc.trim());
+                        $("#medicalCondition").data("kendoMultiSelect").value(medicalValues);
+                    }
+                } catch (e) {
+                    console.error("Error setting multiselect values:", e);
+                }
+                
+                // Set profile image if available
+                if (userData.profileImage) {
+                    $("#imagePreview").attr("src", `../User_Images/${userData.profileImage}`).show();
+                }
+                
+                // Set up cancel button
+                $("#cancelProfileBtn").on("click", function() {
+                    drawer.hide();
+                });
+            },
+            error: function(xhr) {
+                console.error("Error fetching user details:", xhr);
+                Swal.fire("Error", "Failed to load your profile information.", "error");
+                drawer.hide();
+            }
+        });
+    } catch (error) {
+        console.error("Error showing profile drawer:", error);
+        Swal.fire("Error", "Unable to open profile editor. Please refresh the page.", "error");
+    }
 };
-
-// Handle Image Preview
-$(document).on("change", "#profileImage", function () {
-  var file = this.files[0];
-  if (file && file.type.startsWith("image/")) {
-    var reader = new FileReader();
-    reader.onload = function (e) {
-      $("#imagePreview").attr("src", e.target.result).show();
-    };
-    reader.readAsDataURL(file);
-  } else {
-    $("#imageError").text("Please select a valid image file.");
-  }
-});
-
-// Close Drawer on Cancel Button Click
-$(document).on("click", "#cancelProfileBtn", function () {
-  drawer.hide();
-  $(".profile-dropdown").hide();
-});
-
-// Live validation for userName
-$("#userName").on("input blur", function () {
-  let value = $(this).val().trim();
-  if (value === "") {
-    $("#nameError").text("Name is required.");
-  } else {
-    $("#nameError").text("");
-  }
-});
-
-// Live validation for phone
-$("#phone").on("input blur", function () {
-  let value = $(this).val().trim();
-  let phoneRegex = /^[6-9]\d{9}$/;
-
-  if (value === "") {
-    $("#phoneError").text("Phone number is required.");
-  } else if (!phoneRegex.test(value)) {
-    $("#phoneError").text(
-      "Phone number must be 10 digits and start with 6, 7, 8, or 9."
-    );
-  } else {
-    $("#phoneError").text("");
-  }
-});
-
-// Live validation for height
-$("#height")
-  .data("kendoNumericTextBox")
-  .bind("change", function () {
-    let value = this.value();
-    if (value === null || isNaN(value)) {
-      $("#heightError").text("Please enter your height.");
-    } else {
-      $("#heightError").text("");
-    }
-  });
-
-// Live validation for weight
-$("#weight")
-  .data("kendoNumericTextBox")
-  .bind("change", function () {
-    let value = this.value();
-    if (value === null || isNaN(value)) {
-      $("#weightError").text("Please enter your weight.");
-    } else {
-      $("#weightError").text("");
-    }
-  });
-
-// Live validation for goal
-$("#goal")
-  .data("kendoMultiSelect")
-  .bind("change", function () {
-    let value = this.value();
-    if (!value.length) {
-      $("#goalError").text("Select at least one goal.");
-    } else {
-      $("#goalError").text("");
-    }
-  });
-
-// Live validation for medical condition
-$("#medicalCondition")
-  .data("kendoMultiSelect")
-  .bind("change", function () {
-    let value = this.value();
-    if (!value.length) {
-      $("#medicalError").text("Select at least one medical condition.");
-    } else {
-      $("#medicalError").text("");
-    }
-  });
-
-// Form Submission with Validation
-$(document).on("submit", "#profileForm", function (e) {
-  e.preventDefault();
-
-  $(".validation-message").text("");
-
-  let valid = true;
-  if ($("#userName").val().trim() === "") {
-    $("#nameError").text("Name is required.");
-    valid = false;
-  }
-
-  let phoneValue = $("#phone").val().trim();
-  let phoneRegex = /^[6-9]\d{9}$/;
-  if (!phoneRegex.test(phoneValue)) {
-    $("#phoneError").text(
-      "Phone number must be 10 digits and start with 6, 7, 8, or 9."
-    );
-    valid = false;
-  }
-
-  if (
-    $("#height").data("kendoNumericTextBox").value() === null ||
-    isNaN($("#height").data("kendoNumericTextBox").value())
-  ) {
-    $("#heightError").text("Please enter your height.");
-    valid = false;
-  }
-  if (
-    $("#weight").data("kendoNumericTextBox").value() === null ||
-    isNaN($("#weight").data("kendoNumericTextBox").value())
-  ) {
-    $("#weightError").text("Please enter your weight.");
-    valid = false;
-  }
-  if (!$("#goal").data("kendoMultiSelect").value().length) {
-    $("#goalError").text("Select at least one goal.");
-    valid = false;
-  }
-  if (!$("#medicalCondition").data("kendoMultiSelect").value().length) {
-    $("#medicalError").text("Select at least one medical condition.");
-    valid = false;
-  }
-
-  //         @* $("#profileDrawer").hide(); // Hide the drawer
-  //   $(".user-profile-container").removeClass("no-hover"); // Enable hover again *@
-
-  if (!valid) return;
-
-  var formData = new FormData();
-  formData.append("userId", userId);
-  formData.append("userName", $("#userName").val());
-  formData.append("mobile", $("#phone").val());
-  formData.append("height", $("#height").data("kendoNumericTextBox").value());
-  formData.append("weight", $("#weight").data("kendoNumericTextBox").value());
-  formData.append(
-    "goal",
-    $("#goal").data("kendoMultiSelect").value().join(", ")
-  );
-  formData.append(
-    "medicalCondition",
-    $("#medicalCondition").data("kendoMultiSelect").value().join(", ")
-  );
-  formData.append("gender", "Male");
-  formData.append("email", "email@email.com");
-  formData.append("password", "Password@1234");
-  formData.append("confirmPassword", "Password@1234");
-  formData.append("profileImage", "default.jpg");
-  formData.append("activationToken", "token_449827858");
-
-  var imageFile = $("#profileImage")[0]?.files?.[0];
-  if (imageFile) {
-    console.log("Image file:", imageFile);
-    formData.append("profileImageFile", imageFile);
-  }
-
-  $.ajax({
-    url: `${uri}/api/User/UserUpdateProfile`,
-    type: "PUT",
-    processData: false,
-    contentType: false,
-    data: formData,
-    success: function () {
-      Swal.fire(
-        "Success!",
-        "Your profile has been successfully updated.",
-        "success"
-      );
-      drawer.hide();
-      $(".profile-dropdown").hide();
-    },
-    error: function (xhr) {
-      Swal.fire(
-        "Error!",
-        "There was an issue updating your profile. Please try again later.",
-        "error"
-      );
-      $(".profile-dropdown").hide();
-    },
-  });
-});
 
 async function fetchEnrolledClassCount(userId) {
   try {
@@ -697,7 +794,7 @@ async function fetchEnrolledClassCount(userId) {
     );
     const data = await response.json();
 
-    if (data.data && data.data.count > -1) {
+    if (data.success && data.data && data.data.count >= 0) {
       const label = data.data.count === 1 ? "Class" : "Classes";
       document.getElementById(
         "active-classes"
@@ -721,7 +818,7 @@ async function fetchUpcomingClassCount(userId) {
     );
     const data = await response.json();
 
-    if (data.data && data.data.count > -1) {
+    if (data.success && data.data && data.data.count >= 0) {
       const label = data.data.count === 1 ? "Class" : "Classes";
       document.getElementById(
         "upcoming-classes"
@@ -745,7 +842,7 @@ async function fetchCompletedClassCount(userId) {
     );
     const data = await response.json();
 
-    if (data.data && data.data.count > -1) {
+    if (data.success && data.data && data.data.count >= 0) {
       const label = data.data.count === 1 ? "Class" : "Classes";
       document.getElementById(
         "completed-classes"
@@ -761,6 +858,10 @@ async function fetchCompletedClassCount(userId) {
       "🥇 Error loading classes";
   }
 }
+
+fetchUpcomingClassCount(userId);
+fetchCompletedClassCount(userId);
+fetchEnrolledClassCount(userId);
 
 function loadBookedClasses(userId) {
   if (!userId) {
@@ -960,6 +1061,8 @@ function timeAgo(timestamp) {
 
 const connection = new signalR.HubConnectionBuilder()
   .withUrl(`${uri}/notificationHub?userId=${userId}&role=${role}`)
+  .withAutomaticReconnect()
+  .build();
 
 connection.start().then(() => {
   console.log("Connected to SignalR! with userid: " + userId);
@@ -1109,35 +1212,59 @@ $.ajax({
   contentType: "application/x-www-form-urlencoded",
   data: $.param(requestData),
   success: function (response) {
-    const container = document.getElementById("recommended-classes");
-    if (!container) {
-      console.warn("Recommended classes container not found");
-      return;
-    }
-    
     if (response.success) {
       const recommendedClasses = response.data.recommended_class_ids;
-      if (!recommendedClasses || recommendedClasses.length === 0) {
-        container.innerHTML = "<p>No recommendations available at this time.</p>";
-        return;
-      }
-      
-      container.innerHTML = ""; // Clear loading message
-      
+      const container = document.getElementById("recommended-classes");
+      container.innerHTML = "";
+
       recommendedClasses.forEach((classId) => {
-        // Your existing code to fetch class details
+        $.ajax({
+          url: `${uri}/api/Class/GetOneClass/?id=${classId}`,
+          type: "GET",
+          success: function (classDetails) {
+            // Render the class details
+            const classCard = `
+                            <div class="recommended-class-card">
+                                <img src="../ClassAssets/${
+                                  classDetails.data.assets.banner
+                                }" alt="${classDetails.data.className}" />
+                                <h4>${classDetails.data.className}</h4>
+                                <p><strong>Instructor:</strong> ${
+                                  classDetails.data.instructorName
+                                }</p>
+                                <p><strong>Start Date:</strong> ${new Date(
+                                  classDetails.data.startDate
+                                ).toLocaleDateString()}</p>
+                                <p><strong>Location:</strong> ${
+                                  classDetails.data.city
+                                }</p>
+                                <a href="/User/Classdetails/${
+                                  classDetails.data.classId
+                                }" class="btn btn-primary">Book Now</a>
+                            </div>
+                        `;
+            container.innerHTML += classCard;
+          },
+          error: function (error) {
+            console.error(
+              `Error fetching details for class ID ${classId}:`,
+              error
+            );
+          },
+        });
       });
     } else {
-      container.innerHTML = "<p>No recommendations available at the moment. Stay tuned!</p>";
+      document.getElementById("recommended-classes").innerHTML = `
+                <p>No recommendations available at the moment. Stay tuned!</p>
+            `;
     }
   },
   error: function (error) {
     console.error("Error fetching recommended classes:", error);
-    const container = document.getElementById("recommended-classes");
-    if (container) {
-      container.innerHTML = "<p>Failed to load recommendations. Please try again later.</p>";
-    }
-  }
+    document.getElementById("recommended-classes").innerHTML = `
+            <p>Failed to load recommendations. Please try again later.</p>
+        `;
+  },
 });
 //#################################################33
 //End of Class Recommendation
@@ -1221,8 +1348,6 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   function initializeCalendar() {
-    showLoader(); // Show loader before initialization
-
     $("#userScheduleCalendar").fullCalendar({
       header: {
         left: "prev,next",
@@ -1251,14 +1376,13 @@ document.addEventListener("DOMContentLoaded", function () {
         );
       },
       events: function (start, end, timezone, callback) {
+        // Use fetch API instead of jQuery ajax for better error handling
         fetch(
           `http://localhost:8080/api/Class/GetBookedClassesByUser/${userScheduleUserId}`
         )
           .then((response) => response.json())
           .then((data) => {
             console.log("API response:", data);
-            hideLoader(); // Hide loader after data loads
-
             if (data && (data.success || data.data)) {
               var events = userScheduleGenerateEvents(data.data || []);
               callback(events);
@@ -1272,9 +1396,11 @@ document.addEventListener("DOMContentLoaded", function () {
           })
           .catch((error) => {
             console.error("Error fetching data:", error);
-            hideLoader(); // Hide loader on error
             callback([]);
           });
+      },
+      eventClick: function (event) {
+        userScheduleShowEventModal(event);
       },
     });
   }
@@ -1406,88 +1532,65 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 });
 
-// Add this function to load user profile image
+// Update the profile image loading function
 function loadUserProfileImage() {
-    const userId = getUserIdFromToken();
-    if (!userId) return;
-
-    $.ajax({
-        url: `${uri}/api/User/GetUserById/${userId}`,
-        type: 'GET',
-        success: function(response) {
-            if (response && response.profileImage) {
-                const profileImage = document.getElementById('navProfileImage');
-                profileImage.src = response.profileImage ? 
-                    `../User_Images/${response.profileImage}` : 
-                    '~/img/default.jpg';
-            }
-        },
-        error: function(xhr) {
-            console.error('Error loading profile image:', xhr);
-        }
-    });
+  const userId = getUserIdFromToken();
+  if (!userId) return;
+  
+  console.log("Loading profile image for user ID:", userId);
+  
+  // Show loading spinner or placeholder in the meantime
+  const profileImage = document.getElementById("navProfileImage");
+  if (profileImage) {
+    profileImage.src = "/img/profile-placeholder.jpg";
+  }
+  
+  $.ajax({
+    url: `${uri}/api/User/GetUserById/${userId}`,
+    type: "GET",
+    success: function (response) {
+      console.log("Profile response:", response);
+      
+      if (!profileImage) {
+        console.error("Profile image element not found");
+        return;
+      }
+      
+      // Check if the response exists and has data property (API structure)
+      if (response && response.success && response.data && response.data.profileImage) {
+        profileImage.src = `/User_Images/${response.data.profileImage}`;
+        console.log("Set profile image to:", profileImage.src);
+      } 
+      // Direct response structure without data wrapper
+      else if (response && response.profileImage) {
+        profileImage.src = `/User_Images/${response.profileImage}`;
+        console.log("Set profile image to:", profileImage.src);
+      } 
+      // If no profile image found, use a default user avatar
+      else {
+        profileImage.src = "/img/default-user.jpg";
+        console.log("No profile image found, using default");
+      }
+    },
+    error: function (xhr) {
+      console.error("Error loading profile image:", xhr);
+      if (profileImage) {
+        profileImage.src = "/img/default-user.jpg";
+      }
+    }
+  });
 }
 
-// Load profile image when document is ready
+// Make sure this runs when the page loads
 $(document).ready(function() {
-    loadUserProfileImage();
+  // Load the profile image with a small delay to ensure DOM is ready
+  setTimeout(loadUserProfileImage, 100);
+  
+  // Also load wallet balance
+  loadUserWalletBalance();
 });
 
 // Refresh profile image after update
-document.addEventListener('profileUpdated', function() {
-    loadUserProfileImage();
+document.addEventListener("profileUpdated", function () {
+  loadUserProfileImage();
 });
-
-// Add this function to load user wallet balance
-function loadUserWalletBalance() {
-    const userId = getUserIdFromToken();
-    console.log("Fetching wallet balance for userId:", userId); // Debug log
-    if (!userId || isNaN(userId)) return;
-
-    fetch(`http://localhost:8080/api/User/GetUserBalanceById/${userId}`)
-        .then(res => res.json())
-        .then(response => {
-            if (response.success && response.data && typeof response.data.balance !== "undefined") {
-                document.getElementById("userWalletBalance").textContent = `₹${response.data.balance}`;
-            } else {
-                document.getElementById("userWalletBalance").textContent = "₹0";
-                console.warn("Failed to fetch wallet balance:", response.message);
-            }
-        })
-        .catch(err => {
-            document.getElementById("userWalletBalance").textContent = "₹0";
-            console.error("Error fetching wallet balance:", err);
-        });
-}
-
-// Add to Main.js or a global JS file
-function showLoader() {
-    document.getElementById("fitpro-loader").style.display = "block";
-}
-function hideLoader() {
-    document.getElementById("fitpro-loader").style.display = "none";
-}
-
-// Inside loadDashboardData function:
-function loadDashboardData() {
-    showLoader(); // Add this at the beginning
-    
-    try {
-        Promise.all([
-            fetchEnrolledClassCount(getUserIdFromToken()),
-            fetchUpcomingClassCount(getUserIdFromToken()),
-            fetchCompletedClassCount(getUserIdFromToken()),
-            // Add any other data fetching you need
-        ])
-        .then(() => {
-            hideLoader(); // Hide loader after ALL data is loaded
-        })
-        .catch(error => {
-            console.error("Error loading dashboard data:", error);
-            hideLoader(); // Always hide loader on error
-        });
-    } catch (error) {
-        console.error("Unexpected error in dashboard:", error);
-        hideLoader(); // Ensure loader is hidden even on unexpected errors
-    }
-}

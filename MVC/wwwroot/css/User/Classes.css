@@ -8,50 +8,6 @@ body {
     padding: 0;
   }
 
-  /* Navigation Bar */
-  .navbar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    background: rgba(0, 0, 0, 0.6);
-    padding: 7px 30px;
-    position: sticky;
-    top: 0;
-    width: 100%;
-    z-index: 1000;
-    backdrop-filter: blur(10px);
-    border-bottom: 1px solid #333;
-  }
-
-  .logo img {
-    height: 40px;
-    width: auto;
-    object-fit: contain;
-    filter: brightness(1.2);
-    margin-top: 7px;
-  }
-
-  .nav-links {
-    flex: 2;
-    display: flex;
-    justify-content: center;
-    gap: 62px;
-    list-style: none;
-    margin-right: 100px;
-    margin: 5px;
-  }
-
-  .nav-links li a {
-    text-decoration: none;
-    color: #eaeaea;
-    font-weight: 500;
-    transition: color 0.3s ease;
-  }
-
-  .nav-links li a:hover {
-    color: #facc15;
-  }
-
   /* Header Section */
   header {
     background: #111;
@@ -140,10 +96,6 @@ body {
     font-family: "Segoe UI", sans-serif;
   }
 
-  .profile-wrapper {
-    position: relative;
-    display: inline-block;
-  }
 
   .profile-img {
     width: 40px;
