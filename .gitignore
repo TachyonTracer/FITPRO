@@ -10,4 +10,8 @@ bin
 .git/
 # **/appsettings*.json
 # .env
-__pycache__/
+__pycache__/# Large files that exceed GitHub's size limits
+MVC/wwwroot.zip
+MVC/wwwroot/videos/*.mp4
+*.zip
+*.mp4
