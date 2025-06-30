@@ -19,3 +19,20 @@ MVC/wwwroot/videos/*.mp4
 .env
 **/.env
 *.env
+
+# Python cache files
+__pycache__/
+**/__pycache__/
+
+# Docker related files that may contain secrets
+**/Dockerfile
+**/docker-compose*.yml
+
+# Generated directories and build artifacts
+**/wwwroot/
+**/bin/
+**/obj/
+**/node_modules/
+
+# Shell scripts that might contain sensitive info
+*.sh
