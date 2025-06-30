@@ -19342,7 +19342,7 @@ const HS = [
                     href: "/",
                     "aria-label": "Home",
                     children: w.jsx("img", {
-                      src: "/img/logo.png",
+                      src: "/Assets/logo.png",
                       alt: "FitPro Logo",
                       className: "w-[200px]",
                     }),

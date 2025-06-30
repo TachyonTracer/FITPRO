@@ -29,49 +29,6 @@ function loadUserList() {
   });
 }
 
-// Select User and Show Details
-// function selectUser(userId) {
-//     $.ajax({
-//         url: `${uri}/api/User/GetOneUser/${userId}`,
-//         method: "GET",
-//         success: function (response) {
-//             const user = response.data;
-//             currentUserId = userId;
-
-//             $('#names .list-group-item').removeClass('active');
-//             $(`#names .list-group-item[data-id='${userId}']`).addClass('active');
-
-//             $('#default-message').addClass('d-none');
-//             $('#details').removeClass('d-none');
-
-//             // Populate user details
-//             $('#userName').text(user.userName || 'N/A');
-//             $('#email').text(user.email || 'N/A');
-//             $('#mobile').text(user.mobile || 'N/A');
-//             $('#gender').text(user.gender || 'N/A');
-//             $('#dob').text(user.dob ? new Date(user.dob).toLocaleDateString() : 'N/A');
-//             $('#status').text(user.status ? 'Active' : 'Inactive');
-//             $('#activatedOn').text(user.activatedOn ? new Date(user.activatedOn).toLocaleString() : 'N/A');
-//             $('#height').text(user.height ? `${user.height} cm` : 'N/A');
-//             $('#weight').text(user.weight ? `${user.weight} kg` : 'N/A');
-//             $('#goal').text(user.goal || 'N/A');
-//             $('#medicalCondition').text(user.medicalCondition || 'N/A');
-
-//             // Set profile image
-//             const profileImage = $('#profile-image');
-//             if (user.profileImage) {
-//                 profileImage.attr('src', `/User_Images/${user.profileImage}`);
-//             } else {
-//                 profileImage.attr('src', '/Instructor_Images/placeholder.jpg');
-//                 profileImage[0].onerror = null;
-//             }
-//         },
-//         error: function () {
-//             console.error("Error fetching user details.");
-//         }
-//     });
-// }
-
 function selectUser(userId) {
   $.ajax({
     url: `${uri}/api/User/GetOneUser/${userId}`,

@@ -13,7 +13,7 @@ builder.Services.AddControllersWithViews();
 
 builder.Services.AddDataProtection()
     .SetApplicationName("FitPro")
-    .PersistKeysToFileSystem(new DirectoryInfo(@"/root/.aspnet/DataProtection-Keys"));
+    .PersistKeysToFileSystem(new DirectoryInfo(@"./.aspnet/DataProtection-Keys"));
 
 var app = builder.Build();
 

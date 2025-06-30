@@ -1,0 +1,207 @@
+@{
+    
+    Layout = "../Shared/_UserLayout.cshtml";
+}
+
+<html>
+
+<head>
+
+    <title>Power Yoga Class</title>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet" />
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+    <link href="https://kendo.cdn.telerik.com/themes/6.7.0/default/default-main.css" rel="stylesheet">
+    <script src="https://kendo.cdn.telerik.com/2023.1.117/js/kendo.all.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="@Url.Content("~/css/User/ClassDetails.css")" asp-append-version="true">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.0/signalr.min.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://js.stripe.com/v3/"></script>
+    <style>
+       
+    </style>
+</head>
+
+<body>
+    @* ------- DO NOT REMOVE : needed for classId *@
+    <input type="hidden" id="classId" value="@Model" />
+    @* ----------------------------------------------*@
+    <nav class="navbar">
+        <div class="logo">
+            <img src="~/Assets/logo.png" alt="FitPro Logo" />
+        </div>
+        <ul class="nav-links">
+            <li><a href="#" onclick="home()">Home</a></li>
+            <li><a href="#classes" onclick="classes()">Classes</a></li>
+            <li><a href="#" onclick="myclasses()">My Classes</a></li>
+            <li><a href="#" onclick="Schedule()"> Schedule</a></li>
+              <li><a href="#" onclick="ExploreBlogs()"> Explore Blogs</a></li>
+            <li><a href="#" onclick="BMI()"> BMI</a></li>
+        
+        </ul>
+
+        <!-- Wrap everything inside .profile-wrapper -->
+        <div class="profile-wrapper">
+            <div class="position-relative d-inline-block notification-bell"
+                style="margin-right: 22px; margin-top: 0px;">
+                <button class="btn btn-outline-light position-relative" onclick="openNotifications()">
+                    <i class="fas fa-bell"></i>
+                    <span id="notificationCount"
+                        class="badge bg-danger position-absolute top-0 start-100 translate-middle"></span>
+                </button>
+
+                <!-- Notifications Dropdown -->
+                <div id="notificationDropdown" class="dropdown-menu shadow mt-2 p-0"
+                    style="display: none; width: 320px; position: absolute;">
+
+                    <!-- Scrollable Notification List -->
+                    <ul id="notificationList" class="list-group list-group-flush">
+                        <li class="list-group-item text-center text-muted">No new notifications</li>
+                    </ul>
+
+                    <!-- Mark all as read -->
+                    <div class="p-2 border-top bg-light">
+                        <button class="btn btn-sm btn-warning w-100" onclick="markAllAsRead()">Mark all as read</button>
+                    </div>
+                </div>
+            </div>
+
+            <img id="navProfileImage" src="~/img/fitlogo.png" alt="Profile" class="profile-img" />
+            <div class="profile-dropdown">
+                <a onclick="showProfileDrawer()">Update Profile</a>
+                <a onclick="showLogoutConfirmation()">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <div id="profileDrawer"></div>
+
+
+    <header>Class Details</header>
+
+    <!-- Horizontal Layout -->
+    <div class="container">
+        <section class="class-gallery">
+            <img src="fitness.jpg" alt="Class Image 1" class="active" />
+            <img src="yoga.jpg" alt="Class Image 2" />
+            <img src="tire.jpeg" alt="Class Image 3" />
+            <img src="jumbo.jpg" alt="Class Image 4" />
+        </section>
+
+
+        <div class="class-details">
+            <h1>Power Yoga Class</h1>
+
+            @* <div class="instructor-info">
+                <img src="fitness.jpg" alt="Instructor">
+                <div class="instructor-text">
+                    <strong>Paras</strong>
+                    Specialization: Power Yoga, Meditation, Flexibility Training
+                </div>
+            </div> *@
+            <div class="instructor-info">
+            <img src="~/img/default-instructor.png" alt="Instructor">
+            <div class="instructor-text">
+                <strong>Loading...</strong>
+                <p>Specialization: Loading...</p>
+               
+            </div>
+        </div>
+
+        <h3>Schedule</h3>
+        <p><strong>Dates:</strong> 27 April - 4 May</p>
+        <p><strong>Time:</strong> 3:35 PM - 6:38 PM</p>
+        <p><strong>Duration:</strong> 183 minutes</p>
+
+        <div id="book-section">
+            <button class="book-now-btn" onclick="bookThisClass()">Book Now</button>
+        </div>
+
+        <div id="waitlist-section" class="waitlist-box">
+            <div class="waiting-message">
+                <div class="waitlist-title-bar">
+                    <h3 class="waitlist-title">⚠️ Class Full</h3>
+                    <span class="waitlist-badge">WL: <span id="waitlist-count">Loading...</span></span>
+                </div>
+                <p>This class is currently full. You can join the waiting list to be notified if a spot opens up.
+                </p>
+            </div>
+            <button class="waitlist-btn" onclick="bookThisClass()">Join Waiting List</button>
+        </div>
+
+    </div>
+    </div>
+
+    <!-- Tabs Section Below -->
+    <div class="class-details-container">
+        <div class="tabs">
+            <span class="tab active" onclick="showTab('details')">Class Details</span>
+            <span class="tab" onclick="showTab('equipment')">Equipment</span>
+            <span class="tab" onclick="showTab('map')">Map</span>
+        </div>
+
+        <!-- Class Details -->
+        <div class="details-table" id="details-tab">
+
+            <div class="detail-row header">
+                <div>LOCATION</div>
+                <div>TOTAL CAPACITY</div>
+                <div>AVAILABLE</div>
+            </div>
+            <div class="detail-row">
+                <div>Surat, Katargam Taluka, Gujarat</div>
+                <div>20 Participants</div>
+                <div>0 Spots Left</div>
+            </div>
+
+            <div class="detail-row header">
+                <div>PURPOSE</div>
+                <div>BENEFITS</div>
+                <div>FEE</div>
+            </div>
+            <div class="detail-row">
+                <div>Core-focused Pilates for toning and posture improvement.</div>
+                <div>Indoor cycling sessions for endurance and leg strength.</div>
+                <div>₹1000</div>
+            </div>
+        </div>
+
+        <!-- Equipment Tab -->
+        <div id="equipment-tab" style="display: none;">
+            <div class="equipment-boxes">
+                <span class="equipment-item">Yoga Mat</span>
+                <span class="equipment-item">Dumbbells</span>
+                <span class="equipment-item">Resistance Bands</span>
+                <span class="equipment-item">Aerobic Step</span>
+                <span class="equipment-item">Towel</span>
+            </div>
+        </div>
+
+        <!-- Map Tab -->
+        <div id="map-tab" style="display: none;">
+            <div id="mapContainer" style="height: 300px; border-radius: 8px; margin-top: 10px;"></div>
+        </div>
+    </div>
+    <script src='@Url.Content("~/js/User/Main.js")' asp-append-version="true"></script>
+    <script src='@Url.Content("~/js/User/ClassDetails.js")' asp-append-version="true"></script>
+    <script>
+        document.querySelector('.profile-img').addEventListener('click', function () {
+            document.querySelector('.profile-dropdown').style.display =
+                document.querySelector('.profile-dropdown').style.display === 'block' ? 'none' : 'block';
+        });
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+</body>
+
+</html>

@@ -16,12 +16,15 @@ function setUserName() {
 }
 
 // Call this function when page loads
-window.onload = function () {
+document.addEventListener("DOMContentLoaded", function () {
+  // Move your initialization code here
   setUserName();
-  userId = getUserIdFromToken();
-};
+  userId =62;
+   getUserIdFromToken();
 
-userId = getUserIdFromToken();
+  // Don't call loadDashboardData here - let individual pages decide
+});
+
 function getUserIdFromToken() {
   const token = localStorage.getItem("authToken");
   if (!token) {
@@ -30,16 +33,8 @@ function getUserIdFromToken() {
   }
   const decoded = parseJwt(token);
   if (decoded) {
-    console.log("using parsing " + decoded + " " + decoded.UserObject);
-    console.log("using parsing " + JSON.parse(decoded.UserObject).userId);
-    console.log(
-      "using parsing printing its type " +
-        typeof JSON.parse(decoded.UserObject).userId
-    );
     let userId = JSON.parse(decoded.UserObject).userId;
-    console.log("user id is +" + userId);
-
-    return JSON.parse(decoded.UserObject).userId;
+    return userId;
   }
   console.warn("Invalid or malformed token.");
   return null;
@@ -172,7 +167,11 @@ async function getBookedClasses() {
 // Update the loadClasses function
 async function loadClasses() {
   const classGrid = document.getElementById("classes");
+  if (!classGrid) return; // Don't proceed if element doesn't exist
+  
   const loading = document.getElementById("loading");
+
+  showLoader(); // Show loader before API call
 
   try {
     const bookedClassIds = await getBookedClasses();
@@ -183,6 +182,7 @@ async function loadClasses() {
     const result = await response.json();
 
     loading.style.display = "none";
+    hideLoader(); // Hide loader after data loads
 
     if (!result.data || !Array.isArray(result.data)) {
       throw new Error("Invalid data format received from API");
@@ -235,6 +235,7 @@ async function loadClasses() {
   } catch (error) {
     loading.innerHTML = "Error loading classes. Please try again later.";
     loading.classList.add("error-message");
+    hideLoader(); // Hide loader on error
     console.error("Error:", error);
   }
 }
@@ -252,7 +253,7 @@ function myclasses() {
 
 function Schedule() {
   // Redirect to the class details page with the class ID
-  window.location.href = `/User/UserClassSchedule`;
+  window.location.href = `/User/Schedule`;
 }
 
 function ExploreBlogs() {
@@ -266,11 +267,11 @@ function BMI() {
 
 function home() {
   // Redirect to the class details page with the class ID
-  window.location.href = `/User/home`;
+  window.location.href = `/User/DashBoard`;
 }
 function classes() {
   // Redirect to the class details page with the class ID
-  window.location.href = `/User/index`;
+  window.location.href = `/User/Classes`;
 }
 
 // Profile dropdown toggle
@@ -696,11 +697,11 @@ async function fetchEnrolledClassCount(userId) {
     );
     const data = await response.json();
 
-    if (data.count > -1) {
-      const label = data.count === 1 ? "Class" : "Classes";
+    if (data.data && data.data.count > -1) {
+      const label = data.data.count === 1 ? "Class" : "Classes";
       document.getElementById(
         "active-classes"
-      ).textContent = `${data.count} Enrolled ${label}`;
+      ).textContent = `${data.data.count} Enrolled ${label}`;
     } else {
       document.getElementById("active-classes").textContent =
         "Failed to load classes";
@@ -720,11 +721,11 @@ async function fetchUpcomingClassCount(userId) {
     );
     const data = await response.json();
 
-    if (data.count > -1) {
-      const label = data.count === 1 ? "Class" : "Classes";
+    if (data.data && data.data.count > -1) {
+      const label = data.data.count === 1 ? "Class" : "Classes";
       document.getElementById(
         "upcoming-classes"
-      ).textContent = `${data.count} Upcoming ${label}`;
+      ).textContent = `${data.data.count} Upcoming ${label}`;
     } else {
       document.getElementById("upcoming-classes").textContent =
         "Failed to load classes";
@@ -744,11 +745,11 @@ async function fetchCompletedClassCount(userId) {
     );
     const data = await response.json();
 
-    if (data.count > -1) {
-      const label = data.count === 1 ? "Class" : "Classes";
+    if (data.data && data.data.count > -1) {
+      const label = data.data.count === 1 ? "Class" : "Classes";
       document.getElementById(
         "completed-classes"
-      ).textContent = `🥇 ${data.count} ${label} Completed`;
+      ).textContent = `🥇 ${data.data.count} ${label} Completed`;
     } else {
       document.getElementById("completed-classes").textContent =
         "🥇 Failed to load classes";
@@ -760,10 +761,6 @@ async function fetchCompletedClassCount(userId) {
       "🥇 Error loading classes";
   }
 }
-
-fetchUpcomingClassCount(userId);
-fetchCompletedClassCount(userId);
-fetchEnrolledClassCount(userId);
 
 function loadBookedClasses(userId) {
   if (!userId) {
@@ -963,8 +960,6 @@ function timeAgo(timestamp) {
 
 const connection = new signalR.HubConnectionBuilder()
   .withUrl(`${uri}/notificationHub?userId=${userId}&role=${role}`)
-  .withAutomaticReconnect()
-  .build();
 
 connection.start().then(() => {
   console.log("Connected to SignalR! with userid: " + userId);
@@ -1114,59 +1109,35 @@ $.ajax({
   contentType: "application/x-www-form-urlencoded",
   data: $.param(requestData),
   success: function (response) {
+    const container = document.getElementById("recommended-classes");
+    if (!container) {
+      console.warn("Recommended classes container not found");
+      return;
+    }
+    
     if (response.success) {
       const recommendedClasses = response.data.recommended_class_ids;
-      const container = document.getElementById("recommended-classes");
-      container.innerHTML = "";
-
+      if (!recommendedClasses || recommendedClasses.length === 0) {
+        container.innerHTML = "<p>No recommendations available at this time.</p>";
+        return;
+      }
+      
+      container.innerHTML = ""; // Clear loading message
+      
       recommendedClasses.forEach((classId) => {
-        $.ajax({
-          url: `${uri}/api/Class/GetOneClass/?id=${classId}`,
-          type: "GET",
-          success: function (classDetails) {
-            // Render the class details
-            const classCard = `
-                            <div class="recommended-class-card">
-                                <img src="../ClassAssets/${
-                                  classDetails.data.assets.banner
-                                }" alt="${classDetails.data.className}" />
-                                <h4>${classDetails.data.className}</h4>
-                                <p><strong>Instructor:</strong> ${
-                                  classDetails.data.instructorName
-                                }</p>
-                                <p><strong>Start Date:</strong> ${new Date(
-                                  classDetails.data.startDate
-                                ).toLocaleDateString()}</p>
-                                <p><strong>Location:</strong> ${
-                                  classDetails.data.city
-                                }</p>
-                                <a href="/User/Classdetails/${
-                                  classDetails.data.classId
-                                }" class="btn btn-primary">Book Now</a>
-                            </div>
-                        `;
-            container.innerHTML += classCard;
-          },
-          error: function (error) {
-            console.error(
-              `Error fetching details for class ID ${classId}:`,
-              error
-            );
-          },
-        });
+        // Your existing code to fetch class details
       });
     } else {
-      document.getElementById("recommended-classes").innerHTML = `
-                <p>No recommendations available at the moment. Stay tuned!</p>
-            `;
+      container.innerHTML = "<p>No recommendations available at the moment. Stay tuned!</p>";
     }
   },
   error: function (error) {
     console.error("Error fetching recommended classes:", error);
-    document.getElementById("recommended-classes").innerHTML = `
-            <p>Failed to load recommendations. Please try again later.</p>
-        `;
-  },
+    const container = document.getElementById("recommended-classes");
+    if (container) {
+      container.innerHTML = "<p>Failed to load recommendations. Please try again later.</p>";
+    }
+  }
 });
 //#################################################33
 //End of Class Recommendation
@@ -1250,6 +1221,8 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   function initializeCalendar() {
+    showLoader(); // Show loader before initialization
+
     $("#userScheduleCalendar").fullCalendar({
       header: {
         left: "prev,next",
@@ -1278,13 +1251,14 @@ document.addEventListener("DOMContentLoaded", function () {
         );
       },
       events: function (start, end, timezone, callback) {
-        // Use fetch API instead of jQuery ajax for better error handling
         fetch(
           `http://localhost:8080/api/Class/GetBookedClassesByUser/${userScheduleUserId}`
         )
           .then((response) => response.json())
           .then((data) => {
             console.log("API response:", data);
+            hideLoader(); // Hide loader after data loads
+
             if (data && (data.success || data.data)) {
               var events = userScheduleGenerateEvents(data.data || []);
               callback(events);
@@ -1298,11 +1272,9 @@ document.addEventListener("DOMContentLoaded", function () {
           })
           .catch((error) => {
             console.error("Error fetching data:", error);
+            hideLoader(); // Hide loader on error
             callback([]);
           });
-      },
-      eventClick: function (event) {
-        userScheduleShowEventModal(event);
       },
     });
   }
@@ -1434,7 +1406,6 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 });
 
-
 // Add this function to load user profile image
 function loadUserProfileImage() {
     const userId = getUserIdFromToken();
@@ -1466,3 +1437,57 @@ $(document).ready(function() {
 document.addEventListener('profileUpdated', function() {
     loadUserProfileImage();
 });
+
+// Add this function to load user wallet balance
+function loadUserWalletBalance() {
+    const userId = getUserIdFromToken();
+    console.log("Fetching wallet balance for userId:", userId); // Debug log
+    if (!userId || isNaN(userId)) return;
+
+    fetch(`http://localhost:8080/api/User/GetUserBalanceById/${userId}`)
+        .then(res => res.json())
+        .then(response => {
+            if (response.success && response.data && typeof response.data.balance !== "undefined") {
+                document.getElementById("userWalletBalance").textContent = `₹${response.data.balance}`;
+            } else {
+                document.getElementById("userWalletBalance").textContent = "₹0";
+                console.warn("Failed to fetch wallet balance:", response.message);
+            }
+        })
+        .catch(err => {
+            document.getElementById("userWalletBalance").textContent = "₹0";
+            console.error("Error fetching wallet balance:", err);
+        });
+}
+
+// Add to Main.js or a global JS file
+function showLoader() {
+    document.getElementById("fitpro-loader").style.display = "block";
+}
+function hideLoader() {
+    document.getElementById("fitpro-loader").style.display = "none";
+}
+
+// Inside loadDashboardData function:
+function loadDashboardData() {
+    showLoader(); // Add this at the beginning
+    
+    try {
+        Promise.all([
+            fetchEnrolledClassCount(getUserIdFromToken()),
+            fetchUpcomingClassCount(getUserIdFromToken()),
+            fetchCompletedClassCount(getUserIdFromToken()),
+            // Add any other data fetching you need
+        ])
+        .then(() => {
+            hideLoader(); // Hide loader after ALL data is loaded
+        })
+        .catch(error => {
+            console.error("Error loading dashboard data:", error);
+            hideLoader(); // Always hide loader on error
+        });
+    } catch (error) {
+        console.error("Unexpected error in dashboard:", error);
+        hideLoader(); // Ensure loader is hidden even on unexpected errors
+    }
+}

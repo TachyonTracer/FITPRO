@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Repo;
 
@@ -13,26 +12,23 @@ namespace MVC
     public class UserController : Controller
     {
         // GET: UserController
-        public ActionResult Index()
+        public ActionResult Classes()
         {
             return View();
         }
         
         [HttpGet]
         [Route("user/Classdetails/{classId}")]
-        public ActionResult Classdetails(int classId)
+        public ActionResult ClassDetails(int classId)
         {
             return View(classId);
         }
-         public ActionResult Myclasses()
+         public ActionResult MyClasses()
         {
             return View();
         }
 
-         public ActionResult Home()
-        {
-            return View();
-        }
+        
         public ActionResult Dashboard()
         {
             return View();
@@ -52,7 +48,7 @@ namespace MVC
             return View("Error!");
         }
 
-        public IActionResult UserClassSchedule(){
+        public IActionResult Schedule(){
             return View();
         }
 

@@ -1,5 +1,6 @@
 @{
-    Layout = null;
+    
+    Layout = "../Shared/_UserLayout.cshtml";
 }
 
 <html lang="en">
@@ -402,7 +403,7 @@
                     cancelButtonText: 'Cancel'
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        window.location.href = "/User/Dashboard";
+                        window.location.href = "/User/DashBoard";
                     }
                 });
             });
