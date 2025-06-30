@@ -19,132 +19,91 @@ namespace API
             _configuration = configuration;
         }
 
-        #region User-Stroy : List Class 
-        
-        #region Class:Booking
-        [HttpPost("IsClassAlreadyBooked")]
-        public async Task<IActionResult> IsClassIsClassAlreadyBooked(Booking bookingdata)
+        // DRY: Centralized API response handler
+        private IActionResult ApiResponse(bool success, string message, object data = null, int statusCode = 200)
         {
+            var result = new { success, message, data };
+            return statusCode switch
+            {
+                200 => Ok(result),
+                400 => BadRequest(result),
+                404 => NotFound(result),
+                409 => Conflict(result),
+                _ => StatusCode(statusCode, result)
+            };
+        }
+
+        #region Class:Booking
+
+        [HttpPost("IsClassAlreadyBooked")]
+        public async Task<IActionResult> IsClassAlreadyBooked(Booking bookingdata)
+        {
+            if (!ModelState.IsValid)
+                return ApiResponse(false, "Invalid booking data", ModelState, 400);
+
             try
             {
-                if (!ModelState.IsValid)
-                {
-                    return BadRequest(ModelState);
-
-                }
                 bool result = await _classRepo.IsClassAlreadyBooked(bookingdata);
-                if (result)
-                {
-
-                    return Ok(new
-                    {
-                        success = false,
-                        message = "You have already book this class"
-
-
-                    });
-                }
-                else
-                {
-                    return Ok(new
-                    {
-                        success = true,
-                        message = "You can book this class "
-                    });
-                }
-
+                return result
+                    ? ApiResponse(false, "You have already booked this class")
+                    : ApiResponse(true, "You can book this class");
             }
             catch (Exception ex)
             {
-                return BadRequest(new
-                {
-                    success = false,
-                    message = ex.Message
-
-                });
-                Console.WriteLine(ex);
+                return ApiResponse(false, "Error checking booking", ex.Message, 500);
             }
-
         }
 
         [HttpPost("BookClass")]
         public async Task<IActionResult> BookClass([FromBody] Booking request)
         {
             if (!ModelState.IsValid)
-            {
-                return BadRequest(new
-                {
-                    success = false,
-                    message = "Invalid request data",
-                    errors = ModelState.Values.SelectMany(v => v.Errors.Select(e => e.ErrorMessage))
-                });
-            }
+                return ApiResponse(false, "Invalid request data", ModelState, 400);
 
             var response = await _classRepo.BookClass(request);
-
-            if (!response.success)
-            {
-                return BadRequest(new
-                {
-                    success = false,
-                    message = response.message
-                });
-            }
-
-            return Ok(new
-            {
-                success = true,
-                message = response.message
-            });
+            return response.success
+                ? ApiResponse(true, response.message)
+                : ApiResponse(false, response.message, null, 400);
         }
         #endregion
 
         #region GetAll
         [HttpGet("GetAllClasses")]
-        // [Authorize]
         public async Task<IActionResult> GetAll()
         {
-            List<Class> classes = await _classRepo.GetAllClasses();
-            return Ok(new { sucess = true, message = "class fetch successfully", data = classes });
+            var classes = await _classRepo.GetAllClasses();
+            return ApiResponse(true, "Classes fetched successfully", classes);
         }
         #endregion
 
         #region GetAllActiveClasses
         [HttpGet("GetAllActiveClasses")]
-        // [Authorize]
         public async Task<IActionResult> GetAllActiveClasses()
         {
-            List<Class> classes = await _classRepo.GetAllActiveClasses();
-            return Ok(new { sucess = true, message = "class fetch successfully", data = classes });
+            var classes = await _classRepo.GetAllActiveClasses();
+            return ApiResponse(true, "Active classes fetched successfully", classes);
         }
         #endregion
 
         #region GetOne
         [HttpGet("GetOneClass")]
-        // [Authorize]
-        public async Task<ActionResult> GetOne(string id)
+        public async Task<IActionResult> GetOne(string id)
         {
             var classes = await _classRepo.GetOne(id);
-            if (classes == null)
-            {
-                return BadRequest(new { success = false, message = "There was no class found" });
-
-            }
-            return Ok(new { sucess = true, message = "class fetch successfully", data = classes });
+            return classes == null
+                ? ApiResponse(false, "There was no class found", null, 404)
+                : ApiResponse(true, "Class fetched successfully", classes);
         }
         #endregion
 
-        #region  GetClassById
+        #region GetClassById
         [HttpGet("GetClassesByInstructorId")]
-        public async Task<ActionResult> GetClassById(string id)
+        public async Task<IActionResult> GetClassById(string id)
         {
             var classes = await _classRepo.GetClassById(id);
-            if (classes == null)
-            {
-                return BadRequest(new { success = false, message = "There was no class found" });
-
-            }
-            return Ok(new { sucess = true, message = "class fetch successfully", data = classes });
+            return classes == null
+                ? ApiResponse(false, "There was no class found", null, 404)
+                : ApiResponse(true, "Class fetched successfully", classes);
         }
         #endregion
 
@@ -153,40 +112,31 @@ namespace API
         public async Task<IActionResult> SoftDeleteClass(int classId)
         {
             bool result = await _classRepo.SoftDeleteClass(classId);
-            if (result)
-            {
-                return Ok(new { success = true, message = "Class soft deleted successfully" });
-            }
-            return BadRequest(new { success = false, message = "Class is already suspended" });
+            return result
+                ? ApiResponse(true, "Class soft deleted successfully")
+                : ApiResponse(false, "Class is already suspended", null, 400);
         }
         #endregion
 
         #region Schedule class
-
         [HttpPost("Scheduleclass")]
         public async Task<IActionResult> Scheduleclass([FromForm] Class classData, [FromForm] string description)
         {
+            if (!ModelState.IsValid)
+                return ApiResponse(false, "Invalid class data", ModelState, 400);
+
             try
             {
-
-                Dictionary<string, string>? descriptionDict = JsonSerializer.Deserialize<Dictionary<string, string>>(description);
-
+                var descriptionDict = JsonSerializer.Deserialize<Dictionary<string, string>>(description);
                 if (descriptionDict != null)
                 {
-                    string formattedJson = JsonSerializer.Serialize(descriptionDict);
-                    classData.description = JsonDocument.Parse(formattedJson);
+                    classData.description = JsonDocument.Parse(JsonSerializer.Serialize(descriptionDict));
                 }
-
 
                 string uploadPath = Path.Combine("../MVC/wwwroot", "ClassAssets");
-                if (!Directory.Exists(uploadPath))
-                {
-                    Directory.CreateDirectory(uploadPath);
-                }
+                Directory.CreateDirectory(uploadPath);
 
-                Dictionary<string, string> fileMetadata = new Dictionary<string, string>(); // Store file names
-
-                //  Handle file uploads
+                var fileMetadata = new Dictionary<string, string>();
                 if (classData.assetFiles != null && classData.assetFiles.Length > 0)
                 {
                     for (int i = 0; i < classData.assetFiles.Length; i++)
@@ -194,164 +144,113 @@ namespace API
                         var file = classData.assetFiles[i];
                         if (file != null && file.Length > 0)
                         {
-                            string fileName = $"{Guid.NewGuid()}_{Path.GetFileName(file.FileName)}"; // Unique filename
+                            string fileName = $"{Guid.NewGuid()}_{Path.GetFileName(file.FileName)}";
                             string filePath = Path.Combine(uploadPath, fileName);
-
                             using (var stream = new FileStream(filePath, FileMode.Create))
-                            {
                                 await file.CopyToAsync(stream);
-                            }
-
                             string key = (i == 0) ? "banner" : $"picture {i}";
-                            fileMetadata[key] = fileName; // Store only the file name
+                            fileMetadata[key] = fileName;
                         }
                     }
                 }
-
-                //  Update `assets` JSON field with uploaded file names
                 classData.assets = JsonDocument.Parse(JsonSerializer.Serialize(fileMetadata));
 
-                //  Save class data in the database
-                int result;
-                try
-                {
-                    result = await _classRepo.ScheduleClass(classData);
-                }
-                catch (Exception dbEx)
-                {
-                    Console.WriteLine($"Database error while scheduling class: {dbEx.Message}");
-                    return StatusCode(500, new { success = false, message = "Database error occurred", error = dbEx.Message });
-                }
-
+                int result = await _classRepo.ScheduleClass(classData);
                 return result switch
                 {
-                    1 => Ok(new { success = true, message = "Class scheduled successfully." }),
-                    -2 => Conflict(new { success = false, message = "Class with the same name and type already exists for this instructor." }),
-                    -3 => Conflict(new { success = false, message = "Instructor already has another class during this time." }),
-                    -4 => BadRequest(new { success = false, message = "Class duration should be at least 1 hour." }),
-                    0 => StatusCode(500, new { success = false, message = "Class scheduling failed. Please try again." }),
-                    _ => StatusCode(500, new { success = false, message = "An unexpected error occurred." })
+                    1 => ApiResponse(true, "Class scheduled successfully"),
+                    -2 => ApiResponse(false, "Class with the same name and type already exists for this instructor.", null, 409),
+                    -3 => ApiResponse(false, "Instructor already has another class during this time.", null, 409),
+                    -4 => ApiResponse(false, "Class duration should be at least 1 hour.", null, 400),
+                    0 => ApiResponse(false, "Class scheduling failed. Please try again.", null, 500),
+                    _ => ApiResponse(false, "An unexpected error occurred.", null, 500)
                 };
             }
-            catch (JsonException jsonEx)
+            catch (JsonException ex)
             {
-                Console.WriteLine($"Invalid JSON format: {jsonEx.Message}");
-                return BadRequest(new { success = false, message = "Invalid JSON format", error = jsonEx.Message });
+                return ApiResponse(false, "Invalid JSON format", ex.Message, 400);
             }
-            catch (IOException ioEx)
+            catch (IOException ex)
             {
-                Console.WriteLine($"File upload error: {ioEx.Message}");
-                return StatusCode(500, new { success = false, message = "Error occurred while saving files", error = ioEx.Message });
+                return ApiResponse(false, "Error occurred while saving files", ex.Message, 500);
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Unexpected error in ScheduleClass: {ex.Message}");
-                return StatusCode(500, new { success = false, message = "An unexpected error occurred", error = ex.Message });
+                return ApiResponse(false, "An unexpected error occurred", ex.Message, 500);
             }
         }
         #endregion
 
         #region UpdateClass
         [HttpPut("UpdateClass")]
-public async Task<IActionResult> UpdateClass([FromForm] Class request)
-{
-    if (!ModelState.IsValid)
-    {
-        return BadRequest(new
+        public async Task<IActionResult> UpdateClass([FromForm] Class request)
         {
-            success = false,
-            message = "Invalid request data",
-            errors = ModelState.Values.SelectMany(v => v.Errors.Select(e => e.ErrorMessage))
-        });
-    }
+            if (!ModelState.IsValid)
+                return ApiResponse(false, "Invalid request data", ModelState, 400);
 
-    try
-    {
-        // Get existing class data
-        var existingClass = await _classRepo.GetOne(request.classId.ToString());
-        if (existingClass == null)
-        {
-            return NotFound(new { success = false, message = "Class not found" });
-        }
-
-        // Handle description
-        if (request.description == null && !string.IsNullOrEmpty(Request.Form["description"]))
-        {
             try
             {
-                request.description = JsonDocument.Parse(Request.Form["description"]);
-            }
-            catch (JsonException ex)
-            {
-                return BadRequest(new { success = false, message = "Invalid description format", error = ex.Message });
-            }
-        }
-        else if (request.description == null)
-        {
-            request.description = existingClass.description;
-        }
+                var existingClass = await _classRepo.GetOne(request.classId.ToString());
+                if (existingClass == null)
+                    return ApiResponse(false, "Class not found", null, 404);
 
-        // Handle file uploads only if new files are provided
-        if (request.assetFiles != null && request.assetFiles.Length > 0)
-        {
-            var assetsPath = Path.Combine(Directory.GetCurrentDirectory(), "../MVC/wwwroot", "ClassAssets");
-            if (!Directory.Exists(assetsPath))
-            {
-                Directory.CreateDirectory(assetsPath);
-            }
-
-            var assetDict = new Dictionary<string, string>();
-
-            for (int i = 0; i < request.assetFiles.Length; i++)
-            {
-                var file = request.assetFiles[i];
-                if (file.Length > 0)
+                if (request.description == null && !string.IsNullOrEmpty(Request.Form["description"]))
                 {
-                    var uniqueFileName = $"{Guid.NewGuid()}{Path.GetExtension(file.FileName)}";
-                    var filePath = Path.Combine(assetsPath, uniqueFileName);
-
-                    using (var stream = new FileStream(filePath, FileMode.Create))
+                    try
                     {
-                        await file.CopyToAsync(stream);
+                        request.description = JsonDocument.Parse(Request.Form["description"]);
                     }
-
-                    if (i == 0)
+                    catch (JsonException ex)
                     {
-                        assetDict["banner"] = uniqueFileName;
-                    }
-                    else
-                    {
-                        assetDict[$"picture {i}"] = uniqueFileName;
+                        return ApiResponse(false, "Invalid description format", ex.Message, 400);
                     }
                 }
+                else if (request.description == null)
+                {
+                    request.description = existingClass.description;
+                }
+
+                if (request.assetFiles != null && request.assetFiles.Length > 0)
+                {
+                    var assetsPath = Path.Combine(Directory.GetCurrentDirectory(), "../MVC/wwwroot", "ClassAssets");
+                    Directory.CreateDirectory(assetsPath);
+
+                    var assetDict = new Dictionary<string, string>();
+                    for (int i = 0; i < request.assetFiles.Length; i++)
+                    {
+                        var file = request.assetFiles[i];
+                        if (file.Length > 0)
+                        {
+                            var uniqueFileName = $"{Guid.NewGuid()}{Path.GetExtension(file.FileName)}";
+                            var filePath = Path.Combine(assetsPath, uniqueFileName);
+                            using (var stream = new FileStream(filePath, FileMode.Create))
+                                await file.CopyToAsync(stream);
+                            assetDict[i == 0 ? "banner" : $"picture {i}"] = uniqueFileName;
+                        }
+                    }
+                    request.assets = JsonDocument.Parse(JsonSerializer.Serialize(assetDict));
+                }
+                else
+                {
+                    request.assets = existingClass.assets;
+                }
+
+                int result = await _classRepo.UpdateClass(request);
+                return result switch
+                {
+                    1 => ApiResponse(true, "Class updated successfully"),
+                    -1 => ApiResponse(false, "Class not found", null, 404),
+                    -2 => ApiResponse(false, "Class with the same name and type already exists for this instructor", null, 409),
+                    -3 => ApiResponse(false, "Instructor already has another class during this time", null, 409),
+                    -4 => ApiResponse(false, "An unexpected error occurred", null, 500),
+                    _ => ApiResponse(false, "Class update failed", null, 500)
+                };
             }
-
-            request.assets = JsonDocument.Parse(JsonSerializer.Serialize(assetDict));
+            catch (Exception ex)
+            {
+                return ApiResponse(false, "An unexpected error occurred", ex.Message, 500);
+            }
         }
-        else
-        {
-            request.assets = existingClass.assets;
-        }
-
-        int result = await _classRepo.UpdateClass(request);
-
-        return result switch
-        {
-            1 => Ok(new { success = true, message = "Class updated successfully" }),
-            -1 => NotFound(new { success = false, message = "Class not found" }),
-            -2 => Conflict(new { success = false, message = "Class with the same name and type already exists for this instructor" }),
-            -3 => Conflict(new { success = false, message = "Instructor already has another class during this time" }),
-            -4 => StatusCode(500, new { success = false, message = "An unexpected error occurred" }),
-            _ => StatusCode(500, new { success = false, message = "Class update failed" })
-        };
-    }
-    catch (Exception ex)
-    {
-        return StatusCode(500, new { success = false, message = ex.Message });
-    }
-}
-        #endregion
-
         #endregion
 
         #region GetBookedClasses
@@ -359,61 +258,30 @@ public async Task<IActionResult> UpdateClass([FromForm] Class request)
         public async Task<IActionResult> GetBookedClassesByUser(string userId)
         {
             if (string.IsNullOrEmpty(userId))
-            {
-                return BadRequest(new { success = false, message = "User ID is required" });
-            }
+                return ApiResponse(false, "User ID is required", null, 400);
 
             var classes = await _classRepo.GetBookedClassesByUserId(userId);
-
-            if (classes == null || classes.Count == 0)
-            {
-                return Ok(new { success = true, message = "No classes booked by this user", data = new List<Class>() });
-            }
-
-            return Ok(new { success = true, message = "Booked classes fetched successfully", data = classes });
+            return ApiResponse(true, "Booked classes fetched successfully", classes ?? new List<Class>());
         }
         #endregion
 
         #region Cancel Booking
-        [HttpDelete("CancelBooking/{userId}/{classId}")]
+        [HttpDelete("CancelBooking/{userId:int}/{classId:int}")]
         public async Task<IActionResult> CancelBooking(int userId, int classId)
         {
-            try 
+            if (userId <= 0 || classId <= 0)
+                return ApiResponse(false, "User ID and Class ID must be positive integers", null, 400);
+
+            try
             {
-                if (userId <= 0 || classId <= 0)
-                {
-                    return BadRequest(new
-                    {
-                        success = false,
-                        message = "User ID and Class ID must be positive integers"
-                    });
-                }
-
                 var (success, message) = await _classRepo.CancelBooking(userId, classId);
-
-                if (!success)
-                {
-                    return BadRequest(new
-                    {
-                        success = false,
-                        message = message
-                    });
-                }
-
-                return Ok(new
-                {
-                    success = true,
-                    message = message
-                });
+                return success
+                    ? ApiResponse(true, message)
+                    : ApiResponse(false, message, null, 400);
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new
-                {
-                    success = false,
-                    message = "An error occurred while canceling the booking",
-                    error = ex.Message
-                });
+                return ApiResponse(false, "An error occurred while canceling the booking", ex.Message, 500);
             }
         }
         #endregion
@@ -423,11 +291,9 @@ public async Task<IActionResult> UpdateClass([FromForm] Class request)
         public async Task<IActionResult> ActivateClass(int classId)
         {
             bool result = await _classRepo.ActivateClass(classId);
-            if (result)
-            {
-                return Ok(new { success = true, message = "Class activated successfully" });
-            }
-            return BadRequest(new { success = false, message = "Class is already active" });
+            return result
+                ? ApiResponse(true, "Class activated successfully")
+                : ApiResponse(false, "Class is already active", null, 400);
         }
         #endregion
 
@@ -435,22 +301,10 @@ public async Task<IActionResult> UpdateClass([FromForm] Class request)
         [HttpGet("ClasswiseWaitlistCount/{classId}")]
         public async Task<IActionResult> ClasswiseWaitlistCount(string classId)
         {
-            var upcomingClassCount = await _classRepo.ClasswiseWaitlistCount(classId);
-            if (upcomingClassCount != -1)
-            {
-                return Ok(new
-                {
-                    success = true,
-                    message = "Classwsie Waitlist Count fetched successfully",
-                    count = upcomingClassCount
-                });
-            }
-
-            return BadRequest(new
-            {
-                success = false,
-                message = "Failed to fetch Classwise Waitlist Count"
-            });
+            var count = await _classRepo.ClasswiseWaitlistCount(classId);
+            return count != -1
+                ? ApiResponse(true, "Classwise Waitlist Count fetched successfully", new { count })
+                : ApiResponse(false, "Failed to fetch Classwise Waitlist Count", null, 400);
         }
         #endregion
 
@@ -458,7 +312,7 @@ public async Task<IActionResult> UpdateClass([FromForm] Class request)
         [HttpPost("PredictClassPopularity")]
         public async Task<IActionResult> PredictClassPopularity(
             [FromForm] string c_classname, [FromForm] string c_type,
-            [FromForm] string c_startdate, [FromForm] string c_enddate, 
+            [FromForm] string c_startdate, [FromForm] string c_enddate,
             [FromForm] string c_starttime, [FromForm] string c_endtime,
             [FromForm] int c_maxcapacity, [FromForm] string c_requiredequipments,
             [FromForm] string c_city, [FromForm] decimal c_fees,
@@ -466,13 +320,9 @@ public async Task<IActionResult> UpdateClass([FromForm] Class request)
         {
             try
             {
-                // Validate required fields
                 if (string.IsNullOrEmpty(c_classname) || string.IsNullOrEmpty(c_type))
-                {
-                    return BadRequest(new { success = false, message = "Class name and type are required" });
-                }
+                    return ApiResponse(false, "Class name and type are required", null, 400);
 
-                // Parse dates
                 DateTime startDate = string.IsNullOrEmpty(c_startdate) ? DateTime.Now : DateTime.ParseExact(c_startdate, "yyyy-MM-dd", null);
                 DateTime endDate = string.IsNullOrEmpty(c_enddate) ? DateTime.Now : DateTime.ParseExact(c_enddate, "yyyy-MM-dd", null);
                 int duration = CalculateDuration(c_starttime, c_endtime, startDate, endDate);
@@ -496,80 +346,47 @@ public async Task<IActionResult> UpdateClass([FromForm] Class request)
                     Session = GetSession(c_starttime)
                 };
 
-                Console.WriteLine($"Prediction Data: {JsonSerializer.Serialize(predictionData)}");
+                string aiServiceUrl = Environment.GetEnvironmentVariable("AI_SERVICE_URL") ?? "http://localhost:5000";
+                using var client = new HttpClient();
+                var jsonData = JsonSerializer.Serialize(predictionData);
+                var content = new StringContent(jsonData, Encoding.UTF8, "application/json");
+                var response = await client.PostAsync($"{aiServiceUrl}/predict", content);
 
-                // Get AI service URL from configuration
-                string aiServiceUrl=Environment.GetEnvironmentVariable("AI_SERVICE_URL") ?? "http://localhost:5000";
-     
-
-                // Call Flask API
-                using (var client = new HttpClient())
+                if (response.IsSuccessStatusCode)
                 {
-                    var jsonData = JsonSerializer.Serialize(predictionData);
-                    var content = new StringContent(jsonData, Encoding.UTF8, "application/json");
-                    
-                    // Use the configured AI service URL
-                    var response = await client.PostAsync($"{aiServiceUrl}/predict", content);
-
-                    if (response.IsSuccessStatusCode)
-                    {
-                        string result = await response.Content.ReadAsStringAsync();
-                        var predictionResult = JsonSerializer.Deserialize<Dictionary<string, object>>(result);
-
-                        return Ok(new
-                        {
-                            success = true,
-                            message = "Class popularity predicted successfully",
-                            data = predictionResult
-                        });
-                    }
-                    else
-                    {
-                        string error = await response.Content.ReadAsStringAsync();
-                        return StatusCode((int)response.StatusCode, new
-                        {
-                            success = false,
-                            message = $"Failed to get prediction from AI service: {error}",
-                            error = error
-                        });
-                    }
+                    string result = await response.Content.ReadAsStringAsync();
+                    var predictionResult = JsonSerializer.Deserialize<Dictionary<string, object>>(result);
+                    return ApiResponse(true, "Class popularity predicted successfully", predictionResult);
+                }
+                else
+                {
+                    string error = await response.Content.ReadAsStringAsync();
+                    return ApiResponse(false, $"Failed to get prediction from AI service: {error}", error, (int)response.StatusCode);
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error in PredictClassPopularity: {ex.Message}");
-                return StatusCode(500, new
-                {
-                    success = false,
-                    message = "An unexpected error occurred",
-                    error = ex.Message
-                });
+                return ApiResponse(false, "An unexpected error occurred", ex.Message, 500);
             }
         }
 
-        // Helper methods
         private bool IsWeekend(string startDate)
         {
             if (DateTime.TryParse(startDate, out DateTime date))
-            {
                 return date.DayOfWeek == DayOfWeek.Saturday || date.DayOfWeek == DayOfWeek.Sunday;
-            }
             return false;
         }
 
         private int CalculateDuration(string startTime, string endTime, DateTime startDate, DateTime endDate)
         {
             if (string.IsNullOrEmpty(startTime) || string.IsNullOrEmpty(endTime)) return 0;
-
             try
             {
                 TimeSpan start = TimeSpan.Parse(startTime);
                 TimeSpan end = TimeSpan.Parse(endTime);
                 DateTime startDateTime = startDate + start;
                 DateTime endDateTime = endDate + end;
-
                 if (endDateTime <= startDateTime) return 0;
-
                 double TotalHours = (endDateTime - startDateTime).TotalHours;
                 return (int)Math.Max(0, TotalHours);
             }
@@ -582,14 +399,12 @@ public async Task<IActionResult> UpdateClass([FromForm] Class request)
         private string GetSession(string startTime)
         {
             if (string.IsNullOrEmpty(startTime) || !TimeSpan.TryParse(startTime, out TimeSpan time)) return "Unknown";
-
             if (time.Hours >= 6 && time.Hours < 12) return "Morning";
             if (time.Hours >= 12 && time.Hours < 17) return "Afternoon";
             if (time.Hours >= 17 && time.Hours <= 23) return "Evening";
             return "Unknown";
         }
         #endregion
-
 
         #region Class Recommendation
         [HttpPost("ClassRecommendation")]
@@ -614,51 +429,27 @@ public async Task<IActionResult> UpdateClass([FromForm] Class request)
                     }
                 };
 
-                Console.WriteLine($"Sending to Flask: {JsonSerializer.Serialize(hybridRequest)}");
-               
+                string aiServiceUrl = Environment.GetEnvironmentVariable("AI_SERVICE_URL") ?? "http://localhost:5000";
+                using var client = new HttpClient { BaseAddress = new Uri(aiServiceUrl) };
+                var json = JsonSerializer.Serialize(hybridRequest);
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
+                var response = await client.PostAsync("/recommend", content);
 
-                // Call Flask API
-                using (var client = new HttpClient())
+                if (response.IsSuccessStatusCode)
                 {
-                    client.BaseAddress = new Uri(Environment.GetEnvironmentVariable("AI_SERVICE_URL") ?? "http://localhost:5000");// Flask server address
-                    var json = JsonSerializer.Serialize(hybridRequest);
-                    var content = new StringContent(json, Encoding.UTF8, "application/json");
-
-                    var response = await client.PostAsync("/recommend", content);
-
-                    if (response.IsSuccessStatusCode)
-                    {
-                        var responseJson = await response.Content.ReadAsStringAsync();
-                        var result = JsonSerializer.Deserialize<Dictionary<string, object>>(responseJson);
-
-                        return Ok(new
-                        {
-                            success = true,
-                            message = "Class recommendation generated successfully",
-                            data = result
-                        });
-                    }
-                    else
-                    {
-                        var errors = await response.Content.ReadAsStringAsync();
-                        return StatusCode((int)response.StatusCode, new
-                        {
-                            success = false,
-                            message = "Failed to get class recommendations from Flask",
-                            error = errors
-                        });
-                    }
+                    var responseJson = await response.Content.ReadAsStringAsync();
+                    var result = JsonSerializer.Deserialize<Dictionary<string, object>>(responseJson);
+                    return ApiResponse(true, "Class recommendation generated successfully", result);
+                }
+                else
+                {
+                    var errors = await response.Content.ReadAsStringAsync();
+                    return ApiResponse(false, "Failed to get class recommendations from Flask", errors, (int)response.StatusCode);
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
-                return StatusCode(500, new
-                {
-                    success = false,
-                    message = "An unexpected error occurred",
-                    error = ex.Message
-                });
+                return ApiResponse(false, "An unexpected error occurred", ex.Message, 500);
             }
         }
         #endregion

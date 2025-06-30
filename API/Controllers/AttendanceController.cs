@@ -1,9 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 using Repo;
 using System;
-using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
-
 
 [Route("api/[controller]")]
 [ApiController]
@@ -14,6 +13,24 @@ public class AttendanceController : ControllerBase
     public AttendanceController(IAttendanceInterface attendanceRepo)
     {
         _attendanceRepo = attendanceRepo;
+    }
+
+    // Centralized API response handler
+    private async Task<IActionResult> HandleApiResponse<T>(Func<Task<T>> func, string successMessage, string notFoundMessage = null)
+    {
+        try
+        {
+            var result = await func();
+            if (result == null || (result is System.Collections.IEnumerable enumerable && !enumerable.Cast<object>().Any()))
+            {
+                return NotFound(new { success = false, message = notFoundMessage ?? "No data found.", data = (object)null });
+            }
+            return Ok(new { success = true, message = successMessage, data = result });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { success = false, message = "An error occurred", error = ex.Message });
+        }
     }
 
     [HttpPost("AddAttendance")]
@@ -29,78 +46,35 @@ public class AttendanceController : ControllerBase
             });
         }
 
-        try
+        return await HandleApiResponse(async () =>
         {
-            // Check if attendance already exists for this class and date
-            var existingAttendance = await _attendanceRepo.CheckIfExistsWithId(request.classId, request.attendanceDate);
-            if (existingAttendance.exists)
+            var existing = await _attendanceRepo.CheckIfExistsWithId(request.classId, request.attendanceDate);
+            if (existing.exists)
             {
-                return Ok(new
+                return new
                 {
-                    success = true,
                     exists = true,
                     message = "Attendance record already exists for this class and date",
-                    attendanceId = existingAttendance.attendanceId
-                });
+                    attendanceId = existing.attendanceId
+                };
             }
-
-            var attendance = new Attendance
+            int attendanceId = await _attendanceRepo.AddAttendance(request);
+            return new
             {
-                classId = request.classId,
-                attendanceDate = request.attendanceDate,
-                presentStudents = request.presentStudents,
-                absentStudents = request.absentStudents
+                exists = false,
+                message = "Attendance added successfully",
+                attendanceId
             };
-
-            int attendanceId = await _attendanceRepo.AddAttendance(attendance);
-            if (attendanceId > 0)
-            {
-                return Ok(new
-                {
-                    success = true,
-                    exists = false,
-                    message = "Attendance added successfully",
-                    attendanceId = attendanceId
-                });
-            }
-
-            return StatusCode(500, new
-            {
-                success = false,
-                message = "Failed to add attendance"
-            });
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(500, new
-            {
-                success = false,
-                message = ex.Message
-            });
-        }
+        }, "Attendance processed successfully");
     }
 
     [HttpGet("CheckIfExists")]
-    public async Task<IActionResult> CheckIfExists(int classId, DateTime date)
+    public Task<IActionResult> CheckIfExists(int classId, DateTime date)
     {
-        try
-        {
-            var attendance = await _attendanceRepo.CheckIfExistsWithId(classId, date);
-            return Ok(new
-            {
-                success = true,
-                exists = attendance.exists,
-                attendanceId = attendance.attendanceId
-            });
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(500, new
-            {
-                success = false,
-                message = ex.Message
-            });
-        }
+        return HandleApiResponse(
+            () => _attendanceRepo.CheckIfExistsWithId(classId, date),
+            "Attendance existence checked"
+        );
     }
 
     [HttpPut("UpdateAttendance")]
@@ -116,87 +90,33 @@ public class AttendanceController : ControllerBase
             });
         }
 
-        try
+        return await HandleApiResponse(async () =>
         {
-            var attendance = new Attendance
-            {
-                attendanceId = request.attendanceId,
-                classId = request.classId,
-                attendanceDate = request.attendanceDate,
-                presentStudents = request.presentStudents,
-                absentStudents = request.absentStudents
-            };
-
-            bool success = await _attendanceRepo.UpdateAttendance(attendance);
-            if (success)
-            {
-                return Ok(new
-                {
-                    success = true,
-                    message = "Attendance updated successfully"
-                });
-            }
-
-            return NotFound(new
-            {
-                success = false,
-                message = "Attendance record not found"
-            });
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(500, new
-            {
-                success = false,
-                message = ex.Message
-            });
-        }
+            bool updated = await _attendanceRepo.UpdateAttendance(request);
+            if (!updated)
+                return null;
+            return new { message = "Attendance updated successfully" };
+        }, "Attendance updated successfully", "Attendance record not found");
     }
 
     [HttpGet("GetAttendanceByClassId")]
-    public async Task<IActionResult> GetAttendanceByClassId(int classId)
+    public Task<IActionResult> GetAttendanceByClassId(int classId)
     {
-        try
-        {
-            var attendance = await _attendanceRepo.GetAttendanceByClassId(classId);
-            return Ok(new
-            {
-                success = true,
-                data = attendance
-            });
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(500, new
-            {
-                success = false,
-                message = ex.Message
-            });
-        }
+        return HandleApiResponse(
+            () => _attendanceRepo.GetAttendanceByClassId(classId),
+            "Attendance records fetched successfully",
+            "No attendance records found"
+        );
     }
 
     [HttpGet("GetAttendanceByClassAndDateRange")]
-    public async Task<IActionResult> GetAttendanceByClassAndDateRange(
-        int classId, DateTime startDate, DateTime endDate)
+    public Task<IActionResult> GetAttendanceByClassAndDateRange(int classId, DateTime startDate, DateTime endDate)
     {
-        try
-        {
-            var attendance = await _attendanceRepo.GetAttendanceByClassAndDateRange(
-                classId, startDate, endDate);
-            return Ok(new
-            {
-                success = true,
-                data = attendance
-            });
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(500, new
-            {
-                success = false,
-                message = ex.Message
-            });
-        }
+        return HandleApiResponse(
+            () => _attendanceRepo.GetAttendanceByClassAndDateRange(classId, startDate, endDate),
+            "Attendance records fetched successfully",
+            "No attendance records found"
+        );
     }
 }
 

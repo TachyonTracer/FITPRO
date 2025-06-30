@@ -7,18 +7,15 @@ using Microsoft.OpenApi.Models;
 using Npgsql;
 using Repo;
 using Stripe;
+using StackExchange.Redis;
 
 var builder = WebApplication.CreateBuilder(args);
 
-
-// Add services to the container.
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+// --- Service Registration (SOLID: Single Responsibility) ---
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddControllers();
 builder.Services.AddSignalR();
-
-// Add session services
 builder.Services.AddDistributedMemoryCache();
 builder.Services.AddSession(options =>
 {
@@ -27,6 +24,7 @@ builder.Services.AddSession(options =>
     options.Cookie.IsEssential = true;
 });
 
+// Swagger/OpenAPI with JWT support (DRY)
 builder.Services.AddSwaggerGen(c =>
 {
     c.AddSecurityDefinition("token", new OpenApiSecurityScheme
@@ -37,22 +35,23 @@ builder.Services.AddSwaggerGen(c =>
         In = ParameterLocation.Header,
         Name = HeaderNames.Authorization
     });
-    c.AddSecurityRequirement(
-        new OpenApiSecurityRequirement
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
         {
-            { new OpenApiSecurityScheme
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
                 {
-                    Reference = new OpenApiReference
-                    {
-                        Type = ReferenceType.SecurityScheme,
-                        Id = "token"
-                    },
-                }, Array.Empty<string>()
-            }
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "token"
+                },
+            },
+            Array.Empty<string>()
         }
-    );
+    });
 });
 
+// Dependency Injection for Repos (DRY)
 builder.Services.AddScoped<IAdminInterface, AdminRepo>();
 builder.Services.AddScoped<IEmailInterface, EmailRepo>();
 builder.Services.AddScoped<IAuthInterface, AuthRepo>();
@@ -61,21 +60,20 @@ builder.Services.AddScoped<IClassInterface, ClassRepo>();
 builder.Services.AddScoped<IUserInterface, UserRepo>();
 builder.Services.AddScoped<IFeedbackInterface, FeedbackRepository>();
 builder.Services.AddScoped<IAttendanceInterface, AttendanceRepo>();
-
-
 builder.Services.AddScoped<IBlogInterface, BlogRepo>();
 
-// StripeConfiguration.ApiKey = builder.Configuration["Stripe:SecretKey"];
-// Configure Stripe settings
+// Stripe configuration (DRY)
 builder.Services.Configure<StripeSettings>(builder.Configuration.GetSection("Stripe"));
 StripeConfiguration.ApiKey = builder.Configuration["Stripe:SecretKey"];
 
-builder.Services.AddScoped<NpgsqlConnection>((provider) =>
+// Database connection (SOLID)
+builder.Services.AddScoped<NpgsqlConnection>(provider =>
 {
     var connectionString = provider.GetRequiredService<IConfiguration>().GetConnectionString("pgconn");
     return new NpgsqlConnection(connectionString);
 });
 
+// JWT Authentication (DRY)
 builder.Services.AddAuthentication(option =>
 {
     option.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -98,7 +96,7 @@ builder.Services.AddAuthentication(option =>
     };
 });
 
-// Replace the existing CORS configuration
+// CORS Policy (DRY)
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("corsapp", policy =>
@@ -106,39 +104,31 @@ builder.Services.AddCors(options =>
         policy.WithOrigins("http://localhost:8081")
               .AllowAnyMethod()
               .AllowAnyHeader()
-              .AllowCredentials(); // Important for cookies/authentication
+              .AllowCredentials();
     });
 });
 
-//session injection
-builder.Services.AddDistributedMemoryCache();
-
-builder.Services.AddSession(options =>
-{
-    options.IdleTimeout = TimeSpan.FromMinutes(30);
-    options.Cookie.HttpOnly = true;
-    options.Cookie.IsEssential = true;
-});
-
+// Data Protection (SOLID)
 builder.Services.AddDataProtection()
     .SetApplicationName("FitPro")
-    .PersistKeysToFileSystem(new DirectoryInfo(@"/root/.aspnet/DataProtection-Keys"));
-// .PersistKeysToFileSystem(new DirectoryInfo(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "FitPro-Keys"))); // For MacOS
+    .PersistKeysToFileSystem(new DirectoryInfo(@"./.aspnet/DataProtection-Keys"));
 
-// *** Notifications: Builder Configurations Starts *** //
+// Register IConnectionMultiplexer as a singleton
+builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
+    ConnectionMultiplexer.Connect(
+        builder.Configuration.GetConnectionString("RedisConnectionString") ?? "localhost:6379"
+    )
+);
 
-// Load Redis connection string
+// --- Notification Services ---
 string redisConnectionString = builder.Configuration.GetConnectionString("RedisConnectionString") ?? "redis:6379,password=,allowAdmin=true,abortConnect=false";
-// Register RedisService with connection string
 builder.Services.AddScoped<RedisService>(provider => new RedisService(redisConnectionString));
-builder.Services.AddSignalR(); // Register SignalR before RabbitMQService
-builder.Services.AddScoped<RabbitMQService>(); // Register RabbitMQService after SignalR
-
-// *** Notifications: Builder Configurations Ends *** //
+builder.Services.AddSignalR();
+builder.Services.AddScoped<RabbitMQService>();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// --- Middleware Pipeline (DRY) ---
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -148,13 +138,20 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseRouting();
 app.UseCors("corsapp");
-
-// Use session middleware after routing and before authentication
 app.UseSession();
-
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
+
+// --- SignalR and RabbitMQ Notification Hub (SOLID) ---
+app.MapHub<NotificationHub>("/notificationHub");
+using (var scope = app.Services.CreateScope())
+{
+    var rabbitMQService = scope.ServiceProvider.GetRequiredService<RabbitMQService>();
+    rabbitMQService.StartListening();
+}
+
+// --- Example Endpoint (can be removed in production) ---
 var summaries = new[]
 {
     "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
@@ -174,20 +171,6 @@ app.MapGet("/weatherforecast", () =>
 })
 .WithName("GetWeatherForecast")
 .WithOpenApi();
-
-
-// *** Notifications: App Configurations Starts *** //
-
-// Map SignalR Hub
-app.MapHub<NotificationHub>("/notificationHub");
-
-using (var scope = app.Services.CreateScope())
-{
-    var rabbitMQService = scope.ServiceProvider.GetRequiredService<RabbitMQService>();
-    rabbitMQService.StartListening();
-}
-
-// *** Notifications: App Configurations Ends *** //
 
 app.Run();
 

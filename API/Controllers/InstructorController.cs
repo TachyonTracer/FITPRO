@@ -1,9 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.IdentityModel.Tokens;
 using System.IO;
-
 using Repo;
-using Nest;
+using System.Threading.Tasks;
+using System.Collections.Generic;
 
 namespace API
 {
@@ -18,69 +17,52 @@ namespace API
             _instructorRepo = instructorRepo;
         }
 
+        // DRY: Centralized API response handler
+        private IActionResult ApiResponse(bool success, string message, object data = null, int statusCode = 200)
+        {
+            var result = new { success, message, data };
+            return statusCode switch
+            {
+                200 => Ok(result),
+                400 => BadRequest(result),
+                404 => NotFound(result),
+                500 => StatusCode(500, result),
+                _ => StatusCode(statusCode, result)
+            };
+        }
+
         #region Get All Instructors
         [HttpGet("GetAllInstructors")]
-        // [Authorize]
         public async Task<IActionResult> GetAllInstructors()
         {
-            List<Instructor> instructorList = await _instructorRepo.GetAllInstructors();
-            if (instructorList != null)
-            {
-                return Ok(new
-                {
-                    success = true,
-                    message = "Instructors fetched successfully.",
-                    data = instructorList
-                });
-            }
-
-            return Ok(new
-            {
-                success = false,
-                message = "Error occured while fetching instructors."
-            });
+            var instructorList = await _instructorRepo.GetAllInstructors();
+            if (instructorList != null && instructorList.Count > 0)
+                return ApiResponse(true, "Instructors fetched successfully.", instructorList);
+            return ApiResponse(false, "No instructors found.", null, 404);
         }
         #endregion
+
         #region Get One Instructor
         [HttpGet("GetOneInstructor/{id}")]
-        // [Authorize]
         public async Task<IActionResult> GetOneInstructor(string id)
         {
             var instructor = await _instructorRepo.GetOneInstructor(id);
             if (instructor != null)
-            {
-                return Ok(new
-                {
-                    success = true,
-                    message = "One Instructor fetched successfully.",
-                    data = instructor
-                });
-            }
-            return Ok(new
-            {
-                success = false,
-                message = "Instructor does not exists."
-            });
+                return ApiResponse(true, "One Instructor fetched successfully.", instructor);
+            return ApiResponse(false, "Instructor does not exist.", null, 404);
         }
         #endregion
 
-        #region  Get One Instructor By Id
+        #region Get One Instructor By Id (Profile)
         [HttpGet("GetOneInstructorById/{instructorId}")]
-        public async Task<ActionResult<Instructor>> GetOneInstructorById(int instructorId)
+        public async Task<IActionResult> GetOneInstructorById(int instructorId)
         {
             var instructor = await _instructorRepo.GetOneInstructorByIdForProfile(instructorId);
-
             if (instructor == null)
-            {
-                return NotFound(new { message = "Instructor not found" });
-            }
-
-            return Ok(instructor);
-
+                return ApiResponse(false, "Instructor not found", null, 404);
+            return ApiResponse(true, "Instructor profile fetched successfully.", instructor);
         }
-
         #endregion
-
 
         #region Update Instructor Profile
         [HttpPost("edit-profile-basic")]
@@ -90,185 +72,91 @@ namespace API
             {
                 if (instructor.profileImageFile != null && instructor.profileImageFile.Length > 0)
                 {
-                    var fileName = Guid.NewGuid().ToString() + Path.GetExtension(instructor.profileImageFile.FileName);
+                    var fileName = $"{Guid.NewGuid()}{Path.GetExtension(instructor.profileImageFile.FileName)}";
                     var filePath = Path.Combine("../MVC/wwwroot/Instructor_Images", fileName);
-
                     Directory.CreateDirectory(Path.Combine("../MVC/wwwroot/Instructor_Images"));
-
                     instructor.profileImage = fileName;
-
                     using (var stream = new FileStream(filePath, FileMode.Create))
-                    {
                         await instructor.profileImageFile.CopyToAsync(stream);
-                    }
                 }
-
 
                 int result = await _instructorRepo.EditProfileBasic(instructor);
-
-
-                if (result > 0)
-                {
-                    return Ok(new { message = "Instructor profile updated successfully." });
-                }
-                else
-                {
-                    return Ok("Instructor not found or no changes made.");
-                }
+                return result > 0
+                    ? ApiResponse(true, "Instructor profile updated successfully.")
+                    : ApiResponse(false, "Instructor not found or no changes made.", null, 404);
             }
             catch (Exception ex)
             {
-                return Ok(new { error = "An error occurred while updating profile.", details = ex.Message });
+                return ApiResponse(false, "An error occurred while updating profile.", ex.Message, 500);
             }
         }
         #endregion
-
 
         #region Class Count By Instructor
         [HttpGet("ClassCountByInstructor/{instructorId}")]
         public async Task<IActionResult> ClassCountByInstructor(string instructorId)
         {
             var classCount = await _instructorRepo.ClassCountByInstructor(instructorId);
-            if (classCount != -1)
-            {
-                return Ok(new
-                {
-                    success = true,
-                    message = "Class Count By Instructor fetched successfully",
-                    count = classCount
-                });
-            }
-
-            return BadRequest(new
-            {
-                success = false,
-                message = "Failed to fetch Class Count By Instructor"
-            });
+            return classCount != -1
+                ? ApiResponse(true, "Class Count By Instructor fetched successfully", new { count = classCount })
+                : ApiResponse(false, "Failed to fetch Class Count By Instructor", null, 400);
         }
         #endregion
 
         #region Get Verified Instructors
         [HttpGet("GetVerifiedInstructors")]
-        // [Authorize]
         public async Task<IActionResult> GetVerifiedInstructors()
         {
-            List<Instructor> instructorList = await _instructorRepo.GetVerifiedInstructors();
-            if (!instructorList.IsNullOrEmpty())
-            {
-                return Ok(new
-                {
-                    success = true,
-                    message = "Verified Instructors fetched successfully.",
-                    data = instructorList
-                });
-            }
-
-            return Ok(new
-            {
-                success = false,
-                message = "No verified instructors found."
-            });
+            var instructorList = await _instructorRepo.GetVerifiedInstructors();
+            if (instructorList != null && instructorList.Count > 0)
+                return ApiResponse(true, "Verified Instructors fetched successfully.", instructorList);
+            return ApiResponse(false, "No verified instructors found.", null, 404);
         }
         #endregion
-
 
         #region Upcoming Class Count By Instructor
         [HttpGet("UpcomingClassCountByInstructor/{instructorId}")]
         public async Task<IActionResult> UpcomingClassCountByInstructor(string instructorId)
         {
             var classCount = await _instructorRepo.UpcomingClassCountByInstructor(instructorId);
-            if (classCount != -1)
-            {
-                return Ok(new
-                {
-                    message = "Upcoming Class Count By Instructor fetched successfully",
-                    count = classCount
-                });
-            }
-
-            return BadRequest(new
-            {
-                success = false,
-                message = "Failed to fetch Upcoming Class Count By Instructor"
-            });
+            return classCount != -1
+                ? ApiResponse(true, "Upcoming Class Count By Instructor fetched successfully", new { count = classCount })
+                : ApiResponse(false, "Failed to fetch Upcoming Class Count By Instructor", null, 400);
         }
         #endregion
-
 
         #region User Count By Instructor
         [HttpGet("UserCountByInstructor/{instructorId}")]
         public async Task<IActionResult> UserCountByInstructor(string instructorId)
         {
-            var classCount = await _instructorRepo.UserCountByInstructor(instructorId);
-            if (classCount != -1)
-            {
-                return Ok(new
-                {
-                    success = true,
-                    message = "User Count By Instructor fetched successfully",
-                    count = classCount
-                });
-            }
-
-            return BadRequest(new
-            {
-                success = false,
-                message = "Failed to fetch User Count By Instructor"
-            });
+            var userCount = await _instructorRepo.UserCountByInstructor(instructorId);
+            return userCount != -1
+                ? ApiResponse(true, "User Count By Instructor fetched successfully", new { count = userCount })
+                : ApiResponse(false, "Failed to fetch User Count By Instructor", null, 400);
         }
         #endregion
 
-
         #region Upcoming Class Details By Instructor
         [HttpGet("UpcomingClassDetailsByInstructor/{instructorId}")]
-        // [Authorize]
         public async Task<IActionResult> UpcomingClassDetailsByInstructor(string instructorId)
         {
-            List<Class> upcomingClassList = await _instructorRepo.UpcomingClassDetailsByInstructor(instructorId);
-            if (upcomingClassList != null)
-            {
-                return Ok(new
-                {
-                    success = true,
-                    message = "Upcoming Class Details fetched successfully.",
-                    data = upcomingClassList
-                });
-            }
-
-            return Ok(new
-            {
-                success = false,
-                message = "Error occured while fetching upcoming class details."
-            });
+            var upcomingClassList = await _instructorRepo.UpcomingClassDetailsByInstructor(instructorId);
+            if (upcomingClassList != null && upcomingClassList.Count > 0)
+                return ApiResponse(true, "Upcoming Class Details fetched successfully.", upcomingClassList);
+            return ApiResponse(false, "No upcoming class details found.", null, 404);
         }
         #endregion
 
         #region Get Approved Instructors
         [HttpGet("GetApprovedInstructors")]
-        // [Authorize]
         public async Task<IActionResult> GetApprovedInstructors()
         {
-            List<Instructor> instructorList = await _instructorRepo.GetApprovedInstructors();
-            if (!instructorList.IsNullOrEmpty())
-            {
-                return Ok(new
-                {
-                    success = true,
-                    message = "Approved Instructors fetched successfully.",
-                    data = instructorList
-                });
-            }
-
-            return Ok(new
-            {
-                success = false,
-                message = "No approved instructors found."
-            });
+            var instructorList = await _instructorRepo.GetApprovedInstructors();
+            if (instructorList != null && instructorList.Count > 0)
+                return ApiResponse(true, "Approved Instructors fetched successfully.", instructorList);
+            return ApiResponse(false, "No approved instructors found.", null, 404);
         }
         #endregion
-
-
-        #region User Stroy : Update Instructor(Admin Dashboard)
 
         #region Approve Instructor
         [HttpPost("InstructorApprove/{id}")]
@@ -276,97 +164,74 @@ namespace API
         {
             var instructor = await _instructorRepo.GetOneInstructor(id);
             if (instructor == null)
-            {
-                return NotFound(new { success = false, message = "Instructor not found." });
-            }
+                return ApiResponse(false, "Instructor not found.", null, 404);
 
             var result = await _instructorRepo.ApproveInstructor(id);
-            if (result)
-            {
-                return Ok(new { success = true, message = "Instructor approved, Approval mail send successfully!." });
-            }
-            return BadRequest(new { message = "Failed to approve instructor." });
+            return result
+                ? ApiResponse(true, "Instructor approved, Approval mail sent successfully!")
+                : ApiResponse(false, "Failed to approve instructor.", null, 400);
         }
         #endregion
 
         #region Disapprove Instructor
         [HttpPost("InstructorDisapprove/{id}")]
-        public async Task<IActionResult> DisapproveInstructor(string id,[FromForm] string reason)
+        public async Task<IActionResult> DisapproveInstructor(string id, [FromForm] string reason)
         {
             var instructor = await _instructorRepo.GetOneInstructor(id);
             if (instructor == null)
-            {
-                return NotFound(new { success = false, message = "Instructor not found." });
-            }
+                return ApiResponse(false, "Instructor not found.", null, 404);
 
-            var result = await _instructorRepo.DisapproveInstructor(id,reason);
-            if (result)
-            {
-                return Ok(new {success = true, message = "Instructor disapproved, Disapprove mail send successfully!" });
-            }
-            return BadRequest(new { message = "Failed to disapprove instructor." });
+            var result = await _instructorRepo.DisapproveInstructor(id, reason);
+            return result
+                ? ApiResponse(true, "Instructor disapproved, Disapprove mail sent successfully!")
+                : ApiResponse(false, "Failed to disapprove instructor.", null, 400);
         }
         #endregion
 
         #region Suspend Instructor
         [HttpPost("InstructorSuspend/{id}")]
-        public async Task<IActionResult> SuspendInstructor(string id,[FromForm]string reason)
+        public async Task<IActionResult> SuspendInstructor(string id, [FromForm] string reason)
         {
             var instructor = await _instructorRepo.GetOneInstructor(id);
             if (instructor == null)
-            {
-                return NotFound(new { success = false, message = "Instructor not found." });
-            }
+                return ApiResponse(false, "Instructor not found.", null, 404);
 
-            var result = await _instructorRepo.SuspendInstructor(id,reason);
-            if (result)
-            {
-                return Ok(new {success = true, message = "Instructor Suspended,Mail send successfully!" });
-            }
-            return BadRequest(new { message = "Failed to Suspennd instructor." });
+            var result = await _instructorRepo.SuspendInstructor(id, reason);
+            return result
+                ? ApiResponse(true, "Instructor suspended, mail sent successfully!")
+                : ApiResponse(false, "Failed to suspend instructor.", null, 400);
         }
         #endregion
-        
+
         #region Activate Instructor
         [HttpPost("InstructorActivate/{id}")]
         public async Task<IActionResult> ActivateInstructor(string id)
         {
             var instructor = await _instructorRepo.GetOneInstructor(id);
             if (instructor == null)
-            {
-                return NotFound(new {success = false, message = "Instructor not found." });
-            }
+                return ApiResponse(false, "Instructor not found.", null, 404);
 
             var result = await _instructorRepo.ActivateInstructor(id);
-            if (result)
-            {
-                return Ok(new {success = true, message = "Instructor Activated,Mail send successfully!" });
-            }
-            return BadRequest(new { message = "Failed to Activate instructor." });
+            return result
+                ? ApiResponse(true, "Instructor activated, mail sent successfully!")
+                : ApiResponse(false, "Failed to activate instructor.", null, 400);
         }
         #endregion
 
-        #endregion
-
-
         #region Get Typewise Class Count
-		[HttpGet("typewise-class-count/{instructorId}")]
-		public async Task<IActionResult> GetTypewiseClassCount(string instructorId)
-		{
-			try
-			{
-				// Fetch user activity data for the last 7 days
-				var typewiseClassCount = await _instructorRepo.GetTypewiseClassCount(instructorId);
-
-				return Ok(new { success = true, message = "Typewise Class Count data retrieved successfully", data = typewiseClassCount });
-			}
-			catch (Exception ex)
-			{
-				return StatusCode(500, new { success = false, message = "An error occurred", error = ex.Message });
-			}
-		}
-		#endregion
-
-   
+        [HttpGet("typewise-class-count/{instructorId}")]
+        public async Task<IActionResult> GetTypewiseClassCount(string instructorId)
+        {
+            try
+            {
+                var typewiseClassCount = await _instructorRepo.GetTypewiseClassCount(instructorId);
+                return ApiResponse(true, "Typewise Class Count data retrieved successfully", typewiseClassCount);
+            }
+            catch (Exception ex)
+            {
+                return ApiResponse(false, "An error occurred", ex.Message, 500);
+            }
+        }
+        #endregion
     }
 }

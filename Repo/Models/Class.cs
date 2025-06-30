@@ -12,7 +12,7 @@ public class Class
 
     [Required(ErrorMessage = "Class name is required")]
     [StringLength(100, MinimumLength = 2, ErrorMessage = "Class name must be between 2 and 100 characters")]
-    public string className { get; set; }
+    public string? className { get; set; }
 
     [Required(ErrorMessage = "Instructor ID is required")]
     public int instructorId { get; set; }
@@ -22,7 +22,7 @@ public class Class
 
     [Required(ErrorMessage = "Type is required")]
     [StringLength(50, ErrorMessage = "Type must not exceed 50 characters")]
-    public string type { get; set; }
+    public string? type { get; set; }
 
     [Required(ErrorMessage = "Start date is required")]
     [DataType(DataType.Date)]

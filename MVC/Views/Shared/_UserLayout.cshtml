@@ -31,6 +31,7 @@
     
     <!-- Custom styles -->
     <link rel="stylesheet" href="@Url.Content("~/css/User/style.css")" asp-append-version="true">
+    <link rel="stylesheet" href="/css/User/ChatbotStyles.css" />
 </head>
 
 <body>
@@ -39,33 +40,36 @@
             <img src="~/img/logo.png" alt="FitPro Logo" />
         </div>
         <ul class="nav-links">
-            <li><a href="#" onclick="home()">Home</a></li>
-            <li><a href="#classes" onclick="classes()">Classes</a></li>
-            <li><a href="#" onclick="myclasses()">My Classes</a></li>
-            <li><a href="#" onclick="Schedule()"> Schedule</a></li>
-            <li><a href="#" onclick="ExploreBlogs()"> Explore Blogs</a></li>
-            <li><a href=""onclick="BMI()> BMI</a></li>
+            <li><a href="javascript:void(0)" onclick="home()">Home</a></li>
+            <li><a href="javascript:void(0)" onclick="classes()">Classes</a></li>
+            <li><a href="javascript:void(0)" onclick="myclasses()">My Classes</a></li>
+            <li><a href="javascript:void(0)" onclick="Schedule()">Schedule</a></li>
+            <li><a href="javascript:void(0)" onclick="ExploreBlogs()">Explore Blogs</a></li>
+            <li><a href="javascript:void(0)" onclick="BMI()">BMI</a></li>
         </ul>
 
         <!-- Wrap everything inside .profile-wrapper -->
         <div class="profile-wrapper">
-            <div class="position-relative d-inline-block notification-bell"
-                style="margin-right: 22px; margin-top: 0px;">
-                <button class="btn btn-outline-light position-relative" onclick="openNotifications()">
+            <!-- Wallet Balance -->
+            <div class="wallet-balance">
+                <i class="fas fa-wallet"></i>
+                <span id="userWalletBalance">₹0</span>
+            </div>
+
+            <!-- Notification Bell -->
+            <div class="notification-bell">
+                <button class="btn btn-outline-light position-relative" onclick="event.preventDefault(); openNotifications()">
                     <i class="fas fa-bell"></i>
-                    <span id="notificationCount"
-                        class="badge bg-danger position-absolute top-0 start-100 translate-middle"></span>
+                    <span id="notificationCount" class="badge bg-danger position-absolute top-0 start-100 translate-middle"></span>
                 </button>
-
+                
                 <!-- Notifications Dropdown -->
-                <div id="notificationDropdown" class="dropdown-menu shadow mt-2 p-0"
-                    style="display: none; width: 320px; position: absolute;">
-
+                <div id="notificationDropdown" class="dropdown-menu shadow mt-2 p-0" style="display: none; width: 320px; position: absolute;">
                     <!-- Scrollable Notification List -->
                     <ul id="notificationList" class="list-group list-group-flush">
                         <li class="list-group-item text-center text-muted">No new notifications</li>
                     </ul>
-
+                    
                     <!-- Mark all as read -->
                     <div class="p-2 border-top bg-light">
                         <button class="btn btn-sm btn-warning w-100" onclick="markAllAsRead()">Mark all as read</button>
@@ -73,10 +77,13 @@
                 </div>
             </div>
             
-            <img id="navProfileImage" src="~/img/fitlogo.png" alt="Profile" class="profile-img" />
-            <div class="profile-dropdown">
-                <a onclick="showProfileDrawer()">Update Profile</a>
-                <a onclick="showLogoutConfirmation()">Logout</a>
+            <!-- Profile Image & Dropdown -->
+            <div class="profile-image-container">
+                <img id="navProfileImage" src="~/img/fitlogo.png" alt="Profile" class="profile-img" />
+                <div class="profile-dropdown">
+                    <a onclick="showProfileDrawer()">Update Profile</a>
+                    <a onclick="showLogoutConfirmation()">Logout</a>
+                </div>
             </div>
         </div>
     </nav>
@@ -122,16 +129,74 @@
             © 2025 FitPro. All rights reserved.
         </div>
     </footer>
- 
+    
+    <!-- Chatbot Widget -->
+    <div id="chat-widget" class="chat-container">
+        <!-- Chat Header -->
+        <div class="chat-header">
+            <div class="header-content">
+                <!-- Replace TV icon with fitness icon -->
+                <div class="fitty-icon">💪</div>
+                <span class="header-title">Fitty</span>
+            </div>
+            <div class="header-actions">
+                <button id="clear-chat" title="Clear Chat">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
+                        <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
+                    </svg>
+                </button>
+                <button id="minimize-chat" title="Minimize">−</button>
+            </div>
+        </div>
+        
+        <!-- Chat Content -->
+        <div class="chat-body">
+            <div class="chat-messages"></div>
+            <div class="chat-input-container">
+                <input id="user-message" type="text" placeholder="Ask Fitty something..." />
+                <button id="send-message">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M15.964.686a.5.5 0 0 0-.65-.65L.767 5.855H.766l-.452.18a.5.5 0 0 0-.082.887l.41.26.001.002 4.995 3.178 3.178 4.995.002.002.26.41a.5.5 0 0 0 .886-.083l6-15Zm-1.833 1.89L6.637 10.07l-.215-.338a.5.5 0 0 0-.154-.154l-.338-.215 7.494-7.494 1.178-.471-.47 1.178Z"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Fab Button (Only shown when minimized) -->
+        <div class="chat-fab">
+            <div style="color: white; font-size: 1.5em;">💪</div>
+        </div>
+    </div>
 
     <!-- Scripts -->
+    <script src="~/js/User/core/auth.js"></script>
+    <script src="~/js/User/core/userdata.js"></script>
+    <script src="~/js/User/core/profile.js"></script>
+    <script src="~/js/User/core/classes.js"></script>
+
+    <!-- Then page-specific scripts -->
+    <script src="~/js/User/Main.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
-    <script src="~/js/User/Main.js" asp-append-version="true"></script>
+    <script src="/js/User/Chatbot.js"></script>
     <script>
         document.querySelector('.profile-img').addEventListener('click', function () {
             document.querySelector('.profile-dropdown').style.display =
                 document.querySelector('.profile-dropdown').style.display === 'block' ? 'none' : 'block';
         });
+    </script>
+    <script>
+        // Ensure wallet balance loads properly
+        function ensureWalletBalanceLoaded() {
+            const walletBalanceElement = document.getElementById('userWalletBalance');
+            if (walletBalanceElement && walletBalanceElement.textContent === '₹0') {
+                console.log("Attempting to reload wallet balance...");
+                setTimeout(loadUserWalletBalance, 500);
+            }
+        }
+        
+        // Run after a short delay to ensure everything else has loaded
+        setTimeout(ensureWalletBalanceLoaded, 1000);
     </script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>

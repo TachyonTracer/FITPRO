@@ -6,7 +6,7 @@ public class RecaptchaV2Response
         public bool success { get; set; }
 
         [JsonPropertyName("challenge_ts")]
-        public string challengeTimestamp { get; set; }
+        public string? challengeTimestamp { get; set; }
 
         [JsonPropertyName("hostname")]
         public string hostname { get; set; }

@@ -292,7 +292,7 @@ document.addEventListener("DOMContentLoaded", () => {
         // Reset the reCAPTCHA immediately
         grecaptcha.reset();
 
-        localStorage.setItem("authToken", result.authToken);
+        localStorage.setItem("authToken", result.data.authToken);
         // Rest of your success handling...
         Swal.fire({
           icon: "success",
@@ -300,11 +300,11 @@ document.addEventListener("DOMContentLoaded", () => {
           text: "You have successfully logged in!",
         }).then(() => {
           // Perform redirection based on user role
-          if (result.userRole == "user") {
+          if (result.data.userRole == "user") {
             window.location.href = "/user/home";
-          } else if (result.userRole == "instructor") {
+          } else if (result.data.userRole == "instructor") {
             window.location.href = "/instructor";
-          } else if (result.userRole == "admin") {
+          } else if (result.data.userRole == "admin") {
             window.location.href = "/admin";
           }
         });

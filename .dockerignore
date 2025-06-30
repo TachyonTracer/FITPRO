@@ -9,7 +9,7 @@ bin
 /bin/
 .git/
 # **/appsettings*.json
-# .env
+.env
 __pycache__/
 marketplace/node_modules
 marketplace/Backend/node_modules

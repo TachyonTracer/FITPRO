@@ -1,9 +1,9 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.IdentityModel.Tokens;
+using System;
+using System.Collections.Generic;
 using System.IO;
-
+using System.Threading.Tasks;
 using Repo;
-using Nest;
 
 namespace API
 {
@@ -17,406 +17,284 @@ namespace API
         {
             _blogRepo = blogRepo;
         }
-        #region Blog 
-        [HttpPost]
-        [Route("SaveDraft")]
 
+        // DRY: Centralized API response handler
+        private IActionResult ApiResponse(bool success, string message, object data = null, int statusCode = 200)
+        {
+            var result = new { success, message, data };
+            return statusCode switch
+            {
+                200 => Ok(result),
+                400 => BadRequest(result),
+                404 => NotFound(result),
+                _ => StatusCode(statusCode, result)
+            };
+        }
+
+        #region Blog Draft & Publish
+
+        [HttpPost("SaveDraft")]
         public async Task<IActionResult> SaveDraft(BlogPost blogpost)
         {
-            if (blogpost.c_blog_author_id > 0)
+            if (blogpost.c_blog_author_id <= 0)
+                return ApiResponse(false, "Invalid Blog Data", statusCode: 400);
+
+            try
             {
-                try
+                // Set Thumbnail Name
+                var fileName = "";
+                if (blogpost.ThumbnailFile != null && blogpost.ThumbnailFile.Length > 0)
                 {
-                    // Set Thumbnail Name
-                    var fileName = "";
-                    if (blogpost.ThumbnailFile != null && blogpost.ThumbnailFile.Length > 0)
-                    {
-                        fileName = Guid.NewGuid() + System.IO.Path.GetExtension(blogpost.ThumbnailFile.FileName);
-                        blogpost.c_thumbnail = fileName;
-                    }
-                    else
-                    {
-                        if (blogpost.c_blog_id < 0)
-                        {
-                            blogpost.c_thumbnail = "default.png";
-                        }
-                    }
-
-                    // Convert c_content to Base64
-                    if (!string.IsNullOrEmpty(blogpost.c_content))
-                    {
-                        var contentBytes = System.Text.Encoding.UTF8.GetBytes(blogpost.c_content);
-                        blogpost.c_content = Convert.ToBase64String(contentBytes);
-                    }
-
-                    var returnDict = new Dictionary<string, object>();
-
-                    if (blogpost.c_blog_id > 0)
-                    {
-                        var result = await _blogRepo.UpdateBlogDraft(blogpost);
-                        if (result)
-                        {
-                            returnDict["success"] = true;
-                            returnDict["message"] = "Successfully updated the blog as draft.";
-                            returnDict["blog_id"] = blogpost.c_blog_id;
-                        }
-                        else
-                        {
-                            return StatusCode(500, new { success = false, message = "An unexpected error occurred while updating your blog." });
-                        }
-                    }
-                    else
-                    {
-                        blogpost.c_source_url = $"blog-post-{Convert.ToString(Guid.NewGuid())}";
-                        // var result = Convert.ToInt32(_blogRepo.SaveBlogDraft(blogpost));
-                        var result = await _blogRepo.SaveBlogDraft(blogpost);
-                        if (result > 0)
-                        {
-                            blogpost.c_blog_id = result;
-                            returnDict["success"] = true;
-                            returnDict["message"] = "Successfully Saved the blog as draft.";
-                            returnDict["blog_id"] = blogpost.c_blog_id;
-                        }
-                        else
-                        {
-                            return StatusCode(500, new { success = false, message = "An unexpected error occurred while saving your blog as draft." });
-                        }
-                    }
-
-                    // Delete Previous Thumbnail and Store New one 
-                    if (blogpost.ThumbnailFile != null && blogpost.ThumbnailFile.Length > 0 && blogpost.c_blog_id > 0)
-                    {
-                        // DeleteBlogThumbnails(blogpost.c_blog_id.ToString());
-                        var webRootPath = Path.Combine("../MVC", "wwwroot");
-                        var thumbnailDir = Path.Combine(webRootPath, "BlogImages", "Thumbnails", blogpost.c_blog_id.ToString());
-
-                        if (Directory.Exists(thumbnailDir))
-                        {
-                            var files = Directory.GetFiles(thumbnailDir);
-                            foreach (var file in files)
-                            {
-                                try
-                                {
-                                    System.IO.File.Delete(file);
-                                }
-                                catch (Exception ex)
-                                {
-                                    // Handle exceptions (log or throw)
-                                    Console.WriteLine($"Error deleting file {file}: {ex.Message}");
-                                }
-                            }
-                        }
-                        Directory.CreateDirectory($"../MVC/wwwroot/BlogImages/Thumbnails/{blogpost.c_blog_id}");
-
-                        var filePath = System.IO.Path.Combine($"../MVC/wwwroot/BlogImages/Thumbnails/{blogpost.c_blog_id}", fileName);
-                        using (var stream = new FileStream(filePath, FileMode.Create))
-                        {
-                            blogpost.ThumbnailFile.CopyTo(stream);
-                        }
-                    }
-
-                    // Return here
-                    return Ok(returnDict);
+                    fileName = Guid.NewGuid() + Path.GetExtension(blogpost.ThumbnailFile.FileName);
+                    blogpost.c_thumbnail = fileName;
                 }
-                catch (Exception e)
+                else if (blogpost.c_blog_id < 0)
                 {
-                    Console.WriteLine(e.Message);
-                    return StatusCode(500, new { success = false, message = "An unexpected error occurred." });
+                    blogpost.c_thumbnail = "default.png";
                 }
-            }
-            else
-            {
-                return BadRequest(new { success = false, message = "Invalid Blog Data" });
-            }
-        }
 
-        [HttpPost]
-        [Route("PublishBlog")]
-        public async Task<IActionResult> PublishBlog(BlogPost blogpost)
-        {
-            if (blogpost.c_blog_author_id > 0)
-            {
-                try
+                // Convert c_content to Base64
+                if (!string.IsNullOrEmpty(blogpost.c_content))
+                    blogpost.c_content = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(blogpost.c_content));
+
+                var returnDict = new Dictionary<string, object>();
+                bool isUpdate = blogpost.c_blog_id > 0;
+                if (isUpdate)
                 {
-
-                    // Set Thumbnail Name
-                    var fileName = "";
-                    if (blogpost.ThumbnailFile != null && blogpost.ThumbnailFile.Length > 0)
-                    {
-                        fileName = Guid.NewGuid() + System.IO.Path.GetExtension(blogpost.ThumbnailFile.FileName);
-                        blogpost.c_thumbnail = fileName;
-                    }
-                    else
-                    {
-                        if (blogpost.c_blog_id < 0)
-                        {
-                            blogpost.c_thumbnail = "default.png";
-                        }
-                    }
-
-                    // Convert c_content to Base64
-                    if (!string.IsNullOrEmpty(blogpost.c_content))
-                    {
-                        var contentBytes = System.Text.Encoding.UTF8.GetBytes(blogpost.c_content);
-                        blogpost.c_content = Convert.ToBase64String(contentBytes);
-                    }
-
-                    // If User directly hits 'Publish'. 
+                    var updateResult = await _blogRepo.UpdateBlogDraft(blogpost);
+                    if (!updateResult)
+                        return ApiResponse(false, "An unexpected error occurred while updating your blog.", statusCode: 500);
+                    returnDict["message"] = "Successfully updated the blog as draft.";
+                    returnDict["blog_id"] = blogpost.c_blog_id;
+                }
+                else
+                {
                     if (blogpost.c_blog_id <= 0)
                     {
-
-                        // Create a new source url for new blog.
-                        blogpost.c_source_url = $"blog-post-{Convert.ToString(Guid.NewGuid())}";
-
-                        var result = await _blogRepo.SaveBlogDraft(blogpost);
-                        if (result > 0)
-                        {
-                            blogpost.c_blog_id = result;
-                        }
-                        else
-                        {
-                            return StatusCode(500, new { success = false, message = "An unexpected error occurred while saving your blog." });
-                        }
+                        blogpost.c_source_url = $"blog-post-{Guid.NewGuid()}";
+                        var draftSaveResult = await _blogRepo.SaveBlogDraft(blogpost);
+                        if (draftSaveResult <= 0)
+                            return ApiResponse(false, "An unexpected error occurred while saving your blog.", statusCode: 500);
+                        blogpost.c_blog_id = draftSaveResult;
                     }
-
-                    // Delete Previous Thumbnail and Store New one 
-                    if (blogpost.ThumbnailFile != null && blogpost.ThumbnailFile.Length > 0 && blogpost.c_blog_id > 0)
-                    {
-                        // DeleteBlogThumbnails(blogpost.c_blog_id.ToString());
-                        var webRootPath = Path.Combine("../MVC", "wwwroot");
-                        var thumbnailDir = Path.Combine(webRootPath, "BlogImages", "Thumbnails", blogpost.c_blog_id.ToString());
-
-                        if (Directory.Exists(thumbnailDir))
-                        {
-                            var files = Directory.GetFiles(thumbnailDir);
-                            foreach (var file in files)
-                            {
-                                try
-                                {
-                                    System.IO.File.Delete(file);
-                                }
-                                catch (Exception ex)
-                                {
-                                    // Handle exceptions (log or throw)
-                                    Console.WriteLine($"Error deleting file {file}: {ex.Message}");
-                                }
-                            }
-                        }
-                        Directory.CreateDirectory($"../MVC/wwwroot/BlogImages/Thumbnails/{blogpost.c_blog_id}");
-
-                        var filePath = System.IO.Path.Combine($"../MVC/wwwroot/BlogImages/Thumbnails/{blogpost.c_blog_id}", fileName);
-                        using (var stream = new FileStream(filePath, FileMode.Create))
-                        {
-                            blogpost.ThumbnailFile.CopyTo(stream);
-                        }
-                    }
-
-                    // If User hits 'Publish' after draft. 
-                    if (blogpost.c_blog_id > 0)
-                    {
-                        var result = await _blogRepo.PublishBlog(blogpost);
-                        if (result)
-                        {
-                            return Ok(new
-                            {
-                                success = true,
-                                message = "Successfully Published the blog.",
-                                blog_id = blogpost.c_blog_id,
-                                blog_url = $"{blogpost.c_source_url}",
-                                return_url = "instructor"
-                            });
-                        }
-                        else
-                        {
-                            return StatusCode(500, new { success = false, message = "An unexpected error occurred while publishing your blog." });
-                        }
-                    }
-                    else
-                    {
-                        return StatusCode(500, new { success = false, message = "An unexpected error occurred while saving your blog as draft." });
-                    }
+                    blogpost.c_source_url = $"blog-post-{Guid.NewGuid()}";
+                    var draftSaveResult2 = await _blogRepo.SaveBlogDraft(blogpost);
+                    if (draftSaveResult2 <= 0)
+                        return ApiResponse(false, "An unexpected error occurred while saving your blog as draft.", statusCode: 500);
+                    blogpost.c_blog_id = draftSaveResult2;
+                    returnDict["message"] = "Successfully Saved the blog as draft.";
+                    returnDict["blog_id"] = blogpost.c_blog_id;
                 }
-                catch (Exception e)
+
+                // Handle thumbnail file
+                if (blogpost.ThumbnailFile != null && blogpost.ThumbnailFile.Length > 0 && blogpost.c_blog_id > 0)
                 {
-                    Console.WriteLine(e);
-                    return StatusCode(500, new { success = false, message = "An unexpected error occurred." });
+                    // Use explicit conversion for non-nullable int parameter
+                    SaveThumbnail(blogpost.c_blog_id.Value, fileName, blogpost.ThumbnailFile);
                 }
+
+                // FIX FOR LINE 88: Only call the method if c_blog_id is not null and use .Value
+                if (blogpost.c_blog_id.HasValue)
+                {
+                    var blog = await _blogRepo.GetBlogById(blogpost.c_blog_id.Value);
+                }
+
+                // FIX: Use explicit Value property for nullable int
+                if (blogpost.c_blog_author_id.HasValue)
+                {
+                    await _blogRepo.GetBlogsByInstructorId(blogpost.c_blog_author_id.Value);
+                }
+
+                return ApiResponse(true, "Draft saved successfully", returnDict);
             }
-            else
+            catch (Exception e)
             {
-                return BadRequest(new { success = false, message = "Invalid Blog Data" });
+                Console.WriteLine(e.Message);
+                return ApiResponse(false, "An unexpected error occurred.", statusCode: 500);
             }
         }
 
-
-        [HttpPost]
-        [Route("SaveImage")]
-
-        public async Task<IActionResult> SaveImage(vm_blog_image image)
+        [HttpPost("PublishBlog")]
+        public async Task<IActionResult> PublishBlog(BlogPost blogpost)
         {
-            var fileName = "";
-            if (image.BlogImageFile != null && image.BlogImageFile.Length > 0)
+            if (blogpost.c_blog_author_id <= 0)
+                return ApiResponse(false, "Invalid Blog Data", statusCode: 400);
+
+            try
             {
-                Directory.CreateDirectory("../MVC/wwwroot/BlogImages/TempImages");
-
-                fileName = Guid.NewGuid() + System.IO.Path.GetExtension(image.BlogImageFile.FileName);
-
-                var filePath = System.IO.Path.Combine("../MVC/wwwroot/BlogImages/TempImages", fileName);
-                image.blog_image_path = filePath;
-
-                using (var stream = new FileStream(filePath, FileMode.Create))
+                var fileName = "";
+                if (blogpost.ThumbnailFile != null && blogpost.ThumbnailFile.Length > 0)
                 {
-                    image.BlogImageFile.CopyTo(stream);
+                    fileName = Guid.NewGuid() + Path.GetExtension(blogpost.ThumbnailFile.FileName);
+                    blogpost.c_thumbnail = fileName;
                 }
+                else if (blogpost.c_blog_id < 0)
+                {
+                    blogpost.c_thumbnail = "default.png";
+                }
+
+                if (!string.IsNullOrEmpty(blogpost.c_content))
+                    blogpost.c_content = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(blogpost.c_content));
+
+                // If new blog, save as draft first
+                if (blogpost.c_blog_id <= 0)
+                {
+                    blogpost.c_source_url = $"blog-post-{Guid.NewGuid()}";
+                    var draftResult = await _blogRepo.SaveBlogDraft(blogpost);
+                    if (draftResult <= 0)
+                        return ApiResponse(false, "An unexpected error occurred while saving your blog.", statusCode: 500);
+                    blogpost.c_blog_id = draftResult;
+                }
+
+                if (blogpost.ThumbnailFile != null && blogpost.ThumbnailFile.Length > 0 && blogpost.c_blog_id > 0)
+                {
+                    SaveThumbnail(blogpost.c_blog_id.Value, fileName, blogpost.ThumbnailFile);
+                }
+
+                var publishResult = await _blogRepo.PublishBlog(blogpost);
+                if (!publishResult)
+                    return ApiResponse(false, "An unexpected error occurred while publishing your blog.", statusCode: 500);
+
+                if (blogpost.c_blog_id.HasValue)
+                {
+                    await _blogRepo.GetBlogById(blogpost.c_blog_id.Value);
+                }
+
+                // FIX FOR LINE 140: Use .Value to unwrap nullable int
+                if (blogpost.c_blog_author_id.HasValue)
+                {
+                    var instructorBlogs = await _blogRepo.GetBlogsByInstructorId(blogpost.c_blog_author_id.Value);
+                }
+
+                return ApiResponse(true, "Successfully Published the blog.", new
+                {
+                    blog_id = blogpost.c_blog_id,
+                    blog_url = blogpost.c_source_url,
+                    return_url = "instructor"
+                });
             }
-            return Ok(new { success = true, Path = $"http://localhost:8081/BlogImages/TempImages/{fileName}" });
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return ApiResponse(false, "An unexpected error occurred.", statusCode: 500);
+            }
         }
 
+        private void SaveThumbnail(int blogId, string fileName, IFormFile thumbnailFile)
+        {
+            var webRootPath = Path.Combine("../MVC", "wwwroot");
+            var thumbnailDir = Path.Combine(webRootPath, "BlogImages", "Thumbnails", blogId.ToString());
 
-        [HttpPost]
-        [Route("GetInstructorBlogsById")]
+            if (Directory.Exists(thumbnailDir))
+            {
+                foreach (var file in Directory.GetFiles(thumbnailDir))
+                {
+                    try { System.IO.File.Delete(file); }
+                    catch (Exception ex) { Console.WriteLine($"Error deleting file {file}: {ex.Message}"); }
+                }
+            }
+            Directory.CreateDirectory(thumbnailDir);
 
+            var filePath = Path.Combine(thumbnailDir, fileName);
+            using var stream = new FileStream(filePath, FileMode.Create);
+            thumbnailFile.CopyTo(stream);
+        }
+
+        #endregion
+
+        [HttpPost("SaveImage")]
+        public IActionResult SaveImage(vm_blog_image image)
+        {
+            if (image.BlogImageFile == null || image.BlogImageFile.Length == 0)
+                return ApiResponse(false, "No image provided", statusCode: 400);
+
+            Directory.CreateDirectory("../MVC/wwwroot/BlogImages/TempImages");
+            var fileName = Guid.NewGuid() + Path.GetExtension(image.BlogImageFile.FileName);
+            var filePath = Path.Combine("../MVC/wwwroot/BlogImages/TempImages", fileName);
+
+            using (var stream = new FileStream(filePath, FileMode.Create))
+                image.BlogImageFile.CopyTo(stream);
+
+            return ApiResponse(true, "Image saved", new { Path = $"http://localhost:8081/BlogImages/TempImages/{fileName}" });
+        }
+
+        [HttpPost("GetInstructorBlogsById")]
         public async Task<IActionResult> GetInstructorBlogsById(string instructor_id)
         {
-            if (instructor_id != null)
+            if (string.IsNullOrEmpty(instructor_id))
+                return ApiResponse(false, "Instructor Id is required", statusCode: 400);
+
+            try
             {
-                try
-                {
-                    var blog_list = await _blogRepo.GetBlogsByInstructorId(Convert.ToInt32(instructor_id));
+                int instructorId = Convert.ToInt32(instructor_id);
+                var blogList = await _blogRepo.GetBlogsByInstructorId(instructorId);
+                if (blogList.Count == 0)
+                    return ApiResponse(false, "No blogs found.", blogList, 404);
 
-                    if (blog_list.Count == 0)
-                    {
-                        return BadRequest(new { success = false, message = "No blogs found.", data = blog_list });
-                    }
-                    return Ok(new
-                    {
-                        success = true,
-                        message = "Fetched All blogs.",
-                        data = new
-                        {
-                            count = blog_list.Count,
-                            entries = blog_list
-                        }
-                    });
-
-                }
-                catch
-                {
-                    return StatusCode(500, new { success = false, message = "Something went wrong fetching your blogs, please try again later." });
-                }
+                return ApiResponse(true, "Fetched All blogs.", new { count = blogList.Count, entries = blogList });
             }
-            else
+            catch (Exception ex)
             {
-                return BadRequest(new { success = false, message = "Instructor Id is required" });
+                return ApiResponse(false, $"Something went wrong: {ex.Message}", statusCode: 500);
             }
         }
 
-        [HttpGet]
-        [Route("GetBlogsForUser")]
-
+        [HttpGet("GetBlogsForUser")]
         public async Task<IActionResult> GetBlogsForUser()
         {
             try
             {
-                var blog_list = await _blogRepo.GetBlogsForUser();
+                var blogList = await _blogRepo.GetBlogsForUser();
+                if (blogList.Count == 0)
+                    return ApiResponse(false, "No blogs found.", blogList, 404);
 
-                if (blog_list.Count == 0)
-                {
-                    return BadRequest(new { success = false, message = "No blogs found.", data = blog_list });
-                }
-                return Ok(new
-                {
-                    success = true,
-                    message = "Fetched All blogs.",
-                    data = new
-                    {
-                        count = blog_list.Count,
-                        entries = blog_list
-                    }
-                });
-
+                return ApiResponse(true, "Fetched All blogs.", new { count = blogList.Count, entries = blogList });
             }
-            catch
+            catch (Exception ex)
             {
-                return StatusCode(500, new { success = false, message = "Something went wrong fetching your blogs, please try again later." });
+                return ApiResponse(false, $"Something went wrong: {ex.Message}", statusCode: 500);
             }
         }
 
-        [HttpPost]
-        [Route("fetchBookmarkedBlogsForUser")]
-
+        [HttpPost("fetchBookmarkedBlogsForUser")]
         public async Task<IActionResult> FetchBookmarkedBlogsForUser(string user_id)
         {
-            if (Convert.ToInt32(user_id) != null)
+            if (string.IsNullOrEmpty(user_id))
+                return ApiResponse(false, "User Id is required", statusCode: 400);
+
+            try
             {
-                try
-                {
-                    var blog_list = await _blogRepo.FetchBookmarkedBlogsForUser(Convert.ToInt32(user_id), "user");
+                int userId = Convert.ToInt32(user_id);
+                var blogList = await _blogRepo.FetchBookmarkedBlogsForUser(userId, "user");
+                if (blogList.Count == 0)
+                    return ApiResponse(false, "You haven't added any blog to your bookmark list.", blogList, 404);
 
-                    if (blog_list.Count == 0)
-                    {
-                        return BadRequest(new { success = false, message = "You Haven't added any blog to you bookmark list.", data = blog_list });
-                    }
-                    return Ok(new
-                    {
-                        success = true,
-                        message = "Fetched All blogs.",
-                        data = new
-                        {
-                            count = blog_list.Count,
-                            entries = blog_list
-                        }
-                    });
-
-                }
-                catch
-                {
-                    return StatusCode(500, new { success = false, message = "Something went wrong fetching your blogs, please try again later." });
-                }
+                return ApiResponse(true, "Fetched All blogs.", new { count = blogList.Count, entries = blogList });
             }
-            else
+            catch (Exception ex)
             {
-                return BadRequest(new { success = false, message = "Instructor Id is required" });
+                return ApiResponse(false, $"Something went wrong: {ex.Message}", statusCode: 500);
             }
         }
 
-
-
-        [HttpPost]
-        [Route("GetBlogById")]
-
+        [HttpPost("GetBlogById")]
         public async Task<IActionResult> GetBlogById(string blog_id)
         {
-            if (blog_id != null)
+            if (string.IsNullOrEmpty(blog_id))
+                return ApiResponse(false, "Blog Id is required", statusCode: 400);
+
+            try
             {
-                try
-                {
-                    var blog = await _blogRepo.GetBlogById(Convert.ToInt32(blog_id));
+                int blogId = Convert.ToInt32(blog_id);
+                var blog = await _blogRepo.GetBlogById(blogId);
+                if (blog == null)
+                    return ApiResponse(false, "No blog found for the given id.", blog, 404);
 
-                    if (blog == null)
-                    {
-                        return BadRequest(new { success = false, message = "No blog found for the given id.", data = blog });
-                    }
-                    return Ok(new
-                    {
-                        success = true,
-                        message = "Fetched blog.",
-                        data = new
-                        {
-                            count = 1,
-                            entries = blog
-                        }
-                    });
-
-                }
-                catch
-                {
-                    return StatusCode(500, new { success = false, message = "Something went wrong fetching your blog, please try again later." });
-                }
+                return ApiResponse(true, "Fetched blog.", new { count = 1, entries = blog });
             }
-            else
+            catch (Exception ex)
             {
-                return BadRequest(new { success = false, message = "Blog Id is required" });
+                return ApiResponse(false, $"Something went wrong: {ex.Message}", statusCode: 500);
             }
         }
 
@@ -426,282 +304,179 @@ namespace API
             try
             {
                 int result = await _blogRepo.DeleteBlog(blog_id);
-
                 if (result > 0)
-                    return Ok(new { success=true, message = "Blog deleted successfully." });
+                    return ApiResponse(true, "Blog deleted successfully.");
                 else
-                    return NotFound(new { success=false, message = "Blog not found or already deleted." });
+                    return ApiResponse(false, "Blog not found or already deleted.", statusCode: 404);
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { success=false, message = "An error occurred while deleting the blog.", error = ex.Message });
+                return ApiResponse(false, "An error occurred while deleting the blog.", ex.Message, 500);
             }
         }
 
-
-        [HttpPost]
-        [Route("AddNewComment")]
+        [HttpPost("AddNewComment")]
         public async Task<IActionResult> AddNewComment(BlogComment comment)
         {
-            if(comment.blogId != null && comment.userId != null) {
-                try {
+            if (comment.blogId == null || comment.userId == null)
+                return ApiResponse(false, "Blog Id is required", statusCode: 400);
 
-                    if (comment.parentCommentId == null || comment.parentCommentId <= 0) {
-                        comment.parentCommentId = -1; // Suggest its the Parent Comment itself
-                    }
-                    var result = await _blogRepo.AddNewComment(comment);
+            try
+            {
+                if (comment.parentCommentId == null || comment.parentCommentId <= 0)
+                    comment.parentCommentId = -1; // Parent Comment
 
-                    if (result.commentId < 0)
-                    {
-                        return BadRequest(new { success = false, message = "Unable to add comment."});
-                    }
-                    return Ok(new
-                    {
-                        success = true,
-                        message = "Comment Added.",
-                        comment = result
-                    });
+                var result = await _blogRepo.AddNewComment(comment);
+                if (result.commentId < 0)
+                    return ApiResponse(false, "Unable to add comment.", statusCode: 400);
 
-                } catch {
-                    return StatusCode(500, new { success=false, message="Something went wrong fetching your blog, please try again later."});
-                }
-            } else {
-                return BadRequest(new {success=false, message="Blog Id is required"});
+                return ApiResponse(true, "Comment Added.", result);
+            }
+            catch (Exception ex)
+            {
+                return ApiResponse(false, $"Something went wrong: {ex.Message}", statusCode: 500);
             }
         }
 
-        [HttpPost]
-        [Route("fetchBlogComments")]
+        [HttpPost("fetchBlogComments")]
         public async Task<IActionResult> fetchBlogComments(string blogId_)
         {
-            var blogId = Convert.ToInt32(blogId_);
-            if(blogId != null && blogId > 0) {
-                try {
-                    var comments = await _blogRepo.fetchBlogComments(blogId);
+            if (!int.TryParse(blogId_, out var blogId) || blogId <= 0)
+                return ApiResponse(false, "Blog Id is required", statusCode: 400);
 
-                    if (comments.Count == 0)
-                    {
-                        return BadRequest(new { success = false, message = "No comments found.", data = comments });
-                    }
-                    return Ok(new
-                    {
-                        success = true,
-                        message = "Fetched All comments.",
-                        data = new
-                        {
-                            count = comments.Count,
-                            entries = comments
-                        }
-                    });
+            try
+            {
+                var comments = await _blogRepo.fetchBlogComments(blogId);
+                if (comments.Count == 0)
+                    return ApiResponse(false, "No comments found.", comments, 404);
 
-                } catch {
-                    return StatusCode(500, new { success=false, message="Something went wrong fetching comments, please try again later."});
-                }
-            } else {
-                return BadRequest(new {success=false, message="Blog Id is required"});
+                return ApiResponse(true, "Fetched All comments.", new { count = comments.Count, entries = comments });
+            }
+            catch (Exception ex)
+            {
+                return ApiResponse(false, $"Something went wrong: {ex.Message}", statusCode: 500);
             }
         }
 
-
-        [HttpPost]
-        [Route("fetchBlogByUri")]
+        [HttpPost("fetchBlogByUri")]
         public async Task<IActionResult> fetchBlogByUri(string source_uri)
         {
-            if(source_uri != null) {
-                try {
-                    var blog = await _blogRepo.fetchBlogByUri(source_uri);
+            if (string.IsNullOrEmpty(source_uri))
+                return ApiResponse(false, "Blog URI is required", statusCode: 400);
 
-                    if (blog.c_blog_id == null)
-                    {
-                        return BadRequest(new { success = false, message = "No blog found on the given URI."});
-                    }
-                    return Ok(new
-                    {
-                        success = true,
-                        message = "Blog Fetched.",
-                        data = blog
-                    });
+            try
+            {
+                var blog = await _blogRepo.fetchBlogByUri(source_uri);
+                if (blog == null || blog.c_blog_id == null)
+                    return ApiResponse(false, "No blog found on the given URI.", blog, 404);
 
-                } catch {
-                    return StatusCode(500, new { success=false, message="Something went wrong fetching your blog, please try again later."});
-                }
-            } else {
-                return BadRequest(new {success=false, message="Blog Id is required"});
+                return ApiResponse(true, "Blog Fetched.", blog);
+            }
+            catch (Exception ex)
+            {
+                return ApiResponse(false, $"Something went wrong: {ex.Message}", statusCode: 500);
             }
         }
 
-        [HttpPost]
-        [Route("fetchBlogAuthorById")]
+        [HttpPost("fetchBlogAuthorById")]
         public async Task<IActionResult> fetchBlogAuthorById(string author_id)
         {
-            if(author_id != null) {
-                try {
-                    var author_info = await _blogRepo.fetchBlogAuthorById(Convert.ToInt32(author_id));
+            if (string.IsNullOrEmpty(author_id))
+                return ApiResponse(false, "Author Id is required", statusCode: 400);
 
-                    if (author_info.instructorId == null)
-                    {
-                        return BadRequest(new { success = false, message = "Unable to fetch author info"});
-                    }
-                    return Ok(new
-                    {
-                        success = true,
-                        message = "Author Info Fetched.",
-                        data = author_info
-                    });
+            try
+            {
+                int authorId = Convert.ToInt32(author_id);
+                var authorInfo = await _blogRepo.fetchBlogAuthorById(authorId);
+                if (authorInfo == null || authorInfo.instructorId == null)
+                    return ApiResponse(false, "Unable to fetch author info", authorInfo, 404);
 
-                } catch {
-                    return StatusCode(500, new { success=false, message="Something went wrong fetching author info, please try again later."});
-                }
-            } else {
-                return BadRequest(new {success=false, message="Author Id is required"});
+                return ApiResponse(true, "Author Info Fetched.", authorInfo);
+            }
+            catch (Exception ex)
+            {
+                return ApiResponse(false, $"Something went wrong: {ex.Message}", statusCode: 500);
             }
         }
 
-        [HttpPost]
-        [Route("RegisterLike")]
+        [HttpPost("RegisterLike")]
         public async Task<IActionResult> RegisterLike([FromBody] vm_RegisterLike like_req)
         {
-            if(like_req.blogId != null && like_req.userId != null && like_req.liked != null) {
-                try {
+            if (like_req.blogId == null || like_req.userId == null || like_req.liked == null)
+                return ApiResponse(false, "Invalid Data Provided.", statusCode: 400);
 
-                    var result = await _blogRepo.RegisterLike(like_req);
+            try
+            {
+                var result = await _blogRepo.RegisterLike(like_req);
+                if (result <= 0)
+                    return ApiResponse(false, "Unable to register your like at this moment, Please try again later.", statusCode: 400);
 
-                    if (result <= 0)
-                    {
-                        return BadRequest(new { success = false, message = "Unable to register your like at this moment, Please try again later."});
-                    }
-                    return Ok(new
-                    {
-                        success = true,
-                        message = "Like Preference Updated.",
-                    });
-
-                } catch {
-                    return StatusCode(500, new { success=false, message="Something went wrong, please try again later."});
-                }
-            } else {
-                return BadRequest(new {success=false, message="Invalid Data Provided."});
+                return ApiResponse(true, "Like Preference Updated.");
+            }
+            catch (Exception ex)
+            {
+                return ApiResponse(false, $"Something went wrong: {ex.Message}", statusCode: 500);
             }
         }
-        #endregion
 
-        [HttpPost]
-        [Route("fetchLikeStatusForBlog")]
+        [HttpPost("fetchLikeStatusForBlog")]
         public async Task<IActionResult> fetchLikeStatusForBlog(vm_RegisterLike like_info)
         {
-            if(like_info.blogId != null && like_info.userId != null && like_info.userRole != null) {
-                try {
+            if (like_info.blogId == null || like_info.userId == null || like_info.userRole == null)
+                return ApiResponse(false, "Invalid Data Provided.", statusCode: 400);
 
-                    var result = await _blogRepo.fetchLikeStatusForBlog(like_info);
+            try
+            {
+                var result = await _blogRepo.fetchLikeStatusForBlog(like_info);
+                if (result.likeId < 0)
+                    return ApiResponse(false, "Unable to fetch like status, Please try again later.", result, 404);
 
-                    if (result.likeId <0 )
-                    {
-                        return BadRequest(new { success = false, message = "Unable to fetch like status, Please try again later.", data=result});
-                    }
-                    return Ok(new
-                    {
-                        success = true,
-                        message = "successfully fetched your like status for this blog.",
-                        data = result
-                    });
-
-                } catch {
-                    return StatusCode(500, new { success=false, message="Something went wrong, please try again later."});
-                }
-            } else {
-                return BadRequest(new {success=false, message="Invalid Data Provided."});
+                return ApiResponse(true, "Successfully fetched your like status for this blog.", result);
+            }
+            catch (Exception ex)
+            {
+                return ApiResponse(false, $"Something went wrong: {ex.Message}", statusCode: 500);
             }
         }
 
-        [HttpPost]
-        [Route("RegisterBookmark")]
+        [HttpPost("RegisterBookmark")]
         public async Task<IActionResult> RegisterBookmark([FromBody] vm_RegisterBookmark bookmark_req)
         {
-            if (bookmark_req.blogId != 0 && bookmark_req.userId != 0)
+            if (bookmark_req.blogId == 0 || bookmark_req.userId == 0)
+                return ApiResponse(false, "Invalid data provided.", statusCode: 400);
+
+            try
             {
-                try
-                {
-                    var result = await _blogRepo.RegisterBookmark(bookmark_req);
+                var result = await _blogRepo.RegisterBookmark(bookmark_req);
+                if (result <= 0)
+                    return ApiResponse(false, "Unable to register your bookmark at this moment. Please try again later.", statusCode: 400);
 
-                    if (result <= 0)
-                    {
-                        return BadRequest(new
-                        {
-                            success = false,
-                            message = "Unable to register your bookmark at this moment. Please try again later."
-                        });
-                    }
-
-                    return Ok(new
-                    {
-                        success = true,
-                        message = "Bookmark status updated."
-                    });
-                }
-                catch
-                {
-                    return StatusCode(500, new
-                    {
-                        success = false,
-                        message = "Something went wrong, please try again later."
-                    });
-                }
+                return ApiResponse(true, "Bookmark status updated.");
             }
-            else
+            catch (Exception ex)
             {
-                return BadRequest(new
-                {
-                    success = false,
-                    message = "Invalid data provided."
-                });
+                return ApiResponse(false, $"Something went wrong: {ex.Message}", statusCode: 500);
             }
         }
 
-        [HttpPost]
-        [Route("fetchBookmarkStatusForBlog")]
+        [HttpPost("fetchBookmarkStatusForBlog")]
         public async Task<IActionResult> FetchBookmarkStatusForBlog([FromBody] vm_RegisterBookmark bookmark_info)
         {
-            if (bookmark_info.blogId != 0 && bookmark_info.userId != 0 && !string.IsNullOrEmpty(bookmark_info.userRole))
+            if (bookmark_info.blogId == 0 || bookmark_info.userId == 0 || string.IsNullOrEmpty(bookmark_info.userRole))
+                return ApiResponse(false, "Invalid data provided.", statusCode: 400);
+
+            try
             {
-                try
-                {
-                    var result = await _blogRepo.FetchBookmarkStatusForBlog(bookmark_info);
+                var result = await _blogRepo.FetchBookmarkStatusForBlog(bookmark_info);
+                if (result.bookmarkId < 0)
+                    return ApiResponse(false, "Unable to fetch bookmark status. Please try again later.", result, 404);
 
-                    if (result.bookmarkId < 0)
-                    {
-                        return BadRequest(new
-                        {
-                            success = false,
-                            message = "Unable to fetch bookmark status. Please try again later.",
-                            data = result
-                        });
-                    }
-
-                    return Ok(new
-                    {
-                        success = true,
-                        message = "Successfully fetched your bookmark status for this blog.",
-                        data = result
-                    });
-                }
-                catch
-                {
-                    return StatusCode(500, new
-                    {
-                        success = false,
-                        message = "Something went wrong, please try again later."
-                    });
-                }
+                return ApiResponse(true, "Successfully fetched your bookmark status for this blog.", result);
             }
-            else
+            catch (Exception ex)
             {
-                return BadRequest(new
-                {
-                    success = false,
-                    message = "Invalid data provided."
-                });
+                return ApiResponse(false, $"Something went wrong: {ex.Message}", statusCode: 500);
             }
         }
-
     }
 }
