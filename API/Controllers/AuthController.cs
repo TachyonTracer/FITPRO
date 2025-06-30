@@ -13,6 +13,8 @@ using Nest;
 using System.Net.Http;
 using Microsoft.Extensions.Configuration;
 using System.Text.Json.Serialization;
+using CloudinaryDotNet;
+using CloudinaryDotNet.Actions;
 
 namespace API
 {
@@ -24,6 +26,7 @@ namespace API
         private readonly RabbitMQService _rabbitMQService;
         private readonly IAuthInterface _authRepo;
         private readonly HttpClient _httpClient;
+        private readonly Cloudinary _cloudinary;
 
         public AuthApiController(IConfiguration myConfig, IAuthInterface authRepo, RabbitMQService rabbitMQService)
         {
@@ -31,6 +34,11 @@ namespace API
             _rabbitMQService = rabbitMQService;
             _authRepo = authRepo;
             _httpClient = new HttpClient();
+            _cloudinary = new Cloudinary(new Account(
+                _myConfig["Cloudinary:CloudName"],
+                _myConfig["Cloudinary:ApiKey"],
+                _myConfig["Cloudinary:ApiSecret"]
+            ));
         }
 
         // DRY: Centralized API response handler
@@ -217,15 +225,28 @@ namespace API
             if (await _authRepo.IsEmailExists(user.email))
                 return ApiResponse(false, "Email already registered");
 
-            // Handle profile image upload
+            // Handle profile image upload to Cloudinary
             if (user.profileImageFile != null && user.profileImageFile.Length > 0)
             {
-                var fileName = Guid.NewGuid() + Path.GetExtension(user.profileImageFile.FileName);
-                var filePath = Path.Combine("../MVC/wwwroot/User_Images", fileName);
-                Directory.CreateDirectory(Path.Combine("../MVC/wwwroot/User_Images"));
-                user.profileImage = fileName;
-                using var stream = new FileStream(filePath, FileMode.Create);
-                await user.profileImageFile.CopyToAsync(stream);
+                try
+                {
+                    using var stream = user.profileImageFile.OpenReadStream();
+                    var uploadParams = new ImageUploadParams
+                    {
+                        File = new FileDescription(user.profileImageFile.FileName, stream),
+                        Folder = "fitpro_userprofiles"
+                    };
+
+                    var uploadResult = await _cloudinary.UploadAsync(uploadParams);
+                    
+                    // Store the Cloudinary URL instead of local filename
+                    user.profileImage = uploadResult.SecureUrl.ToString();
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"[ERROR] Image upload failed: {ex.Message}");
+                    return ApiResponse(false, "Failed to upload profile image", statusCode: 500);
+                }
             }
 
             bool result = await _authRepo.RegisterUserAsync(user);
@@ -252,23 +273,45 @@ namespace API
                 // Profile image
                 if (instructor.profileImageFile != null && instructor.profileImageFile.Length > 0)
                 {
-                    var fileName = Guid.NewGuid() + "_profile" + Path.GetExtension(instructor.profileImageFile.FileName);
-                    var filePath = Path.Combine("../MVC/wwwroot/Instructor_Images", fileName);
-                    Directory.CreateDirectory(Path.Combine("../MVC/wwwroot/Instructor_Images"));
-                    instructor.profileImage = fileName;
-                    using var stream = new FileStream(filePath, FileMode.Create);
-                    await instructor.profileImageFile.CopyToAsync(stream);
+                    try
+                    {
+                        using var stream = instructor.profileImageFile.OpenReadStream();
+                        var uploadParams = new ImageUploadParams
+                        {
+                            File = new FileDescription(instructor.profileImageFile.FileName, stream),
+                            Folder = "fitpro_instructorprofiles"
+                        };
+
+                        var uploadResult = await _cloudinary.UploadAsync(uploadParams);
+                        instructor.profileImage = uploadResult.SecureUrl.ToString();
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"[ERROR] Profile image upload failed: {ex.Message}");
+                        return ApiResponse(false, "Failed to upload profile image", statusCode: 500);
+                    }
                 }
 
                 // ID proof
                 if (instructor.idProofFile != null && instructor.idProofFile.Length > 0)
                 {
-                    var fileName = Guid.NewGuid() + "_idproof" + Path.GetExtension(instructor.idProofFile.FileName);
-                    var filePath = Path.Combine("../MVC/wwwroot/Id_Proof", fileName);
-                    Directory.CreateDirectory(Path.Combine("../MVC/wwwroot/Id_Proof"));
-                    instructor.idProof = fileName;
-                    using var stream = new FileStream(filePath, FileMode.Create);
-                    await instructor.idProofFile.CopyToAsync(stream);
+                    try
+                    {
+                        using var stream = instructor.idProofFile.OpenReadStream();
+                        var uploadParams = new ImageUploadParams
+                        {
+                            File = new FileDescription(instructor.idProofFile.FileName, stream),
+                            Folder = "fitpro_instructoridproofs"
+                        };
+
+                        var uploadResult = await _cloudinary.UploadAsync(uploadParams);
+                        instructor.idProof = uploadResult.SecureUrl.ToString();
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"[ERROR] ID proof upload failed: {ex.Message}");
+                        return ApiResponse(false, "Failed to upload ID proof", statusCode: 500);
+                    }
                 }
 
                 // Certificates
@@ -282,12 +325,23 @@ namespace API
                         {
                             if (file != null && file.Length > 0)
                             {
-                                var fileName = $"{Guid.NewGuid()}_{spec}{Path.GetExtension(file.FileName)}";
-                                var filePath = Path.Combine("../MVC/wwwroot/Certificates", fileName);
-                                Directory.CreateDirectory(Path.Combine("../MVC/wwwroot/Certificates"));
-                                using var stream = new FileStream(filePath, FileMode.Create);
-                                await file.CopyToAsync(stream);
-                                certificateDict[spec] = fileName;
+                                try
+                                {
+                                    using var stream = file.OpenReadStream();
+                                    var uploadParams = new ImageUploadParams
+                                    {
+                                        File = new FileDescription(file.FileName, stream),
+                                        Folder = $"fitpro_instructorcertificates/{spec}"
+                                    };
+
+                                    var uploadResult = await _cloudinary.UploadAsync(uploadParams);
+                                    certificateDict[spec] = uploadResult.SecureUrl.ToString();
+                                }
+                                catch (Exception ex)
+                                {
+                                    Console.WriteLine($"[ERROR] Certificate upload failed: {ex.Message}");
+                                    return ApiResponse(false, "Failed to upload certificates", statusCode: 500);
+                                }
                             }
                         }
                     }

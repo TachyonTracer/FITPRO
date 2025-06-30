@@ -1,6 +1,6 @@
 x-env-common: &env-common
   ASPNETCORE_URLS: "http://+:8080"
-  ConnectionStrings__RedisConnectionString: "${REDIS_CONNECTION}"
+  ConnectionStrings__RedisConnectionString: "${REDIS_CONNECTION_STRING}"
   RabbitMQ__HostName: "rabbitmq"
   RabbitMQ__UserName: "${RABBITMQ_USER}"
   RabbitMQ__Password: "${RABBITMQ_PASS}"
@@ -10,7 +10,7 @@ x-env-common: &env-common
   Jwt__Subject: "${JWT_SUBJECT}"
   ASPNETCORE_DATAPROTECTION__APPLICATIONNAME: "FitPro"
   ASPNETCORE_DATAPROTECTION__PERSISTKEYSTOFILESYSTEM: "/root/.aspnet/DataProtection-Keys"
-  ConnectionStrings__pgconn: "Server=${DB_HOST};Port=${DB_PORT};Database=${DB_NAME};UserId=${DB_USER};Password=${DB_PASS}"
+  ConnectionStrings__pgconn: "${DB_CONN}"
   RecaptchaSettings__SiteKey: "${RECAPTCHA_SITE_KEY}"
   RecaptchaSettings__SecretKey: "${RECAPTCHA_SECRET_KEY}"
   Smtp__smtpServer: "${SMTP_SERVER}"

@@ -1,5 +1,5 @@
-
-CREATE TABLE t_User (
+-- User and instructor tables
+CREATE TABLE IF NOT EXISTS t_user (
     c_userid SERIAL PRIMARY KEY,
     c_username VARCHAR(100),
     c_email VARCHAR(100) UNIQUE,
@@ -15,12 +15,12 @@ CREATE TABLE t_User (
     c_createdat TIMESTAMP WITHOUT TIME ZONE,
     c_status BOOLEAN DEFAULT FALSE,
     c_activationtoken VARCHAR(150),
-    c_activatedon TIMESTAMP WITHOUT TIME ZONE
+    c_activatedon TIMESTAMP WITHOUT TIME ZONE,
     c_balance DECIMAL(10,2) DEFAULT 0.00,
     c_reason VARCHAR(500)
 );
 
-CREATE TABLE t_Instructor (
+CREATE TABLE IF NOT EXISTS t_instructor (
     c_instructorid SERIAL PRIMARY KEY,
     c_instructorname VARCHAR(100),
     c_email VARCHAR(100) UNIQUE,
@@ -40,12 +40,11 @@ CREATE TABLE t_Instructor (
     c_reason VARCHAR(500)
 );
 
-
-
-CREATE TABLE t_Class (
+-- Class and booking tables
+CREATE TABLE IF NOT EXISTS t_class (
     c_classid SERIAL PRIMARY KEY,
     c_classname VARCHAR(100),
-    c_instructorid INT REFERENCES t_Instructor(c_instructorid) ON DELETE CASCADE,
+    c_instructorid INT REFERENCES t_instructor(c_instructorid) ON DELETE CASCADE,
     c_description JSON,
     c_type TEXT,
     c_startdate DATE,
@@ -64,15 +63,16 @@ CREATE TABLE t_Class (
     c_fees DECIMAL(10,2)
 );
 
-CREATE TABLE t_Bookings (
+CREATE TABLE IF NOT EXISTS t_bookings (
     c_bookingid SERIAL PRIMARY KEY,
-    c_userid INT REFERENCES t_User(c_userID) ON DELETE CASCADE,
-    c_classid INT REFERENCES t_Class(c_classid) ON DELETE CASCADE,
+    c_userid INT REFERENCES t_user(c_userid) ON DELETE CASCADE,
+    c_classid INT REFERENCES t_class(c_classid) ON DELETE CASCADE,
     c_createdat TIMESTAMP WITHOUT TIME ZONE,
-    c_waitlist INT DEFAULT 0,
+    c_waitlist INT DEFAULT 0
 );
 
-CREATE TABLE t_reset_password (
+-- Password reset and attendance
+CREATE TABLE IF NOT EXISTS t_reset_password (
     c_resetid SERIAL PRIMARY KEY,
     c_userid INT NOT NULL,
     c_otp INT NOT NULL,
@@ -82,12 +82,16 @@ CREATE TABLE t_reset_password (
     c_isused BOOLEAN DEFAULT FALSE
 );
 
+CREATE TABLE IF NOT EXISTS t_attendance (
+    c_attendanceid SERIAL PRIMARY KEY,
+    c_classid INT REFERENCES t_class(c_classid),
+    c_attendancedate DATE NOT NULL,
+    c_presentstudents INT[] NOT NULL,
+    c_absentstudents INT[] NOT NULL
+);
 
-
--- BlogPost Table Queries
-
--- 1. Blogpost Table
-CREATE TABLE t_blogpost (
+-- Blog tables
+CREATE TABLE IF NOT EXISTS t_blogpost (
     c_blog_id SERIAL PRIMARY KEY,
     c_blog_author_id INT NOT NULL,
     c_tags TEXT,
@@ -104,24 +108,21 @@ CREATE TABLE t_blogpost (
     c_source_url TEXT
 );
 
--- 2. Blog Likes Table
-CREATE TABLE t_blog_likes (
+CREATE TABLE IF NOT EXISTS t_blog_likes (
     c_like_id SERIAL PRIMARY KEY,
     c_blog_id INT NOT NULL REFERENCES t_blogpost(c_blog_id) ON DELETE CASCADE,
     c_user_id INT NOT NULL,
     c_liked_at BIGINT NOT NULL
 );
 
--- 3. Blog Bookmark Table
-CREATE TABLE t_blog_bookmark (
+CREATE TABLE IF NOT EXISTS t_blog_bookmark (
     c_bookmark_id SERIAL PRIMARY KEY,
     c_blog_id INT NOT NULL REFERENCES t_blogpost(c_blog_id) ON DELETE CASCADE,
     c_user_id INT NOT NULL,
     c_bookmarked_at BIGINT NOT NULL
 );
 
--- 4. Blog Comment Table
-CREATE TABLE t_blog_comment (
+CREATE TABLE IF NOT EXISTS t_blog_comment (
     c_comment_id SERIAL PRIMARY KEY,
     c_blog_id INT NOT NULL REFERENCES t_blogpost(c_blog_id) ON DELETE CASCADE,
     c_user_id INT NOT NULL,
@@ -131,8 +132,8 @@ CREATE TABLE t_blog_comment (
     c_user_role TEXT
 );
 
-
-CREATE TABLE t_feedback_instructor (
+-- Feedback tables
+CREATE TABLE IF NOT EXISTS t_feedback_instructor (
     c_feedbackid SERIAL PRIMARY KEY,
     c_userid INT,
     c_instructorid INT,
@@ -141,8 +142,7 @@ CREATE TABLE t_feedback_instructor (
     c_createdat TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-
-CREATE TABLE t_feedback_class (
+CREATE TABLE IF NOT EXISTS t_feedback_class (
     c_feedbackid SERIAL PRIMARY KEY,
     c_userid INT,
     c_classid INT,
@@ -151,155 +151,21 @@ CREATE TABLE t_feedback_class (
     c_createdat TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+-- Wallet transactions
+CREATE TABLE IF NOT EXISTS t_wallet_transactions (
+    c_transactionid SERIAL PRIMARY KEY,
+    c_userid INT REFERENCES t_user(c_userid),
+    c_amount DECIMAL(10, 2) NOT NULL,
+    c_type VARCHAR(20) NOT NULL,
+    c_description VARCHAR(255),
+    c_timestamp TIMESTAMP WITHOUT TIME ZONE NOT NULL
+);
 
+-- Sample feedback data
 INSERT INTO t_feedback_instructor (c_userid, c_instructorid, c_feedback, c_rating, c_createdat) VALUES
 (34, 5, 'Instructor Raj explained every step clearly. Bahut achha laga!', 5, '2025-04-09 10:15:00'),
-(41, 2, 'Neha ma’am was very professional and helpful.', 4, '2025-04-09 11:00:00');
-
+(41, 2, 'Neha ma''am was very professional and helpful.', 4, '2025-04-09 11:00:00');
 
 INSERT INTO t_feedback_class (c_userid, c_classid, c_feedback, c_rating, c_createdat) VALUES
 (34, 45, 'Yoga class tha shaandar! Energy full day ke liye mil gayi.', 5, '2025-04-09 09:45:00'),
 (41, 46, 'Zumba class was good but thoda loud music tha.', 3, '2025-04-09 10:30:00');
-
--- This script was generated by the ERD tool in pgAdmin 4.
--- Please log an issue at https://github.com/pgadmin-org/pgadmin4/issues/new/choose if you find any bugs, including reproduction steps.
-BEGIN;
-
-
-CREATE TABLE IF NOT EXISTS public.t_wallet_transactions
-(
-    c_transactionid serial NOT NULL,
-    c_userid integer NOT NULL,
-    c_amount numeric(10, 2) NOT NULL,
-    c_type character varying(20) COLLATE pg_catalog."default" NOT NULL,
-    c_description character varying(255) COLLATE pg_catalog."default",
-    c_timestamp timestamp without time zone NOT NULL,
-    CONSTRAINT t_wallet_transactions_pkey PRIMARY KEY (c_transactionid)
-);
-
-CREATE TABLE IF NOT EXISTS public.t_user
-(
-    c_userid serial NOT NULL,
-    c_username character varying(100) COLLATE pg_catalog."default",
-    c_email character varying(100) COLLATE pg_catalog."default",
-    c_password character varying(300) COLLATE pg_catalog."default",
-    c_mobile character varying(100) COLLATE pg_catalog."default",
-    c_gender character varying(100) COLLATE pg_catalog."default",
-    c_dob date,
-    c_height integer,
-    c_weight numeric(10, 2),
-    c_goal text COLLATE pg_catalog."default",
-    c_medicalcondition text COLLATE pg_catalog."default",
-    c_profileimage text COLLATE pg_catalog."default",
-    c_createdat timestamp without time zone,
-    c_status boolean DEFAULT false,
-    c_activationtoken character varying(150) COLLATE pg_catalog."default",
-    c_activatedon date,
-    c_balance numeric(10, 2),
-    c_reason character varying(500) COLLATE pg_catalog."default",
-    CONSTRAINT t_user_pkey PRIMARY KEY (c_userid),
-    CONSTRAINT t_user_c_email_key UNIQUE (c_email)
-);
-
-CREATE TABLE IF NOT EXISTS public.t_bookings
-(
-    c_bookingid serial NOT NULL,
-    c_userid integer,
-    c_classid integer,
-    c_createdat timestamp without time zone,
-    c_waitlist integer DEFAULT 0,
-    CONSTRAINT t_bookings_pkey PRIMARY KEY (c_bookingid)
-);
-
-CREATE TABLE IF NOT EXISTS public.t_class
-(
-    c_classid serial NOT NULL,
-    c_classname character varying(100) COLLATE pg_catalog."default",
-    c_instructorid integer,
-    c_description json,
-    c_type text COLLATE pg_catalog."default",
-    c_startdate date,
-    c_enddate date,
-    c_starttime time without time zone,
-    c_endtime time without time zone,
-    c_duration integer,
-    c_maxcapacity integer,
-    c_availablecapacity integer,
-    c_requiredequipments text COLLATE pg_catalog."default",
-    c_createdat timestamp without time zone,
-    c_status text COLLATE pg_catalog."default",
-    c_city text COLLATE pg_catalog."default",
-    c_address text COLLATE pg_catalog."default",
-    c_assets json,
-    c_fees numeric(10, 2),
-    CONSTRAINT t_class_pkey PRIMARY KEY (c_classid)
-);
-
-CREATE TABLE IF NOT EXISTS public.t_instructor
-(
-    c_instructorid serial NOT NULL,
-    c_instructorname character varying(100) COLLATE pg_catalog."default",
-    c_email character varying(100) COLLATE pg_catalog."default",
-    c_password character varying(300) COLLATE pg_catalog."default",
-    c_mobile character varying(100) COLLATE pg_catalog."default",
-    c_gender character varying(100) COLLATE pg_catalog."default",
-    c_dob date,
-    c_specialization text COLLATE pg_catalog."default",
-    c_certificates json,
-    c_profileimage text COLLATE pg_catalog."default",
-    c_association text COLLATE pg_catalog."default",
-    c_createdat timestamp without time zone,
-    c_status character varying(30) COLLATE pg_catalog."default" DEFAULT 'Unverified'::character varying,
-    c_idproof character varying(100) COLLATE pg_catalog."default",
-    c_activationtoken character varying(150) COLLATE pg_catalog."default",
-    c_activatedon timestamp without time zone,
-    c_reason character varying(500) COLLATE pg_catalog."default",
-    CONSTRAINT t_instructor_pkey PRIMARY KEY (c_instructorid),
-    CONSTRAINT t_instructor_c_email_key UNIQUE (c_email)
-);
-
-CREATE TABLE IF NOT EXISTS public.t_attendance
-(
-    c_attendanceid serial NOT NULL,
-    c_classid integer,
-    c_attendancedate date NOT NULL,
-    c_presentstudents integer[] NOT NULL,
-    c_absentstudents integer[] NOT NULL,
-    CONSTRAINT t_attendance_pkey PRIMARY KEY (c_attendanceid)
-);
-
-ALTER TABLE IF EXISTS public.t_wallet_transactions
-    ADD CONSTRAINT t_wallet_transactions_c_userid_fkey FOREIGN KEY (c_userid)
-    REFERENCES public.t_user (c_userid) MATCH SIMPLE
-    ON UPDATE NO ACTION
-    ON DELETE NO ACTION;
-
-
-ALTER TABLE IF EXISTS public.t_bookings
-    ADD CONSTRAINT t_bookings_c_classid_fkey FOREIGN KEY (c_classid)
-    REFERENCES public.t_class (c_classid) MATCH SIMPLE
-    ON UPDATE NO ACTION
-    ON DELETE CASCADE;
-
-
-ALTER TABLE IF EXISTS public.t_bookings
-    ADD CONSTRAINT t_bookings_c_userid_fkey FOREIGN KEY (c_userid)
-    REFERENCES public.t_user (c_userid) MATCH SIMPLE
-    ON UPDATE NO ACTION
-    ON DELETE CASCADE;
-
-
-ALTER TABLE IF EXISTS public.t_class
-    ADD CONSTRAINT t_class_c_instructorid_fkey FOREIGN KEY (c_instructorid)
-    REFERENCES public.t_instructor (c_instructorid) MATCH SIMPLE
-    ON UPDATE NO ACTION
-    ON DELETE CASCADE;
-
-
-ALTER TABLE IF EXISTS public.t_attendance
-    ADD CONSTRAINT t_attendance_c_classid_fkey FOREIGN KEY (c_classid)
-    REFERENCES public.t_class (c_classid) MATCH SIMPLE
-    ON UPDATE NO ACTION
-    ON DELETE NO ACTION;
-
-END;

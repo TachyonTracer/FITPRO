@@ -8,11 +8,16 @@ using Npgsql;
 using Repo;
 using Stripe;
 using StackExchange.Redis;
-
+using CloudinaryDotNet;
+using CloudinaryDotNet.Actions;
+using dotenv.net;
 var builder = WebApplication.CreateBuilder(args);
 
-// --- Service Registration (SOLID: Single Responsibility) ---
-
+DotEnv.Load(options: new DotEnvOptions(probeForEnv: true));
+builder.Services.AddSingleton<Cloudinary>(sp => 
+    new Cloudinary(Environment.GetEnvironmentVariable("CLOUDINARY_URL")));
+Cloudinary cloudinary = new Cloudinary(Environment.GetEnvironmentVariable("CLOUDINARY_URL"));
+cloudinary.Api.Secure = true;
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddControllers();
 builder.Services.AddSignalR();
