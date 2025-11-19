@@ -18610,7 +18610,7 @@ const NS = () => {
               "mask-clip-path about-image relative mx-auto h-72 w-72 overflow-hidden rounded-xl md:h-96 md:w-96",
             children: [
               w.jsx("img", {
-                src: "img/about.webp",
+                src: "./Assets/about.webp",
                 alt: "Fitness Community Background",
                 className: "absolute left-0 top-0 size-full object-cover",
               }),
@@ -19008,7 +19008,7 @@ const AS = () => {
           },
         });
     });
-  const p = (v) => `./videos/hero-${v}.mp4`;
+  const p = (v) => `./Assets/hero-${v}.mp4`;
   return w.jsxs("div", {
     id: "home",
     className:
@@ -19394,7 +19394,7 @@ const HS = [
                       w.jsx("audio", {
                         ref: l,
                         className: "hidden",
-                        src: "/audio/loop.mp3",
+                        src: "./Assets/loop.mp3",
                         loop: !0,
                         preload: "auto",
                       }),
@@ -19760,7 +19760,7 @@ const ho = ({ children: t, className: e = "", index: n }) => {
               className:
                 "relative mb-7 h-96 w-full overflow-hidden rounded-xl border border-gray-800 md:h-[65vh]",
               children: w.jsx(wa, {
-                src: "videos/feature-1.mp4",
+                src: "./Assets/feature-1.mp4",
                 title: w.jsxs(w.Fragment, {
                   children: ["ELITE", w.jsx("b", { children: "STRENGTH" })],
                 }),
@@ -19778,7 +19778,7 @@ const ho = ({ children: t, className: e = "", index: n }) => {
                   className:
                     "h-80 md:h-96 overflow-hidden rounded-xl border border-gray-800 hover:shadow-xl hover:shadow-blue-900/10 transition-shadow duration-300",
                   children: w.jsx(wa, {
-                    src: "videos/feature-2.mp4",
+                    src: "./Assets/feature-2.mp4",
                     title: w.jsxs(w.Fragment, {
                       children: ["MASTER", w.jsx("b", { children: "CLASS" })],
                     }),
@@ -19793,7 +19793,7 @@ const ho = ({ children: t, className: e = "", index: n }) => {
                   className:
                     "h-80 md:h-96 overflow-hidden rounded-xl border border-gray-800 hover:shadow-xl hover:shadow-blue-900/10 transition-shadow duration-300",
                   children: w.jsx(wa, {
-                    src: "videos/feature-3.mp4",
+                    src: "./Assets/feature-3.mp4",
                     title: w.jsxs(w.Fragment, {
                       children: ["CARDIO", w.jsx("b", { children: "CORE" })],
                     }),
@@ -19808,7 +19808,7 @@ const ho = ({ children: t, className: e = "", index: n }) => {
                   className:
                     "h-80 md:h-96 overflow-hidden rounded-xl border border-gray-800 hover:shadow-xl hover:shadow-blue-900/10 transition-shadow duration-300",
                   children: w.jsx(wa, {
-                    src: "videos/feature-4.mp4",
+                    src: "./Assets/feature-4.mp4",
                     title: w.jsxs(w.Fragment, {
                       children: ["FLEX", w.jsx("b", { children: "MOBILITY" })],
                     }),
@@ -19869,7 +19869,7 @@ const ho = ({ children: t, className: e = "", index: n }) => {
                     "final-cta col-span-1 md:col-span-2 h-72 overflow-hidden rounded-xl border border-gray-800 hover:shadow-xl hover:shadow-blue-900/10 transition-shadow duration-300",
                   children: [
                     w.jsx("video", {
-                      src: "videos/feature-5.mp4",
+                      src: "./Assets/feature-5.mp4",
                       loop: !0,
                       muted: !0,
                       autoPlay: !0,
@@ -19972,7 +19972,7 @@ const ho = ({ children: t, className: e = "", index: n }) => {
                       onMouseLeave: n,
                       onMouseUp: n,
                       onMouseEnter: n,
-                      src: "/img/entrance.webp",
+                      src: "./Assets/entrance.webp",
                       alt: "Entrance to a Healthy Life",
                       className:
                         "object-contain rounded-lg shadow-lg transition-transform duration-300 ease-in-out",
@@ -20055,11 +20055,11 @@ const ho = ({ children: t, className: e = "", index: n }) => {
               "absolute -left-20 top-0 hidden h-full w-72 overflow-hidden sm:block lg:left-20 lg:w-96",
             children: [
               w.jsx(Vc, {
-                src: "/img/contact-1.webp",
+                src: "./Assets/contact-1.webp",
                 clipClass: "contact-clip-path-1",
               }),
               w.jsx(Vc, {
-                src: "/img/contact-2.webp",
+                src: "./Assets/contact-2.webp",
                 clipClass:
                   "contact-clip-path-2 lg:translate-y-40 translate-y-60",
               }),
@@ -20069,7 +20069,7 @@ const ho = ({ children: t, className: e = "", index: n }) => {
             className:
               "absolute -top-40 left-20 w-60 sm:top-1/2 md:left-auto md:right-10 lg:top-20 lg:w-80",
             children: w.jsx(Vc, {
-              src: "/img/swordman.webp",
+              src: "./Assets/swordman.webp",
               clipClass: "sword-man-clip-path md:scale-125",
             }),
           }),
